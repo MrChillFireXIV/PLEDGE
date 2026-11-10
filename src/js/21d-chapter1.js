@@ -64,7 +64,7 @@ async function c1IntroCine(done){if(!TRUCK)TRUCK=mkTruck();const TX=69,Z0=230,Z1
   // 1) V262 houses once from outside, then CUT to a windshield shot (camera ahead of the truck, looking in at the two of them) for the whole conversation
   const H=B.find(b=>b.id==='asr'),hx=H?H.ex:90.7,CAB=GFX==='enhanced'&&!!TRUCK.userData.cabOrig;
   const EDF={name:'Big Ed Kowalski',title:ED,isP:0,lvl:9,tall:0,prop:0,g:TRUCK,get x(){return TRUCK.position.x},get z(){return TRUCK.position.z}};   /* stand-in speaker so the normal conversation box can be used from inside the truck */
-  const ride=(text,ch,z0,z1,dur)=>{const drv=cineDrive(z0,z1,dur,{ease:'lin'});return new Promise(res=>openWheel({title:'Big Ed Kowalski',sp:ED+' · driving',text,story:1,focus:EDF,ch:(ch||[['Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';SCENE=null;$('card').classList.remove('scene');document.body.classList.add('cine');res(f?f():0)}])})).then(async v=>{await drv;return v})};
+  const ride=(text,ch,z0,z1,dur)=>{const zs=TRUCK.position.z>z1?TRUCK.position.z:z0,drv=cineDrive(zs,z1,Math.max(.5,dur*Math.abs(z1-zs)/Math.max(.01,Math.abs(z1-z0))),{ease:'lin'});   /* V291 keeps rolling from where the truck is, same speed; the next line opens as soon as Danny answers */return new Promise(res=>openWheel({title:'Big Ed Kowalski',sp:ED+' · driving',text,story:1,focus:EDF,ch:(ch||[['Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';SCENE=null;$('card').classList.remove('scene');document.body.classList.add('cine');res(f?f():0)}])}))};
   if(CAB){CINE.camf=(dt,tx,tz)=>{cam.position.set(tx-9,3.5,tz+10);cam.lookAt(hx-4,3,tz-12)};await cineDrive(Z1,84,6.5,{ease:'lin'});
     truckCabOn(TRUCK,true);cabPeople(TRUCK);cam.fov=40;cam.updateProjectionMatrix();CINE.cabT=0;CINE.cabAnim=1;CINE.ride=1;CINE.camf=cabCamSet}
   else{CINE.ride=1;CINE.camf=(dt,tx,tz)=>{cam.position.set(tx-6.2,2.7,tz+7.5);cam.lookAt((tx+hx)/2+2,2.4,tz-4)}}
@@ -74,7 +74,7 @@ async function c1IntroCine(done){if(!TRUCK)TRUCK=mkTruck();const TX=69,Z0=230,Z1
   await ride('"See that window? Second floor? I hung outta that window for a whole Homecoming game. Upside down. Two guys holding my ankles. We won by three. …Those were my brothers, Danny. You find guys like that, you hang on to \'em."',[['"…I will, Dad."',null]],SG[2][0],SG[2][1],SG[2][2]);
   await ride('"OKAY. Enough of that. You don\'t roll up to your own fraternity outta your old man\'s truck like some freshman. I\'m droppin\' you at your dorm. You walk in like a MAN."',[['"I AM a freshman."',null]],SG[3][0],SG[3][1],SG[3][2]);
   CINE.ride=0;cabEnd();
-  CINE.camf=(dt,tx,tz)=>{cam.position.set(tx+6,3.2,tz+12);cam.lookAt(tx,1.6,tz-4)};tone(150,.12,'square',.05);await cineDrive(CAB?28:36,20,3.2,{ease:'in'});
+  CINE.camf=(dt,tx,tz)=>{cam.position.set(tx+6,3.2,tz+12);cam.lookAt(tx,1.6,tz-4)};tone(150,.12,'square',.05);{const zc=Math.max(TRUCK.position.z,CAB?28:36);await cineDrive(zc,20,Math.max(3.2,(zc-20)/9),{ease:'in'})}
   // 2) West Daniels Street, outside Daniels Hall
   $('fade').style.opacity=1;await cineWait(.5);
   const RZ=287.4,DX0=698,DX1=652,TZ=RZ-1.2;TRUCK.rotation.y=-PI/2;TRUCK.position.set(DX0,terrH(DX0,TZ),TZ);P.x=DX1;P.z=RZ-3.6;
