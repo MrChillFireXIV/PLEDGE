@@ -18,7 +18,7 @@ One-line purpose per file, in load order (`src/order.txt`). Sizes are in KB, and
 | 03-materials-facades | 27 | `mt` `bm` `box` `cyl` `ctex` caches, facades, `signMesh` |
 | 04-world-geometry | 34 | `bld` `flat` `road` `path`, trees, fences, `B` (building list), lake constants |
 | 05-campus-base | 31 | polygon tools, columns/stairs, `terrH` |
-| 06-campus-tuc-paving | 54 | ground bake, `buildCampus` |
+| 06-campus-tuc-paving | 58 | ground bake, `buildCampus`, Daniels Hall `danielsX` (glass ground floor, piers, canopy) |
 | 07-campus-decks-buildings | 35 | walkable decks (`deckY`, `mvOK`), footbridges, TUC |
 | 08-campus-zimmer-ccm | 57 | west-campus buildings |
 | 09-campus-nippert, 09b-clifton-court | 16+21 | stadium; Clifton Court Hall |

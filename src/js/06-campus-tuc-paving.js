@@ -183,10 +183,11 @@ function buildCampus(){
         else if(K==='langsam'){prism(p,0,4,'glass',0x6c6a64,{holes,solid:false});prism(p,4,h-4,b.s,0x6c6a64,o);markPoly(p,h)}
         else if(K==='arena'){prism(p,0,8,'glass',0x6c6a64,{holes,solid:false});prism(p,8,h-8,'darkM',0xdedcd6,o);markPoly(p,h)}
         else if(K==='westpav'){wpavX(b,p,h)}
+        else if(b.s==='daniels'){danielsX(b,p,h,holes,fp,fn)}
         else if(K==='zimmer'){prism(p,0,h,'rieve',SM({map:zimPave2(),roughness:.85}),o)}
         else if(b.pp){for(const r of b.pp)prism(gpoly(r),0,h,b.s,0x5a5c62,{});{const M=mcPass(b);prism(gpoly(b.arch),M.yc,h-M.yc,b.s,0x5a5c62,{solid:false})}}   // McMicken: walk-through passage under the centre
         else prism(p,0,h,b.s,b.s==='stone'?0x7a7468:b.s==='daapO'?0xdcdad4:0x5a5c62,o)}
-    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb)markPoly(pp,hh)})}
+    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:b.s==='daniels'?DANY:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb)markPoly(pp,hh)})}
     // roofs: hips on simple blocks, stepped hips on the irregular old brick halls, plant rooms on big flat roofs
     if(!(b.r==='hip'&&b.rn>.72)&&!b.ir&&!b.brz&&b.u&&!['garage','roof','tuc','crc','steger','morgens','cch','daap'].includes(b.s))coping(main,h,/brick|bald|stone|diet|lind|steger/.test(String(b.s))?0xd6cebc:0xb9b5ac);
     if(b.r==='hip'&&b.rn>.72&&b.s!=='roof')hipOnRect(b.rect,h,b.rh?Math.min(b.rh,Math.min(b.rect[2],b.rect[3])*.55):Math.min(b.u?5.5:4,Math.min(b.rect[2],b.rect[3])*(b.u?.28:.42)),b.u?0x3c4150:RC[(B.length*7)%RC.length]);
@@ -359,3 +360,38 @@ function braunDoor(X,Z,gy,D,DW,DH){const st=SM({color:0xd2c9b2,roughness:.85}),s
     for(let rr=0;rr<3;rr++)for(let c=0;c<2;c++)add(bgeo(.4,.38,.02),gl,cx+(c-.5)*.48,gy+.45+rr*.52,dz+.05);
     add(bgeo(.05,.05,.12),gd,X+s*.12,gy+1.1,dz+.1);add(new THREE.BoxGeometry(.05,.55,.05),gd,X+s*.18,gy+1.1,dz+.16)}
   add(bgeo(.03,lh,.1),SM({color:0x2a2216}),X,gy+lh/2,dz+.01)}
+// ---- V293 Daniels Hall (1960s brick dorm tower): an open ground floor of glass set back behind brick piers, a light concrete canopy
+// band all the way round at the first-floor line, the entrance with DANIELS HALL letters on the brick above it, a pale band at the top
+const DANY=4.6;   /* height of the glass ground floor; the brick tower starts here */
+function danOff(p,d){/* offset a closed polygon outward by d (inward when d<0), mitred corners */let A=0;for(let i=0;i<p.length;i++){const[a,b]=p[i],[c,e]=p[(i+1)%p.length];A+=a*e-c*b}const sg=A>0?1:-1,n=p.length,N=[];
+  for(let i=0;i<n;i++){const[a,b]=p[i],[c,e]=p[(i+1)%n],L=Math.hypot(c-a,e-b)||1;N.push([sg*(e-b)/L,-sg*(c-a)/L])}
+  return p.map(([x,z],i)=>{const n0=N[(i-1+n)%n],n1=N[i];let mx=n0[0]+n1[0],mz=n0[1]+n1[1];const k=mx*n1[0]+mz*n1[1];if(Math.abs(k)<.2)return[x+n1[0]*d,z+n1[1]*d];return[x+mx/k*d,z+mz/k*d]})}
+function danielsX(b,p,h,holes,fp,fn){const Y=DANY,BRK=fm('daniels'),CON=mt(0xd9dad7,.8),SOF=mt(0xbfbdb7,.9),FR=mt(0x2a2a2c,.5,.3);
+  prism(danOff(p,-1.6),0,Y,'glass',0x55534f,{solid:false});            // glass ground floor, set back under the tower
+  prism(p,Y,h-Y,'daniels',0x5a5c62,{holes,solid:false});                // brick tower above it
+  prism(danOff(p,.9),Y-.95,.95,CON,SOF,{solid:false});                    // light concrete canopy band round the building
+  markPoly(p,h);
+  // brick piers: every corner and about every 6 m along the walls, from the ground up into the brick
+  for(let i=0;i<p.length;i++){const[ax,az]=p[i],[bx,bz]=p[(i+1)%p.length],L=Math.hypot(bx-ax,bz-az);if(L<1.2)continue;const ux=(bx-ax)/L,uz=(bz-az)/L,ry=Math.atan2(ux,uz)+PI/2,k=Math.max(1,Math.round(L/6));
+    for(let j=0;j<=k;j++){const t=Math.min(L-.55,Math.max(.55,j*L/k)),x=ax+ux*t,z=az+uz*t,m=new THREE.Mesh(bgeo(1.1,Y-.9,1.6),BRK);const sgn=inPoly(x+uz*.5,z-ux*.5,p)?1:-1;   /* inward normal, so the pier's face lines up with the brick wall above */
+      m.position.set(x+uz*.75*sgn,(Y-.9)/2,z-ux*.75*sgn);m.rotation.y=ry;m.castShadow=true;m.receiveShadow=true;sc.add(m)}}
+  // uphill walls: the building stands at its front-door level (the low east side), so on the north and west the ground is up to ~5 m higher
+  // and buries the glass floor. There the same ground floor (glass, brick piers, canopy) is added again at the local ground level, stepping with the slope.
+  if(fp&&fn){const lv=terrH(fp[0]+fn[0]*1.6,fp[1]+fn[1]*1.6),GL=fm('glass'),H1=DANY-.95;
+    for(let i=0;i<p.length;i++){const[ax,az]=p[i],[bx,bz]=p[(i+1)%p.length],L=Math.hypot(bx-ax,bz-az);if(L<1.2)continue;const ux=(bx-ax)/L,uz=(bz-az)/L,ry=Math.atan2(ux,uz)+PI/2,k=Math.max(1,Math.round(L/6)),sl=L/k;
+      const sgn=inPoly((ax+bx)/2+uz*.5,(az+bz)/2-ux*.5,p)?1:-1,ox=-uz*sgn,oz=ux*sgn;   /* outward normal */
+      for(let j=0;j<k;j++){const t0=j*sl,t1=t0+sl,mx=ax+ux*(t0+t1)/2,mz=az+uz*(t0+t1)/2;
+        const g=Math.max(terrH(ax+ux*t0+ox*.6,az+uz*t0+oz*.6),terrH(ax+ux*t1+ox*.6,az+uz*t1+oz*.6),terrH(mx+ox*.6,mz+oz*.6))-lv;if(g<1.2)continue;
+        const gl=new THREE.Mesh(bgeo(sl,H1+.6,.12),GL);gl.position.set(mx+ox*.07,g-.6+(H1+.6)/2,mz+oz*.07);gl.rotation.y=ry;sc.add(gl);
+        const cn=new THREE.Mesh(bgeo(sl+.02,.95,1.0),CON);cn.position.set(mx+ox*.48,g+H1+.475,mz+oz*.48);cn.rotation.y=ry;cn.castShadow=true;sc.add(cn);
+        for(const t of[t0,t1]){const tt=Math.min(L-.55,Math.max(.55,t)),px=ax+ux*tt,pz=az+uz*tt,pm=new THREE.Mesh(bgeo(1.1,H1+.6,.7),BRK);pm.position.set(px+ox*.34,g-.6+(H1+.6)/2,pz+oz*.34);pm.rotation.y=ry;pm.castShadow=true;pm.receiveShadow=true;sc.add(pm)}}}}
+  // entrance on the front face: deeper canopy over glass doors, DANIELS HALL in steel letters on the brick
+  if(fp&&fn){const ry=Math.atan2(fn[0],fn[1]),tx=-fn[1],tz=fn[0],[x,z]=fp;
+    const dr=new THREE.Mesh(bgeo(4.4,2.7,.12),fm('glass'));dr.position.set(x-fn[0]*1.5,1.35,z-fn[1]*1.5);dr.rotation.y=ry;sc.add(dr);
+    for(const s of[-2.2,-.73,.73,2.2]){const f=new THREE.Mesh(bgeo(.1,2.8,.16),FR);f.position.set(x-fn[0]*1.45+tx*s,1.4,z-fn[1]*1.45+tz*s);f.rotation.y=ry;sc.add(f)}
+    const tr=new THREE.Mesh(bgeo(4.5,.12,.18),FR);tr.position.set(x-fn[0]*1.45,2.8,z-fn[1]*1.45);tr.rotation.y=ry;sc.add(tr);
+    const cn=new THREE.Mesh(bgeo(6.2,.45,2.6),CON);cn.position.set(x+fn[0]*.2,Y-1.2,z+fn[1]*.2);cn.rotation.y=ry;cn.castShadow=true;sc.add(cn);
+    const L=letters('DANIELS  HALL',5.4,.62,'#c9ccd0');L.position.set(x+fn[0]*.06,Y+1.05,z+fn[1]*.06);L.rotation.y=ry;sc.add(L)}
+  // pale concrete band along the top of the tower
+  if(b.up)for(const[ring,hh]of b.up){const pp=gpoly(ring);prism(danOff(pp,.12),hh-1.4,1.4,CON,0xcfcdc6,{solid:false})}}
+
