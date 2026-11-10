@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PLEDGE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Graduate&family=Kalam:wght@400;700&display=swap">
+{{CSS}}
+
+<div id="loading">LOADING CAMPUS…</div>
+<div id="hud" hidden>
+  <div id="compass"><canvas id="cmpc" width="560" height="34"></canvas></div>
+  <div id="tl" class="patch"><span id="tlico">📓</span><div class="lbl" id="chap">Chapter 1 · Rush Week</div><div id="when">Sun 3:00 PM</div><div id="mq"><span class="lbl" id="mql">★ Main quest</span><div id="mqt"></div></div><div id="sched"></div><div id="remind" hidden></div></div>
+  <div id="obj" class="patch" hidden><div class="lbl" id="mname"></div><div id="otext"></div></div>
+  <div id="tr"><canvas id="mini" width="240" height="240"></canvas>
+    <div class="trow"><div id="trouble" class="patch"><span class="lbl">Trouble</span><i></i><i></i><i></i><i></i></div></div>
+    <div id="rolep" class="patch" hidden><canvas id="rolei" width="64" height="64"></canvas><div><div class="lbl" id="rolen"></div><div id="roles"></div><div id="rolek"><kbd>T</kbd><span id="rolea"></span></div></div></div></div>
+  <div id="bl" class="patch"><div id="cash">Cash $5</div><div class="row"><span class="lbl">Danny Kowalski</span><span class="lbl" id="lv">Lv 1</span></div>
+    <div class="bar thin xp"><b id="xpb" style="background:linear-gradient(90deg,#b08a3a,#f2d06a)"></b></div>
+    <div class="bar"><b id="hpb" style="background:linear-gradient(90deg,#a3232a,#e2584a)"></b></div><div class="bar thin"><b id="stb" style="background:linear-gradient(90deg,#3c8a52,#7fd07a)"></b></div>
+    <div id="tips">Tab: Planner · F: Punch · R: Block · B: Bike · E: Interact</div></div>
+  <div id="slots"><button class="slot" id="s0"><i>1</i><span></span><small></small></button><button class="slot" id="s1"><i>2</i><span></span><small></small></button><button class="slot" id="s2"><i>3</i><span></span><small></small></button></div>
+  <div id="prompt" class="patch" hidden></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="big"></div>
+  <div id="evhud" class="patch" hidden></div>
+</div>
+<div id="vig"></div><div id="flash"></div><div id="fade"></div><button id="cineskip" hidden>Skip (Esc)</button><div id="wheel" hidden><div id="wbal"><div id="wname"></div><div id="wrel"><span id="wrl"></span><div class="rb"><b id="wrb"></b></div></div><div id="wline"></div></div><div id="wpills"></div></div><div id="pola" hidden><div class="pf"><img id="polaimg" alt=""><div id="polacap"></div></div></div><div id="fps" role="button" tabindex="0" title="Click to hide performance stats">-- FPS</div>
+<div id="card" class="overlay" hidden><div class="paper" role="dialog" aria-modal="true" aria-labelledby="ct"><div class="ctitle" id="ct"></div><div class="csp" id="csp"></div><div class="ctext" id="cx"></div><div class="choices" id="cb"></div></div></div>
+<div id="mg" class="overlay" hidden><div class="board"><div class="lbl" id="mgsub"></div><div class="mgtitle" id="mgt"></div><div id="mgb"></div></div></div>
+<div id="planner" class="overlay" hidden><div class="note"><div class="ntabs" id="ntabs"></div><div class="npage" id="npage"></div></div><div id="mapnote" hidden role="dialog" aria-labelledby="mnt"><div class="mnpaper"><div class="ctitle" id="mnt"></div><div class="csp" id="mnsp"></div><div class="ctext" id="mntx"></div><div class="mnkey" id="mnkey"></div><div class="choices"><button id="mnok" type="button">Got it</button></div></div></div></div>
+<div id="chapsel" class="overlay" hidden><div class="paper chpaper" role="dialog" aria-modal="true" aria-labelledby="chtitle"><div class="ctitle" id="chtitle">Chapters</div><div class="csp">Pick a task to start from. It begins a new run at that point and replaces your saved game. Tasks you have not done yet are locked: double tap one to unlock it.</div><div id="chapbody"></div><div class="choices"><button class="btn ghost" id="chapback" type="button">Back</button></div></div></div>
+<div id="title" class="overlay" hidden><div class="tbox">
+  <div id="slotsel" hidden></div>
+  <div class="pennant"><h1>PLEDGE</h1></div>
+  <p class="tsub">Harrowgate University, fall semester. Go to class, run with the cliques, stay ahead of campus police, and earn your Alpha Sigma Rho letters, if you still want them by the end.</p>
+  <div class="tbtns"><button class="btn" id="bnew">Start</button><button class="btn ghost" id="bhow">Controls</button></div>
+</div></div>
+<div id="touch" hidden><div id="stick"><div id="knob"></div></div>
+  <div id="tbtns"><button id="bact" data-k="KeyE">ACT</button><button id="bhit" data-k="KeyF">Hit</button><button id="bjump" data-k="Space">Jump</button><button id="broll" data-k="KeyQ">Roll</button><button id="bblk" aria-label="Block (hold)">Block</button><button id="bmore" aria-label="More actions">⋯</button><div id="ttray" hidden><button data-k="ShiftLeft" data-toggle="1">Run</button><button data-k="KeyC" data-toggle="1">Sneak</button><button data-k="KeyB">Bike</button><button data-k="KeyV">Cam</button><button data-k="KeyZ" id="bmed">Meditate</button></div></div></div>
+
+{{THREE}}
+{{JS}}
+
+</body></html>

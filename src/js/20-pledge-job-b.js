@@ -1,0 +1,198 @@
+// ---------------------------------------------------------------- T: each job's own move (V172: was R; R / right click is Block)
+function prHitN(n,dmg,stun,kb){const unprov=!n.aggro&&!n.foe&&!n.def&&n.tgt!=='P';if(unprov&&!n.temp&&!n.auth)relAdd(n,-15);
+  if(unprov&&!n.temp){if(n.auth)trouble(100);else{if(n.cl==='brothers')stand(n.named?-6:-3);else if(S.rep[n.cl]!=null)rep(n.cl,n.named?-6:-4);if(NP.some(m=>m.auth&&m.dp<26&&canSee(m,26)))trouble(35)}}
+  P.lastHit=n;P.lastHitT=TT;hitNPC(n,dmg,'P');if(!n.down){n.stun=Math.max(n.stun,stun);if(kb){const dx=n.x-P.x,dz=n.z-P.z,l=Math.hypot(dx,dz)||1;if(freeAt(n.x+dx/l*kb,n.z+dz/l*kb,.32)){n.x+=dx/l*kb;n.z+=dz/l*kb}}}if(n.auth&&!n.down){n.chase=1;n.aggro=0}}
+function prFront(r,cos,all){const fx=Math.sin(P.face),fz=Math.cos(P.face);return NP.filter(n=>{if(n.down||n.mute||n.ally||n.follow||n.actor||n.hidden||n.kid||!n.g.visible||(n.int||null)!==(P.inside||null))return false;const dx=n.x-P.x,dz=n.z-P.z,d=Math.hypot(dx,dz);return d<r&&(all||d<.6||(dx*fx+dz*fz)/d>cos)})}
+const prNearN=(d,f)=>NP.filter(n=>!n.down&&!n.kid&&!n.hidden&&n.g.visible&&!n.actor&&!n.statue&&(n.int||null)===(P.inside||null)&&n.dp<=d&&(!f||f(n)));
+function prAbility(){if(mode!=='play'||!S.pledged||!S.prole||EV||P.kart||P.med||CINE)return;const k=S.prole,r=RS();if((r.cd||0)>TT){if(k!=='stats')toast(PR[k].ab+' is recharging…',1000);return}
+  if(k==='popstar'){if(P.inside&&!NP.some(n=>n.int===P.inside&&n.dp<12)){}r.cd=TT+22;P.sing=4.2;prMelody(10,587);big('♪ ENCORE ♪',900);
+    setTimeout(()=>{if(mode!=='play')return;let tip=0,calm=0,fans=0;const day=S.day;r.tip=r.tip&&r.tipD===day?r.tip:{};r.tipD=day;r.tipSum=r.tipD===day?(r.tipSum||0):0;
+      for(const n of NP){if(n.down||n.hidden||!n.g.visible||(n.int||null)!==(P.inside||null)||n.dp>12)continue;if(n.aggro&&n.tgt==='P'){if(rnd()<.6){n.aggro=0;n.tgt=null;n.stun=1;bubble(n,pick(['...okay. That was beautiful.','I can\'t hit a man mid-chorus.','Is that... a key change?']),2.4);calm++}continue}
+        if(n.auth||n.temp||n.actor)continue;if(r.tip[n.uid]){bubble(n,pick(['Heard it already.','Again? Really?']),1.8);continue}r.tip[n.uid]=1;fans++;const a=Math.round((n.cl==='legacies'?1.4:n.cl==='townies'?.3:n.cl==='sororities'?.9:.6)*(.6+rnd()*.9)*4)/4;if(r.tipSum+tip+a<=15)tip+=a;bubble(n,pick(['ENCORE!','Sing it, pledge!','Okay, he can SING.','♪♪♪','Bravo!','Is this a flash mob?']),2.2);relAdd(n,1);if(n.cl==='sororities')rep('sororities',1)}
+      if(tip>0){r.tipSum+=tip;money(tip)}toast(fans||calm?`${fans} listener${fans===1?'':'s'}${tip>0?' tipped '+money$(tip):''}${calm?`, ${calm} fight${calm===1?'':'s'} called off`:''}.${r.tipSum>=15?' (Tip jar is full for today.)':''}`:'You sing to nobody. It still sounds great.',3200);if(fans>=3)gainXP(4)},1600)}
+  else if(k==='stats'){r.cd=TT+.4;const now=(r.pend||[]).filter(e=>TT-e.t<8);r.pend=[];prMarkClear();if(!now.length){toast('Nothing to count. Yet. Watch for the ✎.',1600);return}
+    const L=r.led||(r.led={bong:0,women:0,beers:{}});let b=0,h=0,w=0;const who={};for(const e of now){if(e.k==='beer'){b++;L.beers[e.who]=(L.beers[e.who]||0)+1;who[e.who]=(who[e.who]||0)+1}else if(e.k==='bong'){h++;L.bong++}else{w++;L.women++}}
+    r.since=(r.since||0)+now.length;tone(1200,.05,'square',.04);tone(1500,.07,'square',.04,.06);gainXP(now.length);
+    toast('Tallied: '+[b?`${b} beer${b>1?'s':''} (${Object.entries(who).map(([n,c])=>n+(c>1?' ×'+c:'')).join(', ')})`:'',h?`${h} bong hit${h>1?'s':''}`:'',w?`${w} wom${w>1?'en':'an'} at the party`:''].filter(Boolean).join(' · '),3200)}
+  else if(k==='skate'){if(!prSk())return;const sp=Math.hypot(P.vx,P.vz);if(P.jy>0||P.jv!==0)return;if(sp<1.5){toast('Get rolling first.',1000);return}r.cd=TT+.55;P.jv=5.9;P.trick={k:pick(['kick','heel','shove','360']),t:0,dur:.62};tone(300,.05,'square',.05);noise(.05,.15,3000)}
+  else if(k==='burglar'){const fx=Math.sin(P.face),fz=Math.cos(P.face);let best=null,bd=1.9;for(const n of NP){if(n.down||n.kid||n.aggro||n.chase||n.hidden||!n.g.visible||n.pclass||n.ally||n.follow||n.actor||n.statue||(n.int||null)!==(P.inside||null))continue;const d=Math.hypot(n.x-P.x,n.z-P.z);if(d<bd&&((n.x-P.x)*fx+(n.z-P.z)*fz)/(d||1)>.2){bd=d;best=n}}
+    if(!best){toast('Nobody close enough to pickpocket. Get right behind someone.',1800);return}r.cd=TT+2.5;r.pick=r.pick&&r.pickD===S.day?r.pick:{};r.pickD=S.day;if(r.pick[best.uid]){toast(best.name+'\'s pockets are already empty.',1600);return}r.pick[best.uid]=1;
+    const dx=P.x-best.x,dz=P.z-best.z,d=Math.hypot(dx,dz)||1,front=(dx*Math.sin(best.a)+dz*Math.cos(best.a))/d,ok=rnd()<(front<.2?.86:.25)*(K.KeyC||toggles.KeyC?1.1:1);
+    if(ok){const a=Math.round((best.cl==='legacies'?4+rnd()*7:best.cl==='sororities'?2+rnd()*4:best.cl==='townies'?.5+rnd()*1.5:best.auth?1+rnd()*3:1+rnd()*3)*4)/4;money(a);noise(.04,.08,4000);toast(`You lift ${money$(a)} from ${best.name.replace(/\.$/,'')}. They didn't feel a thing.`,2600)}
+    else{bubble(best,pick(['HEY! Hands off!','Is your hand in my pocket?!','THIEF!']),2.4);relAdd(best,-12);if(!best.auth){best.aggro=1;best.tgt='P'}else{best.chase=1;trouble(40)}if(NP.some(m=>m.auth&&m.dp<20&&canSee(m,20)))trouble(30);sfx('bad')}}
+  else if(k==='fruit'){const f=RS().fr;if(!f||f.gone){toast('No fruit to slam. Hank\'s Market sells replacements.',2000);return}const st=prStage();r.cd=TT+2.6;P.punch=.35;S.sta=Math.max(0,S.sta-10);const hit=prFront([1.9,2.1,2.4,3.1][st],.25,st===3);sfx('whiff');
+    for(const n of hit)prHitN(n,clamp([7,13,21,30][st]*LVM(S.lvl,n.lvl),2,60),.5+st*.35,st>=2?1.2:0);if(hit.length){dmgNum(P.x,2.7,P.z,['SPLIT!','THWACK!','SPIKE!','KA-THUNK!'][st],'#ffd34a');f.hp-=[34,22,18,14][st];if(f.hp<=0)prSplat('You slammed your '+FRUITS[st][1].toLowerCase()+' to pieces!')}}
+  else if(k==='ouija'){if(!GHOST)return;let best=null,bd=1e9;for(const n of NP){if(n.down||n.kid||n.hidden||!n.g.visible||n.actor||n.statue||(n.int||null)!==(P.inside||null)||n.dp>11)continue;const sc_=n.dp-(n.aggro&&n.tgt==='P'?20:0)-(n.chase?15:0);if(sc_<bd){bd=sc_;best=n}}
+    if(!best){toast('The board is quiet. Nobody here to haunt.',1600);return}r.cd=TT+16;GHB.tgt=best;GHB.st=1;GHB.t=0;[880,740,622,523,415].forEach((f,i)=>tone(f,.4,'sine',.06,i*.12))}
+  else if(k==='caveman'){r.cd=TT+4.5;P.punch=.35;S.sta=Math.max(0,S.sta-12);sfx('whiff');const hit=prFront(2.5,.2);for(const n of hit)prHitN(n,clamp(20*LVM(S.lvl,n.lvl),3,60),1.6,1.8);if(hit.length){dmgNum(P.x,2.7,P.z,'BONK!','#ffb14a');tone(70,.25,'sine',.25)}prSay(pick(['UNGA!','OOGA BOOGA!','SMASH!','BONK!']),1.4)}
+  else if(k==='weather'){r.cd=TT+6;prSay(weatherLine(),3.4);tone(660,.08,'triangle',.05);r.wd=r.wdD===S.day?r.wd||{}:{};r.wdD=S.day;let f=0,t=0;for(const n of prNearN(14,m=>!m.auth&&!m.temp&&!m.pclass).slice(0,4)){if(r.wd[n.uid])continue;r.wd[n.uid]=1;f++;bubble(n,pick(['Thanks, Weather Pledge.','Good to know!','Is that a real forecast?','I did NOT ask.']),2);relAdd(n,2);if(rnd()<.5)t+=.5}if(t>0)money(t);if(f>=2)gainXP(3)}
+  else if(k==='basketball'){r.cd=TT+3.2;P.punch=.35;S.sta=Math.max(0,S.sta-6);sfx('whiff');const hit=prFront(6,.35);if(hit[0]){prHitN(hit[0],clamp(9*LVM(S.lvl,hit[0].lvl),2,40),.7,.6);dmgNum(P.x,2.7,P.z,'SWISH!','#ff9a4a')}else prSay(pick(['Nothing but net!','Bank shot!']),1.4);tone(200,.1,'sine',.08)}
+  else if(k==='pouch'){r.cd=TT+14;const it=pick([['a Gatorade',()=>{S.sta=100}],['a protein bar',()=>{S.hp=Math.min(S.mhp,S.hp+25)}],['a lukewarm coffee',()=>{S.sta=Math.min(100,S.sta+50);S.hp=Math.min(S.mhp,S.hp+10)}],['a phone charger',()=>{gainXP(3)}],['chapstick',()=>{const n=prNearN(6)[0];if(n)relAdd(n,3)}]]);it[1]();toast('You dig through the pouch and find '+it[0]+'.',2200);sfx('ok')}
+  else if(k==='grenade'){r.cd=TT+8;if(P.roll<=0){P.roll=.5;P.diveT=TT+.55;P.rdx=Math.sin(P.face);P.rdz=Math.cos(P.face);P.pt=.5}S.sta=Math.max(0,S.sta-8);prSay('GRENADE!',1.6);tone(1400,.08,'square',.05);setTimeout(()=>{if(mode!=='play')return;for(const n of prFront(2.6,-.2,true))prHitN(n,clamp(10*LVM(S.lvl,n.lvl),2,40),.6,1.4);dmgNum(P.x,2.7,P.z,'DIVE!','#9ac84a')},350)}
+  else if(k==='morning'){r.cd=TT+20;prSay(pick(['RISE AND SHINE, GENTLEMEN!','WAKE UP! IT IS A BEAUTIFUL DAY!']),2.6);[523,659,784,1046].forEach((f,i)=>tone(f,.18,'square',.06,i*.14));let c=0;for(const n of prNearN(13)){if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null}n.stun=1.8;if(!n.auth)bubble(n,pick(['AAH! My ears!','What time is it?!','Who is yelling?']),2);c++}if(c&&S.gt>=6&&S.gt<9.5&&r.mrD!==S.day){r.mrD=S.day;gainXP(8);money(2);toast('Early-bird bonus for the wake-up call: +$2, +8 XP.',2600)}}
+  else if(k==='delinquent'){r.cd=TT+9;puff(P.x,P.z);prSay(pick(['MAYHEM!','ALPHA SIG FOREVER!','You saw NOTHING.']),2);tone(180,.2,'sawtooth',.08);for(const n of prNearN(8,m=>!m.auth&&!m.named)){n.flee=3;bubble(n,'Hey! What is that smell?!',2)}if(r.dlD!==S.day){r.dlD=S.day;gainXP(10);stand(1)}if(NP.some(m=>m.auth&&m.dp<16&&canSee(m,16)))trouble(25)}
+  else if(k==='captain'){r.cd=TT+30;prSay('PLEDGES! STAND UP STRAIGHT!',2.6);tone(392,.2,'square',.07);let c=0;for(const n of NP){if(!n.pclass||n.down||n.hidden||(n.int||null)!==(P.inside||null)||n.dp>26)continue;bubble(n,pick(['Yes, Captain!','Standing, sir!','On it!']),2);c++}if(c&&r.cpD!==S.day){r.cpD=S.day;classSpirit(3);gainXP(5)}toast(c?`${c} pledge${c>1?'s':''} snap to attention.`:'Nobody to command. Find your pledges.',2400)}
+  else if(k==='hype'){r.cd=TT+18;prSay('LET\'S GOOOOO!',2.4);[0,.25,.5,.75,1,1.25].forEach(t=>tone(t%.5?180:90,.14,'sine',.14,t));let c=0;for(const n of prNearN(14)){if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null;n.stun=1}if(!n.auth&&(n.cl==='brothers'||n.cl==='sororities'))relAdd(n,1);c++}if(c>=3)gainXP(4);if(c&&r.hyD!==S.day){r.hyD=S.day;classSpirit(2)}}
+  else if(k==='snack'){r.cd=TT+1.5;if(r.snD!==S.day){r.snD=S.day;r.sn=8}if(!r.sn){toast('The tray is empty. It refills tomorrow.',2200);return}const n=prNearN(3.2,m=>!m.auth)[0];r.sn--;if(n){bubble(n,pick(['Ooh, pretzels!','You are a good pledge.','Thanks, Snack Pledge!']),2.2);relAdd(n,4);gainXP(1);money(.25);toast('Snack served. ('+r.sn+' left)',1400)}else{S.hp=Math.min(S.mhp,S.hp+12);S.sta=Math.min(100,S.sta+10);toast('You sneak a snack off your own tray. ('+r.sn+' left)',1800)}sfx('ok')}
+  else if(k==='scribe'){r.cd=TT+3;const L=prNearN(9,m=>!m.statue);r.nt=r.ntD===S.day?r.nt||{}:{};r.ntD=S.day;const n=L.find(m=>!r.nt[m.uid]);if(!n){toast('Nothing new to write down. Find someone talkative.',1800);return}r.nt[n.uid]=1;r.notes=(r.notes||0)+1;gainXP(2);bubble(n,pick(['Are you... writing that down?','Do NOT put that in the minutes.']),2);prSay('*scribbling*',1.4);toast(`Noted: ${n.name}. (${r.notes} pages)`,1800);if(r.notes%5===0){money(1.5);toast('Five pages! Grant slips you $1.50 for the minutes.',2600)}}
+  else if(k==='mascot'){r.cd=TT+6;P.punch=.35;S.sta=Math.max(0,S.sta-10);sfx('whiff');prSay(pick(['BAAAAAH!','GO ALPHA SIG! BAAAH!']),1.6);const hit=prFront(2.8,.2);for(const n of hit)prHitN(n,clamp(16*LVM(S.lvl,n.lvl),3,50),1.2,1.8);if(hit.length)dmgNum(P.x,2.7,P.z,'BAAAM!','#e8dcc0');if(r.maD!==S.day){r.maD=S.day;classSpirit(1)}tone(280,.2,'sawtooth',.07)}
+  else if(k==='cone'){if(r.cnD!==S.day){toast('Grab a cone off the road first.',1800);return}r.cd=TT+14;prSay('CONE-TEST! CONE-TEST!',2.2);tone(520,.3,'square',.08);tone(430,.3,'square',.08,.12);for(const n of prNearN(9)){n.stun=1.4;if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null}if(!n.auth)bubble(n,pick(['Is that a TRAFFIC CONE?!','My ears!']),2)}}}
+
+// ---------------------------------------------------------------- the world: house treasures for the Burglar, backyard parties at night for the Stats pledge to count
+const PARTY=[];
+function prTreasure(id){const g=new THREE.Group(),W=mt(0x5a3a24,.7),G=SM({color:0xd8b048,roughness:.3,metalness:.85});const A=(geo,m,x,y,z,s)=>{const e=new THREE.Mesh(geo,typeof m==='number'?mt(m,.6):m);e.position.set(x,y,z);if(s)e.scale.set(...s);e.castShadow=true;g.add(e);return e};
+  if(id==='kto'){const L=new THREE.LatheGeometry([[0,0],[.1,0],[.1,.03],[.04,.05],[.03,.14],[.1,.2],[.14,.32],[.15,.4],[0,.39]].map(([x,y])=>new THREE.Vector2(x,y)),18);A(L,SM({color:0xd8dce4,roughness:.15,metalness:.95}),0,0,0);for(const s of[-1,1]){const h=A(new THREE.TorusGeometry(.07,.012,6,12,PI),SM({color:0xd8dce4,roughness:.15,metalness:.95}),s*.15,.3,0);h.rotation.z=s>0?-PI/2:PI/2}}
+  else if(id==='opd'){A(bgeo(.3,.06,.2),W,0,.03,0);A(new THREE.CylinderGeometry(.05,.05,.16,12).rotateZ(PI/2),mt(0x6a3a1a,.5),0,.16,0);A(new THREE.CylinderGeometry(.012,.014,.3,8).rotateX(PI/2),mt(0x6a3a1a,.5),0,.16,.15)}
+  else if(id==='kan'){A(new THREE.CylinderGeometry(.05,.07,.06,10),G,0,.03,0);A(new THREE.SphereGeometry(.1,16,12),mt(0x7a3e1c,.6),0,.15,0,[1,1,1.7]);A(bgeo(.012,.012,.12),0xf6f2e8,0,.25,0)}
+  else if(id==='lxa'){const p=A(roundBox(.22,.5,.03,.012,1),mt(0x4b2a7a,.5),0,.32,0);p.rotation.y=.4;A(new THREE.CylinderGeometry(.02,.02,.2,8),W,0,.07,0);A(bgeo(.14,.03,.032),G,0,.42,0).rotation.y=.4}
+  else if(id==='dlp'){const pk=mt(0xff6fae,.5);A(new THREE.SphereGeometry(.1,14,10),pk,0,.42,0,[1.5,.9,.9]);const nk=A(new THREE.TorusGeometry(.08,.02,6,14,PI*1.2),pk,.1,.56,0);nk.rotation.z=-.3;A(new THREE.SphereGeometry(.035,10,8),pk,.16,.66,0);A(new THREE.ConeGeometry(.015,.06,6),0x1d1d22,.2,.64,0).rotation.z=-1.8;for(const z of[-.03,.03])A(new THREE.CylinderGeometry(.006,.006,.34,5),0x1d1d22,0,.17,z)}
+  else if(id==='tz'){A(roundBox(.36,.12,.36,.05,2),mt(0x2f8a8a,.9),0,.06,0);A(new THREE.TorusGeometry(.16,.01,5,24),G,0,.12,0).rotation.x=PI/2;A(new THREE.CylinderGeometry(.06,.06,.01,6),G,0,.125,0)}
+  return g}
+function prWorldInit(){for(const id in BURG){const I=INT[id];if(!I||!I.g)continue;const x=I.x0+14.4,z=I.z0+33.6;const st=new THREE.Group();st.position.set(x,0,z);
+    const W=mt(0x4a2e1c,.6);const ped=new THREE.Mesh(bgeo(.62,.95,.62),W);ped.position.y=.475;ped.castShadow=true;st.add(ped);const top=new THREE.Mesh(bgeo(.72,.06,.72),W);top.position.y=.98;st.add(top);
+    const pl=new THREE.Mesh(bgeo(.3,.08,.01),SM({color:0xd8b048,roughness:.3,metalness:.8}));pl.position.set(0,.75,.315);st.add(pl);const t=prTreasure(id);t.position.y=1.01;st.add(t);I.g.add(st);I.trez=t;
+    I.objs.push({x,z,get r(){return isR('burglar')&&!(RS().st&&RS().st[id]===S.day)?1.9:0},get label(){return'Steal the '+BURG[id][0]},f:()=>prSteal(id)});markR(x-.38,z-.38,x+.38,z+.38,1.1)}
+  // Friday-night style parties on two backyards (8:30 PM to 1:30 AM): sorority guests and a few brothers
+  for(const[id,n]of[['asr',7],['kan',6]]){const Y=YARDS[id];if(!Y)continue;for(let i=0;i<n;i++){const a=i/n*TAU+.4,r=4.4+(i%2)*.9;let[x,z]=nearFree(Y.cx+Math.cos(a)*r*1.25,Y.cz+Math.sin(a)*r*.85,.45);const fem=i%4!==3;
+      const p=spawn(fem?'sororities':'athletes',Y.zone,{x,z,a:Math.atan2(Y.cx-x,Y.cz-z),fem,mode:'chat',title:'Party guest',lvl:2+Math.floor(rnd()*4),house:fem?pick(['dlp','tz']):undefined,noLetters:!fem});p.party=1;p.hidden=true;PARTY.push(p)}}}
+function prSteal(id){const r=RS(),it=BURG[id];const wit=NP.filter(n=>n.int===id&&!n.down&&!n.hidden&&n.g.visible&&!n.pclass&&!n.statue&&canSee(n,11));r.st=r.st||{};const first=r.lastSteal!==S.day;r.st[id]=S.day;r.lastSteal=S.day;(r.loot=r.loot||[]).push(it[0]);if(r.loot.length>40)r.loot.shift();r.lootN=(r.lootN||0)+1;
+  const cl=((FRATS.find(f=>f.id===id)||{}).cl)||((CHAPTERS.find(c=>c[0]===id)||[])[1]);
+  if(wit.length){wit.forEach(n=>{if(!n.auth&&!n.named){n.aggro=1;n.tgt='P'}relAdd(n,-8)});if(cl)rep(cl,-6);toast(`Caught red-handed! ${wit[0].name} saw you grab the ${it[0]}. Run for it!`,3600);sfx('bad');gainXP(6)}
+  else{toast(`You lift the ${it[0]} from the ${it[1]} house. Nobody saw a thing.`,3400);sfx('ok');gainXP(12)}
+  stand(2);if(first)big('HEIST ✓',1100);noise(.06,.1,3500)}
+
+// ---------------------------------------------------------------- what the role adds when Danny talks to someone
+function prTalkOpts(n,ch,reply){if(n.kid||!S.pledged||!S.prole||n.auth&&S.prole!=='ouija')return;const k=S.prole,r=RS(),done=key=>{r.tk=r.tkD===S.day?r.tk||{}:{};r.tkD=S.day;const h=r.tk[key+n.uid];r.tk[key+n.uid]=1;return h},peek=key=>r.tkD===S.day&&r.tk&&r.tk[key+n.uid];
+  if(k==='popstar')ch.push(['♪ Serenade them ♪',()=>{if(done('ser'))return reply('"You already sang to me today. Twice would be weird."')();prMelody(8,523);P.sing=2.6;const v=rnd()<.8?3+Math.floor(rnd()*4):-2;relAdd(n,v);if(n.cl==='sororities'&&v>0)rep('sororities',2);
+    reply(v>0?pick(['"...okay. Wow. That was actually beautiful."','"Did you write that? Don\'t answer. Just let me have this."','"I have chills. Real chills."']):'"Please never do that again."')()},peek('ser')?'Already sang to them today':'','comp']);
+  if(k==='stats'&&!n.fem&&(n.house||n.cl==='brothers'))ch.push(['"Quick survey: how many beers today?"',()=>{if(done('srv'))return reply('"Same answer as before. Stop writing things down."')();const b=Math.floor(rnd()*7),L=r.led||(r.led={bong:0,women:0,beers:{}});if(b){L.beers[n.name]=(L.beers[n.name]||0)+b;r.since=(r.since||0)+1}
+    reply(b?`"${b}. ${b>4?'Don\'t write that down. You\'re writing that down.':'Why, is there a leaderboard?'}" (+${b} on your sheet)`:'"Zero. I\'m driving." (Nothing for the sheet.)')()},peek('srv')?'Already surveyed today':'','chat']);
+  if(k==='ouija')ch.push(['🔮 Ask the board about them',()=>{const v=relPeek(n),w=v>=60?'Y-E-S':v>=25?'L-I-K-E-S':v>-25?'M-A-Y-B-E':v>-60?'N-O':'R-U-N';sfx('ui');[523,466,415].forEach((f,i)=>tone(f,.3,'sine',.05,i*.2));
+    reply(`The planchette slides on its own: ${w}. ${n.name.split(' ')[0]} feels ${v>=60?'loyal to you':v>=25?'friendly':v>-25?'nothing much either way':v>-60?'wary of you':'hostile'} (${v>0?'+':''}${v}). ${n.name.split(' ')[0]} stares at the board. "...How is it doing that?"`)()},'','chat']);
+  if(k==='caveman'&&!n.auth)ch.push(['Grunt at them: OOGA BOOGA!',()=>{if(n.cl==='athletes'){relAdd(n,3);return reply('"OOGA BOOGA!! MY GUY! Finally, someone who gets it."')()}if(!n.named&&n.lvl<S.lvl){n.flee=4;relAdd(n,-1);bubble(n,'AAAH!',1.6);return}relAdd(n,-1);reply(pick(['"...Are you okay?"','"Is this a pledge thing? Blink twice."','"I\'m going to need you to use words."']))()},'','chat']);
+  if(k==='fruit'){const st=prStage(),fn=FRUITS[st][1].toLowerCase(),f=r.fr;if(f&&!f.gone)ch.push([`"Want to hold my ${fn}?"`,()=>{if(done('fr'))return reply(`"I held it already. It's a ${fn}, Danny."`)();const v=rnd()<.65?2:-1;relAdd(n,v);if(n.cl==='brothers'&&v>0)stand(1);reply(v>0?`"...It's warm. Why is it warm?" They hand it back gently. "Take care of that ${fn}."`:`"I'm not touching your ${fn}."`)()},peek('fr')?'Already showed them today':'','chat']);
+    if(n.shop==='hank'&&f&&f.gone){const pr=[1,2,4,6][st];ch.push([`"One ${fn}, please." (${money$(pr)})`,()=>{if(S.money<pr)return reply('"Come back with money, kid."')();money(-pr);f.gone=0;f.hp=100;prApply();reply(`"One ${fn}. You pledges are weird."`)()},'','buy'])}}
+  if(k==='skate'&&!n.auth)ch.push(['"Wanna see a kickflip?"',()=>{if(done('sk'))return reply('"I saw it. It was a kickflip."')();const v=['athletes','townies','activists'].includes(n.cl)?3:rnd()<.6?2:-1;relAdd(n,v);reply(v>0?'You pop a clean kickflip right in front of them. "Okay, that was sick."':'You land it. Barely. "...Cool?"')()},peek('sk')?'Already showed them':'','chat']);
+  if(k==='burglar'&&n.house&&BURG[n.house])ch.push(['"What\'s the most valuable thing in your house?"',reply(`"Probably the ${BURG[n.house][0]}. It sits on a stand in the lounge, by the fireplace." They narrow their eyes. "Why?"`),'','chat'])}
+
+// ---------------------------------------------------------------- daily bookkeeping
+function prNewDay(){if(!S.pledged||!S.prole)return;const r=RS(),y=S.day-1;
+  if(S.prole==='burglar'&&y>(S.prDay||0)&&r.lastSteal!==y){stand(-5);S.spirit=clamp((S.spirit||50)-5,0,100);setTimeout(()=>toast('Grant: "No loot yesterday, Burglar Pledge? Burglars STEAL. Fifty push-ups." Standing −5, Class Spirit −5.',5200),2400)}
+  if(S.prole==='cone'){if(y>(S.prDay||0)&&r.cnD!==y){stand(-5);S.spirit=clamp((S.spirit||50)-5,0,100);setTimeout(()=>toast('Grant: \"No cone yesterday, Cone Pledge? Cones do not grab themselves.\" Standing -5, Class Spirit -5.',5200),2400)}prApply()}}
+function prRollCall(){if(!S.prole)return;const r=RS(),k=S.prole;
+  if(k==='cone'){if(r.cnD===S.day){classSpirit(3);toast('Andre inspects your cone and nods. Class Spirit +3.',3600)}else toast('Andre: "Where is the cone, Cone Pledge?" You have until midnight.',3600)}
+  if(k==='captain'){classSpirit(2);toast('You call the roll yourself tonight. Andre looks relieved. Class Spirit +2.',3600)}
+  if(k==='delinquent'&&r.dlD!==S.day)toast('Andre: "No mayhem today, Delinquent Pledge?" You have until midnight.',3400);
+  if(k==='stats'){const n=r.since||0,L=r.led||{beers:{}},top=Object.entries(L.beers||{}).sort((a,b)=>b[1]-a[1])[0];if(n){const pay=Math.min(12,Math.round(n*.5*4)/4);money(pay);gainXP(n);toast(`Andre reads your stat sheet: ${n} new ${n===1?'tally':'tallies'}.${top?` Top drinker this season: ${top[0]} with ${top[1]}.`:''} +${money$(pay)}`,5200)}else{classSpirit(-2);toast('Andre: "Your stat sheet is blank, Stats Pledge. Count something." Class Spirit −2.',4200)}r.since=0}
+  else if(k==='fruit'){const f=r.fr,fn=FRUITS[prStage()][1].toLowerCase();if(f&&!f.gone){classSpirit(4);gainXP(5*(prStage()+1));toast(`Andre inspects your ${fn}: ${Math.max(1,Math.round(f.hp))}% fresh. Class Spirit +4.`,4200)}else{classSpirit(-4);stand(-2);toast(`Andre: "Where's your ${fn}, Fruit Pledge?" Push-ups. Class Spirit −4.`,4200)}}
+  else if(k==='burglar'){if(r.lastSteal===S.day){classSpirit(3);toast('Andre checks today\'s loot and nods. Class Spirit +3.',3800)}else toast('Andre, under his breath: "No heist yet today. You have until midnight."',3800)}
+  else if(k==='popstar'){prMelody(4,659);toast('You answer roll call in falsetto. Andre doesn\'t even look up anymore.',3400)}
+  else if(k==='caveman')toast('You answer "OOGA." Andre writes it down as "present."',3200);
+  else if(k==='ouija')toast('Something behind you also answers "present." Andre marks down two names.',3600);
+  else if(k==='skate')toast('You kickflip into the line. Andre: "Board UNDER your arm at roll call, Kowalski."',3600)}
+
+// ---------------------------------------------------------------- per frame
+function prMark(n){if(prMarks.length>8)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texMark(),transparent:true,depthWrite:false,depthTest:false}));s.scale.set(1.05,.52,1);s.position.y=2.95;s.renderOrder=6;n.g.add(s);prMarks.push({s,n,t:TT})}
+function prMarkClear(){for(const m of prMarks)if(m.s.parent)m.s.parent.remove(m.s);prMarks=[]}
+function prStatsTick(dt,r){r.pend=(r.pend||[]).filter(e=>TT-e.t<8);for(const m of prMarks){m.s.position.y=2.95+Math.sin((TT-m.t)*5)*.06;if(TT-m.t>8&&m.s.parent)m.s.parent.remove(m.s)}prMarks=prMarks.filter(m=>m.s.parent);
+  r.evT=(r.evT==null?3:r.evT)-dt;if(r.evT>0||mode!=='play')return;r.evT=(PARTY.some(p=>!p.hidden&&p.dp<20)||P.inside?3.5:4.5)+rnd()*5;
+  const night=S.gt>=20||S.gt<4,pk=S.day-(S.gt<4?1:0),greek=['asr','kto','opd','kan','lxa','dlp','tz','asr_up','kto_up','opd_up','kan_up','lxa_up'];
+  const party=(S.gt>=20||S.gt<3)&&((P.inside&&greek.includes(P.inside))||PARTY.some(p=>!p.hidden&&p.dp<20));
+  const vis=NP.filter(n=>!n.down&&!n.hidden&&n.g.visible&&(n.int||null)===(P.inside||null)&&n.dp<18&&!n.aggro&&!n.statue&&!n.actor&&!n.temp&&los(P.x,P.z,n.x,n.z));const o=[];
+  const bros=vis.filter(n=>!n.fem&&!n.auth&&!n.pclass&&!n.pledge&&(n.house||n.cl==='brothers'));if(bros.length&&(S.gt>=12||night||rnd()<.3))o.push(['beer',pick(bros)]);
+  if(night){const st=vis.filter(n=>!n.auth&&!n.named&&!n.fem&&['townies','activists','brothers','athletes','legacies'].includes(n.cl));if(st.length&&rnd()<.6)o.push(['bong',pick(st)])}
+  if(party){if(r.wpk!==pk){r.wpk=pk;r.ws={}}const w=vis.filter(n=>n.fem&&!r.ws[n.uid]);if(w.length){o.push(['women',w[0]]);o.push(['women',w[0]])}}
+  if(!o.length)return;const[kk,n]=pick(o);if(kk==='women')r.ws[n.uid]=1;
+  if(kk==='beer'){bubble(n,pick(['*cracks open a cold one*','*shotguns a beer*','*crack* Ahhh.','Another one!']),2.4);noise(.08,.16,1800)}
+  else if(kk==='bong'){bubble(n,pick(['*bubble bubble bubble*','*huge rip*','*coughing*']),2.4);const s=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),new THREE.MeshBasicMaterial({color:0xd8dcd8,transparent:true,opacity:.5,depthWrite:false}));s.position.set(n.x,n.g.position.y+1.9,n.z);sc.add(s);puffs.push([s,.6])}
+  (r.pend=r.pend||[]).push({k:kk,who:n.name,uid:n.uid,t:TT});prMark(n);tone(1800,.04,'square',.03);if(!r.hint){r.hint=1;toast('✎ Something worth counting! Press T to tally it before you forget.',4200)}}
+function prSpook(n){n.stun=2.2;n.aggro=0;n.tgt=null;n.chase=0;if(!n.named)n.flee=5;bubble(n,pick(['AAAH! GHOST!','WHAT IS THAT?!','Nope. Nope. NOPE.','MOMMY!']),2.4);noise(.3,.25,1200);if(n.auth)S.trouble=Math.max(0,S.trouble-30);
+  for(const m of NP)if(m!==n&&!m.down&&!m.named&&!m.statue&&(m.int||null)===(n.int||null)&&Math.hypot(m.x-n.x,m.z-n.z)<6){m.flee=3;m.aggro=0;m.tgt=null;if(rnd()<.5)bubble(m,'Did you see that?!',2)}}
+let prAmb=20;
+function prTick(dt){if(!PM||mode==='title'||mode==='loading')return;const r=RS(),k=S.pledged?S.prole:null;
+  if(S.pledged&&!S.prole&&mode==='play'&&!prSpinOn&&!CINE&&!EV)prSpin();
+  if((PM.userData.prk||'')!==(k?k+prStage():''))prApply();
+  // party guests show up at night
+  if((prTick.pt=(prTick.pt||0)-dt)<=0){prTick.pt=1;const on=S.gt>=20.5||S.gt<1.5;for(const p of PARTY)if(!p.aggro&&!p.down&&!p.follow)p.hidden=!on}
+  P.sing=Math.max(0,(P.sing||0)-dt);if(PM.userData.board&&!prSk())PM.userData.board.visible=false;
+  if(P.inside&&INT[P.inside]&&INT[P.inside].trez)INT[P.inside].trez.visible=!(isR('burglar')&&RS().st&&RS().st[P.inside]===S.day);
+  if(P.sing>0&&(prTick.nt=(prTick.nt||0)-dt)<=0){prTick.nt=.28;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texNote(),transparent:true,depthWrite:false}));s.scale.setScalar(.38);s.position.set(P.x+(rnd()-.5)*.6,P.y+P.jy+2.1,P.z+(rnd()-.5)*.6);sc.add(s);prNotes.push({s,t:0,vx:(rnd()-.5)*.6})}
+  prNotes=prNotes.filter(o=>{o.t+=dt;o.s.position.y+=dt*.9;o.s.position.x+=o.vx*dt;o.s.material.opacity=1-o.t/1.4;if(o.t>1.4){sc.remove(o.s);o.s.material.dispose();return false}return true});
+  if(DANNY.bub&&DANNY.bubT>0){DANNY.bubT-=dt;if(DANNY.bubT<=0)DANNY.bub.visible=false}
+  if(GHOST){const G=GHOST,fx=Math.sin(P.face),fz=Math.cos(P.face);G.visible=!P.kart;let tx,ty,tz,kk=2.4;
+    if(GHB.st===1&&GHB.tgt&&NP.includes(GHB.tgt)){const n=GHB.tgt;tx=n.x;tz=n.z;ty=n.g.position.y+1.5;kk=7;GHB.t+=dt;if(Math.hypot(G.position.x-tx,G.position.z-tz)<.8||GHB.t>2.2){prSpook(n);GHB.st=2;GHB.t=0}}
+    else{if(GHB.st)GHB.st=(GHB.t+=dt)>1.2?0:2;const sw=Math.sin(TT*.5)*.5;tx=P.x-fx*(.3+sw*.3)+fz*1.15;tz=P.z-fz*(.3+sw*.3)-fx*1.15;ty=P.y+P.jy+1.95+Math.sin(TT*2.2)*.12}
+    if(GHB.lunge>0){GHB.lunge-=dt;tx=P.x+fx*1.2;tz=P.z+fz*1.2;kk=10}
+    const d=Math.hypot(G.position.x-P.x,G.position.z-P.z);if(d>25||Math.abs(G.position.y-P.y)>8)G.position.set(tx,ty,tz);
+    G.position.x+=(tx-G.position.x)*Math.min(1,dt*kk);G.position.z+=(tz-G.position.z)*Math.min(1,dt*kk);G.position.y+=(ty-G.position.y)*Math.min(1,dt*kk);
+    const ma=Math.atan2(tx-G.position.x,tz-G.position.z),want=Math.hypot(tx-G.position.x,tz-G.position.z)>.3?ma:P.face;G.rotation.y+=((((want-G.rotation.y)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*3);G.rotation.z=Math.sin(TT*1.7)*.08;
+    G.userData.M.emissiveIntensity=.25+(typeof NIGHT==='number'?NIGHT:0)*.75;if(GHB.bub&&GHB.bubT>0){GHB.bubT-=dt;if(GHB.bubT<=0)GHB.bub.visible=false}}
+  if(mode!=='play'||!k)return;
+  if(K.KeyT){K.KeyT=0;prAbility()}   // V172: R is Block now, the job move moved to T
+  // ambient chatter
+  if((prAmb-=dt)<=0){prAmb=26+rnd()*24;if(!P.inside||rnd()<.5){if(k==='popstar'){prSay(pick(['♪ la la laaa~ ♪','♪ Alpha Sig, oh oh ohhh~ ♪','♪ Hmm hmm hmmm~ ♪','♪ Do re mi fa SOOOL~ ♪']),2.4);prMelody(4,659);P.sing=1.5}
+      else if(k==='caveman'){prSay(pick(['OOGA BOOGA!','UGH.','Me hungry.','Fire GOOD.','Ooga?','Rock. Nice rock.']),2.2);tone(98,.25,'sawtooth',.05)}
+      else if(k==='ouija'&&GHOST){bubble(GHB,pick(['...the lake...','...two thousand nineteen...','...fourteen names...','...the lantern...','...boo.','...don\'t look behind you...','...pledge...']),3);GHB.bub.position.y=1.15;GHB.bub.scale.set(3.4,.58,1);GHB.bubT=3;[392,370,349].forEach((f,i)=>tone(f,.5,'sine',.03,i*.25))}}}
+  if(k==='stats')prStatsTick(dt,r);
+  if(k==='fruit'){if(!r.fr||r.fr.d!==S.day){const had=r.fr;r.fr={d:S.day,hp:100,gone:0};prApply();if(had)toast(`A fresh ${FRUITS[prStage()][1].toLowerCase()} for today. Get it to roll call in one piece.`,3800)}
+    if(!r.fr.gone&&!NP.some(n=>n.aggro&&n.tgt==='P'))S.hp=Math.min(S.mhp,S.hp+.35*(prStage()+1)*dt)}
+  if(k==='skate'){const sp=Math.hypot(P.vx,P.vz);if(P.trick){P.trick.t+=dt;if(P.jy<=0&&P.jv===0&&P.trick.t>.12){const T=P.trick;P.trick=null;if(rnd()<.07){S.hp=Math.max(1,S.hp-5);flinch(PM);dmgNum(P.x,2.6,P.z,'BAILED!','#ff8a6a');r.cmb=0}else{r.cmb=TT-(r.lastT||0)<3.4?(r.cmb||0)+1:1;r.lastT=TT;r.best=Math.max(r.best||0,r.cmb);if(r.txD!==S.day){r.txD=S.day;r.tx=0}const xp=r.tx<60?Math.min(2*r.cmb,8):0;r.tx+=xp;
+        dmgNum(P.x,2.75,P.z,{kick:'Kickflip',heel:'Heelflip',shove:'Pop shove-it','360':'360 flip'}[T.k]+(r.cmb>1?' ×'+r.cmb:''),'#ffd34a');if(xp)gainXP(xp);tone(500,.05,'square',.05);for(const n of NP)if(n.dp<9&&!n.down&&!n.aggro&&n.g.visible&&!n.named&&rnd()<.25)bubble(n,pick(['Sick!','Do it again!','Show-off.','Whoa!']),1.8)}}}
+    if(prSk()&&sp>5&&!P.inside&&(r.copT||0)<TT){const c=NP.find(n=>n.auth&&n.dp<14&&canSee(n,14));if(c){r.copT=TT+25;bubble(c,pick(['No skateboarding on campus!','Off the board, pledge!','That\'s a citation, skater boy!']),2.4);trouble(12)}}}}
+
+// ---------------------------------------------------------------- HUD patch and the planner entry
+function prStatus(){const k=S.prole,r=RS();
+  if(k==='popstar')return`Tips today: ${money$(r.tipD===S.day?r.tipSum||0:0)} of $15`;
+  if(k==='stats'){const L=r.led||{bong:0,women:0,beers:{}},b=Object.values(L.beers||{}).reduce((a,c)=>a+c,0);return`Beers ${b} · Bong hits ${L.bong||0} · Women ${L.women||0}`}
+  if(k==='skate')return`Best combo ×${r.best||0} · Trick XP ${r.txD===S.day?r.tx||0:0}/60`;
+  if(k==='burglar')return r.lastSteal===S.day?'Today\'s heist: done ✓':'<span class="bad">Today\'s heist: not yet</span>';
+  if(k==='fruit'){const f=r.fr,fn=FRUITS[prStage()][1];return!f||f.gone?`<span class="bad">${fn} squashed. Hank's has more</span>`:`${fn} · ${Math.max(1,Math.round(f.hp))}% fresh`}
+  if(k==='ouija')return(r.cd||0)>TT?`The spirit rests… ${Math.ceil(r.cd-TT)}s`:'The spirit is restless';
+  if(k==='caveman')return(r.cd||0)>TT?`Catching breath… ${Math.ceil(r.cd-TT)}s`:'Club ready. UGH.';
+  if(k==='cone')return r.cnD===S.day?'Today\'s cone: grabbed':'<span class="bad">Today\'s cone: not yet</span>';
+  if(k==='snack')return`Tray: ${r.snD===S.day?r.sn:8} snacks left today`;
+  if(k==='scribe')return`Pages written: ${r.notes||0}`;
+  if(k==='delinquent')return r.dlD===S.day?'Today\'s mayhem: done':'<span class=\"bad\">Today\'s mayhem: not yet</span>';
+  if(['weather','basketball','pouch','grenade','morning','captain','hype','mascot'].includes(k))return(r.cd||0)>TT?`${PR[k].ab} recharging... ${Math.ceil(r.cd-TT)}s`:`${PR[k].ab} ready`;return''}
+function prHud(){const e=$('rolep');if(!e)return;const k=S.pledged?S.prole:null;e.hidden=!k||mode==='slots';if(!k)return;if(e.dataset.k!==k){e.dataset.k=k;const c=$('rolei').getContext('2d');c.clearRect(0,0,64,64);c.drawImage(prIcon(k),0,0,64,64);$('rolen').textContent=PR[k].n;$('rolea').textContent=PR[k].ab}
+  const st=prStatus();if(e.dataset.s!==st){e.dataset.s=st;$('roles').innerHTML=st}const cd=(RS().cd||0)>TT&&k!=='stats';$('rolek').classList.toggle('cd',cd)}
+function prRosterHTML(){const k=S.pledged?S.prole:null;if(!k)return'';const R_=PR[k],r=RS();let x='';
+  if(k==='stats'){const L=r.led||{bong:0,women:0,beers:{}},bs=Object.entries(L.beers||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);x=`<p><b>Season totals:</b> ${Object.values(L.beers||{}).reduce((a,c)=>a+c,0)} beers · ${L.bong||0} bong hits · ${L.women||0} women at parties · ${r.since||0} tallies not yet reported</p>${bs.length?'<p><b>Beers by brother:</b> '+bs.map(([n,c])=>`${n} ${c}`).join(' · ')+'</p>':''}`}
+  else if(k==='burglar')x=`<p><b>Today's heist:</b> ${r.lastSteal===S.day?'done':'not yet. Every other house keeps its treasure on a stand by the lounge fireplace.'} · <b>Loot so far:</b> ${r.lootN||0}${r.loot&&r.loot.length?' ('+r.loot.slice(-6).join(', ')+')':''}</p>`;
+  else if(k==='fruit')x=`<p><b>Today's fruit:</b> ${prStatus().replace(/<[^>]+>/g,'')} · Next size up: ${prStage()<3?FRUITS[prStage()+1][1].toLowerCase():'this is as big as it gets'}</p>`;
+  else if(k==='skate')x=`<p><b>Best combo:</b> ×${r.best||0}</p>`;else if(k==='popstar')x=`<p>${prStatus()}</p>`;
+  return`<div class="prjob" style="--rc:${R_.c}"><img src="${prPic||prIconURL(k)}" alt=""><div><div class="lbl" style="color:${R_.c}">Your pledge job</div><h3 style="margin:2px 0 4px">${R_.n}</h3><p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>R</kbd> ${R_.ab}</p>${x}</div></div>`}
+
+// ---------------------------------------------------------------- the Pledge Machine
+function prPortrait(k){try{const ps=new THREE.Scene(),R_=PR[k];ps.background=new THREE.Color(0x101828).lerp(new THREE.Color(R_.c),.38);ps.add(new THREE.HemisphereLight(0xffffff,0x5a4a5a,.85));const d1=new THREE.DirectionalLight(0xfff2e0,1.15);d1.position.set(2.5,4,5);ps.add(d1);const d2=new THREE.DirectionalLight(0xb8d0ff,.55);d2.position.set(-4,2.5,-2);ps.add(d2);if(sc.environment)ps.environment=sc.environment;
+    const par=PM.parent,pos=PM.position.clone(),ry=PM.rotation.y,vis=PM.visible;ps.add(PM);PM.position.set(0,0,0);PM.rotation.set(0,.32,0);PM.visible=true;animP(PM,0,TT,'');prPose(0);PM.position.set(0,PM.position.y,0);
+    const fl=new THREE.Mesh(new THREE.CircleGeometry(.9,32),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.18}));fl.rotation.x=-PI/2;fl.position.y=.005;ps.add(fl);
+    let gh=null;if(k==='ouija'){gh=prGhostMesh();gh.position.set(-.85,1.75,-.5);gh.rotation.y=.6;ps.add(gh)}
+    const cw=R.domElement.width,ch=R.domElement.height,pc=new THREE.PerspectiveCamera(22,cw/ch,.1,40);pc.position.set(.15,1.3,6.2);pc.lookAt(-.05,1.12,0);
+    const tm=R.toneMapping,te=R.toneMappingExposure;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.92;R.setRenderTarget(null);R.render(ps,pc);
+    const o=document.createElement('canvas');o.width=540;o.height=660;const sh=ch*.96,sw=sh*360/440;o.getContext('2d').drawImage(R.domElement,(cw-sw)/2,(ch-sh)/2,sw,sh,0,0,540,660);
+    R.toneMapping=tm;R.toneMappingExposure=te;ps.remove(PM);(par||sc).add(PM);PM.position.copy(pos);PM.rotation.y=ry;PM.visible=vis;return o.toDataURL('image/png')}catch(e){console.warn('portrait',e);return prIconURL(k)}}
+function prSpin(force){if(prSpinOn)return;prSpinOn=1;unlock();const prev=mode;mode='slots';const k=force||pick(PR_KEYS);const el=document.createElement('div');el.id='prslot';
+  const bulbs=Array.from({length:24},(_,i)=>{const t=i/24*4;let x,y;if(t<1){x=t;y=0}else if(t<2){x=1;y=t-1}else if(t<3){x=3-t;y=1}else{x=0;y=4-t}return`<i style="--i:${i};left:calc(${(x*100).toFixed(1)}% - 4px);top:calc(${(y*100).toFixed(1)}% - 4px)"></i>`}).join('');
+  el.innerHTML=`<div class="prm"><div class="prbulbs">${bulbs}</div><div class="prt">ΑΣΡ · The Pledge Machine</div><div class="prsub">Every pledge gets a job. Nobody picks his own.</div>
+    <div class="prwin"><div class="prpay"></div>${[0,1,2].map(i=>`<div class="prreel"><div class="prstrip" id="prs${i}"></div></div>`).join('')}</div>
+    <div class="prmsg" id="prmsg">Pull the lever.</div><div class="prctl"><button class="btn" id="prpull">PULL <small>(Space)</small></button></div><div class="prlever" id="prlev"><b></b></div></div>`;
+  document.body.appendChild(el);const H=()=>el.querySelector('.prreel').clientHeight;const strips=[];
+  for(let i=0;i<3;i++){const seq=[];const n=16+i*6;for(let j=0;j<n;j++)seq.push(PR_KEYS[(j*3+i*2+Math.floor(rnd()*PR_KEYS.length))%PR_KEYS.length]);seq.push(k);seq.push(pick(PR_KEYS));const s=$('prs'+i);s.innerHTML=seq.map(q=>`<div class="prsym"><img src="${prIconURL(q)}" alt=""><span>${PR[q].n.replace(' Pledge','')}</span></div>`).join('');strips.push({s,n})}
+  let pulled=0;const pull=()=>{if(pulled)return;pulled=1;audioInit();$('prpull').disabled=true;$('prlev').classList.add('down');setTimeout(()=>$('prlev').classList.remove('down'),420);$('prmsg').textContent='Spinning…';tone(220,.12,'square',.06);noise(.12,.2,800);
+    const h=H(),t0=performance.now();let last=[-1,-1,-1],stopped=0;
+    const step=now=>{if(!prSpinOn)return;const t=(now-t0)/1000;let all=true;strips.forEach((o,i)=>{const D=1.7+i*.8,u=Math.min(1,t/D),c1=1.25,c3=c1+1,e=u>=1?1:1+c3*Math.pow(u-1,3)+c1*Math.pow(u-1,2),y=o.n*h*e;o.s.style.transform=`translateY(${-y}px)`;
+        const v=u<1?(o.n*h/D)*Math.max(0,1-u)*2:0;o.s.style.filter=v>1400?`blur(${Math.min(5,v/900)}px)`:'none';const idx=Math.floor(y/h+.5);if(idx!==last[i]){last[i]=idx;if(u<1)tone(700+i*140,.025,'square',.025)}
+        if(u<1)all=false;else if(!(stopped&(1<<i))){stopped|=1<<i;tone(330+i*110,.12,'triangle',.1);noise(.05,.15,600)}});
+      if(!all)requestAnimationFrame(step);else land()};requestAnimationFrame(step)};
+  const land=()=>{el.classList.add('win');[523,659,784,1046,1318].forEach((f,i)=>tone(f,.22,'triangle',.11,i*.09));$('prmsg').innerHTML=`★ ${PR[k].n.toUpperCase()} ★`;S.prole=k;S.prDay=S.day;S.rs={};prApply();
+    setTimeout(()=>{if(!prSpinOn)return;const pic=prPortrait(k);prPic=pic;const R_=PR[k];const m=el.querySelector('.prm');m.classList.add('res');m.style.setProperty('--rc',R_.c);m.style.setProperty('--rc2',R_.c2);
+      m.innerHTML=`<div class="prbulbs">${bulbs}</div><div class="prres"><div class="prpic"><img src="${pic}" alt="Danny as the ${R_.n}"><img class="prbadge" src="${prIconURL(k)}" alt=""></div>
+        <div class="prinfo"><div class="lbl">Your pledge job</div><h2>${R_.n}</h2><p class="prd">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><div class="prkey"><kbd>T</kbd> ${R_.ab}</div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="prok">Got it <small>(Enter)</small></button><button class="btn" id="prre" style="opacity:.92">Spin again <small>(R)</small></button></div></div></div>`;
+      $('prok').onclick=close;if($('prre'))$('prre').onclick=()=>{if(!prSpinOn)return;/* V187 unlimited spins */S.prRespun=(S.prRespun||0)+1;el.remove();prSpinOn=0;removeEventListener('keydown',kd,true);prSpin(pick(PR_KEYS.filter(q=>q!==k)))};setTimeout(()=>$('prok')&&$('prok').focus(),40)},1200)};
+  const close=()=>{if(!prSpinOn)return;el.remove();prSpinOn=0;removeEventListener('keydown',kd,true);mode='play';big(PR[k].n.toUpperCase(),1600);toast(`You're the ${PR[k].n}. Press T: ${PR[k].ab}. Your job is in the Planner (Tab → Pledge Class).`,5200);saveGame();if(cardQ.length)card(cardQ.shift())};
+  const kd=e=>{if(!prSpinOn)return;if(e.code==='Space'||e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();e.stopPropagation();if(!pulled)pull();else if($('prok'))close()}else if(e.code==='KeyR'&&$('prre')){e.preventDefault();e.stopPropagation();$('prre').click()}else if(e.code!=='F12')e.stopPropagation()};
+  addEventListener('keydown',kd,true);$('prpull').onclick=pull;el.__pull=pull;el.__close=close;el.__skip=()=>{pulled=1;S.prole=k;S.prDay=S.day;S.rs={};prApply();close()};setTimeout(()=>$('prpull')&&$('prpull').focus(),40)}
+
+function prSkip(){const el=$('prslot');if(el&&el.__skip)el.__skip()}
+window.prSkip=prSkip;
