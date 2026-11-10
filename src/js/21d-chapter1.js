@@ -69,10 +69,10 @@ async function c1IntroCine(done){if(!TRUCK)TRUCK=mkTruck();const TX=69,Z0=230,Z1
     truckCabOn(TRUCK,true);cabPeople(TRUCK);cam.fov=40;cam.updateProjectionMatrix();CINE.cabT=0;CINE.cabAnim=1;CINE.ride=1;CINE.camf=cabCamSet}
   else{CINE.ride=1;CINE.camf=(dt,tx,tz)=>{cam.position.set(tx-6.2,2.7,tz+7.5);cam.lookAt((tx+hx)/2+2,2.4,tz-4)}}
   const SG=CAB?[[84,68,9],[68,52,9],[52,38,10],[38,28,9]]:[[Z1,98,9],[98,80,9],[80,62,10],[62,36,9]];
-  await ride('Big Ed eases off the gas, eyes flicking to the rear-view mirror, but he keeps rolling.\n\n"Whoa whoa whoa. Danny. DANNY. Red brick. Big porch. Those letters over the door. That\'s Alpha Sigma Rho, kid. That\'s MY house."',[['"That\'s where I\'m rushing?"',null]],SG[0][0],SG[0][1],SG[0][2]);
-  await ride('"Spring of \'92 I carried a couch up those porch steps by myself. Upright. The brothers said it couldn\'t be done." He thumps his lower back. "Hernia number one. Worth it."',[['"Dad."',null]],SG[1][0],SG[1][1],SG[1][2]);
-  await ride('"See that window? Second floor? I hung outta that window for a whole Homecoming game. Upside down. Two guys holding my ankles. We won by three."\n\nHis voice goes a little rough. "…Those were my brothers, Danny. You find guys like that, you hang on to \'em."',[['"…I will, Dad."',null]],SG[2][0],SG[2][1],SG[2][2]);
-  await ride('He clears his throat and puts his foot down. "OKAY. Enough of that. You don\'t roll up to your own fraternity outta your old man\'s truck like some freshman. I\'m droppin\' you at your dorm. You walk in like a MAN."',[['"I AM a freshman."',null]],SG[3][0],SG[3][1],SG[3][2]);
+  await ride('"Whoa whoa whoa. Danny. DANNY. Red brick. Big porch. Those letters over the door. That\'s Alpha Sigma Rho, kid. That\'s MY house."',[['"That\'s where I\'m rushing?"',null]],SG[0][0],SG[0][1],SG[0][2]);
+  await ride('"Spring of \'92 I carried a couch up those porch steps by myself. Upright. The brothers said it couldn\'t be done. Hernia number one. Worth it."',[['"Dad."',null]],SG[1][0],SG[1][1],SG[1][2]);
+  await ride('"See that window? Second floor? I hung outta that window for a whole Homecoming game. Upside down. Two guys holding my ankles. We won by three. …Those were my brothers, Danny. You find guys like that, you hang on to \'em."',[['"…I will, Dad."',null]],SG[2][0],SG[2][1],SG[2][2]);
+  await ride('"OKAY. Enough of that. You don\'t roll up to your own fraternity outta your old man\'s truck like some freshman. I\'m droppin\' you at your dorm. You walk in like a MAN."',[['"I AM a freshman."',null]],SG[3][0],SG[3][1],SG[3][2]);
   CINE.ride=0;cabEnd();
   CINE.camf=(dt,tx,tz)=>{cam.position.set(tx+6,3.2,tz+12);cam.lookAt(tx,1.6,tz-4)};tone(150,.12,'square',.05);await cineDrive(CAB?28:36,20,3.2,{ease:'in'});
   // 2) West Daniels Street, outside Daniels Hall
@@ -84,7 +84,7 @@ async function c1IntroCine(done){if(!TRUCK)TRUCK=mkTruck();const TX=69,Z0=230,Z1
   CINE.camf=null;CINE.shot='c1';
   const sayD=(text,ch)=>new Promise(res=>card({title:'Big Ed Kowalski',sp:ED,text,focus:dad,ch:(ch||[['Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';res(f?f():0)}])}));
   await sayD('"Here we are! Daniels Hall! Your dorm, kid. Smells like gym socks and ramen. PERFECT. Just like I left it."',[['"So how do I get back to the house?"',null]]);
-  const r=await sayD('He squints back the way they came. "The house? It\'s on the Row! Greek Row! We JUST drove past it!" He scratches his beard. "Left at the… no. Right at the big… thing. It\'s been thirty years, okay? Campus moves stuff."',[['"You don\'t remember how to get to your own fraternity?"',()=>1],['"Okay. I\'ll find it."',()=>2]]);
+  const r=await sayD('"The house? It\'s on the Row! Greek Row! We JUST drove past it! Left at the… no. Right at the big… thing. It\'s been thirty years, okay? Campus moves stuff."',[['"You don\'t remember how to get to your own fraternity?"',()=>1],['"Okay. I\'ll find it."',()=>2]]);
   if(r===1)await sayD('"I remember the IMPORTANT stuff! The parties! The paddle! The night we put a cow on the— never mind. Ask somebody. That\'s what your mouth is for. It builds CHARACTER!"',[['"Great. Character."',null]]);
   await sayD('"…Look. I\'m proud of you, kid. Real proud. Here, five bucks. Don\'t spend it all in one place! Now get outta here before I get emotional in front of a dormitory."',[['"Thanks, Dad. Love you too."',null]]);
   if(S.money<5)S.money=5;bubble(dad,'MAKE ME PROUD!',2.5);if(dad.g.P&&dad.g.P.aR)dad.g.P.aR.rotation.x=-2.7;mode='cine';await cineWait(1.4);

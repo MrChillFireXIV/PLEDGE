@@ -61,6 +61,7 @@ Testing runs in headless Chromium.
   - zip the project, excluding `dist/`
   - send the zip plus `dist/PLEDGE.html` and the screenshots
   - write a short plain-language summary of what changed, what was tested and what wasn't
+  - commit and push to GitHub (`MrChillFireXIV/PLEDGE`, branch `main`): every push rebuilds the live game at https://mrchillfirexiv.github.io/PLEDGE/ (see README.md). Never rename the save keys (`pledge.save.v1`, `.s2`, `.s3`, `pledge.slot`): the publish check stops if they change.
 - Every story beat should be visualized and animated, not just a text card. Talking uses conversation boxes.
 - Keep `docs/HISTORY.md` growing: add one line per version (`- V212 (files): what changed`).
 - Earlier, the user asked for a correctional-facility crowd that was 80% dark-skinned. That was declined, so don't reintroduce it.
