@@ -32,4 +32,4 @@ function slotStart(i,fresh){setSlot(i);if(fresh)try{localStorage.removeItem(slot
   const el=$('slotsel');if(el)el.hidden=true;window.__played=1;begin(fresh)}
 function titleSync(){const n=$('bnew');if(n)n.textContent='Start'}
 function slotsBoot(){titleSync();$('bnew').onclick=()=>{sfx('ui');const el=$('slotsel');if(el&&!el.hidden)el.hidden=true;else slotsOpen()};
-  let a=null;try{a=sessionStorage.getItem('pledge.auto');sessionStorage.removeItem('pledge.auto')}catch(e){}if(a){window.__played=1;begin(a==='new')}}
+  let a=null;try{a=sessionStorage.getItem('pledge.auto');sessionStorage.removeItem('pledge.auto')}catch(e){}if(a){window.__played=1;const L=$('loading');if(L)L.hidden=false;let n=0;const t0=performance.now(),go=()=>{if(++n<4||n<45&&performance.now()-t0<2500){requestAnimationFrame(go);return}if(L)L.hidden=true;begin(a==='new')};requestAnimationFrame(go)}}   /* V292 after the reload, let the title screen render (45 frames or 2.5 s, at least 4 frames) (shaders, textures, light, title camera) behind the loading screen before starting, same as clicking Start */
