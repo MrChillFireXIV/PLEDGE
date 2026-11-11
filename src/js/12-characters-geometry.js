@@ -48,7 +48,14 @@ const BODYC={};
 // per-person palette, stylised skin shading (warm scatter, rim light). Knock-downs are verlet ragdolls; bodies lean and lag with spring physics.
 const BN=['hips','spine','chest','neck','head','aL','eL','hL','aR','eR','hR','lL','kL','fL','lR','kR','fR'],BI={};BN.forEach((n,i)=>BI[n]=i);
 const BPAR={hips:null,spine:'hips',chest:'spine',neck:'chest',head:'neck',aL:'chest',eL:'aL',hL:'eL',aR:'chest',eR:'aR',hR:'eR',lL:'hips',kL:'lL',fL:'kL',lR:'hips',kR:'lR',fR:'kR'};
-function bonePos(fem){const sx=fem?.29:.35,lx=fem?.1:.108;return{hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]}}
+/* V306 Enhanced proportions (less toy-like): the head bone is scaled down (mkPersonX), shoulders and torso are narrowed, arms and neck are slimmed.
+   Done as a warp of the finished body (chrWarp, per skin weight) plus matching arm bone positions, so every hand-tuned shape and pose still works.
+   The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
+   which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
+const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
+const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1}:{hs:.72,lift:.012,kx:.92,ta:.87,nk:.85};
+function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]]}return b}
+function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108;return{hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]}}
 // palette slots (rgb + roughness); 24..27 are per-person parameters for the shader
 const PS={skin:0,hair:1,shirt:2,sleeve:3,pants:4,shoe:5,sole:6,eyeW:7,iris:8,dark:9,lip:10,belt:11,metal:12,b0:13,b1:14,b2:15,b3:16,cap:17,glass:18,brow:19,acc:20,white:21,sacc:22,lace:23};
 const NPAL=28,CHR_RIM={value:.32},CHR_RIMS={value:.45},CHR_RIMC={value:new THREE.Color(.5,.68,.95)},CHR_BNC={value:new THREE.Color(.1,.065,.035)},CHR_SKY={value:new THREE.Color(.03,.05,.08)};
@@ -59,7 +66,16 @@ function gAdd(G,g,pid,wf,sf){const P=g.attributes.position,N=g.attributes.normal
     G.id.push(typeof pid==='function'?pid(x,y,z,nx,ny,nz):pid);if(H)G.hd.push(H[i*3],H[i*3+1],H[i*3+2]);else G.hd.push(0,0,0);
     const w=wf(x,y,z);G.si.push(w[0],w.length>2?w[2]:0,0,0);G.sw.push(w.length>2?w[1]:1,w.length>2?1-w[1]:0,0,0)}
   if(g.index){const I=g.index.array;for(let k=0;k<I.length;k++)G.ix.push(I[k]+o)}else for(let k=0;k<P.count;k++)G.ix.push(k+o);G.v+=P.count}
-function gBuild(G){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(G.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(G.n,3));g.setAttribute('color',new THREE.Float32BufferAttribute(G.c,3));
+function chrWarp(G){if(GFX!=='enhanced'||!G.warp)return;const C=CHR_PROP,sx=G.fem?.29:.35,p=G.p,n=G.n,si=G.si,sw=G.sw,AZ=-.012,NZ=-.015;
+  const kxy=y=>1-(1-C.kx)*sm(1.08,1.38,y);
+  for(let i=0,v=0;i<p.length;i+=3,v+=4){const x=p[i],y=p[i+1],z=p[i+2];let X=0,Y=0,Z=0,fx=0,W=0;
+    for(let j=0;j<2;j++){const w=sw[v+j];if(!w)continue;const b=BN[si[v+j]];let tx=x,ty=y,tz=z,f=1;
+      if(b==='spine'||b==='chest'){const k=kxy(y);tx=x*k;f=1/k}
+      else if(b==='neck'){tx=x*C.nk;tz=NZ+(z-NZ)*C.nk}
+      else if(b[0]==='a'||b[0]==='e'||b[0]==='h'&&b!=='hips'&&b!=='head'){const ax=(b[1]==='L'?-1:1)*sx;tx=ax*C.kx+(x-ax)*C.ta;tz=AZ+(z-AZ)*C.ta}
+      X+=tx*w;Y+=ty*w;Z+=tz*w;fx+=f*w;W+=w}
+    if(W>0){p[i]=X/W;p[i+1]=Y/W;p[i+2]=Z/W;const k=fx/W;if(k!==1){const a=n[i]*k,b2=n[i+1],c=n[i+2],l=Math.hypot(a,b2,c)||1;n[i]=a/l;n[i+1]=b2/l;n[i+2]=c/l}}}}
+function gBuild(G){chrWarp(G);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(G.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(G.n,3));g.setAttribute('color',new THREE.Float32BufferAttribute(G.c,3));
   g.setAttribute('pid',new THREE.Float32BufferAttribute(G.id,1));g.setAttribute('hd',new THREE.Float32BufferAttribute(G.hd,3));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(G.si,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(G.sw,4));g.setIndex(G.ix);
   g.boundingSphere=new THREE.Sphere(new THREE.Vector3(0,1,0),2.4);return g}
 const W1=b=>()=>[BI[b]],Wb=(a,b,t)=>[BI[a],1-clamp(t,0,1),BI[b]];
@@ -88,7 +104,9 @@ function clumpGeo(P0,P1,P2,w,th,cen,seg=5,sides=6,tk=.95){const pos=[],ix=[],B=t
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(ix);g.computeVertexNormals();return g}
 // ---------------------------------------------------------------- the sculpted head (unit direction -> position); the face atlas uses the same (ux,uy) space
 const HC=1.79,HR=.19,EYEX=.36,EYEY=.088;
-const EYA=fem=>fem?[.2,.108,.08]:[.19,.105,.078];   // almond eye opening: half width, half heights above / below
+/* V306 smaller, less cartoon eyes: the openings, the eyeballs and the painted lash lines all shrink by EYF around each eye's centre, so they still line up */
+const EYF=CHR_OLD?1:.84;
+const EYA=fem=>(fem?[.2,.108,.08]:[.19,.105,.078]).map(v=>v*EYF);   // almond eye opening: half width, half heights above / below
 function eyeA(ux,uy,fem){const[aw,at,ab]=EYA(fem),lx=(Math.abs(ux)-EYEX)/aw,yy=uy-(EYEY+.12*(Math.abs(ux)-EYEX)),ly=yy/(yy>0?at:ab);return[lx*lx+ly*ly,yy]}
 function headPt(ux,uy,uz,fem,fv=0,noEye=0){let x=ux*(fem?.86:.875),y=uy*1.12,z=uz;
   if(uz<0)z*=1+.07*Math.min(1,-uz*1.5)*sm(-.6,.3,uy);
@@ -157,17 +175,18 @@ function drawFace(L,fem,mv,tf,clip){const R=mulberry(fem*7+mv*3+11);
   const smileO=q=>{q.beginPath();q.moveTo(-.23,MY+.05);q.bezierCurveTo(-.11,MY+.006,.11,MY+.006,.23,MY+.05);q.bezierCurveTo(.17,MY-.1,-.17,MY-.1,-.23,MY+.05);q.closePath()};
   const talkO=q=>{q.beginPath();q.ellipse(0,MY-.022,.1,.058,0,0,TAU)};
   // eye whites (and teeth)
-  each('wh',q=>{for(const s of[-1,1]){eye(q,s);q.fill()}
+  const eyeZ=(q,s)=>{q.translate(s*EYEX,EYEY);q.scale(EYF,EYF);q.translate(-s*EYEX,-EYEY)};
+  each('wh',q=>{for(const s of[-1,1]){q.save();eyeZ(q,s);eye(q,s);q.fill();q.restore()}
     if(mv===1){q.save();smileO(q);q.clip();q.fillRect(-.2,MY-.022,.4,.07);q.restore()}
     if(mv===2){q.save();talkO(q);q.clip();q.fillRect(-.1,MY+.004,.2,.03);q.restore()}});
   // ink: lash lines, crease, lower lash, nostrils, mouth line / mouth interior
-  each('ink',q=>{for(const s of[-1,1]){q.lineWidth=fem?.034:.03;q.beginPath();up(q,s);q.stroke();
+  each('ink',q=>{for(const s of[-1,1]){q.save();eyeZ(q,s);q.lineWidth=fem?.034:.03;q.beginPath();up(q,s);q.stroke();
       q.lineWidth=fem?.034:.028;q.beginPath();q.moveTo(s*(E.ix+.15),E.top-.004);q.bezierCurveTo(s*(E.ox-.06),E.top+.008,s*(E.ox-.02),E.oy+.02,s*(E.ox+.004),E.oy);q.stroke();
       if(fem){q.lineWidth=.012;q.beginPath();q.moveTo(s*(E.ox-.01),E.oy+.004);q.quadraticCurveTo(s*(E.ox+.03),E.oy+.02,s*(E.ox+.05),E.oy+.042);q.stroke();
         q.lineWidth=.006;for(let i=0;i<6;i++){const t=.45+i*.1,x=E.ix+(E.ox-E.ix)*t,y=E.top-.006-(t-.6)*(t-.6)*.15+(t>.85?(E.oy-E.top)*(t-.85)*4:0);q.beginPath();q.moveTo(s*x,y);q.lineTo(s*(x+.012+t*.01),y+.026);q.stroke()}}
       q.globalAlpha=.32;q.lineWidth=.008;q.beginPath();q.moveTo(s*(E.ix+.03),E.iy+.075);q.bezierCurveTo(s*(E.ix+.08),E.top+.055,s*(E.ox-.1),E.top+.055,s*(E.ox-.01),E.oy+.05);q.stroke();if(!fem){q.globalAlpha=1;q.lineWidth=.012;q.beginPath();q.moveTo(s*(E.ox-.01),E.oy+.002);q.lineTo(s*(E.ox+.025),E.oy+.016);q.stroke()}
       q.globalAlpha=.4;q.lineWidth=.007;q.beginPath();q.moveTo(s*(E.ox-.005),E.oy-.004);q.bezierCurveTo(s*(E.ox-.05),E.bot-.002,s*(E.ix+.07),E.bot,s*(E.ix+.03),E.iy-.022);q.stroke();q.globalAlpha=1;
-      q.globalAlpha=.6;ell(q,s*.052,-.262,.018,.0075,s*.3);q.globalAlpha=1}
+      q.restore();q.globalAlpha=.6;ell(q,s*.052,-.262,.018,.0075,s*.3);q.globalAlpha=1}
     q.globalAlpha=.28;q.lineWidth=.009;q.beginPath();q.arc(0,-.215,.055,PI*1.18,PI*1.82,false);q.stroke();q.globalAlpha=1;
     if(mv===0){q.globalAlpha=.92;q.lineWidth=.0095;mouthLine(q);q.stroke();q.globalAlpha=.5;for(const s of[-1,1])ell(q,s*MW,MY+.006,.009,.006);q.globalAlpha=1}
     else if(mv===1){smileO(q);q.fill();q.save();smileO(q);q.clip();q.fillStyle='#000';q.fillRect(-.2,MY-.018,.4,.07);q.restore();q.globalAlpha=.6;q.lineWidth=.006;smileO(q);q.stroke();q.globalAlpha=1}
@@ -271,11 +290,11 @@ function c2BareShade(x,y,nz){const ax=Math.abs(x),fr=sm(.15,.55,nz);if(fr<=0)ret
   d+=.14*sm(.016,0,ax)*sm(.016,0,Math.abs(y-1.05));
   d+=.06*sm(.1,.14,ax)*sm(1.12,1.0,y)*sm(.95,1.0,y);
   return 1-d*fr}
-function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];const G=GB(),fem=!!o.fem,BP=bonePos(fem),fv=o.fv|0,cl=o.cl2,sg=lod?10:20,HW=W1('head');
+function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];const G=GB(),fem=!!o.fem,BP=bonePos0(fem);G.fem=fem;G.warp=1;const fv=o.fv|0,cl=o.cl2,sg=lod?10:20,HW=W1('head');
   // head and neck
   gAdd(G,headGeo(fem,fv,lod,0,null,null,1),PS.skin,HW,(x,y,z,nx,ny,nz)=>1-.12*sm(-.4,-.9,ny));
   // eyeballs sitting in the openings (iris, pupil and catch-lights drawn by the shader from each eyeball's own direction)
-  for(const s of[-1,1]){const ux=s*EYEX,uy=EYEY,uz=Math.sqrt(Math.max(0,1-ux*ux-uy*uy)),P=headPt(ux,uy,uz,fem,fv,1),rE=fem?.041:.04,n=v3n([s*.2,.05,1]),c=[P[0]-n[0]*(rE-.011),P[1]-n[1]*(rE-.011),P[2]-n[2]*(rE-.011)];
+  for(const s of[-1,1]){const ux=s*EYEX,uy=EYEY,uz=Math.sqrt(Math.max(0,1-ux*ux-uy*uy)),P=headPt(ux,uy,uz,fem,fv,1),rE=(fem?.041:.04)*EYF,n=v3n([s*.2,.05,1]),c=[P[0]-n[0]*(rE-.011*EYF),P[1]-n[1]*(rE-.011*EYF),P[2]-n[2]*(rE-.011*EYF)];
     const e=new THREE.SphereGeometry(rE,lod?12:32,lod?10:24),ep=e.attributes.position,eh=[];for(let i=0;i<ep.count;i++){const x=ep.getX(i),y=ep.getY(i),z=ep.getZ(i),l=Math.hypot(x,y,z)||1;eh.push(x/l,y/l,z/l)}e.userData.hd=eh;at(e,...c);gAdd(G,e,PS.eyeW,HW)}
   gAdd(G,tube([{y:1.48,cx:0,cz:-.008,rx:fem?.064:.08,rf:fem?.062:.076,rb:fem?.064:.078},{y:1.58,cx:0,cz:-.012,rx:fem?.06:.077,rf:fem?.058:.072,rb:fem?.061:.076},{y:1.69,cx:0,cz:-.025,rx:fem?.056:.07,rf:fem?.054:.066,rb:fem?.056:.07}],lod?8:14,2.1),PS.skin,(x,y)=>y>1.65?[BI.head]:y<1.53?Wb('chest','neck',(y-1.48)/.05*.5+.0):Wb('neck','head',(y-1.53)/.12*.6),(x,y,z,nx,ny,nz)=>(1-.1*sm(-.1,-.6,nz))*(.82+.18*sm(1.5,1.62,y)));
   for(const s of[-1,1]){const ex=headPt(s*.99,-.02,-.05,fem,fv),e=new THREE.SphereGeometry(.043,lod?8:14,lod?6:10);e.scale(.34,1.12,.68);e.rotateY(s*.32);at(e,ex[0]+s*.004,ex[1]-.008,ex[2]-.01);gAdd(G,e,PS.skin,HW,(x,y,z,nx)=>.78+.22*sm(-.2,.4,nx*s));

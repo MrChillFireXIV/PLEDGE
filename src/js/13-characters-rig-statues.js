@@ -115,6 +115,7 @@ function mkPersonX(o){o=Object.assign({},o);pickStyle(o);const fem=!!o.fem,BP=bo
   const pal=palFor(o),mat=chrMat(pal,o),sk=new THREE.Skeleton(BN.map(n=>B[n])),hi=new THREE.SkinnedMesh(buildBody(o,0),mat),lo=new THREE.SkinnedMesh(buildBody(o,1),mat);
   for(const m of[hi,lo]){m.bind(sk);m.castShadow=true;m.receiveShadow=true}
   if(!(o.stone||o.metal))for(const m of[hi,lo])addOutline(m,sk,o.shirt);
+  B.head.scale.setScalar(CHR_PROP.hs);B.head.position.y+=CHR_PROP.lift;   /* V306 smaller head, a little more neck (after binding, so the mesh follows) */
   const L=new THREE.LOD();L.addLevel(hi,0);L.addLevel(lo,o.shadow?60:14);g.add(L);
   {const cs=GC.csh||(GC.csh={geo:new THREE.PlaneGeometry(1,1).rotateX(-PI/2),mat:new THREE.MeshBasicMaterial({map:cvTex(128,128,(q,w,h)=>{const gr=q.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.4,'rgba(0,0,0,.55)');gr.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=gr;q.fillRect(0,0,w,h)}),transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3})});
    const m1=new THREE.Mesh(cs.geo,cs.mat),m2=new THREE.Mesh(cs.geo,cs.mat);m1.scale.set(1.05,1,.85);m2.scale.set(.62,1,.5);for(const m of[m1,m2]){m.position.y=.03;m.renderOrder=1;m.matrixAutoUpdate=true;g.add(m)}g.CS=[m1,m2]}
