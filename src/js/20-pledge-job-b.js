@@ -111,6 +111,7 @@ function prSpook(n){n.stun=2.2;n.aggro=0;n.tgt=null;n.chase=0;if(!n.named)n.flee
 let prAmb=20;
 function prTick(dt){if(!PM||mode==='title'||mode==='loading')return;const r=RS(),k=S.pledged?S.prole:null;
   if(S.pledged&&!S.prole&&mode==='play'&&!prSpinOn&&!CINE&&!EV)prSpin();
+  try{pqTick()}catch(e){}
   if((PM.userData.prk||'')!==(k?k+prStage():''))prApply();
   // party guests show up at night
   if((prTick.pt=(prTick.pt||0)-dt)<=0){prTick.pt=1;const on=S.gt>=20.5||S.gt<1.5;for(const p of PARTY)if(!p.aggro&&!p.down&&!p.follow)p.hidden=!on}
@@ -128,7 +129,7 @@ function prTick(dt){if(!PM||mode==='title'||mode==='loading')return;const r=RS()
     const ma=Math.atan2(tx-G.position.x,tz-G.position.z),want=Math.hypot(tx-G.position.x,tz-G.position.z)>.3?ma:P.face;G.rotation.y+=((((want-G.rotation.y)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*3);G.rotation.z=Math.sin(TT*1.7)*.08;
     G.userData.M.emissiveIntensity=.25+(typeof NIGHT==='number'?NIGHT:0)*.75;if(GHB.bub&&GHB.bubT>0){GHB.bubT-=dt;if(GHB.bubT<=0)GHB.bub.visible=false}}
   if(mode!=='play'||!k)return;
-  if(K.KeyT){K.KeyT=0;prAbility()}   // V172: R is Block now, the job move moved to T
+  if(K.KeyT){K.KeyT=0;pqT()}   // V172: R is Block now, the job move moved to T
   // ambient chatter
   if((prAmb-=dt)<=0){prAmb=26+rnd()*24;if(!P.inside||rnd()<.5){if(k==='popstar'){prSay(pick(['♪ la la laaa~ ♪','♪ Alpha Sig, oh oh ohhh~ ♪','♪ Hmm hmm hmmm~ ♪','♪ Do re mi fa SOOOL~ ♪']),2.4);prMelody(4,659);P.sing=1.5}
       else if(k==='caveman'){prSay(pick(['OOGA BOOGA!','UGH.','Me hungry.','Fire GOOD.','Ooga?','Rock. Nice rock.']),2.2);tone(98,.25,'sawtooth',.05)}
@@ -155,13 +156,13 @@ function prStatus(){const k=S.prole,r=RS();
   if(k==='delinquent')return r.dlD===S.day?'Today\'s mayhem: done':'<span class=\"bad\">Today\'s mayhem: not yet</span>';
   if(['weather','basketball','pouch','grenade','morning','captain','hype','mascot'].includes(k))return(r.cd||0)>TT?`${PR[k].ab} recharging... ${Math.ceil(r.cd-TT)}s`:`${PR[k].ab} ready`;return''}
 function prHud(){const e=$('rolep');if(!e)return;const k=S.pledged?S.prole:null;e.hidden=!k||mode==='slots';if(!k)return;if(e.dataset.k!==k){e.dataset.k=k;const c=$('rolei').getContext('2d');c.clearRect(0,0,64,64);c.drawImage(prIcon(k),0,0,64,64);$('rolen').textContent=PR[k].n;$('rolea').textContent=PR[k].ab}
-  const st=prStatus();if(e.dataset.s!==st){e.dataset.s=st;$('roles').innerHTML=st}const cd=(RS().cd||0)>TT&&k!=='stats';$('rolek').classList.toggle('cd',cd)}
+  const st=prStatus();if(e.dataset.s!==st){e.dataset.s=st;$('roles').innerHTML=st}const cd=(RS().cd||0)>TT&&k!=='stats';$('rolek').classList.toggle('cd',cd);pqHud()}
 function prRosterHTML(){const k=S.pledged?S.prole:null;if(!k)return'';const R_=PR[k],r=RS();let x='';
   if(k==='stats'){const L=r.led||{bong:0,women:0,beers:{}},bs=Object.entries(L.beers||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);x=`<p><b>Season totals:</b> ${Object.values(L.beers||{}).reduce((a,c)=>a+c,0)} beers · ${L.bong||0} bong hits · ${L.women||0} women at parties · ${r.since||0} tallies not yet reported</p>${bs.length?'<p><b>Beers by brother:</b> '+bs.map(([n,c])=>`${n} ${c}`).join(' · ')+'</p>':''}`}
   else if(k==='burglar')x=`<p><b>Today's heist:</b> ${r.lastSteal===S.day?'done':'not yet. Every other house keeps its treasure on a stand by the lounge fireplace.'} · <b>Loot so far:</b> ${r.lootN||0}${r.loot&&r.loot.length?' ('+r.loot.slice(-6).join(', ')+')':''}</p>`;
   else if(k==='fruit')x=`<p><b>Today's fruit:</b> ${prStatus().replace(/<[^>]+>/g,'')} · Next size up: ${prStage()<3?FRUITS[prStage()+1][1].toLowerCase():'this is as big as it gets'}</p>`;
   else if(k==='skate')x=`<p><b>Best combo:</b> ×${r.best||0}</p>`;else if(k==='popstar')x=`<p>${prStatus()}</p>`;
-  return`<div class="prjob" style="--rc:${R_.c}"><img src="${prPic||prIconURL(k)}" alt=""><div><div class="lbl" style="color:${R_.c}">Your pledge job</div><h3 style="margin:2px 0 4px">${R_.n}</h3><p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>R</kbd> ${R_.ab}</p>${x}</div></div>`}
+  return`<div class="prjob" style="--rc:${R_.c}"><img src="${prPic||prIconURL(k)}" alt=""><div><div class="lbl" style="color:${R_.c}">Your pledge job</div><h3 style="margin:2px 0 4px">${R_.n}</h3><p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>T</kbd> ${R_.ab}</p>${x}</div></div>${pqHTML()}`}
 
 // ---------------------------------------------------------------- the Pledge Machine
 function prPortrait(k){try{const ps=new THREE.Scene(),R_=PR[k];ps.background=new THREE.Color(0x101828).lerp(new THREE.Color(R_.c),.38);ps.add(new THREE.HemisphereLight(0xffffff,0x5a4a5a,.85));const d1=new THREE.DirectionalLight(0xfff2e0,1.15);d1.position.set(2.5,4,5);ps.add(d1);const d2=new THREE.DirectionalLight(0xb8d0ff,.55);d2.position.set(-4,2.5,-2);ps.add(d2);if(sc.environment)ps.environment=sc.environment;

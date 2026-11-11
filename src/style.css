@@ -492,3 +492,18 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #prpick .prpkt b{color:var(--rc);font-size:15px}
 #prpick .prpkt small{font-size:12.5px;line-height:1.3}
 #prpick .prpkt i{font-style:normal;font-size:11px;opacity:.7}
+
+/* V318 pledge quota: bar under the pledge job on the HUD, and the planner panel */
+#rolq{display:flex;align-items:center;gap:6px;margin-top:3px}
+#rolq .rolqb{flex:1;min-width:70px;height:7px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}
+#rolq i{display:block;height:100%;width:0;background:var(--gold);border-radius:99px;transition:width .4s}
+#rolq b{font-size:11px;min-width:30px;text-align:right;color:var(--gold)}
+#rolq.full i{background:#6fd08a}#rolq.full b{color:#6fd08a}
+.pqbox{border:2px solid var(--rc);border-radius:10px;padding:10px 12px;margin:10px 0;background:rgba(255,255,255,.5)}
+.pqtop{display:flex;justify-content:space-between;align-items:baseline;font-size:16px}.pqtop span{font-weight:700;color:var(--rc);font-size:20px}
+.pqbar{height:12px;border-radius:99px;background:rgba(0,0,0,.14);overflow:hidden;margin:6px 0}.pqbar i{display:block;height:100%;background:var(--rc);border-radius:99px}
+.pqnote{margin:2px 0 8px;font-size:12.5px;opacity:.8}
+.pqcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 18px}
+.pqcols ul{list-style:none;margin:2px 0 8px;padding:0;font-size:13px;line-height:1.45}
+.pqcols li.dn{opacity:.55;text-decoration:line-through}
+.pqcols li small{opacity:.7;text-decoration:none}

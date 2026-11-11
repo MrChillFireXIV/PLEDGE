@@ -33,7 +33,7 @@ function failMission(msg){if(!AM)return;const m=AM.m;AM.temps.forEach(despawn);A
   // auto missions (the Grant pledge intro) have no giver to restart them from, so put the player straight back on the step before the cutscene
   if(m.auto&&!S.done[m.id]){AM={m,steps:m.steps().filter(s=>s.t!=='cine').map(s=>Object.assign({},s)),i:0,temps:[]};runStep();card({title:'Task failed',sp:m.name,text:msg+'\n\nGrant is still waiting for you in the throne room.'});return}
   card({title:'Task failed',sp:m.name,text:msg+'\n\n'+(m.retry||'The task is still on your list. Start it again from the same spot.')})}
-function checkChapter(){if(S.ch>10)return;const ms=M.filter(m=>m.ch===S.ch&&m.main);if(ms.length&&ms.every(m=>S.done[m.id])){S.ch++;if(S.ch===3)unlockLake();setTimeout(()=>gainXP(0),50);refreshNamed();big('CHAPTER '+S.ch,2200);chapterIntro(S.ch);saveGame()}}
+function checkChapter(){if(S.ch>10)return;const ms=M.filter(m=>m.ch===S.ch&&m.main);if(ms.length&&ms.every(m=>S.done[m.id])){if(S.ch===8&&pqGate())return;/* V318 Hell Week waits for the pledge quota */S.ch++;if(S.ch===3)unlockLake();setTimeout(()=>gainXP(0),50);refreshNamed();big('CHAPTER '+S.ch,2200);chapterIntro(S.ch);saveGame()}}
 const CHSCENE={};   // V162 chapters can register a cutscene here; without one the chapter card is shown as before
 function chapterIntro(n){const plain=()=>card({title:'Chapter '+n+': '+CHN[n],sp:'',text:CHT[n]});if(!CHSCENE[n]){plain();return}let tries=0;const go=()=>{if(S.ch!==n)return;if((mode!=='play'||AM||P.dead)&&tries++<50){setTimeout(go,500);return}if(mode!=='play'||AM){plain();return}Promise.resolve().then(()=>CHSCENE[n]()).catch(e=>{console.error(e);try{c1CineOff()}catch(_){}if(mode==='cine')mode='play';plain()})};setTimeout(go,2300)}
 function tryStart(m){if(AM||S.done[m.id])return;/* V172: a stale menu entry can't restart a finished or running quest */if(m.when&&!inWin(S.gt,m.when)){toast(`Come back between ${fmtH(m.when[0])} and ${fmtH(m.when[1])}.`);sfx('bad');return}startMission(m)}
@@ -176,7 +176,7 @@ function nearest(){let best=null,bd=1e9;const add=(x,z,r,label,f,pri=1)=>{const 
   if(EV)return best;
   try{lootPrompts(add)}catch(e){}
   for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?0:2)}
-  try{c2Prompts(add)}catch(e){}try{c3Prompts(add)}catch(e){}try{c4Prompts(add)}catch(e){}try{c5Prompts(add)}catch(e){}try{c6Prompts(add)}catch(e){}try{c7Prompts(add)}catch(e){}try{c8Prompts(add)}catch(e){}try{c9Prompts(add)}catch(e){}try{c10Prompts(add)}catch(e){}
+  try{pqPrompts(add)}catch(e){}try{c2Prompts(add)}catch(e){}try{c3Prompts(add)}catch(e){}try{c4Prompts(add)}catch(e){}try{c5Prompts(add)}catch(e){}try{c6Prompts(add)}catch(e){}try{c7Prompts(add)}catch(e){}try{c8Prompts(add)}catch(e){}try{c9Prompts(add)}catch(e){}try{c10Prompts(add)}catch(e){}
   if(P.inside){const I=INT[P.inside];if(I)for(const o of I.objs)add(o.x,o.z,o.r,o.label,o.f,1);return best}
   if(!P.inside){if(S.ch>=3&&P.z<OD)add(70,699,3.2,'Enter the Lake District',()=>lakeGo(1),2);else if(P.z>OD&&P.z<INTZ)add(70,LZ+546.5,3.2,'Leave the Lake District',()=>lakeGo(0),2)}
   if(isR('cone'))for(const c of CONES)if(c.gD!==S.day)add(c.x,c.z,2.4,'Grab the traffic cone',()=>coneGrab(c),2);

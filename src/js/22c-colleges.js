@@ -16,7 +16,7 @@ function colRoom(c,i){const C=CI[c],b=B.find(b=>b.id===C.bid);
 
 // ---------------------------------------------------------------- shared minigame helpers
 const MGX={};
-function mgWrap(el,c,intro,body){el.innerHTML=`<p class="mgintro">${CI[c].prof}: "${intro}"</p>${body}`}
+function mgWrap(el,c,intro,body){el.innerHTML=`<p class="mgintro">${(CI[c]||MGD[c]).prof}: "${intro}"</p>${body}`}
 function mgNeed(n,g){return Math.max(1,Math.min(n,n-2+g)-(S.studied?1:0))}   /* of n: pass 2 at grade 1, 3 at grade 2, all at grade 3; studying forgives one */
 const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹',sup=n=>String(n).split('').map(d=>SUP[+d]).join('');
 
