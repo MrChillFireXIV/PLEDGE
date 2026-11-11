@@ -188,7 +188,7 @@ function buildCampus(){
         else if(K==='zimmer'){prism(p,0,h,'rieve',SM({map:zimPave2(),roughness:.85}),o)}
         else if(b.pp){for(const r of b.pp)prism(gpoly(r),0,h,b.s,0x5a5c62,{});{const M=mcPass(b);prism(gpoly(b.arch),M.yc,h-M.yc,b.s,0x5a5c62,{solid:false})}}   // McMicken: walk-through passage under the centre
         else prism(p,0,h,b.s,b.s==='stone'?0x7a7468:b.s==='daapO'?0xdcdad4:0x5a5c62,o)}
-    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:b.s==='daniels'?DANY:b.s==='dabney'?DABY:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb&&b.s!=='dabney')markPoly(pp,hh);else if(b.s==='dabney')for(const q of[clipX(pp,DABP[0],1),clipX(pp,DABP[1],0)])if(q.length>=3)markPoly(q,hh)})}   /* V312 keep Dabney's breezeway walkable */
+    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:b.s==='daniels'?DANY:b.s==='dabney'?DABY:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb&&b.s!=='dabney')markPoly(pp,hh);else if(b.s==='dabney')for(const q of[clipX(pp,DABP[0],1,1),clipX(pp,DABP[1],0,1)])if(q.length>=3)markPoly(q,hh)})}   /* V312 keep Dabney's breezeway walkable */
     // roofs: hips on simple blocks, stepped hips on the irregular old brick halls, plant rooms on big flat roofs
     if(!(b.r==='hip'&&b.rn>.72)&&!b.ir&&!b.brz&&b.u&&!['garage','roof','tuc','crc','steger','morgens','cch','daap'].includes(b.s))coping(main,h,/brick|bald|stone|diet|lind|steger/.test(String(b.s))?0xd6cebc:0xb9b5ac);
     if(b.r==='hip'&&b.rn>.72&&b.s!=='roof')hipOnRect(b.rect,h,b.rh?Math.min(b.rh,Math.min(b.rect[2],b.rect[3])*.55):Math.min(b.u?5.5:4,Math.min(b.rect[2],b.rect[3])*(b.u?.28:.42)),b.u?0x3c4150:RC[(B.length*7)%RC.length]);
@@ -366,23 +366,23 @@ function braunDoor(X,Z,gy,D,DW,DH){const st=SM({color:0xd2c9b2,roughness:.85}),s
 // ---- V312 Dabney Hall (residence hall, 1960s, painted grey-blue brick): a glass ground floor set back behind teal-tiled round columns under a cream
 // canopy band; a walk-through breezeway under the middle block from the sand volleyball court to the other side; the volleyball court, a
 // picnic table with a red umbrella, ornamental grass and the UC Bike Kitchen sign.
-const DABY=4.0,DABP=[573.0,576.8],DABLV=-1.1;   /* ground floor height; the breezeway runs north-south between these x */
-function clipX(p,x0,keepLess){const o=[],n=p.length,ins=q=>keepLess?q[0]<=x0:q[0]>=x0;for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%n],ia=ins(a),ib=ins(b);if(ia)o.push(a);if(ia!==ib){const t=(x0-a[0])/(b[0]-a[0]);o.push([x0,a[1]+(b[1]-a[1])*t])}}return o}
+const DABY=4.0,DABP=[274.6,278.4],DABLV=-1.1;   /* ground floor height; the breezeway runs east-west through the north end of the west wing, between these z */
+function clipX(p,v,keepLess,ax=0){const o=[],n=p.length,ins=q=>keepLess?q[ax]<=v:q[ax]>=v;for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%n],ia=ins(a),ib=ins(b);if(ia)o.push(a);if(ia!==ib){const t=(v-a[ax])/(b[ax]-a[ax]),q=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];q[ax]=v;o.push(q)}}return o}   /* half-plane clip on x (ax 0) or z (ax 1) */
 function dabneyX(b,p,h,holes){const Y=DABY,CRM=mt(0xdcd3bf,.85),SOF=mt(0xc9c4b8,.9),TEAL=mt(0x3d7a74,.45,.1),GL='glass';
-  const parts=[clipX(p,DABP[0],1),clipX(p,DABP[1],0)].filter(q=>q.length>=3);
+  const parts=[clipX(p,DABP[0],1,1),clipX(p,DABP[1],0,1)].filter(q=>q.length>=3);
   for(const q of parts){prism(danOff(q,-1.3),0,Y,GL,0x5d6266,{solid:false});markPoly(danOff(q,-1.3),h)}   // glass ground floor, set back
   prism(p,Y,h-Y,'dabney',SOF,{holes,solid:false});                                                    // painted brick above (the bottom face is the soffit)
   prism(danOff(p,.25),Y-.85,.85,CRM,CRM,{solid:false});                                               // cream canopy band
   // round columns along the front of the ground floor, every ~4.5 m, skipping the breezeway
   for(let i=0;i<p.length;i++){const[ax,az]=p[i],[bx,bz]=p[(i+1)%p.length],L=Math.hypot(bx-ax,bz-az);if(L<2.5)continue;const ux=(bx-ax)/L,uz=(bz-az)/L,k=Math.max(1,Math.round(L/4.5));
     const sgn=inPoly((ax+bx)/2+uz*.5,(az+bz)/2-ux*.5,p)?1:-1;
-    for(let j=0;j<=k;j++){const t=Math.min(L-.6,Math.max(.6,j*L/k)),x=ax+ux*t+uz*.55*sgn,z=az+uz*t-ux*.55*sgn;if(x>DABP[0]-.6&&x<DABP[1]+.6)continue;
+    for(let j=0;j<=k;j++){const t=Math.min(L-.6,Math.max(.6,j*L/k)),x=ax+ux*t+uz*.55*sgn,z=az+uz*t-ux*.55*sgn;if(z>DABP[0]-.6&&z<DABP[1]+.6&&x<572.5)continue;
       const c=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,Y-.85,14),TEAL);c.position.set(x,(Y-.85)/2,z);c.castShadow=true;sc.add(c);markR(x-.3,z-.3,x+.3,z+.3,Y)}}
   // the breezeway: lit ceiling, side walls of painted block, a floor of concrete
-  {const zN=300.87,zS=308.66,L=zS-zN,W=DABP[1]-DABP[0],cx=(DABP[0]+DABP[1])/2,cz=(zN+zS)/2;
-    for(const x of DABP){const w=new THREE.Mesh(bgeo(.2,Y,L),mt(0x8a949a,.85));w.position.set(x+(x===DABP[0]?-.1:.1),Y/2,cz);sc.add(w)}
-    for(let k=0;k<3;k++){const l=new THREE.Mesh(bgeo(1.2,.05,.3),SM({color:0xfff6e0,emissive:0xfff0d0,emissiveIntensity:.9}));l.position.set(cx,Y-.03,zN+L*(k+.5)/3);sc.add(l)}
-    const f=new THREE.Mesh(bgeo(W,.04,L+1.6),mt(0xbdb9b0,.95));f.position.set(cx,.02,cz);f.receiveShadow=true;sc.add(f)}
+  {const xW=563.8,xE=571.5,L=xE-xW,W=DABP[1]-DABP[0],cx=(xW+xE)/2,cz=(DABP[0]+DABP[1])/2;
+    for(const z of DABP){const w=new THREE.Mesh(bgeo(L,Y,.2),mt(0x8a949a,.85));w.position.set(cx,Y/2,z+(z===DABP[0]?-.1:.1));sc.add(w)}
+    for(let k=0;k<3;k++){const l=new THREE.Mesh(bgeo(.3,.05,1.2),SM({color:0xfff6e0,emissive:0xfff0d0,emissiveIntensity:.9}));l.position.set(xW+L*(k+.5)/3,Y-.03,cz);sc.add(l)}
+    const f=new THREE.Mesh(bgeo(L+1.6,.04,W),mt(0xbdb9b0,.95));f.position.set(cx,.02,cz);f.receiveShadow=true;sc.add(f)}
   dabneyYard()}
 function dabneyYard(){const g=(x,z)=>terrH(x,z)-DABLV,   /* the building's objects are lifted by its level (lvo) after it is built */add=(geo,m,x,y,z,ry)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);if(ry)o.rotation.y=ry;o.castShadow=true;o.receiveShadow=true;sc.add(o);return o};
   // sand volleyball court (8 x 16 m) in the courtyard north of the middle block, east of the west wing, red boundary tape
