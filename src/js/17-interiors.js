@@ -54,7 +54,11 @@ function compWall(I,L,ax,az,bx,bz,face,skip=[],y=3.3){const hz=az===bz,a0=hz?ax:
 function fswords(I,x,z,face,y,col){const g=new THREE.Group(),M_=c=>mt(c,.4,.5);const sh=new THREE.Mesh(GC.shield||(GC.shield=new THREE.CylinderGeometry(.62,.62,.08,22).rotateX(PI/2)),M_(col));sh.position.z=.07;g.add(sh);const rim=new THREE.Mesh(GC.rim||(GC.rim=new THREE.TorusGeometry(.62,.05,6,22)),M_(0xc9a046));rim.position.z=.1;g.add(rim);const boss=new THREE.Mesh(bgeo(.26,.26,.06),M_(0xc9a046));boss.rotation.z=PI/4;boss.position.z=.13;g.add(boss);
   for(const sgn of[-1,1]){const sw=new THREE.Group();const add=(ge,c,px,py)=>{const m=new THREE.Mesh(ge,M_(c));m.position.set(px,py,0);sw.add(m)};add(bgeo(.08,2.1,.025),0xdfe4ea,0,.35);add(bgeo(.46,.08,.08),0xc9a046,0,-.72);add(bgeo(.08,.36,.08),0x4a2a18,0,-.94);add(bgeo(.12,.12,.12),0xc9a046,0,-1.15);sw.rotation.z=sgn*.72;sw.position.z=.03;g.add(sw)}
   g.position.set(I.x0+x,y,I.z0+z);g.rotation.y=fry(face);sc.add(g)}
-function houseDecor(I,o){const L=o.letters;I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);if(I.id==='asr')I.yrs=I.yrs.filter(v=>v!==2019);
+/* V303 each house has its own founding year. ΑΣΡ (1952) is the oldest house on the Row, as Hunter says in Chapter 1; ΚΘΩ is old enough to have stolen ΑΣΡ's bell in '87 */
+const HFOUND={'ΑΣΡ':1952,'ΚΘΩ':1957,'ΩΨΔ':1963,'ΚΑΝ':1968,'ΛΧΑ':1971,'ΔΛΦ':1974,'ΘΖ':1979,'ΓΩΖ':1983};
+function houseFounded(o){const L=(o&&o.letters)||'';if(HFOUND[L])return HFOUND[L];let h=0;for(const c of L)h=(h*31+c.charCodeAt(0))>>>0;return 1958+h%30}
+function romanYr(y){let r='';for(const[v,s]of[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']])while(y>=v){r+=s;y-=v}return r}
+function houseDecor(I,o){const L=o.letters;I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);{const f0=houseFounded(o);I.yrs=I.yrs.filter(v=>v>=f0)}if(I.id==='asr')I.yrs=I.yrs.filter(v=>v!==2019);
   if(I.id==='asr'){compWall(I,L,14.2,2,14.2,12,'e');compWall(I,L,33.8,2,33.8,12,'w',[[8.3,8.3]])}
   compWall(I,L,1,14.2,47,14.2,'s',[[5,9],[22,26],[39,43]]);compWall(I,L,1,17.8,47,17.8,'n',[[5,9],[22,26],[39,43]]);
   fb(I,8,35.25,3.6,.55,.14,0x5a3a24,2.6,0);fswords(I,8,35.82,'n',4.05,o.shield);fswords(I,24,.18,'s',5.05,o.shield);fswords(I,47.82,7,'w',4.55,o.shield);fswords(I,24,35.82,'n',4.9,o.shield);
@@ -119,7 +123,7 @@ function wing(I,o,h0,h1,diningDoor){const C=0xe8e8e8;
   }
 function upInt(id,o){const hs=hsty(id);const I=mkInt(id+'_up',64,36,{up:1,doorX:24,hole:[STX0,STZT,STX1,STZB+.2],chole:id==='asr'?[25.3,25.6,28.3,32.5]:null,   // V196 ΑΣΡ: an opening in the 2nd-floor ceiling over the stairs to the 3rd floor
    name:o.name+', Second Floor',floor:'carpet:'+new THREE.Color(o.rug).multiplyScalar(.55).getHex(),wall:o.wall,low:o.low,wm:wallTex(hs.paper==='brick'?'paint':hs.paper,o.wall),lm:wainTex(hs.wains,o.low),rail:0xf2ece0,walls:[[48,0,48,16],[48,20,48,36],[48,16,50.5,16],[53.5,16,58.5,16],[61.5,16,64,16],[56,0,56,16],[48,20,54,20],[58,20,64,20],[0,16,4.5,16],[7.5,16,16.5,16],[19.5,16,28.5,16],[31.5,16,40.5,16],[43.5,16,48,16],[0,20,6.5,20],[9.5,20,16,20],[32,20,33.5,20],[36.5,20,41.5,20],[44.5,20,48,20],[12,0,12,16],[24,0,24,16],[36,0,36,16],[16,20,16,36],[32,20,32,36],[38,20,38,36]]});
-  I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);const L=o.letters;
+  I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);{const f0=houseFounded(o);I.yrs=I.yrs.filter(v=>v>=f0)}const L=o.letters;
   for(let r=0;r<4;r++){const bx=r*12;fbed(I,bx+2.4,2.4,o.bed);fbed(I,bx+9.6,2.4,o.bed);fb(I,bx+2,13.4,1.8,.8,.8,0x6a4a2c);fchair(I,bx+2,12.4);fb(I,bx+10,13.6,1.5,.7,1.4,0x5a3a24);frug(I,bx+6,8,5,5,o.rug);}
   ftv(I,.7,28,'e');fsofa(I,6,28,6,'w',o.sofa);fsofa(I,8,34.4,5,'n',o.sofa);ftable(I,4.5,28,1.4,3,0x5a3a24);fshelf(I,15.4,27,8,true);frugP(I,7,28,9,10,o.rug2,hs.rug);
   frug(I,22,26,9,9,o.rug);stairSteps(I,1,0x6a4a2a);box(I.x0+STX0-.2,1.05,I.z0+(STZT+.4+36)/2,.12,.1,36-STZT-.4,0x3a2415,0);for(let z=STZT+.3;z<36;z+=1.4)box(I.x0+STX0-.2,.52,I.z0+z,.1,1.05,.1,0x3a2415,0);markR(I.x0+STX0-.45,I.z0+STZT+.3,I.x0+STX0-.02,I.z0+36,1.1);markR(I.x0+STX0,I.z0+STZB+.25,I.x0+STX1,I.z0+36,1.1);markR(I.x0+STX1,I.z0+STZT-.4,I.x0+32,I.z0+36,6);

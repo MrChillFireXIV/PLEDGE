@@ -344,7 +344,7 @@ function charterTex(o){const k='chr'+o.letters;return HTEX[k]||(HTEX[k]=ctex(320
   q.strokeStyle='#8a6a2a';q.lineWidth=3;q.strokeRect(12,12,W-24,H-24);q.lineWidth=1;q.strokeRect(18,18,W-36,H-36);q.fillStyle='#3a2410';q.textAlign='center';
   q.font='bold 26px Georgia,serif';q.fillText('CHARTER',W/2,62);q.font='italic 15px Georgia,serif';q.fillText('granted to the chapter of',W/2,92);q.font='bold 34px Georgia,serif';q.fillText(o.letters,W/2,136);
   q.font='italic 14px Georgia,serif';q.fillText(o.name.replace(/ House$/,''),W/2,162);q.fillStyle='rgba(58,36,16,.55)';for(let y=188;y<330;y+=11){const w=(W-80)*(y>318?.5:.9+rnd()*.1);q.fillRect((W-w)/2,y,w,2)}
-  q.fillStyle='#3a2410';q.font='italic 13px Georgia,serif';q.fillText('In witness whereof · MCMLII',W/2,350);q.strokeStyle='#3a2410';for(const x of[80,W-80]){q.beginPath();q.moveTo(x-45,382);q.bezierCurveTo(x-20,368,x,392,x+40,374);q.stroke()}
+  q.fillStyle='#3a2410';q.font='italic 13px Georgia,serif';q.fillText('In witness whereof · '+romanYr(houseFounded(o)),W/2,350);q.strokeStyle='#3a2410';for(const x of[80,W-80]){q.beginPath();q.moveTo(x-45,382);q.bezierCurveTo(x-20,368,x,392,x+40,374);q.stroke()}
   q.fillStyle='#9a1f24';q.beginPath();q.arc(W/2,384,22,0,TAU);q.fill();q.fillStyle='#c84040';q.beginPath();q.arc(W/2,384,14,0,TAU);q.fill();q.fillStyle='#9a1f24';q.font='bold 12px Georgia,serif';q.fillText(o.letters,W/2,388)}))}
 function crestTex(o){const k='crest'+o.letters+o.shield;return HTEX[k]||(HTEX[k]=ctex(320,380,(q,W,H)=>{q.clearRect(0,0,W,H);const C=hexS(o.shield),GD='#d8b048';
   const shield=()=>{q.beginPath();q.moveTo(60,70);q.lineTo(260,70);q.lineTo(260,190);q.quadraticCurveTo(255,280,160,330);q.quadraticCurveTo(65,280,60,190);q.closePath()};
@@ -366,7 +366,7 @@ function houseExtras(I,o,s,spots){const take=(x,z)=>{spots=spots.filter(p=>!(Mat
   {const x=16.2,z=22.5;take(x,z);frameAt(I,x,z,'e',2.75,1.25,1.65,charterTex(o),0x2a1a10,.14);const g=wallGrp(I,x,z,'e',3.95);const lt=new THREE.Mesh(bgeo(.9,.07,.14),bm(0xfff0c0));lt.position.z=.2;g.add(lt);
     const br=new THREE.Mesh(bgeo(.12,.05,.25),mt(0xc9a046,.35,.6));br.position.set(0,.05,.1);g.add(br);fb(I,16.45,22.5,.5,1.6,1.0,0x3a2415);
     const pl=signMesh('OUR CHARTER',1.2,.22,'#2a1a10','#e2b64c','Georgia');pl.position.set(I.x0+x+.03,1.75,I.z0+z);pl.rotation.y=fry('e');sc.add(pl);
-    iobj(I,x+1.4,z,'Read the chapter charter',()=>card({title:'The Chapter Charter',sp:o.name,text:`A sheet of heavy parchment behind glass, the seal still bright red: the charter that founded this chapter of ${o.letters} in 1952.\n\nThe founders' signatures run along the bottom. Somebody has polished the brass picture light so often the paint has worn off round the switch.`}),1.5)}
+    iobj(I,x+1.4,z,'Read the chapter charter',()=>card({title:'The Chapter Charter',sp:o.name,text:`A sheet of heavy parchment behind glass, the seal still bright red: the charter that founded this chapter of ${o.letters} in ${houseFounded(o)}.\n\nThe founders' signatures run along the bottom. Somebody has polished the brass picture light so often the paint has worn off round the switch.`}),1.5)}
   // the coat of arms on a carved wooden plaque, on the dining room's end wall
   {const x=47.8,z=23.5;take(x,z);const g=wallGrp(I,x,z,'w',3.25),W=mt(0x3a2415,.6);const bk=new THREE.Mesh(bgeo(2.6,3.0,.08),W);bk.position.z=.04;bk.castShadow=true;g.add(bk);
     const tr=new THREE.Mesh(bgeo(2.75,3.15,.04),mt(0xc9a046,.35,.6));tr.position.z=.01;g.add(tr);
