@@ -25,7 +25,7 @@ One-line purpose per file, in load order (`src/order.txt`). Sizes are in KB, and
 | 10-world-build | 62 | `buildWorld`, roll-call ring, statues |
 | 11-offcampus-trees-dressing | 66 | stickups, frat backyards (`YARDS`, `YDEF`, `frYard`: pong + beer die tables), trees, merging |
 | 11b-hughes | 38 | Hughes Correctional Institute building |
-| 12-characters-geometry | 53 | body mesh `buildBody(o,lod)` (clothing `cl2`: tee/polo/hoodie/flannel/tank/**bare**), head, hair |
+| 12-characters-geometry | 53 | body mesh `buildBody(o,lod)` (clothing `cl2`: tee/polo/hoodie/flannel/tank/**bare**), head, hair. V306 proportions: `CHR_PROP` + `chrWarp` (in `gBuild`), `bonePos` (warped) vs `bonePos0` (raw), eye scale `EYF`; `?oldchars` = old look |
 | 13-characters-rig-statues | 37 | palette `PS` slots, `mkPerson`, `animP` (states, `g.HOLD` poses: tray/box/up/bucket/overhead), ragdoll |
 
 ## People, state, systems
