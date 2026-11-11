@@ -400,3 +400,4 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #c3sir{position:fixed;inset:0;z-index:7;pointer-events:none;mix-blend-mode:screen;animation:c3sr .8s steps(1) infinite}
 #c3sir[hidden]{display:none}
 @keyframes c3sr{0%{background:radial-gradient(ellipse at 0% 50%,rgba(255,40,40,.6),rgba(255,40,40,0) 80%)}50%{background:radial-gradient(ellipse at 100% 50%,rgba(50,90,255,.62),rgba(50,90,255,0) 80%)}}
+#maptip{display:none!important}   /* V298 never styled; hover names are drawn on the map canvas */

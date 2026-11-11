@@ -101,8 +101,7 @@ function mgBadge(q,x,y,r,ic){q.fillStyle='#14203a';q.strokeStyle='#5aa7e0';q.lin
 function mapLegend(q,c){if(MAPTAB==='lake')return;const L=[['★','#ffd060','Story task'],['★','#4a9cff','Side quest'],['🎮','','Minigame','mg'],['$','#e2b64c','Shop'],['$','#2f9a4a','Odd job','dot'],['📖','','Class now'],['📷','','Yearbook spot'],['📍','','Your route']];
   const w=476,h=58,x=c.width-w-6,y=c.height-h-5,cw=104;q.save();q.fillStyle='rgba(22,20,16,.84)';q.strokeStyle='#e2b64c';q.lineWidth=1.6;q.beginPath();q.roundRect?q.roundRect(x,y,w,h,8):q.rect(x,y,w,h);q.fill();q.stroke();
   q.fillStyle='#e2b64c';q.font='13px Graduate,Georgia';q.textAlign='center';q.textBaseline='middle';q.fillText('MAP',x+30,y+h/2-8);q.fillText('KEY',x+30,y+h/2+8);
-  const LD={'Story task':'A main-story quest starts or continues here','Side quest':'An optional side quest','Minigame':'A minigame you can play here','Shop':'Buy food and items here','Odd job':'A quick paid job','Class now':'One of your classes is meeting here right now','Yearbook spot':'Take a yearbook photo here','Your route':'Where your blue trail is leading'};
-  L.forEach(([ic,col,t,dot],i)=>{const cx=x+66+(i%4)*cw,cy=y+17+Math.floor(i/4)*24;LEGHIT.push({x:cx-10,y:cy-11,w:cw-4,h:22,title:t,sub:LD[t]||'',ic});if(dot==='mg')mgBadge(q,cx,cy,8,ic);else if(dot){q.fillStyle=col;q.beginPath();q.arc(cx,cy,7,0,TAU);q.fill();q.fillStyle='#fff';q.font='bold 10px Arial';q.textAlign='center';q.fillText(ic,cx,cy+1)}
+  L.forEach(([ic,col,t,dot],i)=>{const cx=x+66+(i%4)*cw,cy=y+17+Math.floor(i/4)*24;if(dot==='mg')mgBadge(q,cx,cy,8,ic);else if(dot){q.fillStyle=col;q.beginPath();q.arc(cx,cy,7,0,TAU);q.fill();q.fillStyle='#fff';q.font='bold 10px Arial';q.textAlign='center';q.fillText(ic,cx,cy+1)}
     else{q.font=col?'bold 15px Arial':'13px Arial';q.textAlign='center';q.fillStyle=col||'#fff';q.fillText(ic,cx,cy+1)}q.textAlign='left';q.fillStyle='#f2e6c8';q.font='600 11.5px Archivo,Arial';q.fillText(t,cx+12,cy+1)});
   q.restore()}
 function drawFull(c){const lake=MAPTAB==='lake',ZS=1010,LH=320;c.width=lake?1400:900;c.height=lake?LH*2:750;const q=c.getContext('2d'),k=900/WW;q.clearRect(0,0,c.width,c.height);let X,Z,IX,IZ;
@@ -117,6 +116,7 @@ function mapOverlay(){if(!FMT||!FMT.c.isConnected)return;const{c,X,Z,k,lake}=FMT
   if(!lake||S.ch>=3)mapMarkers(q,X,Z,k,true);
   const mp=mapPos();q.save();q.translate(X(mp[0]),Z(mp[1]));q.rotate(PI-P.face);q.shadowColor='rgba(0,0,0,.6)';q.shadowBlur=5;q.fillStyle='#fff';q.strokeStyle='#7d1f2c';q.lineWidth=2.5;q.beginPath();q.moveTo(0,-13);q.lineTo(10,11);q.lineTo(0,5);q.lineTo(-10,11);q.closePath();q.fill();q.stroke();q.restore();
   if(MAPHOV&&MAPHOV.lab)mapHovLabel(q,c,MAPHOV.lab);
+  else if(MAPHOV&&MAPHOV.m){const m=MAPHOV.m,sb=String(m.sub||'');mapHovLabel(q,c,{x:m.x,y:m.y-m.r,h:m.r*2,title:m.title,sub:sb.length>64?sb.slice(0,62)+'…':sb})}   /* V298 names for the icons across campus */
   if(MAPSEL)mapCardDraw(q,c);
   if(lake&&S.ch<3){q.fillStyle='rgba(10,14,24,.6)';q.fillRect(0,0,c.width,c.height);q.fillStyle='#fff';q.font='20px Graduate,Georgia';q.textAlign='center';q.textBaseline='middle';q.fillText('LOCKED UNTIL CHAPTER 3',c.width/2,c.height/2)}}
 function mapLoop(){MAPRAF=0;if(mode!=='planner'||!FMT||!FMT.c.isConnected){const m=$('mapcard');if(m)m.hidden=true;return}const tgt=MAPHOV&&MAPHOV.e?1.07:1;MAPSC+=(tgt-MAPSC)*.25;mapOverlay();MAPRAF=requestAnimationFrame(mapLoop)}
