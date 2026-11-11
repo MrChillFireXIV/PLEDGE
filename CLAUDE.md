@@ -14,10 +14,21 @@ Read `MAP.md` next (about 3k tokens). Open only the files you need. The whole ga
 
 ## Test
 Testing runs in headless Chromium.
+
+**Fast loop first: the live test server** (`tools/live.js`, header has details). One page stays loaded, so a check takes milliseconds:
+- `tools/lv start` builds `dist/PLEDGE-fast.html` (no music, `?fast` = quarter crowd) and boots it once (~20 s). `--full` uses the real build.
+- `tools/lv eval 'JS'` runs JS in the game (story drivers `T3` loaded; promises awaited). `chapJump('c1rival')` + clicking through takes <1 s.
+- `tools/lv swap` after editing `src/js`: changed top-level functions are re-declared in the running page (~1 s, no rebuild). It says when a change is outside a function (const/let/top-level code): then `tools/lv reload` (~20 s).
+- `tools/lv shot NAME x,y,z,lx,ly,lz` (3D view, `shots/live/NAME.png`); `tools/lv shotui NAME -` adds the HTML UI but can crash on busy outdoor frames. `tools/lv step N`, `tools/lv errors`, `tools/lv stop`. After a crash the next command reloads.
+- The software renderer still can't handle busy fight frames or show real lighting. For those, use the GPU preview below.
+
+**Real graphics card: the preview.** `tools/preview.sh` publishes the current working tree (committed or not) to the `preview` branch and re-runs the Pages workflow: about 2 min later it's at https://mrchillfirexiv.github.io/PLEDGE/preview/ . Open it in the user's built-in browser (`mcp__remote-devices__Claude_Browser__*`, preferred) or Chrome extension, then screenshot / `javascript_tool` there (`chapJump`, `S`, etc. are globals). The preview has its own save storage (`pages/preview-storage.js`: keys stored as `preview~…`), a PREVIEW badge and noindex, so it never touches the user's or players' real saves. Ask the user before opening tabs in their browser the first time in a session.
+
+**Full loads** (one fresh load per run, ~25 s since V295):
 - `tools/q.sh OUT "eval:(async()=>{…;return 'x'})()" "pcam:js:name"`
   - It loads the story drivers, runs your JavaScript, prints the result, and saves `OUT/name.png`.
   - Set `window.__cam=[x,y,z,lookX,lookY,lookZ]` in the eval before `pcam:js`. `pcam` screenshots include the HTML UI.
-- Each load takes about 60 s. Put all checks in one command, and never run two at once.
+- Each `q.sh`/`run.js` load takes ~25 s. Put all checks in one command, and never run two browsers at once (stop the live server first).
 - Jump to a quest with `chapJump('c3house')`, which already starts it. Then:
   - click through cards with `for(…){if(mode==='card'||mode==='wheel')T3.click(0);RT.step(4);await W(8)}` and `C4.auto=1`
   - step the game with `RT.step(n)`.

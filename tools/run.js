@@ -142,7 +142,8 @@ function printStats(R, B) {
   }
 }
 
-(async () => {
+module.exports = { INIT, HELP, SEED, STEPS };
+if (require.main === module) (async () => {
   let B = null;
   if (opt('compare')) {
     if (!fs.existsSync(BASE)) { console.error(`no baseline at ${BASE} — run: python3 build.py --baseline (before your change), then rebuild`); process.exit(2); }

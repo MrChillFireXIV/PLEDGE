@@ -49,7 +49,13 @@ function doorAt(p,n){FD.doors.push([p[0],p[1]]);const ry=Math.atan2(n[0],n[1]);c
   const st=new THREE.Mesh(bgeo(4.6,.28,2),mt(0x9a9286));st.position.set(p[0]+n[0]*1,.14,p[1]+n[1]*1);st.rotation.y=ry;sc.add(st);const l=new THREE.Mesh(bgeo(.5,.5,.12),bm(0xffe2a0));l.position.set(p[0]+n[0]*.4,4.6,p[1]+n[1]*.4);l.rotation.y=ry;sc.add(l)}
 const UCFUNC={arts:['arts','art'],chem:['hollis','chem'],lib:['lib','lib'],gym:['gym','gym'],union:['union','union'],econ:['whit','econ'],main:['main','main'],speech:['banc','speech'],phys:['braun','phys']};
 const UCMC={brick:'#9a5a48',brick2:'#7d5a4a',stone:'#c9bfa6',conc:'#9a958a',concT:'#9a958a',glass:'#8aa0b0',metal:'#9aa0a8',terra:'#c98a5a',white:'#e9e3d3',stripe:'#a8604c',daap:'#c9a9b8',steger:'#b88a6a',crc:'#9aa0a8',tuc:'#a8604c',morgens:'#8aa0b0',garage:'#8f8c86',stands:'#8a4a4a',diag:'#e3e0d8'};
-function roadRings(r){const p=r[0],hs=r.slice(1);const[x0,z0,x1,z1]=bbox(p);cells(x0,z0,x1,z1,(k,x,z)=>{if(inPoly(x,z,p)&&!hs.some(h=>inPoly(x,z,h)))RG[k]=1})}
+function roadRingsSlow(r){const p=r[0],hs=r.slice(1);const[x0,z0,x1,z1]=bbox(p);cells(x0,z0,x1,z1,(k,x,z)=>{if(inPoly(x,z,p)&&!hs.some(h=>inPoly(x,z,h)))RG[k]=1})}   /* the original, kept for tests/compare */
+/* V295 same cells as roadRingsSlow, ~50x faster: per grid row, the crossing points of each ring (same arithmetic as inPoly) give the inside spans */
+function ringXs(p,z){const xs=[];for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,zi]=p[i],[xj,zj]=p[j];if((zi>z)!==(zj>z))xs.push((xj-xi)*(z-zi)/(zj-zi)+xi)}return xs.sort((a,b)=>a-b)}
+function roadRings(r,G){G=G||RG;const p=r[0],hs=r.slice(1);const[x0,z0,x1,z1]=bbox(p);const a=Math.max(0,Math.floor(x0*CR)),b=Math.min(GW-1,Math.ceil(x1*CR)-1),c=Math.max(0,Math.floor(z0*CR)),d=Math.min(GD-1,Math.ceil(z1*CR)-1);
+  for(let j=c;j<=d;j++){const z=(j+.5)/CR,xo=ringXs(p,z);if(!xo.length)continue;const hx=hs.map(h=>ringXs(h,z)).filter(v=>v.length);
+    for(let q=0;q+1<xo.length;q+=2){const i0=Math.max(a,Math.ceil(xo[q]*CR-.5)),i1=Math.min(b,Math.ceil(xo[q+1]*CR-.5)-1);
+      for(let i=i0;i<=i1;i++){const x=(i+.5)/CR;if(x<xo[q]||x>=xo[q+1])continue;let hole=false;for(const H of hx){let n=0;for(const v of H)if(v>x)n++;if(n&1){hole=true;break}}if(!hole)G[j*GW+i]=1}}}}
 // a chain-link style fence or low wall along any polyline (rails, posts, collision); gap = [segment index, metres] leaves an opening
 function fenceLine(pts,o={}){const h=o.h||1.8,col=o.c||0x1d1f24,wall=o.wall;for(let i=0;i<pts.length-1;i++){let[a,b]=pts[i],[c,d]=pts[i+1];let L=Math.hypot(c-a,d-b);if(L<.3)continue;const ux=(c-a)/L,uz=(d-b)/L;
     const segs=[];if(o.gap&&o.gap[0]===i){const g=Math.min(o.gap[1],L-1),m=L/2;segs.push([0,m-g/2],[m+g/2,L])}else segs.push([0,L]);

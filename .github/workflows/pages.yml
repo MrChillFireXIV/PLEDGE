@@ -2,7 +2,7 @@ name: Publish game to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main]   # the preview branch is published by tools/preview.sh, which re-runs this on main (Pages only deploys from main)
   workflow_dispatch:
 
 permissions:
@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -27,6 +29,14 @@ jobs:
           node-version: '20'
       - name: Build the game (stops if the build or the save-key check fails)
         run: python3 pages/publish.py
+      - name: Build the preview branch into /preview/ (if there is one)
+        run: |
+          if git fetch --depth 1 origin preview 2>/dev/null; then
+            git worktree add /tmp/pv FETCH_HEAD
+            python3 /tmp/pv/pages/publish.py --preview --out "$GITHUB_WORKSPACE/_site/preview"
+          else
+            echo "no preview branch"
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -2,6 +2,7 @@
 """Build the GitHub Pages site into _site/ (run by .github/workflows/pages.yml on every push).
 
     python3 pages/publish.py
+    python3 pages/publish.py --preview --out _site/preview     (test build at /PLEDGE/preview/: own save storage, PREVIEW badge, not indexed)
 
 1. Runs build.py --check (builds dist/PLEDGE.html and syntax-checks the JS).
 2. Stops if the save keys changed. Players' saves live under these keys, so renaming them would
@@ -11,7 +12,8 @@
 import json, os, re, shutil, subprocess, sys, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SITE = os.path.join(ROOT, '_site')
+PREVIEW = '--preview' in sys.argv
+SITE = os.path.abspath(sys.argv[sys.argv.index('--out') + 1]) if '--out' in sys.argv else os.path.join(ROOT, '_site')
 SAVE_KEYS = ["'pledge.save.v1'", "'pledge.save.s'", "'pledge.slot'"]
 
 
@@ -39,10 +41,14 @@ def main():
         sys.exit('STOP: the save keys %s are gone from the game code. Players would lose their saves. '
                  'Keep the old keys (or add a migration) and update SAVE_KEYS in pages/publish.py.' % ', '.join(missing))
 
-    v = version()
+    v = version() + ('-preview' if PREVIEW else '')
     guard = open(os.path.join(ROOT, 'pages', 'save-guard.js'), encoding='utf-8').read().replace('__PLEDGE_VERSION__', v)
     assert '</script' not in guard.lower()
     tag = '<script>\n' + guard + '\n</script>'
+    if PREVIEW:
+        iso = open(os.path.join(ROOT, 'pages', 'preview-storage.js'), encoding='utf-8').read()
+        assert '</script' not in iso.lower()
+        tag = '<meta name="robots" content="noindex"><script>\n' + iso + '\n</script>' + tag   # storage first, so the guard and the game only see preview keys
     i = html.lower().find('<head>')
     if i < 0:
         sys.exit('no <head> in dist/PLEDGE.html')
@@ -58,7 +64,7 @@ def main():
     json.dump({'version': v, 'built': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')},
               open(os.path.join(SITE, 'version.json'), 'w'))
     open(os.path.join(SITE, '.nojekyll'), 'w').close()
-    print('site ready: _site/index.html (%s, %s bytes)' % (v, format(len(html), ',')))
+    print('site ready: %s/index.html (%s, %s bytes)' % (os.path.relpath(SITE, ROOT), v, format(len(html), ',')))
 
 
 if __name__ == '__main__':

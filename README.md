@@ -36,6 +36,13 @@ To move a save, use **Export save / Import save** in the game's Report-a-Bug tab
 **Moving from the old `.html` file:** saves made in a downloaded `PLEDGE.html` belong to that file, not to the
 website. To bring one over, open the old file, **Export save**, then open the website and **Import save**.
 
+## Testing tools (for Claude sessions)
+
+- `tools/lv start` / `eval` / `swap` / `shot`: a test server that keeps the game loaded (see `tools/live.js`).
+- `tools/preview.sh`: publishes work in progress to https://mrchillfirexiv.github.io/PLEDGE/preview/ for testing on a real graphics card.
+  The preview has its own saves (stored as `preview~…`), so it can't touch anyone's real progress, and a red PREVIEW badge.
+  It isn't linked anywhere and isn't indexed by search engines, but anyone with the link can open it.
+
 ## Repo layout
 
 | path | what |

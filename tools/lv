@@ -1,0 +1,12 @@
+#!/bin/bash
+# Client for tools/live.js (see its header).  tools/lv start | eval 'JS' | swap | reload | shot/shotui NAME [x,y,z,lx,ly,lz] | step N | errors | stop
+cd "$(dirname "$0")/.."
+P=${LV_PORT:-8411}; C=$1; shift
+up(){ curl -s -o /dev/null --noproxy '*' "http://127.0.0.1:$P/ping" -X POST --max-time 2; }
+if [ "$C" = start ]; then
+  if ! up; then nohup node tools/live.js "$@" > shots/live-server.log 2>&1 &
+    for i in $(seq 1 40); do sleep 0.25; up && break; done; fi
+  curl -s --noproxy '*' -X POST "http://127.0.0.1:$P/start" --max-time 900; exit
+fi
+up || { echo "test server not running: tools/lv start"; exit 1; }
+curl -s --noproxy '*' -X POST "http://127.0.0.1:$P/$C" --data-binary "$*" --max-time 900

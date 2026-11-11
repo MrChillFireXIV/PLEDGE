@@ -233,7 +233,7 @@ function spawnFrats(){for(const F of FRATS){const id=F.id,L=F.L,cl=F.cl,fm=!!F.f
       for(const[dx,dz]of D.p+D.d>=4?[[3.4,-.6],[-3.8,.5]]:[[3.4,-.6]]){const x=Y.cx+dx,z=Y.cz+dz;{const n=sp(id,cl,Y.zone,{x,z,a:Math.atan2(Y.cx-x,Y.cz-z),mode:'idle',house:id,title:L+BR,fem:fm||undefined,lvl:lv()});if(n&&id==='asr')n.roam=1}}}
     if(!fm&&id!=='lxa')gargoyle(F,b);if(typeof housePledges==='function')housePledges(F,b)}}
 /* V229 campus population x4: AMBX = real character rigs (x2, each one costs memory and draw time); CROWD.EXTRA (21h) fills the rest with cheap virtual people so the total is x4 */
-const AMBX=2;
+const AMBX=(()=>{try{return/[?&]fast\b/.test(location.search)?.5:2}catch(e){return 2}})();   /* V295 ?fast (test server): a quarter of the ambient crowd */
 function spawnAll(){
   const SP=[['legacies','greekN',4],['legacies','lake',8],['townies','lake',10],['activists','lake',6],['athletes','ath',10],['athletes','quad',4],['studentgov','quad',9],['activists','quad',6],['legacies','quad',4],['townies','heights',5],['activists','down',2],['townies','down',9],['sororities','greek',5],['sororities','quad',6],['brothers','greek',4],['police','quad',2],['police','greek',1],['police','ave',1],['ra','greek',2],['ra','quad',1],['cops','down',2],['studentgov','quad',8],['activists','quad',6],['athletes','quad',5],['sororities','quad',7],['legacies','quad',5],['townies','quad',4],['athletes','ath',6],['studentgov','ath',3],
     /* V184 more townies off campus: Clifton Heights, the Calhoun/U-Square strip, downtown and the Lake District */['townies','heights',9],['townies','ave',5],['townies','down',9],['townies','lake',12]];

@@ -4,6 +4,7 @@
 Usage:  python3 build.py            # build
         python3 build.py --check    # build + syntax-check the JS with node
         python3 build.py --cdn      # load THREE.js from the CDN instead of inlining vendor/three-r128.min.js
+        python3 build.py --fast     # test build: dist/PLEDGE-fast.html without the 1 MB music (open it with ?test&fast; used by tools/live.js)
         python3 build.py --baseline # first save the current dist/PLEDGE.html as dist/baseline.html (do this at the START of a change)
 
 Baseline: tools/run.js --compare diffs dist/PLEDGE.html against dist/baseline.html. If there is no baseline yet, the build that is about
@@ -32,18 +33,20 @@ mid, post = rest.split('{{JS}}')
 
 css = rd(S('style.css'))[:-1]                      # drop the one trailing "\n"
 names = [l.strip() for l in rd(S('order.txt')).split('\n') if l.strip()]
-js = '\n'.join(rd(S(n))[:-1] for n in names)       # parts are joined by "\n"
+FAST = '--fast' in sys.argv
+rdp = lambda n: ('/* music left out of the --fast test build */\n' if FAST and n.endswith('music.js') else rd(S(n)))
+js = '\n'.join(rdp(n)[:-1] for n in names)       # parts are joined by "\n"
 
 out = (pre + '<style>\n' + css + '\n</style>' + mid
        + '<script>\n"use strict";\n' + js + '\n</script>' + post)
 
 os.makedirs(os.path.join(ROOT, 'dist'), exist_ok=True)
-dst = os.path.join(ROOT, 'dist', 'PLEDGE.html')
+dst = os.path.join(ROOT, 'dist', 'PLEDGE-fast.html' if FAST else 'PLEDGE.html')
 base = os.path.join(ROOT, 'dist', 'baseline.html')
-if os.path.exists(dst) and ('--baseline' in sys.argv or not os.path.exists(base)):
+if not FAST and os.path.exists(dst) and ('--baseline' in sys.argv or not os.path.exists(base)):
     shutil.copyfile(dst, base)
     print(f'baseline: saved the previous build as {base}')
-elif os.path.exists(base):
+elif not FAST and os.path.exists(base):
     import time
     print(f'baseline: {base} (from {time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(base)))})')
 open(dst, 'w', encoding='utf-8', newline='').write(out)
