@@ -56,10 +56,10 @@ for(const s of['L','R']){for(let i=0;i<4;i++){BPAR[s+i+'a']='h'+s;BPAR[s+i+'b']=
    The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
    which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
 const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
-const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:1.0};
+const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:1.14};
 /* V307 hand layout: finger [z, length, radius], knuckle line y0, the middle joint at 47% of each finger, thumb joints [inward, y, z] */
 function handLay(fem){const k=fem?.9:1,W=.955,Y=y=>W-(W-y)*k;
-  return{k,y0:Y(.866),xin:.004*k,f:[[.035,.09,.0112],[.012,.1,.0115],[-.011,.093,.0108],[-.032,.075,.0095]].map(([z,l,r])=>[z*k,l*k,r*k]),pj:.47,
+  return{k,y0:Y(.866),xin:.004*k,f:[[.038,.09,.0138],[.013,.1,.0142],[-.012,.093,.0134],[-.035,.075,.0118]].map(([z,l,r])=>[z*k,l*k,r*k]),pj:.47,
     T:[[.006,.94,.03],[.015,.905,.055],[.022,.878,.068],[.026,.856,.073]].map(([d,y,z])=>[d*k,Y(y),z*k])}}
 const FGRE=/^[LR][0-3T][ab]$/;
 /* the hand warp (V306 smaller hands): scaled about the wrist, then moved with the narrowed shoulders */
@@ -258,7 +258,7 @@ function addHand(G,X,s,A,fem,lod){if(lod)return;   // the palm is the end of the
     const wf=(x,y)=>y>y0+.01?[BI[HB]]:y>y0-.006?Wb(HB,a,(y0+.01-y)/.016):y>yb+.005?[BI[a]]:y>yb-.005?Wb(a,b,(yb+.005-y)/.01):[BI[b]];
     gAdd(G,tube(R,10,2.15,0,1),PS.skin,wf,(x,y,z,nx)=>(nx*s<-.4?.94:1)*(Math.abs(y-yb)<.004&&nx*s>.3?.9:1));
     const nl=roundBox(.0035,.017*H.k,r*1.45,.0016,1);at(nl,xr+s*(r*.82),y0-(l+.006)*.9,z);gAdd(G,nl,PS.skin,W1(b),()=>1.16)});   // nail
-  const T=H.T.map(([d,y,z])=>[X-s*d,y,z]),ta=S+'Ta',tb=S+'Tb',TR=[[T[0],1.12],[T[1],.98],[[(T[1][0]+T[2][0])/2,(T[1][1]+T[2][1])/2,(T[1][2]+T[2][2])/2],.93],[T[2],.96],[T[3],.8]].map(([p,k],n)=>({y:p[1],cx:p[0],cz:p[2],rx:.0138*H.k*k,rf:.0148*H.k*k,rb:.0148*H.k*k}));
+  const T=H.T.map(([d,y,z])=>[X-s*d,y,z]),ta=S+'Ta',tb=S+'Tb',TR=[[T[0],1.12],[T[1],.98],[[(T[1][0]+T[2][0])/2,(T[1][1]+T[2][1])/2,(T[1][2]+T[2][2])/2],.93],[T[2],.96],[T[3],.8]].map(([p,k],n)=>({y:p[1],cx:p[0],cz:p[2],rx:.0168*H.k*k,rf:.018*H.k*k,rb:.018*H.k*k}));
   TR.push({y:T[3][1]-.009*H.k,cx:T[3][0]-s*.001,cz:T[3][2]+.002,rx:.007*H.k,rf:.007*H.k,rb:.007*H.k});
   const tw=(x,y)=>y>T[0][1]+.008?[BI[HB]]:y>T[0][1]-.01?Wb(HB,ta,(T[0][1]+.008-y)/.018):y>T[1][1]+.004?[BI[ta]]:y>T[1][1]-.005?Wb(ta,tb,(T[1][1]+.004-y)/.009):[BI[tb]];
   gAdd(G,tube(TR,10,2.1,0,1),PS.skin,tw,(x,y,z,nx)=>nx*s<-.4?.94:1);
@@ -388,7 +388,7 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
   const sx=Math.abs(BP.aL[0]);
   for(const s of[-1,1]){const X=s*sx,A=s<0?['aL','eL','hL']:['aR','eR','hR'],F=fem?.84:1,cz=y=>y>1.19?-.01-.015*(1.47-y)/.28:-.025+.025*(1.19-y)/.235;
     const ring=([y,rx,rf,rb])=>({y,cx:X-s*((y>1.44?.008:0)+(fem?.02:.026)*sm(1.28,1.45,y)),cz:cz(y),rx:rx*F,rf:rf*F,rb:(rb||rf)*F});
-    const AR=[[1.49,.072,.07],[1.46,.086,.083],[1.41,.088,.083],[1.36,.083,.079],[1.29,.078,.076],[1.235,.068,.066],[1.19,.06,.062],[1.14,.066,.068],[1.08,.06,.06],[1.01,.047,.047],[.975,.043,.044]].map(ring);const HF=(fem?1.2:1.34)/F;{const hk=fem?.9:1,W=.955;AR.push(...[[.952,.026,.035,.034],[.93,.0235,.043,.04],[.9,.0215,.05,.046],[.879,.021,.053,.048],[.862,.0195,.049,.044]].map(([y,rx,rf,rb])=>({y:W-(W-y)*hk,cx:X-s*.004*hk,cz:.002,rx:rx*hk,rf:rf*hk,rb:rb*hk})))}   /* V307 palm: about 3.5 cm thick and 9 cm wide in game, was 5.5 by 13 */
+    const AR=[[1.49,.072,.07],[1.46,.086,.083],[1.41,.088,.083],[1.36,.083,.079],[1.29,.078,.076],[1.235,.068,.066],[1.19,.06,.062],[1.14,.066,.068],[1.08,.06,.06],[1.01,.047,.047],[.975,.043,.044]].map(ring);const HF=(fem?1.2:1.34)/F;{const hk=fem?.9:1,W=.955;AR.push(...[[.952,.026,.035,.034],[.93,.0235,.043,.04],[.9,.0215,.05,.046],[.879,.021,.053,.048],[.862,.0195,.049,.044]].map(([y,rx,rf,rb])=>({y:W-(W-y)*hk,cx:X-s*.004*hk,cz:.002,rx:rx*hk*1.3,rf:rf*hk*1.12,rb:rb*hk*1.12})))}   /* V307 palm: about 3.5 cm thick and 9 cm wide in game, was 5.5 by 13 */
     const aw=(x,y)=>y>1.4?Wb(A[0],'chest',(y-1.4)/.15*.55):y>1.24?[BI[A[0]]]:y>1.14?Wb(A[0],A[1],(1.24-y)/.1):y>.995?[BI[A[1]]]:Wb(A[1],A[2],(.995-y)/.07);
     gAdd(G,tube(AR,lod?8:14,2.1,2,2),(x,y)=>y<.97||!(cl==='hoodie'||cl==='flannel')?PS.skin:PS.sleeve,aw,(x,y,z,nx,ny,nz)=>(nx*s<-.3?.86:1)*(y>1.2&&y<1.32&&nx*s<-.5?.9:1)*(y<.96&&nx*s<-.4?.92:1));
     if(cl==='tee'||cl==='polo'){const SL=[[1.497,.08,.078],[1.462,.097,.093],[1.41,.099,.093],[1.36,.095,.089],[1.3,.092,.086],[1.278,.091,.085],[1.275,.076,.073]].map(ring);
