@@ -53,7 +53,7 @@ const BPAR={hips:null,spine:'hips',chest:'spine',neck:'chest',head:'neck',aL:'ch
    The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
    which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
 const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
-const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.8,lift:-.03,kx:.92,ta:.87,nk:.88,hand:.82};
+const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:.82};
 function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]]}return b}
 function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108;return{hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]}}
 // palette slots (rgb + roughness); 24..27 are per-person parameters for the shader
