@@ -91,8 +91,8 @@ async function shot(name, cam, ui) {
   // default: the game's own canvas (toDataURL), which survives busy frames; 'ui' adds the HTML UI via a page screenshot (can crash on busy outdoor frames)
   fs.mkdirSync(OUT, { recursive: true });
   const v = cam && cam !== '-' ? cam.split(',').map(Number) : null, f = path.join(OUT, (name || 'shot') + '.png');
-  const png = await page.evaluate(v => RT.shot(...(v || window.__cam)).png, v);
-  if (ui) await page.screenshot({ path: f }); else fs.writeFileSync(f, Buffer.from(png.split(',')[1], 'base64'));
+  const png = await page.evaluate(v => (v || window.__cam) ? RT.shot(...(v || window.__cam)).png : null, v);   // no camera given: leave the view as it is (menus, map)
+  if (ui || !png) await page.screenshot({ path: f }); else fs.writeFileSync(f, Buffer.from(png.split(',')[1], 'base64'));
   return f;
 }
 

@@ -362,7 +362,7 @@ function compassTick(){const q=CMP.q||(CMP.q=$('cmpc').getContext('2d')),e=cam.m
     if(l){q.font=(l.length===1?'700 17px':'700 12px')+' Graduate,Georgia';q.fillStyle=l==='N'?'#e2b64c':'#f2e6c8';q.shadowColor='rgba(0,0,0,.8)';q.shadowBlur=3;q.fillText(l,x,13);q.shadowBlur=0;q.fillRect(x-.75,26,1.5,7)}
     else{q.fillStyle=n%15===0?'rgba(242,230,200,.85)':'rgba(242,230,200,.45)';q.fillRect(x-.5,n%15===0?24:28,1,n%15===0?9:5)}}
   q.fillStyle='#e2b64c';q.beginPath();q.moveTo(ctr-5,0);q.lineTo(ctr+5,0);q.lineTo(ctr,6);q.closePath();q.fill()}
-function c1Tick(dt){if(mode==='title'||mode==='loading')return;try{turfEnsure()}catch(e){console.warn('turfEnsure',e)}try{crowdTick(dt)}catch(e){console.warn('crowdTick',e)}try{crowdSolid()}catch(e){console.warn('crowdSolid',e)}try{c1DeanSync()}catch(e){console.warn('c1DeanSync',e)}try{c2Tick(dt)}catch(e){console.warn('c2Tick',e)}try{c3Tick(dt)}catch(e){console.warn('c3Tick',e)}try{c4Tick(dt)}catch(e){console.warn('c4Tick',e)}try{c5Tick(dt)}catch(e){console.warn('c5Tick',e)}try{c6Tick(dt)}catch(e){console.warn('c6Tick',e)}try{c7Tick(dt)}catch(e){console.warn('c7Tick',e)}try{c8Tick(dt)}catch(e){console.warn('c8Tick',e)}try{c9Tick(dt)}catch(e){console.warn('c9Tick',e)}try{c10Tick(dt)}catch(e){console.warn('c10Tick',e)}try{gigTick(dt)}catch(e){console.warn('gigTick',e)}if(S.pledged&&S.prole&&C1.roleFixed!==S.prole)c1RoleFix();
+function c1Tick(dt){if(mode==='title'||mode==='loading')return;mapHintTick();try{turfEnsure()}catch(e){console.warn('turfEnsure',e)}try{crowdTick(dt)}catch(e){console.warn('crowdTick',e)}try{crowdSolid()}catch(e){console.warn('crowdSolid',e)}try{c1DeanSync()}catch(e){console.warn('c1DeanSync',e)}try{c2Tick(dt)}catch(e){console.warn('c2Tick',e)}try{c3Tick(dt)}catch(e){console.warn('c3Tick',e)}try{c4Tick(dt)}catch(e){console.warn('c4Tick',e)}try{c5Tick(dt)}catch(e){console.warn('c5Tick',e)}try{c6Tick(dt)}catch(e){console.warn('c6Tick',e)}try{c7Tick(dt)}catch(e){console.warn('c7Tick',e)}try{c8Tick(dt)}catch(e){console.warn('c8Tick',e)}try{c9Tick(dt)}catch(e){console.warn('c9Tick',e)}try{c10Tick(dt)}catch(e){console.warn('c10Tick',e)}try{gigTick(dt)}catch(e){console.warn('gigTick',e)}if(S.pledged&&S.prole&&C1.roleFixed!==S.prole)c1RoleFix();
   if(!AM&&mode==='play'&&!P.inside&&S.ch===1&&S.done.cater&&!S.done.c1rival&&Math.hypot(P.x-84,P.z-76)<30){const m=M.find(m=>m.id==='c1rival');if(m)startMission(m)}
   if(C1.crowdIn&&C1.crowdIn.g.visible&&P.inside==='asr')c1CrowdUpd(C1.crowdIn,TT);
   if(C1.crowdOut&&C1.crowdOut.g.visible&&!P.inside&&Math.hypot(P.x-84,P.z-76)<80)c1CrowdUpd(C1.crowdOut,TT*.3);
@@ -422,7 +422,7 @@ const C1M=[
   fin:()=>c1Next('cater')},
  {id:'cater',ch:1,main:1,pre:['c1meet'],name:'First Task',who:'grant',steps:()=>[
    go(npcSpot('grant'),'Go back to Grant in the throne room.',{press:1,act:'Talk to Grant Ashby',r:4.6}),
-   fx(()=>{if(!S.uMap){S.uMap=1;sfx('lvl');big('MAP UNLOCKED',2000);setTimeout(()=>toast('Your minimap is on. Press M to open the full campus map. Tab opens your planner.',5500),600)}}),
+   fx(()=>{if(!S.uMap){S.uMap=1;S.mapHint=1;sfx('lvl');big('MAP UNLOCKED · PRESS M',2400)}}),   /* V297 the 'press M' hint stays under the minimap until the map is opened (mapHintTick) */
    C_('First Task','Grant Ashby · Chapter president',T1.cater,[
     ["Shop at Hank's Market downtown and make the money stretch",()=>{S.budget=20;return[items(SPOT.HANK,"Buy chips, Genesee and decorations at Hank's Market. Budget: $20",['chips','soda','deco'])]}],
     ['"Borrow" supplies from the Tangeman Center loading dock after 9 PM',()=>[go(SPOT.DOCK,'Raid the Tangeman University Center loading dock after 9 PM. Avoid campus police.',{press:1,act:'Load up the supplies',when:[21,4],stealth:1,watch:['auth','studentgov'],spot:'trouble',done:()=>{give('chips');give('soda');give('deco');rep('studentgov',-10);toast('Supplies acquired. Student Government is going to notice.')}})]],
@@ -481,3 +481,10 @@ M.unshift(...C1M);
 
 /* slap: Grant smacks Danny when he says "I'm not my dad" */
 function c1Slap(){try{sfx('hit');setTimeout(()=>sfx('hit'),60);if(typeof voxOuch==='function')setTimeout(voxOuch,120);const f=$('flash');if(f){f.style.background='#ff5a4a';f.style.opacity=.7;setTimeout(()=>{f.style.opacity=0;setTimeout(()=>f.style.background='#fff',400)},120)}big('SLAP!',900)}catch(e){}}
+// V297 'Press M' hint pill under the minimap: shown in free play after the map is unlocked, until the player opens the map once
+function mapHintTick(){const on=!!(S.uMap&&S.mapHint)&&mode==='play'&&!CINE;let e=$('maphint');if(!e){if(!on)return;e=document.createElement('div');e.id='maphint';e.className='patch';
+  e.style.cssText='font:700 13px Archivo,Arial,sans-serif;color:var(--cream,#f6efe0);padding:6px 11px;text-align:center;line-height:1.3;cursor:pointer;animation:mhpulse 1.6s ease-in-out infinite';
+  e.innerHTML=matchMedia('(pointer:coarse)').matches?'🗺 Open the <b style="color:#e2b64c">campus map</b> from your planner':'🗺 Press <b style="color:#e2b64c;border:1px solid #e2b64c;border-radius:4px;padding:0 5px">M</b> to open the campus map';
+  e.onclick=()=>openPlanner('map');const st=document.createElement('style');st.textContent='@keyframes mhpulse{0%,100%{box-shadow:0 0 0 0 rgba(226,182,76,.0)}50%{box-shadow:0 0 0 4px rgba(226,182,76,.45)}}';document.head.appendChild(st);$('tr').appendChild(e)}
+  e.hidden=!on}
+

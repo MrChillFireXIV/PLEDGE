@@ -88,9 +88,9 @@ function terrLegendHTML(){const own=[],cnt={};for(const t of TERR)cnt[t.f]=(cnt[
 function terrLegend(q,c){const own=[],cnt={};for(const t of TERR)cnt[t.f]=(cnt[t.f]||0)+1;for(const f in cnt)own.push(f);
   const cols=2,cw=77,rows=Math.ceil((own.length+1)/cols),w=cols*cw+8,h=24+rows*17,x=3,y=c.height-h-4;/* V203 a narrow key in the bottom-left corner, over Greek Row / Clifton Heights where there's no turf */q.save();q.fillStyle='rgba(22,20,16,.84)';q.strokeStyle='#e2b64c';q.lineWidth=1.6;q.beginPath();q.roundRect?q.roundRect(x,y,w,h,8):q.rect(x,y,w,h);q.fill();q.stroke();
   q.fillStyle='#e2b64c';q.font='12px Graduate,Georgia';q.textAlign='left';q.textBaseline='middle';q.fillText('FRAT TURF',x+10,y+13);
-  own.forEach((f,i)=>{const cx=x+8+(i%cols)*cw,cy=y+31+Math.floor(i/cols)*17;q.fillStyle=TURF[f];q.fillRect(cx,cy-5,10,10);q.strokeStyle='rgba(255,255,255,.6)';q.lineWidth=1;q.strokeRect(cx+.5,cy-4.5,9,9);
+  own.forEach((f,i)=>{const cx=x+8+(i%cols)*cw,cy=y+31+Math.floor(i/cols)*17;try{LEGHIT.push({x:cx-2,y:cy-8,w:cw-4,h:16,title:(TURFN[f]||(f==='asr'?'Alpha Sigma Rho':f))+' ('+((HOUSE[f]||{}).L||f)+')',sub:'Holds '+cnt[f]+' turf'+(cnt[f]>1?'s':'')+' on campus'})}catch(e){}q.fillStyle=TURF[f];q.fillRect(cx,cy-5,10,10);q.strokeStyle='rgba(255,255,255,.6)';q.lineWidth=1;q.strokeRect(cx+.5,cy-4.5,9,9);
     q.fillStyle='#f2e6c8';q.font='700 11px Archivo,Arial';q.fillText(((HOUSE[f]||{}).L||f)+(cnt[f]>1?' ×'+cnt[f]:''),cx+15,cy+1)});
-  if(!cnt.asr){const i=own.length,cx=x+8+(i%cols)*cw,cy=y+31+Math.floor(i/cols)*17;q.strokeStyle='#c03a4c';q.lineWidth=1.4;q.setLineDash([2,2]);q.strokeRect(cx+.5,cy-4.5,9,9);q.setLineDash([]);q.fillStyle='#e8909c';q.font='700 11.5px Archivo,Arial';q.fillText('ΑΣΡ none',cx+15,cy+1)}
+  if(!cnt.asr){const i=own.length,cx=x+8+(i%cols)*cw,cy=y+31+Math.floor(i/cols)*17;try{LEGHIT.push({x:cx-2,y:cy-8,w:cw-4,h:16,title:'Alpha Sigma Rho (ΑΣΡ)',sub:'Your house holds no turf yet. Bring '+FOLMAX+' brothers and talk to a turf group to take one'})}catch(e){}q.strokeStyle='#c03a4c';q.lineWidth=1.4;q.setLineDash([2,2]);q.strokeRect(cx+.5,cy-4.5,9,9);q.setLineDash([]);q.fillStyle='#e8909c';q.font='700 11.5px Archivo,Arial';q.fillText('ΑΣΡ none',cx+15,cy+1)}
   q.restore()}
 // the line the ground card shows for a spot of turf
 function terrSub(x,z){if(!terrOn())return'';const t=terrAt(x,z);return t?'Turf of '+((HOUSE[t.f]||{}).L||'')+' · '+(TURFN[t.f]||''):''}
@@ -102,14 +102,14 @@ function turfCrew(t){const f=t.f,L=(HOUSE[f]||{}).L||f.toUpperCase(),cl=(FRATS.f
   const bag=turfLvBag(turfAvg(t)),lv=()=>bag.length?bag.pop():turfAvg(t),spot=()=>{for(let i=0;i<150;i++){const x=t.bb[0]+rnd()*(t.bb[2]-t.bb[0]),z=t.bb[1]+rnd()*(t.bb[3]-t.bb[1]);if(terrAt(x,z)===t&&freeAt(x,z,.7)&&!inLake(x,z))return[x,z]}return null};
   const add=(n,g)=>{if(!n)return;n.td=t;n.tg=g;t.crew.push(n)};
   for(let i=0;i<2;i++){const s=spot();if(s)add(spawn(cl,zone,{x:s[0],z:s[1],house:f,title:L+' Brother',lvl:lv(),mode:'wander'}),0)}
-  const c=spot();t.tc=c;if(c)for(let i=0;i<3;i++){const a=i*TAU/3,x=c[0]+Math.cos(a)*.95,z=c[1]+Math.sin(a)*.95,ok=freeAt(x,z,.4)&&terrAt(x,z)===t,px=ok?x:c[0],pz=ok?z:c[1];
+  const c=spot();t.tc=c;if(c)for(let i=0;i<4;i++){const a=i*TAU/4+PI/4,x=c[0]+Math.cos(a)*1.05,z=c[1]+Math.sin(a)*1.05,   /* V297 four in the group (was three) */ok=freeAt(x,z,.4)&&terrAt(x,z)===t,px=ok?x:c[0],pz=ok?z:c[1];
     add(spawn(cl,zone,{x:px,z:pz,a:Math.atan2(c[0]-px,c[1]-pz),house:f,title:L+' Brother',lvl:lv(),mode:'chat'}),1)}}
 // V160: frat turf switches on after the chapter 1 rivalry brawl (S.uTurf; older saves and later chapters have it already)
 function turfUnlocked(){return!!(S.uTurf||S.ch>=2||(S.done&&S.done.c1rival))}
 let TURFSPAWNED=0;
 function turfReset(){TURFSPAWNED=0;for(const t of TERR){t.f=t.f0;t.crew=null;t.tc=null;t.pc=null}TERRC=null}   // called from spawnAll: a fresh world
 function turfEnsure(){if(TURFSPAWNED||!turfUnlocked())return;TURFSPAWNED=1;for(const id of S.turfAsr||[]){const t=TERR.find(q=>q.id===id);if(t)t.f='asr'}TERRC=null;for(const t of TERR)turfCrew(t)}
-// V158: talk to one of the three and take their district for ΑΣΡ. The old owners concede and leave; an ΑΣΡ crew moves in.
+// V158: talk to one of the four (V297, was three) and take their district for ΑΣΡ. The old owners concede and leave; an ΑΣΡ crew moves in.
 TURF.asr='#c03a4c';TURFN.asr='Alpha Sigma Rho';
 function turfTake(t,instant){if(t.f==='asr')return;const old=(t.crew||[]).slice();t.f='asr';TERRC=null;S.turfAsr=S.turfAsr||[];if(!S.turfAsr.includes(t.id))S.turfAsr.push(t.id);
   const swap=()=>{for(const m of old)if(NP.includes(m))despawn(m);turfCrew(t)};
@@ -129,13 +129,13 @@ function cardForTurf(t){const f=t.f,L=(HOUSE[f]||{}).L||'',N=TURFN[f]||L,mine=f=
   return{name:N+' ('+L+')',cat:'Frat turf',sub:t.n+(mine?'':' · Avg Lv '+avg)+(all.length>1?' · holds '+all.length+' districts':''),
     about:mine?'Your chapter holds '+t.n+'. Your brothers hang out here, and no other chapter\'s brothers will set foot on it.':N+' holds '+t.n+'. Its brothers hang out here, and no other chapter\'s brothers will set foot on it. Everyone else on campus cheers for them while they stand on it.',
     secs:[mine?['',[],'']:['DIFFICULTY',[['⚔','Average level '+avg+' · '+tier,'Most brothers here are Lv '+avg+(lo<hi?' (range Lv '+lo+' to '+hi+')':'')+'. You are Lv '+S.lvl+'.']],''],['THE GROUP HERE',trio.map(row),'Nobody\'s around right now.'],['ROAMING THE TURF',roam.map(row),'No roamers right now.'],
-      all.length>1?['ALSO HELD',all.filter(q=>q!==t).map(q=>['🏴',q.n,'']),'']:mine?['',[],'']:['TAKING IT',[['🗣','Bring '+FOLMAX+' ΑΣΡ brothers as followers, then talk to any of the three','']],'']].filter(s=>s[0]),
+      all.length>1?['ALSO HELD',all.filter(q=>q!==t).map(q=>['🏴',q.n,'']),'']:mine?['',[],'']:['TAKING IT',[['🗣','Bring '+FOLMAX+' ΑΣΡ brothers as followers, then talk to any of the four','']],'']].filter(s=>s[0]),
     ft:mine&&S.pledged?{name:t.n,x:(t.tc||t.a)[0]+1.8,z:(t.tc||t.a)[1]+1.8,face:Math.atan2(-1.8,-1.8),msg:'With your brothers at '+t.n+'.'}:null,   // V185 ΑΣΡ turf is a fast travel point
     route:{x:tx,z:tz,px:t.tc?t.tc[0]:t.a[0],pz:t.tc?t.tc[1]:t.a[1],name:t.n+' · '+L}}}
 
 // ---- Tank's "open your map" lesson: opens the full map on its own and pins a note with what he just said ----
 const TURF_NOTE={title:'Frat Turf',sp:'Tank Hale · ΑΣΡ Brother',
-  tx:'"Every district\'s got three brothers hanging out in the middle of it, with a couple more wandering. Walk up to one of the three and tell \'em the ground is ours now. But they won\'t blink unless you show up with a full squad: five brothers following you, all ΑΣΡ, no pledges. Right now ΑΣΡ holds nothing. Let\'s fix that."'};
+  tx:'"Every district\'s got four brothers hanging out in the middle of it, with a couple more wandering. Walk up to one of the three and tell \'em the ground is ours now. But they won\'t blink unless you show up with a full squad: five brothers following you, all ΑΣΡ, no pledges. Right now ΑΣΡ holds nothing. Let\'s fix that."'};
 const TURFNOTE={on:0,opened:0,done:0,timer:0};
 function turfNoteShow(){const el=$('mapnote');if(!el)return;$('mnt').textContent=TURF_NOTE.title;$('mnsp').textContent=TURF_NOTE.sp;$('mntx').textContent=TURF_NOTE.tx;
   $('mnkey').innerHTML=document.body.classList.contains('mob')?'Tap the minimap any time to open the full map.':'Press <kbd>M</kbd> any time to open or close the map.';
