@@ -133,7 +133,7 @@ function handPose(g,p,st,dt){const F=p.fing;if(!F)return;const H=g.HOLD,hasR=p.h
   const k=Math.min(1,dt*12);
   for(const S of['L','R']){const h=F[S],s=S==='L'?-1:1,P_=HPOSE[want(S)];h.c+=(P_[0]-h.c)*k;h.cT+=(P_[1]-h.cT)*k;h.sp+=(P_[2]-h.sp)*k;const c=h.c;
     for(let i=0;i<4;i++){const e=1+(i-1)*.06;h.a[i].rotation.set((i-1.5)*(.035+h.sp)*(1-c*.7),0,-s*c*e);h.b[i].rotation.set(0,0,-s*Math.min(1.7,c*1.25*e))}
-    h.ta.rotation.set(-(.15+1*h.cT),0,-s*(.12+.42*h.cT));h.tb.rotation.set(0,0,-s*(.12+.82*h.cT))}}
+    h.ta.rotation.set(.1+.75*h.cT,0,-s*(.12+.42*h.cT));h.tb.rotation.set(0,0,-s*(.12+.82*h.cT))}}
 // ---------------------------------------------------------------- animation: knees, elbows, hips, spine, breathing, glances, eye contact, blinking, talking mouths,
 // and a spring layer (lean into acceleration and turns, lag on stops, flinch / stagger on hits) that makes bodies feel physical
 const _q=new THREE.Quaternion();
