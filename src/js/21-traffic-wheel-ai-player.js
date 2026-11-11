@@ -147,7 +147,7 @@ function pclassFight(n,dt){if(!S.pledged||!n.pclass||n.down||n.follow)return;n.p
   const foe=NP.find(m=>!m.down&&!m.pclass&&!m.ally&&(m.int||null)===(n.int||null)&&Math.hypot(m.x-n.x,m.z-n.z)<18&&((m.aggro&&m.tgt==='P')||m.foe||(m===P.lastHit&&TT-P.lastHitT<6)));
   if(foe&&!n.aggro){n.aggro=1;n.tgt=foe;n.job=null;bubble(n,pick(['PLEDGE CLASS, GO!','Nobody touches Kowalski!','We stand together!']),2)}}
 function becomePledge(){S.pledged=1;setHat(1);sfx('lvl');big('PLEDGE',1500)}
-function classSpirit(d,msg){S.spirit=clamp((S.spirit||50)+d,0,100);if(msg)toast(msg,3200)}
+function classSpirit(d,msg){if(d>0)d=Math.round(d*(1+skv('spirit')));S.spirit=clamp((S.spirit||50)+d,0,100);if(msg)toast(msg,3200)}
 
 // ================================================================ INTERACTION WHEEL
 const ACKS=['"Okay."','"That\'s cool."','"Got it."','"Sounds good."','"Uh… okay."','"Huh. Interesting."','"Makes sense."','"Will do."','"Right."','"Noted."','"Yeah, I hear you."','"For real?"','"No way."','"Cool, cool."'];
@@ -262,7 +262,7 @@ function folSlot(n){if(FOLT!==TT){FOLT=TT;FOL=NP.filter(m=>(m.follow||m.ally)&&!
 function hitNPC(t,dmg,src){if(t.kid||t.mute)return;/* V122: never the high schoolers */if(t.throne&&t.statue&&src==='P')throneRise(t);if(src&&src.dmgMul)dmg*=src.dmgMul;dmg=Math.max(1,Math.round(dmg));if(src&&src.noKill){if(t.hp<=1)return;dmg=Math.min(dmg,t.hp-1)}/* V144 brawl allies leave the last hit to Danny */t.hp-=dmg;t.stun=Math.max(t.stun,.22);{const sx=src==='P'?P.x:(src&&src.x!=null?src.x:t.x-Math.sin(t.a)),sz=src==='P'?P.z:(src&&src.z!=null?src.z:t.z-Math.cos(t.a));t.hitDx=t.x-sx;t.hitDz=t.z-sz;t.hitP=Math.min(8.5,3.5+dmg*.22);flinch(t.g,t.hitDx,t.hitDz)}sfx('hit');if(TT-(t.ofT??-9)>.25){t.ofT=TT;try{voxOof(t,t.hp<=0)}catch(e){}}dmgNum(t.x,2.4,t.z,'-'+dmg,src==='P'?(dmg>=18?'#ffb14a':'#ffffff'):'#d8d0c0');if(t.hp<=0&&!t.down){t.hp=0;t.down=t.temp?9999:24;t.aggro=0;t.tgt=null;t.chase=0;t.koP=src==='P';if(src==='P')onKO(t)}else if(!t.down&&!t.auth){t.aggro=1;t.tgt=src}}
 function onKO(t){S.stats.kos++;dropLoot(t);{const g=clamp(4+3*(t.lvl-S.lvl),2,20);toast(`You knocked out ${t.name}. +${g} XP`,1800);gainXP(g)}
   if(!t.temp){if(t.cl==='brothers')stand(t.named?-8:-4);else if(S.rep[t.cl]!=null)rep(t.cl,t.named?-8:-3);if(t===NN.dean)trouble(100);}if(t.auth)trouble(100)}
-function hitPlayer(n){if(mode==='card'||mode==='wheel')return;if(P.dk!=null&&Math.abs(P.y-terrH(n.x,n.z))>1.4)return;if(prBlock(n))return;if(P.roll>0||P.jy>.6){dmgNum(P.x,2.5,P.z,'DODGE','#7fd8ff');sfx('whiff');return}if(P.blocking&&blkHit(n))return;const d=Math.round(clamp(7*LVM(n.lvl,S.lvl)*(S.bb==='tank'?.85:1)*(n.robber?1.9:1),1,n.robber?50:40));S.hp-=d;prHurt(d);P.hurt=.45;flinch(PM);sfx('hit');if(TT-(P.ouT??-9)>.35){P.ouT=TT;try{voxOuch()}catch(e){}}dmgNum(P.x,2.5,P.z,'-'+d,'#ff5a4a');const dx=P.x-n.x,dz=P.z-n.z,l=Math.hypot(dx,dz)||1;P.vx+=dx/l*4;P.vz+=dz/l*4;if(P.bike){P.bike=0;toast('Knocked off your bike!')}if(S.hp<=0){S.hp=0;if(n.robber)robKO(n);else knockout()}}
+function hitPlayer(n){if(mode==='card'||mode==='wheel')return;if(P.dk!=null&&Math.abs(P.y-terrH(n.x,n.z))>1.4)return;if(prBlock(n))return;if(P.roll>0||P.jy>.6){dmgNum(P.x,2.5,P.z,'DODGE','#7fd8ff');sfx('whiff');return}if(P.blocking&&blkHit(n))return;const d=Math.max(1,Math.round(clamp(7*LVM(n.lvl,S.lvl)*(S.bb==='tank'?.85:1)*(n.robber?1.9:1),1,n.robber?50:40)*(1-Math.min(.6,skv('def')))));S.hp-=d;prHurt(d);P.hurt=.45;flinch(PM);sfx('hit');if(TT-(P.ouT??-9)>.35){P.ouT=TT;try{voxOuch()}catch(e){}}dmgNum(P.x,2.5,P.z,'-'+d,'#ff5a4a');const dx=P.x-n.x,dz=P.z-n.z,l=Math.hypot(dx,dz)||1;P.vx+=dx/l*4;P.vz+=dz/l*4;if(P.bike){P.bike=0;toast('Knocked off your bike!')}if(S.hp<=0){S.hp=0;if(n.robber)robKO(n);else knockout()}}
 // V124 car lanes only (RG also marks footpaths, sidewalks and patios): the same roads carNet() drives — map roads of a car kind ≥ 6 m wide,
 // plus the downtown asphalt rectangles in RD. Built once, lazily, on the collision grid.
 let LANEG=null;
@@ -357,7 +357,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   const run=sprintK&&mv&&!P.exh&&!cr&&!carry&&S.sta>0&&!blkWant;
   if(K.KeyQ||K.ControlLeft){K.KeyQ=K.ControlLeft=0;if(P.roll<=0&&S.sta>=15&&!cr&&!P.bike&&!carry){P.roll=.45;S.sta-=S.grades.phys>=3?10:20;P.rdx=mv?wx:Math.sin(P.face);P.rdz=mv?wz:Math.cos(P.face);P.pt=.5}}
   if(K.Space){K.Space=0;if(P.jy<=0&&P.jv===0&&!P.bike&&!carry&&S.sta>=6){P.jv=6.4*(S.grades.phys>=1?1.12:1);S.sta-=6;P.pt=.5}}
-  let sp=P.bike?(run?14.5:10):carry?2.1:(cr?1.7*prCrouchMul():run?6.2:3.3)*prSpeedMul()*(blkWant?.45:1);let tx=wx*sp,tz=wz*sp;
+  let sp=P.bike?(run?14.5:10):carry?2.1:(cr?1.7*prCrouchMul():run?6.2*(1+skv('spd')):3.3)*prSpeedMul()*(blkWant?.45:1);let tx=wx*sp,tz=wz*sp;
   if(P.roll>0){P.roll-=dt;tx=P.rdx*7.6;tz=P.rdz*7.6}
   const acc=P.bike?3.2:P.roll>0?30:prAcc(),k=Math.min(1,acc*dt);P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
   const r=P.bike?.5:.34;CIRC_OFF=1;/* V115: grid walls here; round colliders are resolved by circPushP below */
@@ -376,7 +376,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   FH=-1;const spd=Math.hypot(P.vx,P.vz);if(spd>.4){const ta=Math.atan2(P.vx,P.vz);P.face+=((((ta-P.face)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*(P.bike?6:14));P.bob+=dt*spd*2.2}
   if(blkWant){/* face whoever is attacking (else straight ahead of the camera) and hold the stamina regen */let tn=null,td=8;for(const n of NP){if(n.down||n.hidden||!n.g.visible||!n.aggro||n.tgt!=='P'||(n.int||null)!==(P.inside||null))continue;const d=Math.hypot(n.x-P.x,n.z-P.z);if(d<td){td=d;tn=n}}
     const tf=tn?Math.atan2(tn.x-P.x,tn.z-P.z):yaw+PI;P.face+=((((tf-P.face)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*12);P.pt=Math.max(P.pt,.5)}
-  if(run&&P.drinkT<=0){S.sta-=(P.bike?9:15*prStaMul())*dt;P.pt=.6;if(S.sta<=0){S.sta=0;P.exh=1}}else{P.pt-=dt;if(P.pt<=0)S.sta=Math.min(staMax(),S.sta+26*dt)}
+  if(run&&P.drinkT<=0){S.sta-=(P.bike?9:15*prStaMul())*dt;P.pt=.6;if(S.sta<=0){S.sta=0;P.exh=1}}else{P.pt-=dt;if(P.pt<=0)S.sta=Math.min(staMax(),S.sta+26*(1+skv('sta'))*dt)}
   /* V174 support: P.sup = top of the object Danny stands on (0 = ground), P.jy = height above that. Walking off an edge keeps his height, so he drops. */
   if(P.dk==null&&!P.bike){if(Math.hypot(P.x-(P.sx??P.x),P.z-(P.sz??P.z))>2.5)P.sup=0;P.sx=P.x;P.sz=P.z;const ns=supTop(P.x,P.z);
     if(ns!==P.sup){const H=P.sup+P.jy;if(ns<P.sup){P.jy=H-ns;P.sup=ns}else if(H>=ns-.13){P.jy=Math.max(0,H-ns);P.sup=ns}}}else P.sup=0;
@@ -423,7 +423,7 @@ function punch(){if(P.pcd>0||S.sta<5||P.blocking)return;let best=null,bd=9;const
   {const ty=atkPick(best?Math.hypot(best.x-P.x,best.z-P.z):9),A=ATK[ty];P.atk={ty,t:0,d:A.d};P.punch=A.d;P.pcd=A.d*.85+.04;S.sta-=ty[0]==='k'?8:5;P.pt=.5;if(best&&Math.hypot(best.x-P.x,best.z-P.z)>A.r)best=null;P.atkM=A}
   if(!best){const kid=NP.find(n=>n.kid&&!n.down&&n.dp<2.4);if(kid&&(kid.kidT||0)<TT){kid.kidT=TT+4;bubble(kid,pick(['Whoa! I\'m in high school, man!','Dude! Chill!','Not cool, college guy!']),2.2);kid.flee=2}}
   sfx('whiff');try{maWhoosh(P.atkM&&P.atkM.d>.4?.05:.035)}catch(e){}if(!best)return;P.face=Math.atan2(best.x-P.x,best.z-P.z);P.combo=P.comboT>0?P.combo+1:1;P.comboT=1;
-  let dmg=clamp(10*LVM(S.lvl,best.lvl)*(S.bb==='tank'?1.2:1)*prPunchMul()*P.atkM.m*(P.atk&&P.atk.ty[0]==='k'&&S.grades.phys>=2?1.15:1),2,60);if(P.atkM.push){const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1,pu=P.atkM.push;if(freeAt(best.x+dx/l*pu,best.z+dz/l*pu,.32)){best.x+=dx/l*pu;best.z+=dz/l*pu}}if(P.combo>=3){dmg*=1.8;P.combo=0;best.stun=.8;const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1;if(freeAt(best.x+dx/l*1.4,best.z+dz/l*1.4,.32)){best.x+=dx/l*1.4;best.z+=dz/l*1.4}big('COMBO!',500)}
+  let dmg=clamp(10*LVM(S.lvl,best.lvl)*(S.bb==='tank'?1.2:1)*(1+skv('dmg'))*prPunchMul()*P.atkM.m*(P.atk&&P.atk.ty[0]==='k'&&S.grades.phys>=2?1.15:1),2,60);if(P.atkM.push){const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1,pu=P.atkM.push;if(freeAt(best.x+dx/l*pu,best.z+dz/l*pu,.32)){best.x+=dx/l*pu;best.z+=dz/l*pu}}if(P.combo>=3){dmg*=1.8;P.combo=0;best.stun=.8;const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1;if(freeAt(best.x+dx/l*1.4,best.z+dz/l*1.4,.32)){best.x+=dx/l*1.4;best.z+=dz/l*1.4}big('COMBO!',500)}
   if(!punchHint){punchHint=1;toast('The level gap decides the damage. Red levels are stronger than you; green ones go down fast.',5200)}
   const unprov=!best.aggro&&!best.foe&&!best.def&&best.tgt!=='P';if(unprov&&!best.temp&&!best.auth)relAdd(best,-15);
   if(unprov&&!best.temp){if(best.auth)trouble(100);else{if(best.cl==='brothers')stand(best.named?-6:-3);else if(S.rep[best.cl]!=null)rep(best.cl,best.named?-6:-4);if(best===NN.dean)trouble(100);if(NP.some(m=>m.auth&&m.dp<26&&canSee(m,26)))trouble(35);NP.forEach(m=>{if(m.cl===best.cl&&m!==best&&!m.named&&!m.pledge&&(m.int||null)===(best.int||null)&&Math.hypot(m.x-best.x,m.z-best.z)<10&&(S.rep[m.cl]==null||S.rep[m.cl]<50)){m.aggro=1;m.tgt='P'}})}}
@@ -437,7 +437,7 @@ function kartUpd(dt,f,s){const onT=Math.abs(trackR(P.x,P.z)-1)<.1,mx=onT?17:8;if
 // V172 block. blkHit(n): called from hitPlayer while Danny's guard is up. Returns true when the hit was absorbed (it costs stamina, no health);
 // false when it gets through (from behind, or not enough stamina: the guard breaks and he takes the full hit).
 function blkHit(n){const dx=n.x-P.x,dz=n.z-P.z,l=Math.hypot(dx,dz)||1;if((dx*Math.sin(P.face)+dz*Math.cos(P.face))/l<-.35)return false;
-  const d=Math.round(clamp(7*LVM(n.lvl,S.lvl)*(S.bb==='tank'?.85:1)*(n.robber?1.9:1),1,n.robber?50:40)),cost=Math.round(clamp(d*1.5,5,45));
+  const d=Math.max(1,Math.round(clamp(7*LVM(n.lvl,S.lvl)*(S.bb==='tank'?.85:1)*(n.robber?1.9:1),1,n.robber?50:40)*(1-Math.min(.6,skv('def'))))),cost=Math.round(clamp(d*1.5,5,45));
   if(S.sta>=cost){S.sta-=cost;P.pt=.8;P.blkHitT=.22;dmgNum(P.x,2.5,P.z,'BLOCKED  -'+cost+' stamina','#7fd8ff');try{tone(150,.09,'square',.07);noise(.07,.14,900)}catch(e){}
     P.vx-=dx/l*2.2;P.vz-=dz/l*2.2;return true}
   S.sta=0;P.blkBrk=1;P.blocking=0;P.blk=Math.min(P.blk,.5);dmgNum(P.x,2.9,P.z,'GUARD BROKEN','#ffb347');return false}

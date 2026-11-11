@@ -421,3 +421,32 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #planner.bugdev .devlbl{font-weight:700;font-size:14px}
 #planner.bugdev label{display:inline-flex;gap:6px;align-items:center;font-size:14px}
 
+/* V308 class minigame answer buttons */
+.mgopts{display:flex;flex-wrap:wrap;gap:8px}
+.mgopts .btn{flex:1 1 180px;text-align:left;font-size:15px;line-height:1.3;white-space:normal}
+.mgopts .btn.ok{background:#2f7a4a;color:#fff;border-color:#5ac080;opacity:1}
+.mgopts .btn.no{background:#7a2a2a;color:#fff;border-color:#d06060;opacity:1}
+/* V308 Classes tab: today's choices */
+.clsrow{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.clsp{border:1.5px solid var(--skc);border-left-width:6px;border-radius:6px;padding:5px 9px;background:#fffdf6;font-size:14px}
+.clsp small{opacity:.65;margin-left:4px}
+.clsp.done{opacity:.5}
+/* V308 Skill Tree tab */
+.sktree{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:10px}
+.skcol{border:1.5px solid var(--ink);border-top:6px solid var(--skc);border-radius:8px;background:#fffdf6;padding:10px 12px;min-width:0}
+.skhd{display:flex;align-items:center;gap:10px}
+.skhd b{font-family:var(--fd);font-size:16px;letter-spacing:.04em}
+.skic{font-size:24px}
+.sksub{font-size:12px;opacity:.65}
+.skpts{margin-left:auto;background:var(--skc);color:#fff;border-radius:999px;padding:3px 10px;font-weight:800;font-size:13px;white-space:nowrap}
+.skcls{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;margin:8px 0;opacity:.85}
+.skcls span{white-space:nowrap}
+.sknodes{display:grid;gap:6px}
+.sknode{display:grid;gap:2px;text-align:left;border:1.5px solid #c9b48a;border-radius:7px;padding:7px 10px;background:#fff;font:inherit;color:var(--ink);cursor:pointer}
+.sknode b{font-size:14.5px}
+.sknode span{font-size:13px;line-height:1.3}
+.sknode i{font-style:normal;font-size:12px;font-weight:700;color:var(--skc)}
+.sknode.own{background:color-mix(in srgb,var(--skc) 14%,#fff);border-color:var(--skc);cursor:default}
+.sknode.can{border-color:var(--skc);box-shadow:0 0 0 2px color-mix(in srgb,var(--skc) 35%,transparent)}
+.sknode.can:hover{background:color-mix(in srgb,var(--skc) 8%,#fff)}
+.sknode.locked,.sknode.ready{opacity:.6}
