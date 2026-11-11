@@ -187,6 +187,7 @@ function buildInteriors(){const grp=f=>{const n0=sc.children.length;const I=f();
     return I});
   grp(()=>classInt('arts',{name:'DAAP, Gallery Room',cls:'art',board:'ART 220 · ORIGINAL OR FORGERY?',wall:0xefe9dc}));
   grp(()=>{const I=classInt('banc',{name:'CCM · Corbett Auditorium',cls:'speech',board:'SPEECH 101 · PROJECT FROM THE DIAPHRAGM',floor:'carpet',stage:1});fb(I,17,3.2,24,4.6,.25,0x5a3a24,0,0);for(const x of[4.6,29.4])fb(I,x,2.4,1.2,3,5.6,0x8a1f2a,0,1);iobj(I,9,4,'Practice your speech on stage (1 hour)',()=>{advance(1);S.studied=1;toast('You run the speech to the empty seats. Your next class will go easier.')},1.6);return I});
+  CLS.forEach((c,i)=>{if(CI[c].bid&&B.find(b=>b.id===CI[c].bid))grp(()=>colRoom(c,i))});   /* V308 classrooms in fifteen more buildings, each its own interior */
   grp(()=>cchInt());
   grp(()=>asrDungeon());
   grp(()=>{const I=mkInt('lib',40,30,{name:'Langsam Library',floor:'carpet',wall:0xd8ccb0});for(let k=0;k<7;k++)fshelf(I,4+k*5.3,7.5,10,true);for(const x of[8,16,24]){ftable(I,x,20.5,3,1.6,0x5a3a24);fchair(I,x-.8,21.9);fchair(I,x+.8,21.9)}fb(I,33,24.5,5,1.2,1,0x5a3a24);fb(I,38,14,1.2,1.4,1.6,0x3a3a40);chand(I,20,20);

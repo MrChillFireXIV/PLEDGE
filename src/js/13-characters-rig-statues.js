@@ -120,10 +120,20 @@ function mkPersonX(o){o=Object.assign({},o);pickStyle(o);const fem=!!o.fem,BP=bo
   {const cs=GC.csh||(GC.csh={geo:new THREE.PlaneGeometry(1,1).rotateX(-PI/2),mat:new THREE.MeshBasicMaterial({map:cvTex(128,128,(q,w,h)=>{const gr=q.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.4,'rgba(0,0,0,.55)');gr.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=gr;q.fillRect(0,0,w,h)}),transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3})});
    const m1=new THREE.Mesh(cs.geo,cs.mat),m2=new THREE.Mesh(cs.geo,cs.mat);m1.scale.set(1.05,1,.85);m2.scale.set(.62,1,.5);for(const m of[m1,m2]){m.position.y=.03;m.renderOrder=1;m.matrixAutoUpdate=true;g.add(m)}g.CS=[m1,m2]}
   g.P={lL:B.lL,lR:B.lR,aL:B.aL,aR:B.aR,torso:hi,lo,kL:B.kL,kR:B.kR,eL:B.eL,eR:B.eR,hL:B.hL,hR:B.hR,fL:B.fL,fR:B.fR,hips:B.hips,spine:B.spine,chest:B.chest,neck:B.neck,head:B.head,_o:o,pal};
+  for(const n of BN)if(!g.P[n])g.P[n]=B[n];g.P.fing={};for(const S of['L','R'])g.P.fing[S]={a:[0,1,2,3].map(i=>B[S+i+'a']),b:[0,1,2,3].map(i=>B[S+i+'b']),ta:B[S+'Ta'],tb:B[S+'Tb'],c:.3,cT:.3,sp:0};   /* V307 fingers */
   if(o.letters){const k='letp67'+(fem?'f':'m'),lp=new THREE.Mesh(GC[k]||(GC[k]=curvedPlane(.34,.17,fem)),letMat(o.letters));lp.position.set(0,.02,0);B.chest.add(lp)}
   if(o.pin&&!(o.stone||o.metal)){const pn=new THREE.Mesh(GC.pin67||(GC.pin67=roundBox(.06,.06,.014,.006,1)),mt(0xe2b64c,.35,.6));pn.position.set(.12,.1,.152);B.chest.add(pn)}
   if(o.prop){const pg=GC.propg||(GC.propg=mergeParts([[PG.blade,0xf2c230,0,0,0],[PG.blade,0xd63a3a,0,0,0,PI/2]]));const pr=new THREE.Mesh(pg,PMAT);pr.position.set(0,2.135-BP.head[1],0);pr.castShadow=true;B.head.add(pr);g.P.prop=pr;PROPS.push(pr)}
   return g}
+/* V307 hands: fingers curl with the situation. c = curl (0 open .. 1 fist), smoothed; the thumb follows */
+const HPOSE={open:[.06,.1,0],relax:[.32,.15,.05],grip:[.95,.6,0],fist:[1.25,.95,0],tray:[.12,.2,.12]};
+function handPose(g,p,st,dt){const F=p.fing;if(!F)return;const H=g.HOLD,hasR=p.hR&&p.hR.children.some(c=>!c.isBone),hasL=p.hL&&p.hL.children.some(c=>!c.isBone);
+  const want=s=>{if(g.HPF)return g.HPF;const R=s==='R';if(g.HPA)return g.HPA==='palm'&&R?'open':'fist';const fight=st==='punch'||st==='guard';if(fight)return'fist';if(st==='bike')return'grip';if(H==='tray')return'tray';
+    if(H==='box'||H==='overhead')return'grip';if((H==='up'||H==='bucket')&&R)return'grip';if(R?hasR:hasL)return'grip';if(st==='wave'&&R)return'open';if(st==='talk'||g.TALK)return'open';if(st==='carry')return'grip';return'relax'};
+  const k=Math.min(1,dt*12);
+  for(const S of['L','R']){const h=F[S],s=S==='L'?-1:1,P_=HPOSE[want(S)];h.c+=(P_[0]-h.c)*k;h.cT+=(P_[1]-h.cT)*k;h.sp+=(P_[2]-h.sp)*k;const c=h.c;
+    for(let i=0;i<4;i++){const e=1+(i-1)*.06;h.a[i].rotation.set((i-1.5)*(.035+h.sp)*(1-c*.7),0,-s*c*e);h.b[i].rotation.set(0,0,-s*Math.min(1.7,c*1.25*e))}
+    h.ta.rotation.set(.1+.75*h.cT,0,-s*(.12+.42*h.cT));h.tb.rotation.set(0,0,-s*(.12+.82*h.cT))}}
 // ---------------------------------------------------------------- animation: knees, elbows, hips, spine, breathing, glances, eye contact, blinking, talking mouths,
 // and a spring layer (lean into acceleration and turns, lag on stops, flinch / stagger on hits) that makes bodies feel physical
 const _q=new THREE.Quaternion();
@@ -166,6 +176,7 @@ function animX(g,sp,t,st){const p=g.P;if(!p.kL||g.RAG)return;const k=Math.min(1,
   if(g.HOLD==='up'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(-.35,0,.14);p.eR.rotation.set(-1.35,0,0)}else if(g.HOLD==='overhead'&&st!=='punch'&&st!=='guard'){p.aL.rotation.set(-2.9,0,-.2);p.aR.rotation.set(-2.9,0,.2);p.eL.rotation.set(-.45,0,0);p.eR.rotation.set(-.45,0,0)}else if(g.HOLD==='bucket'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(p.aR.rotation.x*.35,0,.24);p.eR.rotation.set(-.12,0,0)}
   else if(g.HOLD==='box'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(-.3,0,.3);p.eR.rotation.set(-2.05,0,0)}
   else if(g.HOLD==='tray'&&st!=='punch'&&st!=='guard'){for(const[a,e,sg]of[[p.aL,p.eL,-1],[p.aR,p.eR,1]]){a.rotation.set(-.03,-sg*.02,-sg*.254);e.rotation.set(-1.296,0,0)}}   // V166 solved so both palms sit on the rim of a tray at chest (0,-.135,.27), r .25
+  try{handPose(g,p,st,dt)}catch(e){}
   const gsm=gestPose(g,p,t);
   // hit reactions: a damped spring kicked by hitNPC / hitPlayer
   if(g.FL){const a=t-(g.FLt??t);if(g.FLt==null)g.FLt=t;if(a>1.4)g.FL=0;else{const f=g.FL*Math.exp(-a*4.5)*Math.cos(a*12),dir=g.FLd||1;p.spine.rotation.x-=f*.4*dir;p.chest.rotation.x-=f*.32*dir;p.head.rotation.x-=f*.55*dir;p.neck.rotation.z+=f*.25*(g.FLs||1);p.spine.rotation.z+=f*.15*(g.FLs||1);
