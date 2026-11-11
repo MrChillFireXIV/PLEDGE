@@ -178,11 +178,11 @@ function wheelRender(){const box=$('wpills');box.innerHTML='';const per=8,pages=
 function wheelPick(f){if(!WH)return;sfx('ui');closeWheel();mode='play';f&&f();if(mode==='play'){endScene();if(cardQ.length)card(cardQ.shift())}}
 function closeWheel(){$('wheel').hidden=true;$('wpills').innerHTML='';WH=null}
 function wheelPos(){if(!WH||$('wheel').classList.contains('dock'))return;const n=WH.n,W=innerWidth,H=innerHeight;_wv.set(n.x,n.isP?P.y+2.1:(n.tall?3.35:(n.prop?2.25:2.05)*(n.g.scale.y||1))+terrH(n.x,n.z),n.z).project(cam);
-  const rx=Math.min(250,W*.3),ry=Math.min(130,H*.2);let cx=(_wv.x+1)/2*W,cy=(1-_wv.y)/2*H;if(_wv.z>1){cx=W/2;cy=H/2}cx=clamp(cx,rx*.6+20,W-rx*.6-20);cy=clamp(Math.max(cy,$('wbal').offsetHeight+ry+40),ry+120,H-ry-70);
+  const rx=Math.min(250,W*.3),ry=Math.min(130,H*.2);let cx=(_wv.x+1)/2*W,cy=(1-_wv.y)/2*H;if(_wv.z>1){cx=W/2;cy=H/2}const headY=_wv.z>1?H:cy;   /* V311 the speaker's head top on screen */cx=clamp(cx,rx*.6+20,W-rx*.6-20);cy=clamp(Math.max(cy,$('wbal').offsetHeight+ry+40),ry+120,H-ry-70);
   const bs=[...$('wpills').children].filter(b=>b!==WH.lb),N=bs.length,R_=Math.ceil(N/2),L_=N-R_;
   bs.forEach((b,i)=>{const right=i<R_,k=right?i:i-R_,cnt=right?R_:L_,a=cnt>1?(-1+2*k/(cnt-1))*1.05:0;const x=cx+(right?1:-1)*(rx*.38+rx*.62*Math.cos(a)),y=cy+ry*Math.sin(a);const w=b.offsetWidth,h=b.offsetHeight;let left=right?x:x-w;left=clamp(left,8,W-w-8);b.style.transform=`translate(${left}px,${clamp(y-h/2,8,H-h-8)}px)`});
   if(WH.lb){const w=WH.lb.offsetWidth;WH.lb.style.transform=`translate(${clamp(cx-w/2,8,W-w-8)}px,${Math.min(H-50,cy+ry+34)}px)`}
-  const bal=$('wbal');bal.style.left=clamp(cx,bal.offsetWidth/2+8,W-bal.offsetWidth/2-8)+'px';bal.style.top=Math.max(bal.offsetHeight+10,cy-ry-26)+'px'}
+  const bal=$('wbal');bal.style.left=clamp(cx,bal.offsetWidth/2+8,W-bal.offsetWidth/2-8)+'px';bal.style.top=Math.max(bal.offsetHeight+10,Math.min(cy-ry-26,headY-34))+'px'}   /* V311 never cover the faces: the balloon ends above the speaker's head, or at the top of the screen */
 
 // ================================================================ DAMAGE NUMBERS & LEVEL TAGS
 const DMG=[];

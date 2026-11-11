@@ -420,4 +420,7 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #planner.bugdev #devprev img{max-width:100%;border:1px solid #3a4254;border-radius:6px}
 #planner.bugdev .devlbl{font-weight:700;font-size:14px}
 #planner.bugdev label{display:inline-flex;gap:6px;align-items:center;font-size:14px}
-
+/* V311 leave a minigame */
+.board{position:relative}
+.mgq{position:absolute;top:10px;right:12px;z-index:2;padding:5px 12px;font-size:13px;color:#f4f1e4;border-color:rgba(244,241,228,.5)}
+.mgq[data-sure]{background:#7d1f2c;border-color:#7d1f2c}

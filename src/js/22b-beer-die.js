@@ -7,7 +7,7 @@
 // tink (off their pint, not caught) 2 · sink 3 + kill & fill · short or on the line = dead · kill & fill every 3 (to 9) or 4 (to 11) ·
 // win by 2 · FIFA (preferred rule): kicked air ball caught by the partner benches the tosser for the next defense, max 3 per team,
 // FIFAs never score, so nobody can win on one.
-function mgDie(cb){openMG('Beer Die','ΑΣΡ backyard · Danny & Marcus vs Chase & Colton',(el,close)=>{
+function mgDie(cb){mgQuitCb(cb);openMG('Beer Die','ΑΣΡ backyard · Danny & Marcus vs Chase & Colton',(el,close)=>{
   el.innerHTML=`<p class="mgintro" id="dii">First toss: call the roll.</p><div class="mgrow" id="dib"></div><canvas class="mgc" id="dc" width="360" height="484" style="width:min(360px,100%)"></canvas><div class="mgstat" id="dis"></div>`;
   const cv=$('dc'),q=cv.getContext('2d'),W=360,H=484,TX=90,TY=50,TW=180,TH=350,MID=TY+TH/2,HL=.42,SWW=.1;   // table rectangle; HL = height line on the toss meter
   const cups=[{x:TX+22,y:TY+22,s:1},{x:TX+TW-22,y:TY+22,s:1},{x:TX+22,y:TY+TH-22,s:0},{x:TX+TW-22,y:TY+TH-22,s:0}];   // s:1 = their pints (top), 0 = ours
