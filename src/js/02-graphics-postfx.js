@@ -129,7 +129,8 @@ let GLLOST=false;
     GLLOST=false;console.log('WebGL context restored')},false)})();
 // ---- physically based surfaces for the procedural textures: glass glossy and a little metallic, masonry rough, relief from the texture itself
 function pbrize(m,o={}){if(GFX!=='enhanced'||!m||!m.map||!m.map.image||m.userData.pbr||!m.isMeshStandardMaterial)return;m.userData.pbr=1;const img=m.map.image,W=img.width,H=img.height;if(!W||!H)return;
-  const c=document.createElement('canvas');c.width=W;c.height=H;const q=c.getContext('2d');q.drawImage(img,0,0);let d;try{d=q.getImageData(0,0,W,H)}catch(e){return}const a=d.data,base=o.rough!=null?o.rough*255:212;
+  const f=Math.min(1,(Math.max(W,H)>1024?512:256)/Math.max(W,H)),w2=Math.max(1,Math.round(W*f)),h2=Math.max(1,Math.round(H*f));   /* V296 roughness maps at 256 px (512 for big textures): a quarter of the graphics memory or less, same look */
+  const c=document.createElement('canvas');c.width=w2;c.height=h2;const q=c.getContext('2d');q.drawImage(img,0,0,w2,h2);let d;try{d=q.getImageData(0,0,w2,h2)}catch(e){return}const a=d.data,base=o.rough!=null?o.rough*255:212;
   for(let i=0;i<a.length;i+=4){const r=a[i],g=a[i+1],b=a[i+2],glass=b>r+14&&b>=g-8&&r+g+b<600;a[i]=255;a[i+1]=glass?30+(i%13):Math.min(255,base+((i*7)%23)-11);a[i+2]=glass?140:0;a[i+3]=255}
   q.putImageData(d,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=m.map.wrapS;t.wrapT=m.map.wrapT;t.repeat.copy(m.map.repeat);t.anisotropy=m.map.anisotropy;
   m.roughnessMap=t;m.metalnessMap=t;m.roughness=1;m.metalness=1;if(!MOB){m.bumpMap=m.map;m.bumpScale=o.bump!=null?o.bump:.022}/* V242 no bump relief on phones: its screen-space derivatives drew moving black diagonal stripes on big flat walls */

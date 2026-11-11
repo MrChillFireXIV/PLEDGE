@@ -219,11 +219,11 @@ function setupTouch(){if(!matchMedia('(pointer:coarse)').matches)return;$('touch
   tap($('rolep'),()=>{K.KeyT=1;setTimeout(()=>{K.KeyT=0},120)})}
 
 // ================================================================ BOOT
-function gfxReady(){if(GFX!=='enhanced')return;try{ppInit()}catch(e){console.warn('post-processing off:',e);PP.ready=false;R.toneMapping=THREE.ACESFilmicToneMapping}for(const m of FMLIST)pbrize(m,{detail:1});sc.traverse(o=>{const m=o.material;if(o.isMesh&&m&&!Array.isArray(m)&&m.isMeshStandardMaterial&&m.map&&m.map.image&&m.map.image.width>=256&&!o.userData.terrain&&!m.transparent)pbrize(m)});envUpdate(true)}
-function prewarm(){try{gfxReady();for(const id in INT)INT[id].g.visible=true;for(const n of NP){n.g.visible=true;if(!n.tag)mkTag(n)}const d=mkDad();sc.add(d);TRUCK.visible=true;
-  for(const id in INT){const I=INT[id];cam.position.set(I.x0+I.w/2,62,I.z0+I.d/2+.01);cam.lookAt(I.x0+I.w/2,0,I.z0+I.d/2);R.render(sc,cam)}
-  for(const[x,z]of[[70,80],[70,300],[220,150],[330,150],[460,120],[600,120],[260,320],[400,320],[540,330],[650,320],[260,480],[420,500],[580,500],[250,640],[70,620]]){cam.position.set(x,70,z+.01);cam.lookAt(x,0,z);R.render(sc,cam)}
-  sc.remove(d);TRUCK.visible=false;for(const id in INT)INT[id].g.visible=false;for(const n of NP)n.g.visible=false}catch(e){console.warn(e)}}
+function gfxReady(){if(GFX!=='enhanced')return;try{ppInit()}catch(e){console.warn('post-processing off:',e);PP.ready=false;R.toneMapping=THREE.ACESFilmicToneMapping}for(const m of FMLIST)pbrize(m,{detail:1});sc.traverse(o=>{const m=o.material;if(o.isMesh&&m&&!Array.isArray(m)&&m.isMeshStandardMaterial&&m.map&&m.map.image&&m.map.image.width>256&&!o.userData.terrain&&!m.transparent)pbrize(m)});envUpdate(true)}
+function prewarm(){try{gfxReady();for(const id in INT)INT[id].g.visible=true;for(const n of NP)n.g.visible=true;const n0=NP.find(n=>!n.tag);if(n0)mkTag(n0);const d=mkDad();sc.add(d);TRUCK.visible=true;
+  /* V296 shaders for everything (interiors, every character, the truck, a name tag) are compiled without drawing, so their textures only go to the graphics card when they're first seen. Before, this drew every interior and gave all ~740 characters a name tag, which loaded about a gigabyte of textures up front and could run the graphics card out of memory */
+  R.compile(sc,cam);sc.remove(d);TRUCK.visible=false;for(const id in INT)INT[id].g.visible=false;for(const n of NP)n.g.visible=false;if(n0)tagDrop(n0);
+  for(const[x,z]of[[70,80],[70,300],[220,150],[330,150],[460,120],[600,120],[260,320],[400,320],[540,330],[650,320],[260,480],[420,500],[580,500],[250,640],[70,620]]){cam.position.set(x,70,z+.01);cam.lookAt(x,0,z);R.render(sc,cam)}}catch(e){console.warn(e)}}
 function begin(fresh){SAVEBLOCK=0;audioInit();window.__played=1;try{const pn=document.querySelector('#title .pennant');TC.pr=fresh&&pn&&!$('title').hidden?pn.getBoundingClientRect():null}catch(e){}$('title').hidden=true;if(matchMedia('(pointer:coarse)').matches)$('touch').hidden=false;$('hud').hidden=false;mode='play';
   if(fresh){S=S0();setHat(0);try{localStorage.removeItem(SAVEK)}catch(e){}P.x=77.9;P.z=76.9;P.face=PI/2;yaw=-PI/2;refreshNamed();renderInv();startMission(M[0])}
   else{if(!loadGame()){begin(true);return}yaw=-PI/2;toast(`Welcome back. ${DAYN[(S.day-1)%7]}, ${fmtT(S.gt)}.`)}}
@@ -234,6 +234,16 @@ async function boot(){if(TEST==null)try{await Promise.race([document.fonts.ready
   if(MOB&&GFX==='enhanced')adpSet(1);
   if(TEST!=null)testBoot();
   let last=NOW(),fpsN=0,fpsT=0;(function tick(){requestAnimationFrame(tick);if(TESTPAUSE){last=NOW();return}const t=NOW(),rdt=t-last,dt=Math.min(.05,rdt);last=t;fpsN++;fpsT+=rdt;if(rdt>.4)ADP.skip=1;if(fpsT>=.5){const f=Math.round(fpsN/fpsT),e=$('fps');adpTick(f,rdt);if(!FPSMIN)e.textContent=f+' FPS · '+R.info.render.calls+' draws · cpu '+CPUMS.toFixed(1)+' ms';if(!FPSMIN)e.style.color=f>=50?'#a6e597':f>=30?'#ffcf6a':'#ff8a7a';fpsN=0;fpsT=0}const c0=performance.now();try{update(dt)}catch(err){console.error(err)}CPUMS=CPUMS*.9+(performance.now()-c0)*.1;if((SHF++%ADP.shf)===0)R.shadowMap.needsUpdate=true;try{musTick()}catch(e){}renderFrame()})()}
+// V296 lost graphics context (the graphics card ran out of memory or reset): instead of a white/blank screen, save if in free play,
+// say what happened, and reload straight back into the save. A second loss within a day switches to Classic graphics (less memory).
+function ctxGuard(){const cv=R.domElement;let fired=0;cv.addEventListener('webglcontextlost',e=>{e.preventDefault();if(fired||TEST!=null)return;fired=1;
+  let L=[];try{L=JSON.parse(localStorage.getItem('pledge.ctxlost')||'[]').filter(t=>Date.now()-t<864e5)}catch(err){}L.push(Date.now());try{localStorage.setItem('pledge.ctxlost',JSON.stringify(L))}catch(err){}
+  const playing=mode!=='title'&&mode!=='loading';if(mode==='play')try{saveGame()}catch(err){}
+  const third=L.length>=3,classic=L.length===2&&GFX==='enhanced';if(classic)GFXSAVE('classic');
+  const m=document.createElement('div');m.style.cssText='position:fixed;inset:0;z-index:2147483646;background:#0a0e18;color:#f6efe0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font:600 17px Archivo,Arial,sans-serif;line-height:1.5';
+  m.innerHTML=third?'Your graphics card keeps running out of memory.<br>Close other tabs or games that use 3D, then reload this page.<br><small style="opacity:.7">Your last save is kept.</small>':'The graphics card ran out of memory'+(mode==='play'?', so your progress was saved':'')+'.<br>'+(classic?'Switching to Classic graphics (uses less memory; press L in game to switch back) and reloading…':'Reloading…');
+  document.body.appendChild(m);if(third)return;try{if(playing&&hasSave())sessionStorage.setItem('pledge.auto','go')}catch(err){}setTimeout(()=>location.reload(),2200)},false)}
+try{ctxGuard()}catch(e){console.warn('ctxGuard',e)}
 boot();
 
 // propeller beanie: one spin rule for every wearer (player and NPCs) — idle 7 rad/s, +2.5 per m/s of ground speed,

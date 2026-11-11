@@ -45,9 +45,9 @@ function compPaint(q,W,H,L,year,empty){{q.fillStyle=empty?'#3a3330':'#1d1a16';q.
 // material (and merge into one draw call) instead of 50 of each. compTile returns the sheet's material and the tile's UV rectangle.
 const COMPA={};
 function compTile(L,year,empty){const k=year+(empty?'e':'');const pages=COMPA[L]||(COMPA[L]=[]);for(const pg of pages)if(pg.slots[k])return pg.slots[k];
-  let pg=pages[pages.length-1];if(!pg||pg.n>=72){const t=ctex(1024,1024,(q,W,H)=>{q.fillStyle='#1d1a16';q.fillRect(0,0,W,H)});pg={t,q:t.image.getContext('2d'),n:0,slots:{},mat:new THREE.MeshBasicMaterial({map:t})};pages.push(pg)}
-  const tx=(pg.n%8)*128,ty=Math.floor(pg.n/8)*112;pg.n++;const q=pg.q;q.save();q.translate(tx,ty);q.beginPath();q.rect(0,0,128,112);q.clip();compPaint(q,128,112,L,year,empty);q.restore();pg.t.needsUpdate=true;
-  return pg.slots[k]={mat:pg.mat,u0:(tx+.5)/1024,u1:(tx+127.5)/1024,v0:1-(ty+111.5)/1024,v1:1-(ty+.5)/1024}}
+  let pg=pages[pages.length-1];if(!pg||pg.n>=72){const t=ctex(512,512,(q,W,H)=>{q.fillStyle='#1d1a16';q.fillRect(0,0,W,H)});pg={t,q:t.image.getContext('2d'),n:0,slots:{},mat:new THREE.MeshBasicMaterial({map:t})};pages.push(pg)}
+  const tx=(pg.n%8)*64,ty=Math.floor(pg.n/8)*56;pg.n++;const q=pg.q;q.save();q.translate(tx,ty);q.scale(.5,.5);q.beginPath();q.rect(0,0,128,112);q.clip();compPaint(q,128,112,L,year,empty);q.restore();pg.t.needsUpdate=true;   /* V296 half-size tiles on 512 px pages */
+  return pg.slots[k]={mat:pg.mat,u0:(tx+.5)/512,u1:(tx+63.5)/512,v0:1-(ty+55.5)/512,v1:1-(ty+.5)/512}}
 function tileGeo(w,h,T){const g=new THREE.PlaneGeometry(w,h),uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,T.u0+uv.getX(i)*(T.u1-T.u0),T.v0+uv.getY(i)*(T.v1-T.v0));return g}
 const picMat=t=>PICM[t.uuid]||(PICM[t.uuid]=new THREE.MeshBasicMaterial({map:t}));
 function compWall(I,L,ax,az,bx,bz,face,skip=[],y=3.3){const hz=az===bz,a0=hz?ax:az,a1=hz?bx:bz,yrs=I.yrs;for(let t=a0;t<=a1+1e-6;t+=2.1){if(skip.some(([u,v])=>t>u-1&&t<v+1))continue;const yr=yrs[(I.yi=(I.yi||0)+1)%yrs.length];wframe(I,hz?t:ax,hz?az:t,face,y,1.5,1.3,{comp:[L,yr]})}}

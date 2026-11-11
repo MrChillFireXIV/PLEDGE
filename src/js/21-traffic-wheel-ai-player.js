@@ -190,6 +190,7 @@ function dmgNum(x,y,z,t,col){y+=terrH(x,z);let s=DMG.find(d=>d.t>=1);if(!s){if(D
 function dmgTick(dt){for(const d of DMG)if(d.t<1){d.t+=dt*1.1;d.sp.position.set(d.x,d.y+d.t*1.3,d.z);d.sp.material.opacity=Math.min(1,(1-d.t)*1.6);if(d.t>=1)d.sp.visible=false}}
 function rrect(q,x,y,w,h,r){q.beginPath();if(q.roundRect)q.roundRect(x,y,w,h,r);else q.rect(x,y,w,h);q.fill()}
 function mkTag(n){const c=document.createElement('canvas');c.width=360;c.height=84;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));s.scale.set(3.3,.77,1);s.position.y=n.tall?3.55:n.prop?2.75:2.5;s.userData.c=c;n.tag=s;n.g.add(s);drawTag(n)}
+function tagDrop(n){const t=n.tag;if(!t)return;n.tag=null;n.tagHp=n.tagLv=null;if(t.parent)t.parent.remove(t);try{t.material.map.dispose();t.material.dispose()}catch(e){}}   /* V296 frees a far-away name tag's texture */
 function drawTag(n){const c=n.tag.userData.c,q=c.getContext('2d');q.clearRect(0,0,360,84);q.font='600 24px Archivo,Arial';const tw=Math.min(210,q.measureText(n.name).width),W=tw+106,x0=(360-W)/2;q.fillStyle='rgba(14,20,34,.86)';rrect(q,x0,4,W,46,10);q.fillStyle=CL[n.cl].c;q.fillRect(x0+10,14,8,26);q.fillStyle='#fff';q.textBaseline='middle';q.fillText(n.name,x0+26,28,210);
   const lv=n.lvl;q.font='800 22px Archivo,Arial';q.fillStyle=lv>S.lvl?'#ff8a7a':lv<S.lvl?'#a6e597':'#ffcf6a';q.fillText('Lv '+lv,x0+tw+38,28);
   const f=clamp(n.hp/n.mhp,0,1);q.fillStyle='rgba(0,0,0,.7)';rrect(q,x0+8,56,W-16,14,6);q.fillStyle=f>.5?'#6fd06a':f>.25?'#f0c040':'#e0483a';if(f>0)rrect(q,x0+10,58,(W-20)*f,10,5);
@@ -317,7 +318,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   // authority
   if(n.auth&&!EV){const rng=(n.cl==='ra'?12:n.cl==='cops'?18:16)*(NIGHT>.6?.75:1)*(K.KeyC||toggles.KeyC?.7:1);if(n.dp<rng&&canSee(n,rng)){n.lastSeen=0;SEEN=1;if(OFFENSE){trouble(26*dt);if(rnd()<dt*.5&&(!n.bub||!n.bub.visible))bubble(n,'Curfew, kid!')}if(S.trouble>=25&&!n.chase){n.chase=1;bubble(n,'Stop right there!',2);sfx('whistle')}}else n.lastSeen+=dt;if(n.chase){CHASED=1;if(n.lastSeen>5||S.trouble<1){n.chase=0}}}
   n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;animP(n.g,n.sp,n.t,st);if(n.c3wired)c3WiredPose(n);if(n.c3guard)c3kGuardPose(n);if(amb)ambPose(n);else if(n.alPose||n.alProp){n.alPose=null;ambPose(n)}
-  if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag)n.tag.visible=false}
+  if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag){n.tag.visible=false;if(n.dp>60)tagDrop(n)}}
 let PRT=0,SEEN=0,CHASED=0,OFFENSE=null,NIGHT=0;
 
 // ================================================================ PLAYER
