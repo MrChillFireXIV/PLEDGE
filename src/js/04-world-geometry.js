@@ -50,7 +50,7 @@ const trackR=(x,z)=>Math.hypot((x-TK.x)/TK.rx,(z-TK.z)/TK.rz);
 
 let ram,ramHome,gateMesh,clockCtx,clockTex,fountainPts,radioBlink,kartGates=[],pongCups,bulbs,trunkIM;
 // modern facades: brutalist concrete, ribbed tower, curtain-wall glass, metal panel, terracotta, white panel, striped brick
-const FX2={ccmR:1,conc:1,concT:1,glass:1,metal:1,terra:1,white:1,stripe:1,diag:1,arcade:1,cchT:1,cchG:1,cchB:1,dpMix:1,dpG:1,dpP:1,dpL:1,dpS:1,dpW:1,dbG:1,dbT:1,dbP:1,dbL:1,dbW:1,dbGl:1,daapO:1,rieve:1,tanC:1,fins:1,panelG:1,panelW:1,darkM:1,zinc:1,zincP:1,tucB:1,langsam:1,langT:1,lindL:1,lindD:1,baldB:1,stegB:1,upav:1,rustD:1,diet:1,wpav:1,wpavL:1,zincH:1,rhodes:1,erc2:1,morg:1,morgC:1,spenc:1,daniels:1,eastG:1,eastB:1,eastD:1,french:1,brickM:1};
+const FX2={dabney:1,ccmR:1,conc:1,concT:1,glass:1,metal:1,terra:1,white:1,stripe:1,diag:1,arcade:1,cchT:1,cchG:1,cchB:1,dpMix:1,dpG:1,dpP:1,dpL:1,dpS:1,dpW:1,dbG:1,dbT:1,dbP:1,dbL:1,dbW:1,dbGl:1,daapO:1,rieve:1,tanC:1,fins:1,panelG:1,panelW:1,darkM:1,zinc:1,zincP:1,tucB:1,langsam:1,langT:1,lindL:1,lindD:1,baldB:1,stegB:1,upav:1,rustD:1,diet:1,wpav:1,wpavL:1,zincH:1,rhodes:1,erc2:1,morg:1,morgC:1,spenc:1,daniels:1,eastG:1,eastB:1,eastD:1,french:1,brickM:1};
 let COURT=null;const courtTex=()=>{if(!COURT)COURT=ctex(256,128,q=>{q.fillStyle='#3e7a5e';q.fillRect(0,0,256,128);q.fillStyle='#2f5f8f';q.fillRect(26,22,204,84);q.strokeStyle='#f4f4ee';q.lineWidth=2.4;q.strokeRect(26,22,204,84);q.beginPath();q.moveTo(26,32);q.lineTo(230,32);q.moveTo(26,96);q.lineTo(230,96);q.moveTo(72,32);q.lineTo(72,96);q.moveTo(184,32);q.lineTo(184,96);q.moveTo(72,64);q.lineTo(184,64);q.stroke();q.strokeStyle='#1a1c20';q.lineWidth=2;q.beginPath();q.moveTo(128,16);q.lineTo(128,112);q.stroke()});const t=COURT.clone();t.needsUpdate=true;return t};
 function facade2(kind){FD.k=kind;FD.rec[kind]=[];const S=512,em=document.createElement('canvas');em.width=em.height=S;const qe=em.getContext('2d');qe.fillStyle='#000';qe.fillRect(0,0,S,S);const lit=(x,y,w,h)=>{fdRec(x,y,w,h);if(rnd()<.5){qe.fillStyle=rnd()<.8?'#ffc670':'#c0dcff';qe.fillRect(x,y,w,h)}};
   const glassG=(q,x,y,w,h)=>{const g=q.createLinearGradient(0,y,0,y+h);g.addColorStop(0,'#8fb0c8');g.addColorStop(1,'#34495c');q.fillStyle=g;q.fillRect(x,y,w,h)};
@@ -122,6 +122,14 @@ function facade2(kind){FD.k=kind;FD.rec[kind]=[];const S=512,em=document.createE
     else if(kind==='morg'){// Morgens and Scioto halls: blue-green glass curtain walls with dark vertical fins
       const g=q.createLinearGradient(0,0,0,S);g.addColorStop(0,'#6fa8b4');g.addColorStop(1,'#2f5f72');q.fillStyle=g;q.fillRect(0,0,S,S);
       for(let x=0;x<S;x+=32){q.fillStyle=(x/32)%4===0?'#1d3442':'#5f8f9c';q.fillRect(x,0,(x/32)%4===0?7:2,S);lit(x+8,0,22,S)}for(let y=0;y<S;y+=128){q.fillStyle='#244452';q.fillRect(0,y,S,9)}for(let y=64;y<S;y+=128){q.fillStyle='rgba(20,40,52,.5)';q.fillRect(0,y,S,2)}}
+    else if(kind==='dabney'){// V312 Dabney Hall: grey-blue painted brick, white-framed windows 3.2 m apart, nearly every one with an air conditioner in it
+      const BR='#66737c';q.fillStyle=shade(BR,-14);q.fillRect(0,0,S,S);for(let y=0;y<S;y+=6){const off=((y/6)%2)*7;for(let x=-off;x<S;x+=14){q.fillStyle=shade(BR,rnd()*10-5);q.fillRect(x+1,y+1,12,4)}}
+      const CUR=['#c8b48a','#8a9ab0','#b07a6a','#d8d0c0','#6a7a8a','#a8a070'];
+      for(let r=0;r<5;r++)for(let k=0;k<5;k++){const x=k*102.4+30,y=r*102.4+22,w=42,h=48;q.fillStyle='#f1efe9';q.fillRect(x-4,y-4,w+8,h+8);glassG(q,x,y,w,h);
+        if(rnd()<.45){q.fillStyle=CUR[Math.floor(rnd()*CUR.length)];q.globalAlpha=.75;q.fillRect(x+(rnd()<.5?0:w*.55),y,w*.45,h*.62);q.globalAlpha=1}lit(x,y,w,h*.55);
+        q.fillStyle='#f1efe9';q.fillRect(x-2,y+h*.52,w+4,3);   /* meeting rail */
+        if(rnd()<.85){const aw=30,ah=17,ax=x+(w-aw)/2,ay=y+h-ah-1;q.fillStyle='#d9dbd8';q.fillRect(ax,ay,aw,ah);q.fillStyle='#a9adab';for(let g=0;g<6;g++)q.fillRect(ax+3+g*4.4,ay+3,2,ah-6);q.fillStyle='#8a8e8c';q.fillRect(ax,ay+ah-2,aw,2)}   /* window AC unit */
+        q.fillStyle='rgba(0,0,0,.22)';q.fillRect(x-4,y+h+4,w+8,3)}}
     else if(kind==='spenc'||kind==='daniels'){// Marian Spencer Hall (new orange-red brick slab) / Daniels Hall (1960s orange-tan brick tower): punched windows in a grid
       const BR=kind==='spenc'?'#a24f35':'#b56e47';q.fillStyle=shade(BR,-30);q.fillRect(0,0,S,S);for(let y=0;y<S;y+=8){const off=((y/8)%2)*9;for(let x=-off;x<S;x+=18){q.fillStyle=shade(BR,rnd()*16-8);q.fillRect(x+1,y+1,16,6)}}
       const n=kind==='spenc'?6:8,wd=kind==='spenc'?34:22,ht=kind==='spenc'?60:44;for(let r=0;r<(kind==='spenc'?4:5);r++)for(let k=0;k<n;k++){const x=k*S/n+(S/n-wd)/2,y=r*(S/(kind==='spenc'?4:5))+24;q.fillStyle=kind==='spenc'?'#4a4f55':'#34302d';q.fillRect(x-3,y-3,wd+6,ht+6);glassG(q,x,y,wd,ht);lit(x,y,wd,ht)}}
