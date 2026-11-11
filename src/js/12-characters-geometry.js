@@ -53,7 +53,7 @@ const BPAR={hips:null,spine:'hips',chest:'spine',neck:'chest',head:'neck',aL:'ch
    The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
    which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
 const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
-const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1}:{hs:.72,lift:.012,kx:.92,ta:.87,nk:.85};
+const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.8,lift:-.03,kx:.92,ta:.87,nk:.88,hand:.82};
 function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]]}return b}
 function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108;return{hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]}}
 // palette slots (rgb + roughness); 24..27 are per-person parameters for the shader
@@ -72,7 +72,8 @@ function chrWarp(G){if(GFX!=='enhanced'||!G.warp)return;const C=CHR_PROP,sx=G.fe
     for(let j=0;j<2;j++){const w=sw[v+j];if(!w)continue;const b=BN[si[v+j]];let tx=x,ty=y,tz=z,f=1;
       if(b==='spine'||b==='chest'){const k=kxy(y);tx=x*k;f=1/k}
       else if(b==='neck'){tx=x*C.nk;tz=NZ+(z-NZ)*C.nk}
-      else if(b[0]==='a'||b[0]==='e'||b[0]==='h'&&b!=='hips'&&b!=='head'){const ax=(b[1]==='L'?-1:1)*sx;tx=ax*C.kx+(x-ax)*C.ta;tz=AZ+(z-AZ)*C.ta}
+      else if(b==='hL'||b==='hR'){const ax=(b[1]==='L'?-1:1)*sx,WY=.955;tx=ax*C.kx+(x-ax)*C.hand;ty=WY+(y-WY)*C.hand;tz=z*C.hand}   /* hands: scaled about the wrist */
+      else if(b[0]==='a'||b[0]==='e'){const ax=(b[1]==='L'?-1:1)*sx;tx=ax*C.kx+(x-ax)*C.ta;tz=AZ+(z-AZ)*C.ta}
       X+=tx*w;Y+=ty*w;Z+=tz*w;fx+=f*w;W+=w}
     if(W>0){p[i]=X/W;p[i+1]=Y/W;p[i+2]=Z/W;const k=fx/W;if(k!==1){const a=n[i]*k,b2=n[i+1],c=n[i+2],l=Math.hypot(a,b2,c)||1;n[i]=a/l;n[i+1]=b2/l;n[i+2]=c/l}}}}
 function gBuild(G){chrWarp(G);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(G.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(G.n,3));g.setAttribute('color',new THREE.Float32BufferAttribute(G.c,3));
