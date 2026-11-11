@@ -56,7 +56,7 @@ for(const s of['L','R']){for(let i=0;i<4;i++){BPAR[s+i+'a']='h'+s;BPAR[s+i+'b']=
    The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
    which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
 const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
-const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:.82};
+const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:1.0};
 /* V307 hand layout: finger [z, length, radius], knuckle line y0, the middle joint at 47% of each finger, thumb joints [inward, y, z] */
 function handLay(fem){const k=fem?.9:1,W=.955,Y=y=>W-(W-y)*k;
   return{k,y0:Y(.866),xin:.004*k,f:[[.035,.09,.0112],[.012,.1,.0115],[-.011,.093,.0108],[-.032,.075,.0095]].map(([z,l,r])=>[z*k,l*k,r*k]),pj:.47,
