@@ -432,21 +432,53 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .clsp small{opacity:.65;margin-left:4px}
 .clsp.done{opacity:.5}
 /* V308 Skill Tree tab */
-.sktree{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:10px}
-.skcol{border:1.5px solid var(--ink);border-top:6px solid var(--skc);border-radius:8px;background:#fffdf6;padding:10px 12px;min-width:0}
-.skhd{display:flex;align-items:center;gap:10px}
-.skhd b{font-family:var(--fd);font-size:16px;letter-spacing:.04em}
-.skic{font-size:24px}
-.sksub{font-size:12px;opacity:.65}
-.skpts{margin-left:auto;background:var(--skc);color:#fff;border-radius:999px;padding:3px 10px;font-weight:800;font-size:13px;white-space:nowrap}
-.skcls{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;margin:8px 0;opacity:.85}
-.skcls span{white-space:nowrap}
-.sknodes{display:grid;gap:6px}
-.sknode{display:grid;gap:2px;text-align:left;border:1.5px solid #c9b48a;border-radius:7px;padding:7px 10px;background:#fff;font:inherit;color:var(--ink);cursor:pointer}
-.sknode b{font-size:14.5px}
-.sknode span{font-size:13px;line-height:1.3}
-.sknode i{font-style:normal;font-size:12px;font-weight:700;color:var(--skc)}
-.sknode.own{background:color-mix(in srgb,var(--skc) 14%,#fff);border-color:var(--skc);cursor:default}
-.sknode.can{border-color:var(--skc);box-shadow:0 0 0 2px color-mix(in srgb,var(--skc) 35%,transparent)}
-.sknode.can:hover{background:color-mix(in srgb,var(--skc) 8%,#fff)}
-.sknode.locked,.sknode.ready{opacity:.6}
+/* V310 Skill Tree: dark armoured panel, one column per college, hexagon skills joined by circuit lines */
+#planner.skdark .note{background:#101318;color:#e6e1d4;background-image:radial-gradient(120% 80% at 50% 0%,#1d232c 0%,#101318 60%)}
+#planner.skdark .ntabs{background:#171b22;border-bottom-color:#2c3340}
+#planner.skdark .ntabs button{background:#20252f;color:#c9c4b8;border-color:#2c3340}
+#planner.skdark .ntabs button.on{background:#101318;color:#e2b64c}
+#planner.skdark .ntabs .x{background:#7d1f2c;color:#fff}
+#planner.skdark .npage{background-image:none}
+#planner.skdark .npage h2{color:#e2b64c}
+.skhead p{color:#b9b4a8;max-width:80ch;font-size:13.5px;margin:4px 0 10px}
+.skinfo[hidden]{display:none}
+.skwrap{overflow-x:auto;padding-bottom:6px;scrollbar-color:#3a4252 transparent}
+.sktree{display:flex;gap:0;width:max-content;border:2px solid #2c3340;border-radius:10px;overflow:hidden;box-shadow:inset 0 0 0 1px #000}
+.skcol{position:relative;padding:14px 0 10px;text-align:center;border-right:2px solid color-mix(in srgb,var(--skc) 55%,#000);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--skc) 26%,#0d1015) 0%,color-mix(in srgb,var(--skc) 12%,#0d1015) 55%,#0d1015 100%),repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0 3px,transparent 3px 7px)}
+.skcol:last-child{border-right:0}
+.skemb{width:54px;height:54px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;border:3px solid var(--skc);
+  background:radial-gradient(circle,color-mix(in srgb,var(--skc) 45%,#000) 0%,#0b0d11 75%);box-shadow:0 0 18px color-mix(in srgb,var(--skc) 70%,transparent),inset 0 0 12px #000}
+.skname{margin-top:8px;font-family:var(--fd);font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--skc) 55%,#fff)}
+.skcol .sksub{font-size:11.5px;color:#9aa0aa;padding:0 10px}
+.skpts{display:inline-block;margin:8px 0 2px;padding:3px 12px;border-radius:999px;font-size:12.5px;color:#e6e1d4;background:rgba(0,0,0,.45);border:1px solid color-mix(in srgb,var(--skc) 60%,#000)}
+.skpts b{color:color-mix(in srgb,var(--skc) 50%,#fff);font-size:15px}
+.skgrid{position:relative;margin:6px auto 0}
+.sklinks{position:absolute;inset:0;pointer-events:none}
+.sklinks path{fill:none;stroke:#3a404c;stroke-width:3;stroke-linejoin:round}
+.sklinks path.half{stroke:color-mix(in srgb,var(--skc) 45%,#3a404c)}
+.sklinks path.on{stroke:var(--skc);filter:drop-shadow(0 0 4px var(--skc))}
+.skhex{position:absolute;width:64px;height:58px;border:0;padding:0;cursor:pointer;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);
+  background:#2a2f39;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .12s}
+.skhex::before{content:'';position:absolute;inset:3px;clip-path:inherit;background:linear-gradient(160deg,#1c2028,#0f1217)}
+.skhex .ski{position:relative;font-size:24px;filter:grayscale(1) brightness(.55)}
+.skhex .skc{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);font:700 10.5px/1 Archivo,Arial,sans-serif;color:#9aa0aa}
+.skhex.ready{background:color-mix(in srgb,var(--skc) 40%,#2a2f39)}
+.skhex.ready .ski{filter:grayscale(.6) brightness(.8)}
+.skhex.can{background:var(--skc);animation:skpulse 1.6s ease-in-out infinite}
+.skhex.can .ski{filter:none}
+.skhex.can .skc{color:#fff}
+.skhex.own{background:var(--skc);filter:drop-shadow(0 0 7px var(--skc))}
+.skhex.own::before{background:linear-gradient(160deg,color-mix(in srgb,var(--skc) 70%,#fff),color-mix(in srgb,var(--skc) 55%,#000))}
+.skhex.own .ski{filter:none}
+.skhex.own .skc{color:#fff}
+.skhex:hover{transform:scale(1.08)}
+.skhex.sel{outline:none;transform:scale(1.12);filter:drop-shadow(0 0 9px #fff)}
+@keyframes skpulse{50%{filter:brightness(1.35)}}
+.skclasses{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;padding:8px 12px 0;font-size:11.5px;color:#b9b4a8}
+.skclasses em{font-style:normal;color:#e2b64c;letter-spacing:-1px}
+.skinfo{position:sticky;bottom:0;margin-top:10px;display:flex;align-items:center;gap:12px;padding:8px 14px;border-radius:10px;font-size:13.5px;color:#e6e1d4;
+  background:#171b22;border:1.5px solid var(--skc,#2c3340);box-shadow:0 -6px 18px rgba(0,0,0,.4)}
+.skinfo .ski{font-size:30px}
+.skinfo small{color:#9aa0aa}
+.skinfo .btn{margin-left:auto}

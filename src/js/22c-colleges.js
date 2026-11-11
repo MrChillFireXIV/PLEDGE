@@ -163,23 +163,28 @@ const MGF={quiz:mgQuiz,math:mgMath,sort:mgSort,memory:mgMemory,meter:mgMeter,rhy
 // ---------------------------------------------------------------- the Skill Tree
 // fx keys: study (that college's classes count as studied), xp, disc (shop discount), dmg (punch damage), def (damage taken), sta (stamina regen),
 // spd (run speed), hp (max HP, once), rep (reputation gains), heat (police heat gains), bust (talk your way out), talk, spirit, stand, pay ($ every Monday)
+/* V310 every college's tree has the same branching shape (x = column 0..2, y = row), so you choose a path:
+   root -> three branches -> a hub any branch can reach -> two upper skills -> a capstone that needs two of its three parents.
+   r = parents (ANY one of them unlocks it), need = how many parents it needs (default 1). Costs total 20; small colleges can't buy everything. */
+const SKSHAPE=[[1,0,1,[]],[0,1,1,[0]],[1,1,1,[0]],[2,1,1,[0]],[0,2,2,[1]],[2,2,2,[3]],[1,3,2,[2,4,5]],[0,4,3,[4,6]],[2,4,3,[5,6]],[1,5,4,[6,7,8],2]];
+function skMake(col,L){return L.map((q,i)=>{const[x,y,c,r,need]=SKSHAPE[i];return{id:col+i,x,y,c,r:r.map(k=>col+k),need:need||1,ic:q[0],n:q[1],d:q[2],fx:q[3]}})}
 const SKT={
- design:[{id:'d1',n:'Studio Habits',c:1,d:'DAAP classes count as studied: easier to pass.',fx:{study:1}},{id:'d2',n:'Visual Thinker',c:2,r:['d1'],d:'+10% XP from everything.',fx:{xp:.1}},
-   {id:'d3',n:'Set Builder',c:2,r:['d1'],d:'Shops are 5% cheaper.',fx:{disc:.05}},{id:'d4',n:'Portfolio',c:3,r:['d2','d3'],d:'Design commissions pay $25 every Monday.',fx:{pay:25}}],
- as:[{id:'s1',n:'Lab Safety',c:1,d:'Arts & Sciences classes count as studied.',fx:{study:1}},{id:'s2',n:'Applied Physics',c:2,r:['s1'],d:'Punches hit 8% harder.',fx:{dmg:.08}},
-   {id:'s3',n:'Field Work',c:2,r:['s1'],d:'Stamina recovers 20% faster.',fx:{sta:.2}},{id:'s4',n:'Anatomy',c:3,r:['s2'],d:'+15 max HP.',fx:{hp:15}},
-   {id:'s5',n:'Statistics',c:3,r:['s3'],d:'+15% XP from everything.',fx:{xp:.15}},{id:'s6',n:'Scientific Method',c:4,r:['s4','s5'],d:'Take 12% less damage.',fx:{def:.12}}],
- eng:[{id:'e1',n:'Problem Sets',c:1,d:'Engineering classes count as studied.',fx:{study:1}},{id:'e2',n:'Leverage',c:2,r:['e1'],d:'Punches hit 10% harder.',fx:{dmg:.1}},
-   {id:'e3',n:'Efficiency',c:2,r:['e1'],d:'Run 6% faster.',fx:{spd:.06}},{id:'e4',n:'Reinforced Frame',c:3,r:['e2','e3'],d:'Take 10% less damage.',fx:{def:.1}}],
- bus:[{id:'b1',n:'Case Studies',c:1,d:'Business classes count as studied.',fx:{study:1}},{id:'b2',n:'Bulk Buyer',c:1,r:['b1'],d:'Shops are 5% cheaper.',fx:{disc:.05}},
-   {id:'b3',n:'Networking',c:2,r:['b1'],d:'Reputation gains are 25% bigger.',fx:{rep:.25}},{id:'b4',n:'Dividends',c:2,r:['b2','b3'],d:'Your investments pay $15 every Monday.',fx:{pay:15}}],
- ccm:[{id:'c1',n:'Rehearsal',c:1,d:'CCM classes count as studied.',fx:{study:1}},{id:'c2',n:'Stage Presence',c:1,r:['c1'],d:'Conversations go your way more often.',fx:{talk:.1}},
-   {id:'c3',n:'Crowd Work',c:2,r:['c1'],d:'Class Spirit gains are 25% bigger.',fx:{spirit:.25}},{id:'c4',n:'Star Power',c:2,r:['c2','c3'],d:'Standing with the brothers grows 25% faster.',fx:{stand:.25}}],
- law:[{id:'l1',n:'Case Briefs',c:1,d:'Law & Justice classes count as studied.',fx:{study:1}},{id:'l2',n:'Know Your Rights',c:1,r:['l1'],d:'Police heat builds 25% slower.',fx:{heat:.25}},
-   {id:'l3',n:'Plea Deal',c:2,r:['l1'],d:'+15% chance to talk your way out of getting busted.',fx:{bust:.15}},{id:'l4',n:'Clean Record',c:2,r:['l2','l3'],d:'Police heat builds another 25% slower.',fx:{heat:.25}}],
- health:[{id:'h1',n:'Rounds',c:1,d:'Health classes count as studied.',fx:{study:1}},{id:'h2',n:'Conditioning',c:1,r:['h1'],d:'+10 max HP.',fx:{hp:10}},
-   {id:'h3',n:'Recovery',c:2,r:['h1'],d:'Stamina recovers 20% faster.',fx:{sta:.2}},{id:'h4',n:'Iron Constitution',c:2,r:['h2','h3'],d:'Take 10% less damage.',fx:{def:.1}}]};
+ design:skMake('design',[['✏️','Studio Habits','DAAP classes count as studied: easier to pass.',{study:1}],['🎨','Color Theory','+5% XP from everything.',{xp:.05}],['📐','Drafting','Shops are 4% cheaper.',{disc:.04}],['🪧','Poster Design','Standing with the brothers grows 10% faster.',{stand:.1}],
+   ['🖼️','Visual Thinker','+8% XP from everything.',{xp:.08}],['📣','Branding','Reputation gains are 10% bigger.',{rep:.1}],['🎭','Set Builder','Class Spirit gains are 15% bigger.',{spirit:.15}],['💼','Portfolio','Design commissions pay $20 every Monday.',{pay:20}],['🏷️','Bargain Eye','Shops are another 6% cheaper.',{disc:.06}],['🏛️','Masterwork','$35 every Monday and +7% XP.',{pay:35,xp:.07}]]),
+ as:skMake('as',[['🔬','Lab Safety','Arts & Sciences classes count as studied.',{study:1}],['🧲','Applied Physics','Punches hit 5% harder.',{dmg:.05}],['🌿','Field Work','Stamina recovers 12% faster.',{sta:.12}],['📊','Statistics','+6% XP from everything.',{xp:.06}],
+   ['🦴','Anatomy','+10 max health.',{hp:10}],['🧮','Calculus','+8% XP from everything.',{xp:.08}],['🧪','Scientific Method','Take 6% less damage.',{def:.06}],['💥','Momentum','Punches hit 8% harder.',{dmg:.08}],['🏃','Endurance','Stamina recovers 15% faster.',{sta:.15}],['🧬','Grand Theory','+20 max health, take 6% less damage.',{hp:20,def:.06}]]),
+ eng:skMake('eng',[['⚙️','Problem Sets','Engineering classes count as studied.',{study:1}],['🔧','Leverage','Punches hit 6% harder.',{dmg:.06}],['⚡','Efficiency','Run 4% faster.',{spd:.04}],['🛡️','Safety Factor','Take 5% less damage.',{def:.05}],
+   ['🔩','Torque','Punches hit 7% harder.',{dmg:.07}],['🧱','Load Bearing','Take 6% less damage.',{def:.06}],['🔋','Power Supply','Stamina recovers 12% faster.',{sta:.12}],['🏎️','Aerodynamics','Run 5% faster.',{spd:.05}],['🦾','Reinforced Frame','+15 max health.',{hp:15}],['🤖','Prototype','Punches hit 10% harder, take 6% less damage.',{dmg:.1,def:.06}]]),
+ bus:skMake('bus',[['💼','Case Studies','Business classes count as studied.',{study:1}],['🛒','Bulk Buyer','Shops are 4% cheaper.',{disc:.04}],['🤝','Networking','Reputation gains are 10% bigger.',{rep:.1}],['📈','Side Hustle','$10 every Monday.',{pay:10}],
+   ['🧾','Coupons','Shops are another 5% cheaper.',{disc:.05}],['🏦','Interest','Another $15 every Monday.',{pay:15}],['🗣️','The Pitch','Conversations go your way more often.',{talk:.06}],['🌐','Connections','Reputation gains are 15% bigger.',{rep:.15}],['💰','Dividends','Another $20 every Monday.',{pay:20}],['🏢','Corner Office','Shops 6% cheaper and $25 every Monday.',{disc:.06,pay:25}]]),
+ ccm:skMake('ccm',[['🎭','Rehearsal','CCM classes count as studied.',{study:1}],['🎤','Stage Presence','Conversations go your way more often.',{talk:.05}],['🥁','Crowd Work','Class Spirit gains are 15% bigger.',{spirit:.15}],['⭐','Charisma','Standing with the brothers grows 10% faster.',{stand:.1}],
+   ['🎙️','Projection','Conversations go your way even more often.',{talk:.06}],['🎬','Leading Man','Standing grows another 12% faster.',{stand:.12}],['📯','Encore','Reputation gains are 10% bigger.',{rep:.1}],['🎺','Showstopper','Class Spirit gains are 20% bigger.',{spirit:.2}],['🎻','Practice Room','+6% XP from everything.',{xp:.06}],['🌟','Star Power','Talk your way through more, standing grows 15% faster.',{talk:.08,stand:.15}]]),
+ law:skMake('law',[['⚖️','Case Briefs','Law & Justice classes count as studied.',{study:1}],['🪪','Know Your Rights','Police heat builds 15% slower.',{heat:.15}],['📜','Plea Deal','+8% chance to talk your way out of a bust.',{bust:.08}],['🗨️','Cross-Examination','Conversations go your way more often.',{talk:.05}],
+   ['🕶️','Low Profile','Police heat builds another 15% slower.',{heat:.15}],['📁','Precedent','+10% chance to talk your way out of a bust.',{bust:.1}],['🛡️','Self-Defense','Take 5% less damage.',{def:.05}],['🚔','Clean Record','Police heat builds another 20% slower.',{heat:.2}],['🧑‍⚖️','Objection!','+12% chance to talk your way out of a bust.',{bust:.12}],['🏛️','Supreme Court','+10% bust escape, heat 15% slower.',{bust:.1,heat:.15}]]),
+ health:skMake('health',[['🩺','Rounds','Health classes count as studied.',{study:1}],['💪','Conditioning','+10 max health.',{hp:10}],['🫁','Cardio','Stamina recovers 12% faster.',{sta:.12}],['🧘','Composure','Take 5% less damage.',{def:.05}],
+   ['🍎','Nutrition','+10 max health.',{hp:10}],['👟','Agility','Run 4% faster.',{spd:.04}],['❤️‍🩹','Recovery','Stamina recovers 15% faster.',{sta:.15}],['🏋️','Strength Block','+15 max health.',{hp:15}],['🦺','Iron Constitution','Take 7% less damage.',{def:.07}],['🏥','Chief Resident','+20 max health, take 6% less damage.',{hp:20,def:.06}]])};
 const skOn=id=>!!(S.sk&&S.sk[id]);
+const skReady=n=>!n.r.length||n.r.filter(skOn).length>=Math.min(n.need||1,n.r.length);
 function skv(k){let v=0;if(!S.sk)return 0;for(const col in SKT)for(const n of SKT[col])if(S.sk[n.id]&&typeof n.fx[k]==='number'&&k!=='study')v+=n.fx[k];return v}
 function skStudy(col){return!!(SKT[col]&&SKT[col].some(n=>n.fx.study&&skOn(n.id)))}
 function skEarned(col){return(S.sp&&S.sp[col])||0}
@@ -189,15 +194,25 @@ function skTotalFree(){return Object.keys(COLL).reduce((a,k)=>a+Math.max(0,skFre
 /* old saves: points for every grade star earned before skill points existed */
 function skMig(){if(S.spMig)return;S.sp=S.sp||{};S.sk=S.sk||{};for(const c of CLS){const col=CI[c].col;if(col)S.sp[col]=(S.sp[col]||0)+((S.grades&&S.grades[c])||0)}S.spMig=1}
 function skGain(col,n=1){skMig();S.sp[col]=(S.sp[col]||0)+n}
-function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(id))return;if((n.r||[]).some(r=>!skOn(r))){toast('Learn the skills before it first.');sfx('bad');return}
+function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(id))return;if(!skReady(n)){toast(n.need>1?`Learn ${n.need} of the skills linked below it first.`:'Learn a skill linked below it first.');sfx('bad');return}
   if(skFree(col)<n.c){toast(`You need ${n.c} ${COLL[col].n} point${n.c>1?'s':''}. Pass more ${COLL[col].n} classes.`);sfx('bad');return}
-  S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills')}
-function skillsPage(){skMig();let h=`<h2>Skill Tree</h2><p>Every class you pass earns a skill point of its college. Spend them here. Each college\'s skills unlock from the top down.</p><div class="sktree">`;
-  for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col);
-    h+=`<div class="skcol" style="--skc:${C.c}"><div class="skhd"><span class="skic">${C.ic}</span><div><b>${C.n}</b><div class="sksub">${C.full}</div></div><span class="skpts" title="Unspent ${C.n} points">${free} pt${free===1?'':'s'}</span></div>`;
-    h+=`<div class="skcls">${cls.map(c=>`<span title="${CI[c].bn}">${CI[c].n} ${'★'.repeat(S.grades[c]||0)}${'☆'.repeat(3-(S.grades[c]||0))}</span>`).join('')}</div><div class="sknodes">`;
-    for(const n of SKT[col]){const own=skOn(n.id),ready=!own&&(n.r||[]).every(skOn),can=ready&&free>=n.c;
-      h+=`<button class="sknode${own?' own':can?' can':ready?' ready':' locked'}" data-col="${col}" data-sk="${n.id}" ${own?'disabled':''}><b>${n.n}</b><span>${n.d}</span><i>${own?'✓ Learned':`${n.c} pt${n.c>1?'s':''}${ready?'':' · needs '+(n.r||[]).map(r=>SKT[col].find(x=>x.id===r).n).join(' + ')}`}</i></button>`}
-    h+='</div></div>'}
-  return h+'</div>'}
-function skWire(p){for(const b of p.querySelectorAll('.sknode[data-sk]'))b.onclick=()=>skLearn(b.dataset.col,b.dataset.sk)}
+  S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
+function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
+  const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
+  let h=`<div class="skhead"><h2>Skill Tree</h2><p>Pass classes to earn a college's points. Trees grow from the bottom up and branch: pick your path. The top skill needs two of the three below it. Click a skill for details.</p></div><div class="skwrap"><div class="sktree">`;
+  for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col),T=SKT[col];
+    let svg=`<svg class="sklinks" width="${CW}" height="${H}" viewBox="0 0 ${CW} ${H}">`;
+    for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
+    svg+='</svg>';
+    h+=`<div class="skcol" style="--skc:${C.c};width:${CW}px"><div class="skemb"><span>${C.ic}</span></div><div class="skname">${C.n}</div><div class="sksub">${C.full}</div>
+      <div class="skpts"><b>${free}</b> point${free===1?'':'s'} to spend · ${skEarned(col)} earned</div>
+      <div class="skgrid" style="height:${H}px">${svg}`;
+    for(const n of T){const own=skOn(n.id),ready=!own&&skReady(n),can=ready&&free>=n.c,[x,y]=pos(n);
+      h+=`<button class="skhex${own?' own':can?' can':ready?' ready':' locked'}" style="left:${x-HX/2}px;top:${y-HY/2}px" data-col="${col}" data-sk="${n.id}" title="${n.n}: ${n.d}"><span class="ski">${n.ic}</span><span class="skc">${own?'✓':n.c}</span></button>`}
+    h+=`</div><div class="skclasses">${cls.map(c=>`<span title="${CI[c].bn}">${CI[c].n} <em>${'★'.repeat(S.grades[c]||0)}${'☆'.repeat(3-(S.grades[c]||0))}</em></span>`).join('')}</div></div>`}
+  return h+`</div></div><div class="skinfo" id="skinfo" hidden></div>`}
+function skInfo(col,id){const n=SKT[col].find(x=>x.id===id),own=skOn(id),ready=skReady(n),free=skFree(col),T=SKT[col],par=n.r.map(r=>T.find(x=>x.id===r).n);
+  const el=$('skinfo');if(!el)return;el.hidden=false;el.style.setProperty('--skc',COLL[col].c);
+  el.innerHTML=`<span class="ski">${n.ic}</span><div><b>${n.n}</b> <small>${COLL[col].n} · ${n.c} point${n.c>1?'s':''}</small><div>${n.d}</div><small>${own?'Learned.':!par.length?'The first skill of the tree.':(n.need>1?`Needs ${n.need} of: `:'Needs any of: ')+par.join(', ')}</small></div>${own?'':`<button class="btn" id="sklearn" ${ready&&free>=n.c?'':'disabled'}>${!ready?'Locked':free<n.c?`Need ${n.c-free} more point${n.c-free>1?'s':''}`:'Learn'}</button>`}`;
+  const b=$('sklearn');if(b)b.onclick=()=>{skLearn(col,id);skInfo(col,id)}}
+function skWire(p){const pl=$('planner');if(pl)pl.classList.add('skdark');for(const b of p.querySelectorAll('.skhex'))b.onclick=()=>{sfx('ui');for(const x of p.querySelectorAll('.skhex.sel'))x.classList.remove('sel');b.classList.add('sel');skInfo(b.dataset.col,b.dataset.sk)}}
