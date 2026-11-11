@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
 let ts; try { ts = require('typescript'); } catch (e) { try { ts = require(path.join(cp.execSync('npm root -g').toString().trim(), 'typescript')); } catch (e2) { ts = null; } }
 
 const DRIVERS = ['story-driver.js', 'story-driver4.js', 'story-driver5.js'].map(f => path.join(__dirname, f)).filter(fs.existsSync);
-let browser = null, page = null, errs = [], snap = {}, booting = null;
+let browser = null, page = null, errs = [], snap = {}, booting = null, crashed = false;
 
 // top-level pieces of a source file: function declarations by name, everything else as text (to notice changes that need a reload)
 function pieces(src) {
@@ -46,13 +46,14 @@ function build() {
 async function boot() {
   const t0 = Date.now();
   build();
+  if (crashed && browser) { await browser.close().catch(() => {}); browser = null; crashed = false; }   // a crash can leave the GPU process dead: start a fresh browser
   if (!browser || !browser.isConnected()) browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   if (page) await page.close().catch(() => {});
   errs = [];
   page = await browser.newPage({ viewport: { width: 800, height: 450 } });
   page.on('pageerror', e => errs.push(e.message));
   page.on('console', m => { const t = m.text(); if (m.type() === 'error' && !/ERR_|fonts\.g|GPU stall/i.test(t)) errs.push(t.slice(0, 300)); });
-  page.on('crash', () => { errs.push('page crashed (software renderer); the next command reloads it'); page = null; });
+  page.on('crash', () => { errs.push('page crashed (software renderer); the next command reloads it'); page = null; crashed = true; });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
   await page.addInitScript(INIT);
   await page.goto('file://' + FILE + '?test&seed=1' + (FULL ? '' : '&fast'), { waitUntil: 'commit', timeout: 0 });
