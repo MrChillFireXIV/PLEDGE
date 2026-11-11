@@ -49,7 +49,7 @@ One-line purpose per file, in load order (`src/order.txt`). Sizes are in KB, and
 | 22b-beer-die | 24 | `mgDie`: 2v2 beer die, drawn as a top-down backyard (`BG`/`FG` cached layers, `person()`, `BY` bystanders) (offense meter with a sweet zone; defense catch / H height / F FIFA) |
 | 23-campus-map, 23b-territories | 36+19 | full map, building cards `cardForBuilding`/`mapCardDraw` (fast-travel buttons), map key `mapLegend`, minigame icons `MGIC`; frat turf `TERR`, `turfTake`, `terrLegend` |
 | 23z-save-slots | 4 | 3 save slots (`slotKey`, `slotsOpen`, `saveMeta`, `S.playT`) |
-| 24a-bug-report | 8 | Report-a-Bug tab (`BUG_URL` = Discord webhook), save export/import |
+| 24a-bug-report | 8 | Report-a-Bug tab (`BUG_URL` = Discord webhook), save export/import. V302 developer mode: 3 fast clicks on the tab (`bugDevTap`), password checked by hash (`DEVH`), dark form `devOpen`, details `devMeta`, error ring `DEV.errs`; Submit copies a prompt and opens `DEVCHAT` (override: localStorage `pledge.devChat`) |
 | 24b-testmode | 2 | `?test` mode helpers |
 | 24-planner-save-lighting-main-boot | 45 | planner tabs `TABS`/`renderPlanner`, Settings `setPage`, `saveGame`/`loadGame` (`SAVEK`), lighting, `update()` main loop, keys, `boot`, `begin` |
 

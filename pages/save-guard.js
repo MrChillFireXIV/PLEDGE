@@ -8,6 +8,7 @@
 (function () {
   'use strict';
   var V = '__PLEDGE_VERSION__', BK = 'pledge.backup.', KEEP = 3;
+  try { window.__pledgeVer = V; } catch (e) {}
   var ls; try { ls = window.localStorage; ls.getItem('x'); } catch (e) { return; }
 
   function gameKeys() {

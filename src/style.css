@@ -401,3 +401,23 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #c3sir[hidden]{display:none}
 @keyframes c3sr{0%{background:radial-gradient(ellipse at 0% 50%,rgba(255,40,40,.6),rgba(255,40,40,0) 80%)}50%{background:radial-gradient(ellipse at 100% 50%,rgba(50,90,255,.62),rgba(50,90,255,0) 80%)}}
 #maptip{display:none!important}   /* V298 never styled; hover names are drawn on the map canvas */
+/* V302 developer bug report: the planner in dark mode */
+#planner.bugdev .note{background:#13161d;color:#e4dfd2}
+#planner.bugdev .ntabs{background:#1b1f29;border-bottom-color:#3a4254}
+#planner.bugdev .ntabs button{background:#232836;color:#c9c4b8;border-color:#3a4254}
+#planner.bugdev .ntabs button.on{background:#13161d;color:#e2b64c}
+#planner.bugdev .ntabs .x{background:#7d1f2c;color:#fff}
+#planner.bugdev .npage{background-image:repeating-linear-gradient(transparent 0 29px,#1d2230 29px 30px)}
+#planner.bugdev .npage h2{color:#e2b64c}
+#planner.bugdev .npage p,#planner.bugdev .bugmsg,#planner.bugdev .devlbl,#planner.bugdev label{color:#c9c4b8}
+#planner.bugdev .bugbox textarea,#planner.bugdev .bugbox input:not([type=radio]){background:#0d1016;color:#e4dfd2;border:2px solid #3a4254;border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;box-sizing:border-box}
+#planner.bugdev .bugbox input:not([type=radio]){width:100%}
+#planner.bugdev .bugrow input#devpw,#planner.bugdev .bugrow input#devurl{flex:1;min-width:0}
+#planner.bugdev .bugbox textarea:focus,#planner.bugdev .bugbox input:focus{outline:none;border-color:#e2b64c}
+#planner.bugdev .btn.ghost{color:#e2b64c;border-color:#e2b64c}
+#planner.bugdev .devdet summary{cursor:pointer;color:#8fb0e0;font-size:14px}
+#planner.bugdev .devdet pre{white-space:pre-wrap;word-break:break-word;background:#0d1016;border:1px solid #2a3140;border-radius:8px;padding:10px 12px;font:12.5px/1.5 ui-monospace,Consolas,monospace;color:#c9d3e2;margin:8px 0 0}
+#planner.bugdev #devprev img{max-width:100%;border:1px solid #3a4254;border-radius:6px}
+#planner.bugdev .devlbl{font-weight:700;font-size:14px}
+#planner.bugdev label{display:inline-flex;gap:6px;align-items:center;font-size:14px}
+
