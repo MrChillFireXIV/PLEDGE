@@ -363,6 +363,7 @@ function buildWorld(){
   {const s=signMesh('LAKE DISTRICT · PRIVATE',6,1,'#1d1f24','#e2b64c');s.position.set(70,3.1,689.9);s.rotation.y=PI;sc.add(s)}{const s2=signMesh('CAMPUS GATE',6,1,'#1d1f24','#e2b64c');s2.position.set(70,3.1,540.1+LZ);sc.add(s2)}
   bld('lodge',100,548+LZ,134,566+LZ,8,'stone',{roof:'hip',rc:0x2e4030,door:[117,'s'],portico:1,letters:'ΑΣΡ',name:'The Lodge',menu:'lodge'});
   bld('mansion',10,548+LZ,40,566+LZ,12,'stucco',{roof:'hip',rc:0x5a3a2a});
+  try{entrancesExtra()}catch(e){console.warn('entrancesExtra',e)}   // V299 doors for the downtown / Lake District blocks that had none
   bld('pdt',90,598,122,626,10,'brick2',{roof:'hip',rc:0x3a3030,door:[612,'w'],portico:1,letters:'ΦΔΘ',lb:'#c8602a',name:'Phi Delta Theta'});
   bld('boat',63,577+LZ,77,585+LZ,5,'wood',{roof:'hip',rc:0x3a2a1c,door:[70,'n'],name:'Boathouse',menu:'boat'});
   {const sand=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sand.scale.set(LK.rx+3,LK.rz+3,1);sand.rotation.x=-PI/2;sand.position.set(LK.x,.02,LK.z);sand.receiveShadow=true;sc.add(sand);

@@ -9,6 +9,7 @@ data/edphoto.js
 js/05-campus-base.js
 js/06-campus-tuc-paving.js
 js/07-campus-decks-buildings.js
+js/07b-entrances.js
 js/08-campus-zimmer-ccm.js
 js/09-campus-nippert.js
 js/09b-clifton-court.js
