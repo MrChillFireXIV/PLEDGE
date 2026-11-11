@@ -380,7 +380,6 @@ function dabneyX(b,p,h,holes){const Y=DABY,CRM=mt(0xdcd3bf,.85),SOF=mt(0xc9c4b8,
       const c=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,Y-.85,14),TEAL);c.position.set(x,(Y-.85)/2,z);c.castShadow=true;sc.add(c);markR(x-.3,z-.3,x+.3,z+.3,Y)}}
   // the breezeway: lit ceiling, side walls of painted block, a floor of concrete
   {const xW=563.8,xE=571.5,L=xE-xW,W=DABP[1]-DABP[0],cx=(xW+xE)/2,cz=(DABP[0]+DABP[1])/2;
-    for(const z of DABP){const w=new THREE.Mesh(bgeo(L,Y,.2),mt(0x8a949a,.85));w.position.set(cx,Y/2,z+(z===DABP[0]?-.1:.1));sc.add(w)}
     for(let k=0;k<3;k++){const l=new THREE.Mesh(bgeo(.3,.05,1.2),SM({color:0xfff6e0,emissive:0xfff0d0,emissiveIntensity:.9}));l.position.set(xW+L*(k+.5)/3,Y-.03,cz);sc.add(l)}
     const f=new THREE.Mesh(bgeo(L+1.6,.04,W),mt(0xbdb9b0,.95));f.position.set(cx,.02,cz);f.receiveShadow=true;sc.add(f)}
   dabneyYard()}
