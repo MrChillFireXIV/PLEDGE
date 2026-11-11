@@ -128,7 +128,7 @@ function mkPersonX(o){o=Object.assign({},o);pickStyle(o);const fem=!!o.fem,BP=bo
 /* V307 hands: fingers curl with the situation. c = curl (0 open .. 1 fist), smoothed; the thumb follows */
 const HPOSE={open:[.06,.1,0],relax:[.32,.15,.05],grip:[.95,.6,0],fist:[1.25,.95,0],tray:[.12,.2,.12]};
 function handPose(g,p,st,dt){const F=p.fing;if(!F)return;const H=g.HOLD,hasR=p.hR&&p.hR.children.some(c=>!c.isBone),hasL=p.hL&&p.hL.children.some(c=>!c.isBone);
-  const want=s=>{if(g.HPF)return g.HPF;const R=s==='R',fight=st==='punch'||st==='guard';if(fight)return'fist';if(st==='bike')return'grip';if(H==='tray')return'tray';
+  const want=s=>{if(g.HPF)return g.HPF;const R=s==='R';if(g.HPA)return g.HPA==='palm'&&R?'open':'fist';const fight=st==='punch'||st==='guard';if(fight)return'fist';if(st==='bike')return'grip';if(H==='tray')return'tray';
     if(H==='box'||H==='overhead')return'grip';if((H==='up'||H==='bucket')&&R)return'grip';if(R?hasR:hasL)return'grip';if(st==='wave'&&R)return'open';if(st==='talk'||g.TALK)return'open';if(st==='carry')return'grip';return'relax'};
   const k=Math.min(1,dt*12);
   for(const S of['L','R']){const h=F[S],s=S==='L'?-1:1,P_=HPOSE[want(S)];h.c+=(P_[0]-h.c)*k;h.cT+=(P_[1]-h.cT)*k;h.sp+=(P_[2]-h.sp)*k;const c=h.c;

@@ -395,7 +395,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   else{PM.rotation.x=0;PM.scale.y=cr?.82:1;PM.position.set(P.x,P.y+P.jy+(P.bike?.12:0),P.z)}
   dustTick(dt);
   bikeM.visible=!!P.bike;ramC.visible=carry;lanternM.visible=!!(curStep()&&curStep().lantern);
-  animP(PM,prSk()?0:spd,TT,P.bike?'bike':carry?'carry':P.atk?'':P.punch>0?'punch':(NP.some(n=>n.aggro&&n.tgt==='P'&&n.dp<5)?'guard':''));if(P.bike){if(!PM.P.kL)PM.P.lL.position.y=PM.P.lR.position.y=.88}prPose(dt);if(P.atk)atkPose(PM,P.atk.ty,P.atk.t/P.atk.d);else if(PM.P)fistSet(PM.P,null);if(P.blk>.001&&!P.atk)blockPose(PM,P.blk,Math.max(0,P.blkHitT||0)/.22);
+  animP(PM,prSk()?0:spd,TT,P.bike?'bike':carry?'carry':P.atk?'':P.punch>0?'punch':(NP.some(n=>n.aggro&&n.tgt==='P'&&n.dp<5)?'guard':''));if(P.bike){if(!PM.P.kL)PM.P.lL.position.y=PM.P.lR.position.y=.88}prPose(dt);if(P.atk)atkPose(PM,P.atk.ty,P.atk.t/P.atk.d);else{PM.HPA=null;if(PM.P)fistSet(PM.P,null)}if(P.blk>.001&&!P.atk)blockPose(PM,P.blk,Math.max(0,P.blkHitT||0)/.22);
   if(ru>0){const q=PM.P,t=Math.sin(PI*Math.min(1,ru*1.15));q.lL.rotation.x=q.lR.rotation.x=-1.55*t;q.aL.rotation.x=q.aR.rotation.x=-2.3*t}
   prDribble(dt,spd,ru>0||cr||P.bike||carry||P.punch>0||P.jy>.05);
 }
@@ -451,8 +451,8 @@ function blockPose(g,b,fl){const p=g.P;if(!p||!p.aR||!p.eR||!p.aL||!p.eL)return;
 // V119 strike poses on the skinned rig, laid over the normal animation. k runs 0..1: wind-up (to .3), strike (peak .4-.55), recover
 // V91: closed fists while attacking. The hand's fingers are baked into the body mesh, so a skin-coloured fist block per hand bone is shown over them for the length of an attack (the palm strike keeps its striking hand open)
 function fistFor(hb,s){if(hb.userData.fist)return hb.userData.fist;const m=new THREE.Mesh(roundBox(.1,.135,.125,.04,2),new THREE.MeshStandardMaterial({color:0xf1c9a5,roughness:.6}));m.position.set(-s*.025,-.15,.008);m.castShadow=true;m.visible=false;hb.add(m);return hb.userData.fist=m}
-function fistSet(p,ty){if(!p)return;for(const s of[-1,1]){const hb=s<0?p.hL:p.hR;if(!hb)continue;const f=ty?fistFor(hb,s):hb.userData.fist;if(!f)continue;const on=!!ty&&!(ty==='palm'&&s>0);f.visible=on;if(on&&p.pal&&p.pal[0])f.material.color.setRGB(p.pal[0].x,p.pal[0].y,p.pal[0].z)}}
-function atkPose(g,ty,k){const p=g.P;if(!p||!p.chest||!p.kL)return;k=clamp(k,0,1);fistSet(p,ty);const sm=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+function fistSet(p,ty){if(!p)return;for(const s of[-1,1]){const hb=s<0?p.hL:p.hR;if(!hb)continue;const f=ty?fistFor(hb,s):hb.userData.fist;if(!f)continue;const on=!!ty&&!(ty==='palm'&&s>0)&&!p.fing;f.visible=on;if(on&&p.pal&&p.pal[0])f.material.color.setRGB(p.pal[0].x,p.pal[0].y,p.pal[0].z)}}
+function atkPose(g,ty,k){const p=g.P;if(!p||!p.chest||!p.kL)return;k=clamp(k,0,1);g.HPA=ty;fistSet(p,ty);const sm=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
   const w=k<.3?sm(k/.3):1-sm((k-.3)/.15),st=k<.3?0:k<.45?sm((k-.3)/.15):1-sm((k-.55)/.45),rec=k>.55?1-sm((k-.55)/.45):1;
   const guard=(a,e,z)=>{a.rotation.x=-1.05*rec+a.rotation.x*(1-rec);e.rotation.x=-1.9*rec+e.rotation.x*(1-rec);a.rotation.z=z};
   if(ty==='jabR'||ty==='jabL'||ty==='palm'){const R=ty!=='jabL',a=R?p.aR:p.aL,e=R?p.eR:p.eL,o=R?p.aL:p.aR,oe=R?p.eL:p.eR,sg=R?1:-1;
