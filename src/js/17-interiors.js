@@ -58,7 +58,7 @@ function fswords(I,x,z,face,y,col){const g=new THREE.Group(),M_=c=>mt(c,.4,.5);c
 const HFOUND={'ΑΣΡ':1952,'ΚΘΩ':1957,'ΩΨΔ':1963,'ΚΑΝ':1968,'ΛΧΑ':1971,'ΔΛΦ':1974,'ΘΖ':1979,'ΓΩΖ':1983};
 function houseFounded(o){const L=(o&&o.letters)||'';if(HFOUND[L])return HFOUND[L];let h=0;for(const c of L)h=(h*31+c.charCodeAt(0))>>>0;return 1958+h%30}
 function romanYr(y){let r='';for(const[v,s]of[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']])while(y>=v){r+=s;y-=v}return r}
-function houseDecor(I,o){const L=o.letters;I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);{const f0=houseFounded(o);I.yrs=I.yrs.filter(v=>v>=f0)}if(I.id==='asr')I.yrs=I.yrs.filter(v=>v!==2019);
+function houseDecor(I,o){const L=o.letters;I.yrs=[];for(let yv=1952;yv<=2024;yv+=1+Math.floor(rnd()*3))I.yrs.push(yv);{const f0=houseFounded(o);I.yrs=I.yrs.filter(v=>v>=f0)}if(I.id==='asr'){I.yrs=I.yrs.filter(v=>v!==2019);if(!I.yrs.includes(1971))I.yrs=I.yrs.concat(1971).sort((a,b)=>a-b)}   /* V304 Augustus Pell, class of '71, is told his composite hangs in the throne room */
   if(I.id==='asr'){compWall(I,L,14.2,2,14.2,12,'e');compWall(I,L,33.8,2,33.8,12,'w',[[8.3,8.3]])}
   compWall(I,L,1,14.2,47,14.2,'s',[[5,9],[22,26],[39,43]]);compWall(I,L,1,17.8,47,17.8,'n',[[5,9],[22,26],[39,43]]);
   fb(I,8,35.25,3.6,.55,.14,0x5a3a24,2.6,0);fswords(I,8,35.82,'n',4.05,o.shield);fswords(I,24,.18,'s',5.05,o.shield);fswords(I,47.82,7,'w',4.55,o.shield);fswords(I,24,35.82,'n',4.9,o.shield);

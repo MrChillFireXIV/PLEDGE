@@ -103,7 +103,7 @@ function c2SupplyBuild(kind,lx,lz){const I=INT.asr,X=I.x0+lx,Z=I.z0+lz,G=[];
   return G}
 const c2Cnt=o=>Object.values(o).filter(d=>d.done).length;
 function c2PrepLab(){const p=C2.p||{},k=v=>v?'✓':'○',d=c2Cnt(C2.deco),s=c2Cnt(C2.sore);
-  return`\n${k(p.suit)} Buy a formal tux at the Lucky Pawn counter ($75${p.suit?'':` · you have $${Math.floor(S.money)}`})\n\u00a0\u00a0\u00a0\u00a0${k(p.champ)} Champagne at Hank's (house account)\n\u00a0\u00a0\u00a0\u00a0${k(p.cater)} Catering at Ruby's (Grant paid ahead)\n${k(d>=C2DECO.length)} Decorate the ballroom (${d}/${C2DECO.length})\n${k(p.unload>=2)} Gala supplies to the kitchen (${p.unload||0}/2)\n${k(s>=4)} Hide the house's questionable condition (${s}/4)`}
+  return`\n${k(p.suit)} Buy a formal tux at the Lucky Pawn counter ($75${p.suit?'':` · you have $${Math.floor(S.money)}`})\n\u00a0\u00a0\u00a0\u00a0${k(p.champ)} Champagne at Hank's (house account)\n\u00a0\u00a0\u00a0\u00a0${k(p.cater)} Catering at Ruby's (house account)\n${k(d>=C2DECO.length)} Decorate the ballroom (${d}/${C2DECO.length})\n${k(p.unload>=2)} Gala supplies to the kitchen (${p.unload||0}/2)\n${k(s>=4)} Hide the house's questionable condition (${s}/4)`}
 function c2PrepDone(){const p=C2.p||{};return p.suit&&c2Cnt(C2.deco)>=C2DECO.length&&p.unload>=2&&c2Cnt(C2.sore)>=4}
 // short on cash: point at the nearest odd job (or the one you're doing)
 function c2GigGoal(){const g=GIG.active;if(g){const p=GIGT[g.k].pts(g)[0];if(p)return p}const n=GIG.givers.filter(n=>NP.includes(n)).sort((a,b)=>Math.hypot(a.x-P.x,a.z-P.z)-Math.hypot(b.x-P.x,b.z-P.z))[0];return n?[n.x,n.z]:null}
@@ -116,7 +116,7 @@ function c2PrepGoal(){const p=C2.p||{};
 const c2Sp=S_=>[S_[0]+2.6,S_[1]+1.6];   // errand prompts sit beside each door so 'Enter …' still works
 function c2PrepPrompts(add){const p=C2.p;if(!p||P.inside)return;const DI=c2Sp(SPOT.DINER),PA=c2Sp(SPOT.PAWN),HA=c2Sp(SPOT.HANK),AS=[SPOT.ASR[0]-3,SPOT.ASR[1]+4];
   if(!p.suit&&S.money<75&&!p.shift)add(DI[0],DI[1],2.4,'Work a dinner shift at Ruby\'s (+$25, 3 hours)',()=>{p.shift=1;card({title:"Ruby's Diner",sp:'Marisol Vega · Waitress',alert:1,text:'Marisol throws you an apron. "Dish pit. Don\'t break anything. Don\'t eat anything."\n\nThree hours, four hundred plates and one grease fire later, she counts twenty-five dollars into your hand.',ch:[['Take the money',()=>{advance(3);money(25);sfx('coin')}]]})},0);
-  else if(p.suit&&!p.cater&&!has('c2cater'))add(DI[0],DI[1],2.4,'Pick up the catering trays (Grant paid ahead)',()=>{give('c2cater');p.cater=1;sfx('coin');toast('Four foil trays of tiny food. Marisol: "Tell Grant he still owes me for the last party."',3200)},0);
+  else if(p.suit&&!p.cater&&!has('c2cater'))add(DI[0],DI[1],2.4,'Pick up the catering trays (house account)',()=>{give('c2cater');p.cater=1;sfx('coin');toast('Four foil trays of tiny food. Marisol: "Tell Grant he still owes me for the last party."',3200)},0);
   if(!p.suit&&!p.dad&&S.money<75)add(AS[0],AS[1],2.6,'Call Big Ed about money for a tux',()=>{p.dad=1;card({title:'Big Ed Kowalski',sp:'On the phone',alert:1,text:'"A TUX? For an ALUMNI GALA? Son, I wore a rented tux to that gala in \'93 and I spilled a whole shrimp cocktail on a senator! Best night of my life!"\n\nThe line crackles. "I\'m sending you fifteen bucks. Don\'t tell your mother. And DON\'T go near the shrimp."',ch:[['"Thanks, Dad."',()=>{money(15);sfx('coin')}]]})},0);
 }
 
@@ -158,7 +158,7 @@ function c2GalaIntro(done){const I=INT.asr,W=(x,y,z)=>[I.x0+x,y,I.z0+z],X=(x,z)=
     const pell=C2.alums.find(n=>n.c2a==='pell');ost=C2.alums.find(n=>n.c2a==='ostrander');
     if(pell&&ost){oPos=[ost.x,ost.z,ost.hx,ost.hz];ost.x=pell.x-1.3;ost.z=pell.z+.5;ost.hx=ost.x;ost.hz=ost.z;if(ost.g)ost.g.position.set(ost.x,0,ost.z);c4Shot([pell.x-.6,1.75,pell.z+3],[pell.x-.65,1.55,pell.z+.2],0)}
     c1Sub('','And forty men in tuxedos who all seem to know each other\'s yacht.');await c4Wt(2.8);c1Sub(null);
-    if(pell&&ost)await c8Lines([[ost,'Augustus! You still parking The Lantern in my slip?'],[pell,'Your slip, Gil? I bought that marina in 1988.'],[ost,'…Ha! HA! Good one. Good one.']]);
+    if(pell&&ost)await c8Lines([[ost,'Augustus! I hear the new boat is parked in my slip.'],[pell,'Your slip, Gil? I bought that marina in 1988.'],[ost,'…Ha! HA! Good one. Good one.']]);
     // Grant, the bow tie
     try{c6GrantHide(1)}catch(e){}const gr=c4Dup('grant',...X(24,23.6),0,{pup:1,tag:'c2gi',int:'asr'});if(gr){try{c2RedTux(gr,1)}catch(e){}c4To(gr,...X(24,30.4),1.5)}
     c4Shot(W(21.4,1.8,33.2),W(24,1.5,28.4),0);await c4Wt(1.2);c4Shot(W(25.7,1.75,32.6),W(24,1.6,30.8),1);await c4Wt(3);
@@ -223,7 +223,7 @@ function c2Imp(v,t){C2.imp=v;stand(v>=2?4:v?0:-4);return[C_('Impress the Donor',
 // value 2 = strong, 1 = weak, -1 = the pitch is over (Pell walks out, the task fails and restarts from Grant)
 const C2PITCH=[
  ['Mr. Pell, Alpha Sigma Rho has put more men in boardrooms than any house on the Row. Your gift keeps that going.','Every house on the Row tells me that, Grant. Why should I believe you?',[
-   ['"Sir, your pledge class composite still hangs in our front hall. Every brother walks past the class of \'71 every single day."',2,'Pell glances toward the hall. He doesn\'t say anything, but his shoulders drop an inch. Grant gives you the smallest nod.'],
+   ['"Sir, your pledge class composite hangs in the hallway right outside this room. Every brother walks past the class of \'71 every single day."',2,'Pell glances toward the hallway. He doesn\'t say anything, but his shoulders drop an inch. Grant gives you the smallest nod.'],
    ['"Because Grant is honestly a really good president, sir."',1,'"I\'m sure he is." Pell does not sound sure. Grant keeps smiling anyway.'],
    ['"Because the other houses are full of losers, sir. Especially Kappa Theta Omega."',-1,'"My brother-in-law was Kappa Theta Omega." Pell sets his glass down on the arm of the throne. Grant goes pale.']]],
  ['We want to renovate the chapter house top to bottom. New roof, new study hall, new everything.','I paid for a roof in 1994, Grant. What happened to it?',[
@@ -250,7 +250,7 @@ function c2PitchSteps(){C2.pitch=0;const L=[{t:'cine',run:c2PitchRun}];
     try{if(pell&&NP.includes(pell))c7Bub(pell,line,90)}catch(e){}card({title:'The Pitch',sp:pell?pell.name+' · '+pell.title:'',text,focus:pell&&NP.includes(pell)?pell:null,ch:[[amt>=150?'"…On me?"':amt>=75?'"…The right horse?"':'"…Still standing?"',()=>{try{if(pell)c7Unbub(pell);c7Bub(DANNY,amt>=150?'…On me?':amt>=75?'…The right horse?':'…Still standing?',2.4);if(g&&NP.includes(g))c7Bub(g,'Back to work, Kowalski. Now.',2.6)}catch(e){}d()}]]})}});return L}
 function c2WhyStart(){C2.why=C2.why||{n:new Set(),ear:0};if(!C2.earO){const[lx,lz]=c2Free('asr',3.4,17.8);C2.earO=c2Obj('asr',lx,lz,'Listen to the alumni by the basement door',()=>c2Eaves())}}
 function c2Eaves(){if(C2.why.ear)return;C2.why.ear=1;const o=C2.earO,ex=o?o.x:P.x,ez=o?o.z:P.z;c2ObjDel(C2.earO);
-  const a=C2.alums.find(n=>n.c2a==='brandt'&&NP.includes(n)),b=C2.alums.find(n=>n.c2a==='ostrander'&&NP.includes(n));if(!a||!b){card({title:'Overheard',sp:'By the basement door',alert:1,text:'"…Last pledge standing pays five to one, same as always."',ch:[['…Last pledge standing?',null]]});return}
+  const a=C2.alums.find(n=>n.c2a==='brandt'&&NP.includes(n)),b=C2.alums.find(n=>n.c2a==='ostrander'&&NP.includes(n));if(!a||!b){card({title:'Overheard',sp:'By the basement door',alert:1,text:'"…Kowalski at five to one. Last pledge standing takes the pot, same as always."',ch:[['…Last pledge standing?',null]]});return}
   const put=(n,x,z,f)=>{n.x=n.hx=x;n.z=n.hz=z;n.a=n.ha=f;n.mode='idle';n.g.position.set(x,0,z);n.g.rotation.y=f};
   // V174 Danny eavesdrops: he stays tucked inside the basement-door alcove by the wall's end while the two alumni talk past the corner, turned to each other and away from him
   const ok=(x,z)=>freeAt(x,z,.35);let ax=ex+3.6,az=ez+2.9,bx=ex+4.8,bz=ez+2.1;if(!ok(ax,az)||!ok(bx,bz)){ax=ex+3.6;az=ez-.6;bx=ex+4.8;bz=ez+.4}
@@ -261,10 +261,10 @@ function c2Eaves(){if(C2.why.ear)return;C2.why.ear=1;const o=C2.earO,ex=o?o.x:P.
   const heard=(n,t)=>NP.includes(n)?c1Card(n,n.name,'Overheard · '+(n.title||''),'"'+t+'"',[['▸ Keep listening',null]]):Promise.resolve();
   (async()=>{try{
     c1Sub('','Two alumni are talking low past the corner. Danny stays out of sight and listens.');await c1Wait(2.6);c1Sub(null);
-    await heard(a,'…the Dunmore kid looks strong. I\'ll take him at two to one.');
+    await heard(a,'…the Dunmore kid looks strong. Everybody\'s on him. The book has him at two to one.');
     await heard(b,'The Kowalski boy\'s scrappy. Big Ed\'s son. Big Ed broke my nose in \'93.');
     await c1Card(DANNY,'Danny','Thinking','(…Are they talking about me?)',[['▸ Keep listening',null]]);
-    await heard(a,'Then I\'ll take Kowalski. Last pledge standing pays five to one, same as always.');
+    await heard(a,'Then I\'ll take Kowalski at five to one. Last pledge standing takes the pot, same as always.');
     c2GiveFlute(a);c2GiveFlute(b);tone(2600,.12,'sine',.05);tone(3100,.16,'sine',.04,.05);c1Sub('','They clink glasses and head for the bar. Neither of them saw him.');
     const bar=C2.barO?[C2.barO.x,C2.barO.z]:[ex+8,ez];for(const[n,k]of[[a,-1],[b,1]]){n.hx=bar[0]+k*1.2;n.hz=bar[1]+1.3}await c1Wait(2.4);c1Sub(null);
     await c1Card(DANNY,'Overheard','','(…Last pledge standing?)',[['▸ Continue',null]])}catch(e){console.warn('c2Eaves',e)}EAVES=0;c1Sub(null);c1CineOff();toast('Somebody here is betting on the pledges. Find out what\'s going on.',3200)})()}
@@ -491,7 +491,7 @@ function c2KothTick(dt){const k=C2.k;if(!k)return;
 function c2KothWin(done){c1Hud(null);const I=INT.asr_bsmt;c1CineOn(dt=>{const a=TT*.2;cam.position.set(P.x+Math.sin(a)*5,2.8,P.z+Math.cos(a)*5);cam.lookAt(P.x,1.4,P.z)});C1.act=[];
   const pell=C2.alums.find(n=>n.c2a==='pell');sfx('lvl');big('LAST PLEDGE STANDING',2400);
   (async()=>{await c1Wait(2.6);if(pell&&NP.includes(pell)){pell.x=P.x+2.2;pell.z=P.z+2;pell.hx=pell.x;pell.hz=pell.z;pell.g.position.set(pell.x,0,pell.z);C1.act.push(pell);
-      await c1Line(pell,'Big Ed\'s boy. Well, well. '+(S.c2bet||25)+' thousand on you at five to one. I just made a great deal of money on you, son.');await c1Line(pell,'Consider Alpha Sigma Rho… funded. Half of it goes to the house, as promised. And consider yourself noticed.','"…Thank you, sir?"')}
+      {const b=S.c2bet||25;await c1Line(pell,b>=150?'Big Ed\'s boy. Well, well. '+b+' thousand on you at five to one. I just made a great deal of money on you, son.':b>=75?'Big Ed\'s boy. Well, well. '+b+' thousand on the right horse, and the right horse was you. Five to one, son.':'Big Ed\'s boy. Well, well. Twenty-five thousand on whoever was still standing, and that\'s you. Five to one, son.')}await c1Line(pell,'Consider Alpha Sigma Rho… funded. Half of it goes to the house, as promised. And consider yourself noticed.','"…Thank you, sir?"')}
     c1CineOff();done()})()}
 function c2End(done){$('fade').style.opacity=1;setTimeout(()=>{c2Fighter(PM,0);c2AfterOff();c2GalaOff();c2Suit(0);S.gt=10;S.day++;newDay();goIn('asr',10.6,27);P.face=0;yaw=PI;$('fade').style.opacity=0;
   card({title:'The Morning After',sp:'',alert:1,text:'You wake up on the couch with your tux in a heap on the floor and one shoe missing. Your hands ache. Your phone has forty texts from numbers you don\'t know, all saying some version of "Congrats, champ."\n\nThe propeller hat is still on your head. Somebody taped a hundred-dollar bill to it.',ch:[['Peel it off',()=>{money(100);sfx('coin');done()}]]})},500)}
@@ -530,7 +530,7 @@ const C2M=[
    {t:'cine',run:c2GalaIntro},
    {t:'cond',lab:c2RoomLab,ok:c2RoomDone,goal:c2RoomGoal,start:()=>c2RoomStart()}],
   fin:()=>{C2.r.keep=1;c2Mk([]);take('c2tray');c1Next('c2pitch',900)},reset:()=>{c2GalaOff();take('c2tray');C2.r=null}},
- {id:'c2pitch',ch:2,main:1,pre:['c2room'],name:'The Donation Pitch',who:'grant',retry:'Grant is back on the throne, rubbing his temples. Talk to him to try the pitch again, and this time, help.',steps:()=>[
+ {id:'c2pitch',ch:2,main:1,pre:['c2room'],name:'The Donation Pitch',who:'grant',retry:'Grant is back on the throne, rubbing his temples. Pell only made it as far as the porch before the brothers talked him back inside. Talk to Grant to try the pitch again, and this time, help.',steps:()=>[
    {t:'cine',run:c2PellScene},
    C_('Impress the Donor','Grant Ashby · Chapter president','Grant waves you over to the throne room, where Augustus Pell is inspecting the throne like he\'s thinking of buying it back.\n\n"Mr. Pell, this is Kowalski. One of our most promising pledges." Under his breath: "Say something impressive."',null,{ch:null}),
    {t:'cine',run:d=>card({title:'Impress the Donor',sp:'Augustus Pell · Class of \'71',text:'"Well, pledge? Impress me."',focus:C2.alums.find(n=>n.c2a==='pell'),ch:c2ImpressChoices().map(([l,f])=>[l,()=>{const ins=f();AM.steps.splice(AM.i+1,0,...ins);d()}])})},
