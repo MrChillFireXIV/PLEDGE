@@ -6,25 +6,8 @@
 const AMBACTS=[['phone',3],['call',2],['stretch',1],['dance',1],['look',2],['wave',1],['coffee',2],['tie',1],['pray',1],['pic',2],['selfie',1],['pose',2]];
 function ambOK(n){return!!(!n.named&&!n.temp&&!n.actor&&!n.int&&!n.auth&&!n.pclass&&!n.pledge&&!n.statue&&!n.fb&&!n.shop&&!n.role&&!n.roam&&!n.def&&!n.rob&&!n.kid&&n.mode!=='chat'&&n.mode!=='play'&&n.mode!=='guard'&&!EV)}
 function ambPick(){let s=0;for(const a of AMBACTS)s+=a[1];let r=rnd()*s;for(const a of AMBACTS){r-=a[1];if(r<=0)return a[0]}return'look'}
-function ambReset(n){n.al=null;n.alPose=null;if(n.alProp)for(const k in n.alProp)n.alProp[k].visible=false}
-function ambLife(n,dt){let A=n.al;if(!A){A=n.al={k:rnd()<.5?'act':'walk',t:rnd()*4,act:ambPick(),a0:n.a,jog:0};if(A.k==='act')A.t=3+rnd()*8}
-  n.alPose=null;
-  if(A.k==='act'){A.t-=dt;const act=A.act;
-    // only a quick glance when Danny is right beside them; otherwise they get on with it
-    if(n.dp<2.4){n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*3)}
-    else if(act==='wave'&&A.fr&&NP.includes(A.fr))n.a+=((((Math.atan2(A.fr.x-n.x,A.fr.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*3);
-    if(A.t<=0){if(rnd()<.72){A.k='walk';A.jog=rnd()<.3;n.path=null;A.t=0}else{A.act=ambPick();A.t=3+rnd()*8;ambStart(n,A)}}
-    n.alPose=act;return act==='wave'?'wave':act==='call'?'':''}
-  // walking
-  const sp=A.jog?4.9:(n.mode==='idle'?1.2:1.35);
-  if(!n.path){if(navBudget<=0)return'';navBudget--;
-    if(n.mode==='idle'){const far=Math.hypot(n.x-n.hx,n.z-n.hz)>3;const tx=far||rnd()<.35?n.hx:n.hx+(rnd()-.5)*10,tz=far||rnd()<.35?n.hz:n.hz+(rnd()-.5)*10;
-      if(!freeAt(tx,tz,.4)||(typeof inLane==='function'&&inLane(tx,tz))){A.k='act';A.act=ambPick();A.t=3+rnd()*6;ambStart(n,A);return''}
-      const B=navBFS(n.x,n.z,tx,tz,null,0);if(B.found<0){A.k='act';A.act=ambPick();A.t=4;ambStart(n,A);return''}n.path=navPath(B,B.found,n.x,n.z);n.pi2=0}
-    else{newWander(n);if(!n.path){A.k='act';A.act=ambPick();A.t=3+rnd()*6;ambStart(n,A);return''}}}
-  if(follow(n,sp,dt)){n.path=null;if(typeof inLane==='function'&&inLane(n.x,n.z)){A.t=0;return''}   // never stop to hang out in a car lane
-    A.k='act';A.act=ambPick();A.t=4+rnd()*10;A.jog=0;ambStart(n,A)}
-  return''}
+function ambReset(n){const A=n.al;if(A){try{if(A.cv)convLeave(n,A.cv);if(A.seat&&A.seat.by===n)A.seat.by=null}catch(e){}}n.al=null;n.alPose=null;n.alSub=null;if(n.alProp)for(const k in n.alProp)n.alProp[k].visible=false}
+/* V300 ambLife moved to 21h4-social-life.js (purposeful behaviour: talk, errands, benches, watching fights) */
 function ambStart(n,A){A.fr=null;if(A.act==='wave'){const fr=NP.find(m=>m!==n&&!m.hidden&&!m.int&&m.g.visible&&Math.hypot(m.x-n.x,m.z-n.z)<12&&Math.hypot(m.x-n.x,m.z-n.z)>2);if(fr)A.fr=fr;else A.act='look'}
   if(n.dp<14&&rnd()<.35&&!n.named&&!n.temp){const L={phone:['lol what','Who even texts anymore?','Ugh, group chat.'],call:['Yeah, Mom, I\'m eating.','No, I\'m on campus.','Can I call you back?'],stretch:['Long day.','Oof, my back.'],dance:['This song slaps.','♪ ♪'],coffee:['Third coffee today.','Midterms, man.'],wave:['Hey!','Over here!'],look:['Where\'d they go?'],tie:['Hold on.'],pray:['Please let the exam be easy.','…amen.'],pic:['Smile!','Hold still!','One more!'],selfie:['Angles. It\'s all about angles.','Ooh, good light.'],pose:['Mood.','Main character energy.']}[A.act];if(L)bubble(n,pick(L),2.2)}}
 // poses layered over the base animation
@@ -32,7 +15,14 @@ function ambProp(n,k){n.alProp=n.alProp||{};let m=n.alProp[k];if(m)return m;cons
   if(k==='phone'){m=new THREE.Mesh(GC.amPh||(GC.amPh=new THREE.BoxGeometry(.085,.16,.016)),GC.amPhM||(GC.amPhM=new THREE.MeshStandardMaterial({color:0x15171c,roughness:.35,emissive:0x4a78c8,emissiveIntensity:.9})));m.position.set(0,-.09,.03);m.rotation.x=-.3}
   else{m=new THREE.Mesh(GC.amCup||(GC.amCup=new THREE.CylinderGeometry(.04,.032,.12,10)),GC.amCupM||(GC.amCupM=new THREE.MeshStandardMaterial({color:0xf2ede2,roughness:.7})));m.position.set(0,-.09,.03)}
   m.userData.noMerge=1;h.add(m);m.visible=false;return n.alProp[k]=m}
-function ambPose(n){const k=n.alPose,p=n.g.P;if(n.alProp)for(const q in n.alProp)n.alProp[q].visible=false;if(!k||!p||!p.aR)return;const t=n.t,R=(o,x,y,z)=>{if(o)o.rotation.set(x,y,z)};
+function ambPose(n){let k=n.alPose;const p=n.g.P;if(n.alProp)for(const q in n.alProp)n.alProp[q].visible=false;if(!k||!p||!p.aR)return;const t=n.t,R=(o,x,y,z)=>{if(o)o.rotation.set(x,y,z)};
+  /* V300 social poses */
+  if(k==='sit'){n.g.position.y-=.42;if(p.kL){p.kL.rotation.x=1.5;p.kR.rotation.x=1.5}if(!n.alSub){R(p.aL,-.35,0,-.1);R(p.aR,-.35,0,.1);R(p.eL,-1.1,0,0);R(p.eR,-1.1,0,0);return}k=n.alSub}
+  if(k==='talkS'){if(p.head)p.head.rotation.x+=Math.sin(t*2.6)*.06;if(p.chest)p.chest.rotation.y+=Math.sin(t*.9)*.12;return}
+  if(k==='talkL'){if(n.lst){R(p.aL,-.42,0,.62);R(p.eL,-1.75,0,0);R(p.aR,-.42,0,-.62);R(p.eR,-1.75,0,0)}if(p.head){const nod=Math.max(0,Math.sin(t*2.4))*Math.max(0,Math.sin(t*.37+1));p.head.rotation.x+=.06+nod*.22}return}
+  if(k==='laugh'){const s=Math.abs(Math.sin(t*13));n.g.position.y+=s*.02;if(p.head)p.head.rotation.x-=.28;if(p.chest)p.chest.rotation.x-=.12+s*.05;R(p.aL,-.5,0,.45);R(p.eL,-1.5,0,0);R(p.aR,-.25,0,-.25);R(p.eR,-.7,0,0);return}
+  if(k==='phoneWalk'){R(p.aR,-.5,0,-.3);R(p.eR,-1.5,0,0);if(p.head)p.head.rotation.x+=.32;const m=ambProp(n,'phone');if(m)m.visible=true;return}
+  if(k==='shock'){R(p.aL,-2.45,0,-.35);R(p.aR,-2.45,0,.35);R(p.eL,-2.05,0,0);R(p.eR,-2.05,0,0);if(p.head)p.head.rotation.x-=.08;return}
   if(k==='phone'||k==='coffee'){R(p.aR,-.55,0,-.32);R(p.eR,-1.55,0,0);if(p.head)p.head.rotation.x=k==='phone'?.38:.1;const m=ambProp(n,k==='phone'?'phone':'cup');if(m)m.visible=true;if(k==='coffee'&&Math.sin(t*.7)>.85){R(p.aR,-.9,0,-.4);R(p.eR,-2.2,0,0)}}
   else if(k==='call'){R(p.aR,-.15,0,-.55);R(p.eR,-2.45,0,0);const m=ambProp(n,'phone');if(m)m.visible=true;if(p.head)p.head.rotation.z=-.12}
   else if(k==='stretch'){const s=Math.sin(t*1.1);R(p.aL,-2.9,0,-.25+s*.15);R(p.aR,-2.9,0,.25+s*.15);R(p.eL,-.15,0,0);R(p.eR,-.15,0,0);n.g.rotation.z=s*.08}

@@ -318,6 +318,7 @@ function drProps(D){const WOOD=0x8b5e3c,MET=0x23262a,occ=[],near=(x,z,d)=>occ.so
   const put=(list,x,z,yaw,r,cap)=>{if(list.length>=cap||!free(x,z,r))return false;list.push([x,z,yaw]);occ.push([x,z]);return true};
   const paths=[];for(const r of D.walk||[])paths.push(r[0]);for(const pl of D.plaza||[])paths.push(pl[1][0]);
   for(const ring of paths)drEdge(ring,17,(x,z,ox,oz)=>{const px=x+ox*1.0,pz=z+oz*1.0,yaw=Math.atan2(-ox,-oz),a=rnd();if(a<.2)put(bench,px,pz,yaw,.8,130);else if(a<.38)put(bin,px+ox*.1,pz+oz*.1,0,.45,160);else if(a<.45)put(sign,px,pz,Math.atan2(-ox,-oz),.5,70)});
+  try{for(const[x,z,y]of bench)seatAdd(x,z,y)}catch(e){}   // V300 path benches are seats too
   for(const[x,z]of LAMPS)if(rnd()<.12)put(bin,x+1.1,z+.4,0,.45,160);
   for(const b of D.B||[]){if(!b.p||!b.p[0]||rnd()<.6||rack.length>=55)continue;const ring=gpoly(b.p[0]);let done=0;drEdge(ring,9,(x,z,ox,oz,ux,uz)=>{if(done||rnd()<.5)return;const px=x+ox*1.7,pz=z+oz*1.7;const yaw=Math.atan2(-uz,ux);if(put(rack,px,pz,yaw,1.5,55)){done=1;for(const k of[-1.5,-.5,.5,1.5])if(rnd()<.6)bike.push([px+Math.cos(yaw)*k*.62,pz-Math.sin(yaw)*k*.62,yaw,rnd()])}})}
   const mk=(geo,list,cast=true,mark)=>{if(!list.length)return;const im=new THREE.InstancedMesh(geo,M,list.length),m=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),c=new THREE.Color();

@@ -58,7 +58,7 @@ function ucIdAt(name,x,z,n,addr){const t=[-n[1],n[0]];for(const[a,b]of[[0,0],[1.
 function bench(x,z,rot){const g=new THREE.Group(),M=mt(0x23262a,.55,.35);const a=(w,h,d,px,py,pz)=>{const e=new THREE.Mesh(bgeo(w,h,d),M);e.position.set(px,py,pz);e.castShadow=true;g.add(e)};
   for(const k of[-.18,-.06,.06,.18])a(1.9,.035,.09,0,.46,k);for(const y of[.6,.72,.84])a(1.9,.08,.03,0,y,-.27);
   for(const s of[-.86,.86]){a(.06,.46,.06,s,.23,.17);a(.06,.9,.06,s,.45,-.25);a(.06,.04,.48,s,.44,-.03);a(.06,.04,.4,s,.66,0)}
-  g.position.set(x,0,z);g.rotation.y=rot;sc.add(g);markC(x,z,.7,1)}
+  g.position.set(x,0,z);g.rotation.y=rot;sc.add(g);markC(x,z,.7,1);try{seatAdd(x,z,rot)}catch(e){}}   /* V300 two seats people can sit on */
 // lamps as the tour shows them: black post-top globes along most walks; tall grey poles with flat disc heads around Langsam, MainStreet, the CRC and Lindner, University Plaza and Zimmer;
 // MainStreet's poles carry red UC banners (tour 306-318 s)
 const DISCZ=[[376,140,450,215],[318,240,462,306],[428,178,562,272],[198,354,258,400],[240,300,300,380],[325,165,380,215]],BANZ=[328,246,454,306];

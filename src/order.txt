@@ -57,6 +57,7 @@ js/21g-chapter-select.js
 js/21h-crowd.js
 js/21h2-ambient-life.js
 js/21h3-house-pledges.js
+js/21h4-social-life.js
 js/22-events-minigames-maps.js
 js/22b-beer-die.js
 js/23-campus-map.js
