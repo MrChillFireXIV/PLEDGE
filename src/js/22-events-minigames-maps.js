@@ -19,10 +19,20 @@ function kartTick(dt){if(EV.start>0){const s=Math.ceil(EV.start);EV.start-=dt;if
 
 // ---------------- DOM minigames
 let MGK=null;
-function openMG(title,sub,setup){mode='mg';unlock();$('mg').hidden=false;$('mgt').textContent=title;$('mgsub').textContent=sub;const b=$('mgb');b.innerHTML='';MGK=null;setup(b,after=>{$('mg').hidden=true;MGK=null;mode='play';after&&after()})}
+/* V311 every table game and class can be left: the ✕ Leave button or Esc (asks once to confirm). quit(close) ends it the game's own way */
+let MGQ=null,MGQUIT=0,MGNEXTQ=null;
+/* a game that reports win/lose through cb: leaving reports a quiet loss with MGQUIT set, so no prize and no penalty */
+const mgQuitCb=cb=>{MGNEXTQ=close=>close(()=>{MGQUIT=1;try{cb(false)}finally{MGQUIT=0}})};
+function mgQuitAsk(){if(!MGQ)return;const b=$('mgq');if(b&&b.dataset.sure){MGQ();return}if(b){b.dataset.sure=1;b.textContent='Leave? Click again (or Esc)';setTimeout(()=>{if(b.isConnected){delete b.dataset.sure;b.textContent='✕ Leave'}},3500)}}
+function openMG(title,sub,setup,quit){quit=quit||MGNEXTQ;MGNEXTQ=null;mode='mg';unlock();$('mg').hidden=false;$('mgt').textContent=title;$('mgsub').textContent=sub;const b=$('mgb');b.innerHTML='';MGK=null;
+  const close=after=>{$('mg').hidden=true;MGK=null;MGQ=null;{const q=$('mgq');if(q)q.remove()}mode='play';after&&after()};
+  {const old=$('mgq');if(old)old.remove()}MGQ=null;
+  if(quit){const q=document.createElement('button');q.id='mgq';q.className='btn ghost mgq';q.textContent='✕ Leave';q.title='Leave this game (Esc)';q.onclick=()=>{sfx('ui');mgQuitAsk()};$('mg').querySelector('.board').prepend(q);MGQ=()=>{sfx('ui');quit(close)}}
+  setup(b,close)}
 function attendClass(c,sl){S.att[S.day+'-'+sl]=1;const g=S.grades[c]||0,end=sl?15.5:11.5,C=CI[c],col=C.col;if(g>=3){S.gt=end;card({title:C.n,sp:C.prof,text:'You already aced this class. You spend the period helping a confused freshman, which feels nice.'});return}
   if(col&&skStudy(col))S.studied=1;   /* V308 a college's first skill: its classes count as studied */
   const fn={econ:mgEcon,chem:mgChem,speech:mgSpeech,art:mgArt,phys:mgPhys}[c]||(C.mg&&MGF[C.mg]?(el,gg,dn)=>MGF[C.mg](el,gg,dn,c):null);if(!fn)return;
+  MGNEXTQ=close=>close(()=>{S.gt=end;S.studied=0;toast('You slip out of '+C.n+' early. No grade today.',3600)});
   openMG(C.n+' · Grade '+(g+1)+' of 3',C.bn+' · '+C.prof,(el,close)=>fn(el,g,(pass,sum)=>close(()=>{S.gt=end;S.studied=0;if(pass){S.grades[c]=(S.grades[c]||0)+1;sfx('lvl');if(c==='chem'&&S.grades.chem===1)invAdd('stink');if(col)skGain(col);
       const pk=C.perk&&C.perk[S.grades[c]-1],cn=col?COLL[col].n:'';card({title:'Passed: '+C.n,sp:'Grade '+S.grades[c]+' of 3',text:sum+(pk?'\n\nNew perk: '+pk:'')+(col?`\n\n+1 ${cn} skill point (${skFree(col)} to spend). Open the Skill Tree in your planner (Tab).`:'')});try{saveGame()}catch(e){}}
     else{sfx('bad');card({title:'Not this time: '+C.n,sp:C.prof,text:sum+'\n\nYou can try again the next time this class meets. Studying at the library helps.'})}})))}
@@ -95,7 +105,7 @@ function mgArt(el,g,done){const need=Math.min(5,3+g),dur=50+(S.studied?10:0);con
   ca.onpointerdown=e=>click(ca,e);cb.onpointerdown=e=>click(cb,e);
   function end_(){if(fin)return;fin=true;diffs.forEach(d=>d.f=1);ov();setTimeout(()=>done(found>=need,`You found ${found} of 5 differences. You needed ${need}.`),1100)}
   let lt=NOW();(function loop(){if(fin||mode!=='mg'||!ca.isConnected)return;const t=NOW();left-=t-lt;lt=t;miss=miss.filter(m=>t-m.t<.8);$('as').textContent=`Found ${found} / ${need} · ${Math.max(0,left).toFixed(0)}s`;if(left<=0){end_();return}requestAnimationFrame(loop)})()}
-function mgPong(cb){openMG('Beer Pong','ΑΣΡ backyard · first to sink all six cups',(el,close)=>{el.innerHTML=`<p class="mgintro">Click (or press Space) once to lock your aim, again to lock your power. Marcus throws back after every shot.</p><canvas class="mgc" id="pc" width="340" height="440" style="width:min(340px,100%)"></canvas><div class="mgstat" id="ps"></div>`;
+function mgPong(cb){mgQuitCb(cb);openMG('Beer Pong','ΑΣΡ backyard · first to sink all six cups',(el,close)=>{el.innerHTML=`<p class="mgintro">Click (or press Space) once to lock your aim, again to lock your power. Marcus throws back after every shot.</p><canvas class="mgc" id="pc" width="340" height="440" style="width:min(340px,100%)"></canvas><div class="mgstat" id="ps"></div>`;
   const cv=$('pc'),q=cv.getContext('2d');const cups=[];[[0,0],[-1,1],[1,1],[-2,2],[0,2],[2,2]].forEach(([a,b])=>cups.push({x:170+a*24,y:70+b*36,on:1}));let mine=6,phase='aim',ax=170,pw=0,t=0,ball=null,msg='Your throw';
   const act=()=>{if(phase==='aim'){phase='power';t=0}else if(phase==='power'){phase='fly';const ty=420-pw*400;ball={x0:170,y0:420,x1:ax,y1:ty,t:0}}};
   MGK=e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(!e.repeat)act()}};cv.onpointerdown=()=>act();
@@ -110,7 +120,7 @@ function mgPong(cb){openMG('Beer Pong','ΑΣΡ backyard · first to sink all six
     if(phase==='power'){q.fillStyle='#0a1426';q.fillRect(326,20,10,400);q.fillStyle='#e2b64c';q.fillRect(326,420-pw*400,10,pw*400);q.fillStyle='rgba(120,255,140,.35)';q.fillRect(326,420-.87*400,10,(.87-.65)*400)}
     if(ball){const k=Math.min(1,ball.t),x=lerp(ball.x0,ball.x1,k),y=lerp(ball.y0,ball.y1,k),h=Math.sin(k*PI)*60;q.fillStyle='rgba(0,0,0,.3)';q.beginPath();q.arc(x,y,5,0,TAU);q.fill();q.fillStyle='#fff';q.beginPath();q.arc(x,y-h,7+h/20,0,TAU);q.fill();if(phase!=='fly')ball=null}
     $('ps').textContent=`Their cups: ${cups.filter(c=>c.on).length} · Your cups: ${mine} · ${msg}`;requestAnimationFrame(loop)})()})}
-function mgRadio(cb){openMG('WHRG 89.3 · The Night Shift','TUC basement · six callers',(el,close)=>{const REC=[['Midnight on Route 9','The Lanterns',['chill','sad']],['Pregame Protocol','DJ Varsity',['hype','party']],['Thesis Weather','Library Cats',['chill','study']],['Burn the Bylaws','Quad Riot',['angry','hype']],['Letters Home','Ivy & Rust',['sad','nostalgic']],['Townie Two-Step','Mill Street Band',['party','nostalgic']],['Final Exam Funk','The Curve',['study','party']],['Ex Files','Sorority Row',['angry','sad']]];
+function mgRadio(cb){mgQuitCb(cb);openMG('WHRG 89.3 · The Night Shift','TUC basement · six callers',(el,close)=>{const REC=[['Midnight on Route 9','The Lanterns',['chill','sad']],['Pregame Protocol','DJ Varsity',['hype','party']],['Thesis Weather','Library Cats',['chill','study']],['Burn the Bylaws','Quad Riot',['angry','hype']],['Letters Home','Ivy & Rust',['sad','nostalgic']],['Townie Two-Step','Mill Street Band',['party','nostalgic']],['Final Exam Funk','The Curve',['study','party']],['Ex Files','Sorority Row',['angry','sad']]];
   const CALL=[['Priya, Student Gov','"Something to study to. Midterms are killing me."','study'],['Brock, football','"Pump me up before practice!"','hype'],['Kayla, Theta Zeta','"My boyfriend dumped me by text."','sad'],['Earl, at the Anchor','"Play something from back when this town had jobs."','nostalgic'],['Jules, activist','"I need something loud and angry for the protest tomorrow."','angry'],['A brother at ΑΣΡ','"House party tonight. Keep it going!"','party'],['Night owl in the library','"Something calm. It\'s 2 AM."','chill']];
   let r=0,score=0,lis=180;const calls=shuffle(CALL).slice(0,6);el.innerHTML=`<p class="mgintro">Callers phone in requests. Pick the record that fits before the line goes dead. Get four right and the station pays you.</p><div id="rr"></div>`;
   function show(){const c=calls[r];const match=REC.filter(x=>x[2].includes(c[2])),other=shuffle(REC.filter(x=>!x[2].includes(c[2]))).slice(0,3);const opts=shuffle([pick(match),...other]);let left=9,ans=false;
