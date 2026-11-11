@@ -157,7 +157,7 @@ function buildCampus(){
     for(let t=.2;t<L;t+=.42){const x=a+ux*t,z=b+uz*t,y=terrH(x,z);const s=new THREE.Mesh(GC['st'+w]||(GC['st'+w]=new THREE.BoxGeometry(w,.9,.44)),SM_);s.position.set(x,y-.4,z);s.rotation.y=ry;s.receiveShadow=true;s.userData.ts=1;sc.add(s)}
     if(w>=2.4)for(let t=0;t<L;t+=1.6){const x=a+ux*t,z=b+uz*t;const r=new THREE.Mesh(GC.rail||(GC.rail=new THREE.CylinderGeometry(.03,.03,.95,5)),mt(0x2a3a3a,.5,.4));r.position.set(x,terrH(x,z)+.48,z);r.userData.ts=1;sc.add(r)}}}}
   // ------------------------------------------------ buildings (OSM footprints) stand at the ground level of their front door; on slopes the lower side gets an exposed base
-  const RC=[0x3c4150,0x5a3a32,0x4a4a4a,0x6b5b4b,0x2f3a34],PLN={daap:'dpMix',steger:'brick',crc:'metal',morgens:'conc',garage:0x8f8c86,diag:'diag',cch:'cchB',cchG:'cchG',stone:'stone',tuc:'zinc'};
+  const RC=[0x3c4150,0x5a3a32,0x4a4a4a,0x6b5b4b,0x2f3a34],PLN={dabney:0x5d6970,daap:'dpMix',steger:'brick',crc:'metal',morgens:'conc',garage:0x8f8c86,diag:'diag',cch:'cchB',cchG:'cchG',stone:'stone',tuc:'zinc'};
   const ALLP=D.B.map(b=>gpoly(b.p[0]));
   for(const b of D.B){if(b.rect&&Math.abs(b.rect[0]-330.67)<.1&&Math.abs(b.rect[1]-475.88)<.1)b.brz=1;if(b.n==='Braunstein Hall'&&!b.v121){b.v121=1;b.h=16;b.lvo=terrH(b.fp[0]+b.fn[0]*1.6,b.fp[1]+b.fn[1]*1.6);b.fp=[241.45,244.25];b.fn=[0,1];b.f='phys'}/* V121: physics class, main door on the north face *//* V120: three storeys, one facade tile, arched stone entrance */if(b.n==='Mary Emery Hall'&&b.us)for(let k=0;k<3;k++)b.us[k]='ccmR';if(b.rect&&Math.abs(b.rect[0]-406.73)<.15&&Math.abs(b.rect[1]-192)<.15&&!b.n)b.brg=6.4;const main=gpoly(b.p[0]),holes=(b.ho||[]).map(gpoly),h=b.k==='zimmer'?6.6:b.k==='memorial'?14.5:b.h,fp=b.fp,fn=b.fn,N=b.n,K=b.k;let id='uc'+B.length;const mc=UCMC[b.s]||'#9a5a48',o={holes};const p=main;const i0=sc.children.length;
     switch(b.s){
@@ -184,10 +184,11 @@ function buildCampus(){
         else if(K==='arena'){prism(p,0,8,'glass',0x6c6a64,{holes,solid:false});prism(p,8,h-8,'darkM',0xdedcd6,o);markPoly(p,h)}
         else if(K==='westpav'){wpavX(b,p,h)}
         else if(b.s==='daniels'){danielsX(b,p,h,holes,fp,fn)}
+        else if(b.s==='dabney'){dabneyX(b,p,h,holes)}
         else if(K==='zimmer'){prism(p,0,h,'rieve',SM({map:zimPave2(),roughness:.85}),o)}
         else if(b.pp){for(const r of b.pp)prism(gpoly(r),0,h,b.s,0x5a5c62,{});{const M=mcPass(b);prism(gpoly(b.arch),M.yc,h-M.yc,b.s,0x5a5c62,{solid:false})}}   // McMicken: walk-through passage under the centre
         else prism(p,0,h,b.s,b.s==='stone'?0x7a7468:b.s==='daapO'?0xdcdad4:0x5a5c62,o)}
-    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:b.s==='daniels'?DANY:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb)markPoly(pp,hh)})}
+    if(b.up){const PF={daap:'dpMix',steger:'metal',crc:'metal',tuc:'zinc',morgens:'morgC',cch:'cchT',cchG:'cchG',garage:null,roof:null},pf=b.s in PF?PF[b.s]:b.s;if(pf)b.up.forEach(([ring,hh],ui)=>{if(ui===b.lx)return;const pp=gpoly(ring),y0=b.pb?8.2:b.s==='daniels'?DANY:b.s==='dabney'?DABY:0;prism(pp,y0,hh-y0,(b.us&&b.us[ui])||pf,b.s==='daapO'?0xdcdad4:0x6c6a64,{solid:false});if(!b.pb&&b.s!=='dabney')markPoly(pp,hh);else if(b.s==='dabney')for(const q of[clipX(pp,DABP[0],1),clipX(pp,DABP[1],0)])if(q.length>=3)markPoly(q,hh)})}   /* V312 keep Dabney's breezeway walkable */
     // roofs: hips on simple blocks, stepped hips on the irregular old brick halls, plant rooms on big flat roofs
     if(!(b.r==='hip'&&b.rn>.72)&&!b.ir&&!b.brz&&b.u&&!['garage','roof','tuc','crc','steger','morgens','cch','daap'].includes(b.s))coping(main,h,/brick|bald|stone|diet|lind|steger/.test(String(b.s))?0xd6cebc:0xb9b5ac);
     if(b.r==='hip'&&b.rn>.72&&b.s!=='roof')hipOnRect(b.rect,h,b.rh?Math.min(b.rh,Math.min(b.rect[2],b.rect[3])*.55):Math.min(b.u?5.5:4,Math.min(b.rect[2],b.rect[3])*(b.u?.28:.42)),b.u?0x3c4150:RC[(B.length*7)%RC.length]);
@@ -362,6 +363,48 @@ function braunDoor(X,Z,gy,D,DW,DH){const st=SM({color:0xd2c9b2,roughness:.85}),s
     for(let rr=0;rr<3;rr++)for(let c=0;c<2;c++)add(bgeo(.4,.38,.02),gl,cx+(c-.5)*.48,gy+.45+rr*.52,dz+.05);
     add(bgeo(.05,.05,.12),gd,X+s*.12,gy+1.1,dz+.1);add(new THREE.BoxGeometry(.05,.55,.05),gd,X+s*.18,gy+1.1,dz+.16)}
   add(bgeo(.03,lh,.1),SM({color:0x2a2216}),X,gy+lh/2,dz+.01)}
+// ---- V312 Dabney Hall (residence hall, 1960s, painted grey-blue brick): a glass ground floor set back behind teal-tiled round columns under a cream
+// canopy band; a walk-through breezeway under the middle block from the sand volleyball court to the other side; the volleyball court, a
+// picnic table with a red umbrella, ornamental grass and the UC Bike Kitchen sign.
+const DABY=4.0,DABP=[573.0,576.8],DABLV=-1.1;   /* ground floor height; the breezeway runs north-south between these x */
+function clipX(p,x0,keepLess){const o=[],n=p.length,ins=q=>keepLess?q[0]<=x0:q[0]>=x0;for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%n],ia=ins(a),ib=ins(b);if(ia)o.push(a);if(ia!==ib){const t=(x0-a[0])/(b[0]-a[0]);o.push([x0,a[1]+(b[1]-a[1])*t])}}return o}
+function dabneyX(b,p,h,holes){const Y=DABY,CRM=mt(0xdcd3bf,.85),SOF=mt(0xc9c4b8,.9),TEAL=mt(0x3d7a74,.45,.1),GL='glass';
+  const parts=[clipX(p,DABP[0],1),clipX(p,DABP[1],0)].filter(q=>q.length>=3);
+  for(const q of parts){prism(danOff(q,-1.3),0,Y,GL,0x5d6266,{solid:false});markPoly(danOff(q,-1.3),h)}   // glass ground floor, set back
+  prism(p,Y,h-Y,'dabney',SOF,{holes,solid:false});                                                    // painted brick above (the bottom face is the soffit)
+  prism(danOff(p,.25),Y-.85,.85,CRM,CRM,{solid:false});                                               // cream canopy band
+  // round columns along the front of the ground floor, every ~4.5 m, skipping the breezeway
+  for(let i=0;i<p.length;i++){const[ax,az]=p[i],[bx,bz]=p[(i+1)%p.length],L=Math.hypot(bx-ax,bz-az);if(L<2.5)continue;const ux=(bx-ax)/L,uz=(bz-az)/L,k=Math.max(1,Math.round(L/4.5));
+    const sgn=inPoly((ax+bx)/2+uz*.5,(az+bz)/2-ux*.5,p)?1:-1;
+    for(let j=0;j<=k;j++){const t=Math.min(L-.6,Math.max(.6,j*L/k)),x=ax+ux*t+uz*.55*sgn,z=az+uz*t-ux*.55*sgn;if(x>DABP[0]-.6&&x<DABP[1]+.6)continue;
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,Y-.85,14),TEAL);c.position.set(x,(Y-.85)/2,z);c.castShadow=true;sc.add(c);markR(x-.3,z-.3,x+.3,z+.3,Y)}}
+  // the breezeway: lit ceiling, side walls of painted block, a floor of concrete
+  {const zN=300.87,zS=308.66,L=zS-zN,W=DABP[1]-DABP[0],cx=(DABP[0]+DABP[1])/2,cz=(zN+zS)/2;
+    for(const x of DABP){const w=new THREE.Mesh(bgeo(.2,Y,L),mt(0x8a949a,.85));w.position.set(x+(x===DABP[0]?-.1:.1),Y/2,cz);sc.add(w)}
+    for(let k=0;k<3;k++){const l=new THREE.Mesh(bgeo(1.2,.05,.3),SM({color:0xfff6e0,emissive:0xfff0d0,emissiveIntensity:.9}));l.position.set(cx,Y-.03,zN+L*(k+.5)/3);sc.add(l)}
+    const f=new THREE.Mesh(bgeo(W,.04,L+1.6),mt(0xbdb9b0,.95));f.position.set(cx,.02,cz);f.receiveShadow=true;sc.add(f)}
+  dabneyYard()}
+function dabneyYard(){const g=(x,z)=>terrH(x,z)-DABLV,   /* the building's objects are lifted by its level (lvo) after it is built */add=(geo,m,x,y,z,ry)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);if(ry)o.rotation.y=ry;o.castShadow=true;o.receiveShadow=true;sc.add(o);return o};
+  // sand volleyball court (8 x 16 m) in the courtyard north of the middle block, east of the west wing, red boundary tape
+  const cx=580.5,cz=289,W=8,L=16,y=g(cx,cz);
+  add(bgeo(W+2,.06,L+2),mt(0xd9c9a2,1),cx,y+.03,cz);for(let k=0;k<60;k++){const s=add(new THREE.SphereGeometry(.18+Math.random()*.2,6,4),mt(0xcdbb92,1),cx+(Math.random()-.5)*(W+1.6),y+.02,cz+(Math.random()-.5)*(L+1.6));s.scale.y=.25;s.castShadow=false}
+  const RED=mt(0xc8323a,.6);for(const[w,d,x,z]of[[W,.06,cx,cz-L/2],[W,.06,cx,cz+L/2],[.06,L,cx-W/2,cz],[.06,L,cx+W/2,cz]])add(bgeo(w,.015,d),RED,x,y+.07,z).castShadow=false;
+  for(const s of[-1,1]){add(new THREE.CylinderGeometry(.06,.06,2.6,8),mt(0x1e1f22,.5),cx+s*(W/2+.7),y+1.3,cz);add(bgeo(.14,1.1,.03),mt(0x1e1f22,.6),cx+s*(W/2+.7),y+.6,cz+.05)}
+  {const nt=ctex(256,32,q=>{q.clearRect(0,0,256,32);q.strokeStyle='rgba(20,20,22,.85)';q.lineWidth=1;for(let x=0;x<256;x+=6){q.beginPath();q.moveTo(x,0);q.lineTo(x,32);q.stroke()}for(let y=0;y<32;y+=6){q.beginPath();q.moveTo(0,y);q.lineTo(256,y);q.stroke()}q.fillStyle='#c8323a';q.fillRect(0,0,256,4);q.fillRect(0,29,256,3)});
+    const n=add(new THREE.PlaneGeometry(W+1.4,.95),new THREE.MeshStandardMaterial({map:nt,transparent:true,side:THREE.DoubleSide,roughness:.9}),cx,y+1.95,cz);n.castShadow=false}
+  markR(cx-W/2-.8,cz-.08,cx-W/2-.6,cz+.08,3);markR(cx+W/2+.6,cz-.08,cx+W/2+.8,cz+.08,3);
+  // picnic table with a red umbrella, beside the court
+  {const tx=574.6,tz=296,ty=g(tx,tz),BK=mt(0x1d1e20,.45,.3);add(new THREE.CylinderGeometry(.7,.7,.05,20),BK,tx,ty+.74,tz);add(new THREE.CylinderGeometry(.06,.08,.74,8),BK,tx,ty+.37,tz);
+    for(let k=0;k<4;k++){const a=k*Math.PI/2+.4,sx=tx+Math.cos(a)*1.05,sz=tz+Math.sin(a)*1.05;add(new THREE.CylinderGeometry(.22,.22,.04,12),BK,sx,ty+.45,sz);add(bgeo(.4,.42,.04),BK,sx+Math.cos(a)*.2,ty+.68,sz+Math.sin(a)*.2,-a+Math.PI/2)}
+    add(new THREE.CylinderGeometry(.03,.03,2.5,8),mt(0xb0b4b8,.4,.6),tx,ty+1.25,tz);const um=add(new THREE.ConeGeometry(1.5,.55,10,1,true),new THREE.MeshStandardMaterial({color:0xa8232e,roughness:.8,side:THREE.DoubleSide}),tx,ty+2.3,tz);
+    markR(tx-.8,tz-.8,tx+.8,tz+.8,1.2)}
+  // ornamental grass clumps along the court and the building
+  for(const[x,z]of[[575.2,284],[575.6,290],[575.2,301.8],[579,299.6],[584,300.2],[586.4,286],[586.6,293.5]]){const y0=g(x,z);for(let k=0;k<5;k++){const c=add(new THREE.ConeGeometry(.08,1+Math.random()*.5,4),mt(k%2?0xc9b77e:0xb3a56b,.9),x+(Math.random()-.5)*.5,y0+.6,z+(Math.random()-.5)*.5);c.rotation.z=(Math.random()-.5)*.35}}
+  // UC BIKE KITCHEN sign with a bicycle above it, on the west wing's courtyard wall (ground floor, inside the canopy line)
+  {const sx=571.5+1.32,sz=294,sy=g(sx,sz)+2.75,tx=ctex(512,96,q=>{q.fillStyle='#fbfbf8';q.fillRect(0,0,512,96);q.fillStyle='#c8202c';q.font='bold 54px Archivo,Arial,sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText('UC BIKE KITCHEN',256,50)});
+    add(new THREE.PlaneGeometry(2.6,.5),new THREE.MeshStandardMaterial({map:tx,roughness:.7}),sx+.02,sy,sz,Math.PI/2).castShadow=false;
+    const BK=mt(0x22252a,.4,.5);for(const d of[-.42,.42]){const w=add(new THREE.TorusGeometry(.3,.025,6,20),BK,sx+.06,sy+.75,sz+d,Math.PI/2);w.castShadow=false}
+    const fr=add(bgeo(.03,.03,.8),BK,sx+.06,sy+.85,sz,0);fr.castShadow=false}}
 // ---- V293 Daniels Hall (1960s brick dorm tower): an open ground floor of glass set back behind brick piers, a light concrete canopy
 // band all the way round at the first-floor line, the entrance with DANIELS HALL letters on the brick above it, a pale band at the top
 const DANY=4.6;   /* height of the glass ground floor; the brick tower starts here */
