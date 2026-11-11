@@ -13,6 +13,8 @@ function mgDie(cb){openMG('Beer Die','ΑΣΡ backyard · Danny & Marcus vs Chase
   const cups=[{x:TX+22,y:TY+22,s:1},{x:TX+TW-22,y:TY+22,s:1},{x:TX+22,y:TY+TH-22,s:0},{x:TX+TW-22,y:TY+TH-22,s:0}];   // s:1 = their pints (top), 0 = ours
   const G=window.__DIE={to:11,us:0,them:0,usF:0,themF:0,kfUs:0,kfThem:0,benchUs:null,benchThem:null,turn:null,ourT:0,theirT:0,phase:'call',t:0,die:null,msg:'',busy:0,ended:0};
   const P_={dan:{x:TX+40,y:TY+TH+24,n:'Danny'},mar:{x:TX+TW-40,y:TY+TH+24,n:'Marcus'},ch:{x:TX+40,y:TY-24,n:'Chase'},co:{x:TX+TW-40,y:TY-24,n:'Colton'}};
+  /* V309 the green height zone follows the aim: the near edge of their half needs a low arc, the far corners a high one */
+  const dieSW=()=>{if(!G.aim)return .7;const d=P_.dan,dist=(x,y)=>Math.hypot(x-d.x,y-d.y),near=Math.abs(d.y-MID),far=Math.max(dist(TX,TY),dist(TX+TW,TY)),t=Math.max(0,Math.min(1,(dist(G.aim.x,G.aim.y)-near)/Math.max(1,far-near)));return Math.min(.86,Math.max(.46,.47+.37*t+(G.swj||0)))};
   const btns=(L)=>{const b=$('dib');b.innerHTML='';for(const[l,f]of L){const e=document.createElement('button');e.className='btn';e.textContent=l;e.onclick=()=>{sfx('ui');b.innerHTML='';f()};b.appendChild(e)}};
   const info=t=>{$('dii').textContent=t};const say=t=>{G.msg=t};
   const kfEvery=()=>G.to===9?3:4;
@@ -32,7 +34,7 @@ function mgDie(cb){openMG('Beer Die','ΑΣΡ backyard · Danny & Marcus vs Chase
   function ourToss(){const tosser=G.ourT++%2===0?'dan':'mar';G.offThem=G.benchThem;G.benchThem=null;G.offUs=null;
     if(tosser==='mar'){info('Marcus tosses.');G.die={x0:P_.mar.x,y0:P_.mar.y,t:0};const r=rnd();
       if(r<.1){aiLand('us','short')}else if(r<.2){aiLand('us','low')}else if(r<.28){aiLand('us','air')}else if(r<.31){aiLand('us','sink')}else if(r<.4){aiLand('us','tink')}else aiLand('us','table');return}
-    G.phase='aim';G.t=0;G.aim={x:TX+TW/2,y:TY+TH/4};G.sw=.6+rnd()*.24;info('Your toss. Space / click: lock your aim on their half.');}
+    G.phase='aim';G.t=0;G.aim={x:TX+TW/2,y:TY+TH/4};G.swj=(rnd()-.5)*.05;G.sw=dieSW();info('Your toss. Space / click: lock your aim on their half.');}
   function act(){if(G.phase==='aim'){G.phase='height';G.t=0;info('Space / click: lock your height in the GREEN zone. Below the dashed line they call height; under green is short, over green lands soft and gets caught.');return}
     if(G.phase==='height'){const ht=G.hv,ax=G.aim.x,ay=G.aim.y,onT=ax>TX&&ax<TX+TW,zone=ht<HL?'low':ht<G.sw?'short':ht<=G.sw+SWW?'good':'over';
       let tx=ax,ty=ay,x2=null,y2=null;const cup=cups.find(c=>c.s===1&&Math.hypot(c.x-ax,c.y-ay)<12);
@@ -184,7 +186,7 @@ function mgDie(cb){openMG('Beer Die','ΑΣΡ backyard · Danny & Marcus vs Chase
     if(G.phase==='aim'){q.strokeStyle='#ffe27a';q.lineWidth=3;q.beginPath();q.arc(G.aim.x,G.aim.y,9,0,TAU);q.moveTo(G.aim.x-14,G.aim.y);q.lineTo(G.aim.x+14,G.aim.y);q.moveTo(G.aim.x,G.aim.y-14);q.lineTo(G.aim.x,G.aim.y+14);q.stroke()}
     if(G.phase==='height'){q.strokeStyle='#ffe27a';q.lineWidth=3;q.beginPath();q.arc(G.aim.x,G.aim.y,9,0,TAU);q.stroke()}
     // toss height meter (right edge)
-    {const mx=W-30,my=62,mh=330;q.fillStyle='#0a1426';q.fillRect(mx,my,14,mh);const v=G.phase==='height'?G.hv:G.die&&G.die.ht!=null?G.die.ht:0;if(G.sw!=null&&(G.phase==='height'||G.phase==='aim'||G.zone)){q.fillStyle='rgba(90,220,110,.55)';q.fillRect(mx-3,my+mh-(G.sw+SWW)*mh,20,SWW*mh);q.strokeStyle='#7fe07a';q.lineWidth=1.5;q.strokeRect(mx-3,my+mh-(G.sw+SWW)*mh,20,SWW*mh)}q.fillStyle=v<HL?'#c0302a':'#e2b64c';q.globalAlpha=.85;q.fillRect(mx+3,my+mh-v*mh,8,v*mh);q.globalAlpha=1;
+    {if(G.phase==='aim'&&G.aim)G.sw=dieSW();const mx=W-30,my=62,mh=330;q.fillStyle='#0a1426';q.fillRect(mx,my,14,mh);const v=G.phase==='height'?G.hv:G.die&&G.die.ht!=null?G.die.ht:0;if(G.sw!=null&&(G.phase==='height'||G.phase==='aim'||G.zone)){q.fillStyle='rgba(90,220,110,.55)';q.fillRect(mx-3,my+mh-(G.sw+SWW)*mh,20,SWW*mh);q.strokeStyle='#7fe07a';q.lineWidth=1.5;q.strokeRect(mx-3,my+mh-(G.sw+SWW)*mh,20,SWW*mh)}q.fillStyle=v<HL?'#c0302a':'#e2b64c';q.globalAlpha=.85;q.fillRect(mx+3,my+mh-v*mh,8,v*mh);q.globalAlpha=1;
       q.strokeStyle='#fff';q.setLineDash([4,3]);q.beginPath();q.moveTo(mx-6,my+mh-HL*mh);q.lineTo(mx+20,my+mh-HL*mh);q.stroke();q.setLineDash([]);q.fillStyle='#fff';q.font='9px Archivo,Arial';q.textAlign='center';q.fillText('HEIGHT',mx+7,my-6)}
     if(G.phase!=='catch'&&G.cp){if(G.die)G.die.drop={x:G.cp.x,y:G.cp.y};G.cp=null}
     if(G.die&&G.die.drop){const dp=G.die.drop;q.fillStyle='rgba(0,0,0,.3)';q.beginPath();q.arc(dp.x,dp.y,5,0,TAU);q.fill();q.fillStyle='#fffdf6';q.fillRect(dp.x-5,dp.y-8,10,10);q.fillStyle='#1d1d22';q.beginPath();q.arc(dp.x,dp.y-3,1.8,0,TAU);q.fill()}
