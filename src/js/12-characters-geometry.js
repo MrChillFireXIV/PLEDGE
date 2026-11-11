@@ -46,16 +46,29 @@ const BODYC={};
 // face atlas (lash lines, brows, lips, creases, blush) with live eyes (iris, pupil, catch-lights, blinking, looking around) and mouth shapes (smile, talking).
 // Hair is a painted hairline plus chunky clumps; hands have fingers; sneakers have soles, laces and stripes. One draw call per person (two LOD levels),
 // per-person palette, stylised skin shading (warm scatter, rim light). Knock-downs are verlet ragdolls; bodies lean and lag with spring physics.
-const BN=['hips','spine','chest','neck','head','aL','eL','hL','aR','eR','hR','lL','kL','fL','lR','kR','fR'],BI={};BN.forEach((n,i)=>BI[n]=i);
+/* V307 finger bones: L0a..L3a knuckles, L0b..L3b middle joints (0 = index ... 3 = pinky), LTa/LTb thumb; same on R */
+const FGB=s=>[0,1,2,3].flatMap(i=>[s+i+'a',s+i+'b']).concat([s+'Ta',s+'Tb']);
+const BN=['hips','spine','chest','neck','head','aL','eL','hL','aR','eR','hR','lL','kL','fL','lR','kR','fR'].concat(FGB('L'),FGB('R')),BI={};BN.forEach((n,i)=>BI[n]=i);
 const BPAR={hips:null,spine:'hips',chest:'spine',neck:'chest',head:'neck',aL:'chest',eL:'aL',hL:'eL',aR:'chest',eR:'aR',hR:'eR',lL:'hips',kL:'lL',fL:'kL',lR:'hips',kR:'lR',fR:'kR'};
+for(const s of['L','R']){for(let i=0;i<4;i++){BPAR[s+i+'a']='h'+s;BPAR[s+i+'b']=s+i+'a'}BPAR[s+'Ta']='h'+s;BPAR[s+'Tb']=s+'Ta'}
 /* V306 Enhanced proportions (less toy-like): the head bone is scaled down (mkPersonX), shoulders and torso are narrowed, arms and neck are slimmed.
    Done as a warp of the finished body (chrWarp, per skin weight) plus matching arm bone positions, so every hand-tuned shape and pose still works.
    The head is scaled by its bone, so its geometry (and the shader's hair and face detail) is untouched; seams and fabric follow the warped torso,
    which moves them by about a centimetre. (A separate rest-position attribute would cost ~50 MB of GPU memory for that.) */
 const CHR_OLD=(()=>{try{return /[?&]oldchars\b/.test(location.search)}catch(e){return false}})();
 const CHR_PROP=CHR_OLD?{hs:1,lift:0,kx:1,ta:1,nk:1,hand:1}:{hs:.86,lift:-.026,kx:.92,ta:.87,nk:.88,hand:.82};
-function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]]}return b}
-function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108;return{hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]}}
+/* V307 hand layout: finger [z, length, radius], knuckle line y0, the middle joint at 47% of each finger, thumb joints [inward, y, z] */
+function handLay(fem){const k=fem?.9:1,W=.955,Y=y=>W-(W-y)*k;
+  return{k,y0:Y(.866),xin:.004*k,f:[[.035,.09,.0112],[.012,.1,.0115],[-.011,.093,.0108],[-.032,.075,.0095]].map(([z,l,r])=>[z*k,l*k,r*k]),pj:.47,
+    T:[[.006,.94,.03],[.015,.905,.055],[.022,.878,.068],[.026,.856,.073]].map(([d,y,z])=>[d*k,Y(y),z*k])}}
+const FGRE=/^[LR][0-3T][ab]$/;
+/* the hand warp (V306 smaller hands): scaled about the wrist, then moved with the narrowed shoulders */
+function handT(x,y,z,s,sx){const C=CHR_PROP,ax=s*sx;return[ax*C.kx+(x-ax)*C.hand,.955+(y-.955)*C.hand,z*C.hand]}
+function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx,sx=fem?.29:.35;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]];
+    for(const n in b)if(FGRE.test(n))b[n]=handT(b[n][0],b[n][1],b[n][2],n[0]==='L'?-1:1,sx)}return b}
+function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108,o={hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]};
+  const H=handLay(fem);for(const s of[-1,1]){const S=s<0?'L':'R',X=s*sx;H.f.forEach(([z,l],i)=>{o[S+i+'a']=[X-s*H.xin,H.y0,z];o[S+i+'b']=[X-s*H.xin,H.y0-l*H.pj,z]});o[S+'Ta']=[X-s*H.T[0][0],H.T[0][1],H.T[0][2]];o[S+'Tb']=[X-s*H.T[1][0],H.T[1][1],H.T[1][2]]}
+  return o}
 // palette slots (rgb + roughness); 24..27 are per-person parameters for the shader
 const PS={skin:0,hair:1,shirt:2,sleeve:3,pants:4,shoe:5,sole:6,eyeW:7,iris:8,dark:9,lip:10,belt:11,metal:12,b0:13,b1:14,b2:15,b3:16,cap:17,glass:18,brow:19,acc:20,white:21,sacc:22,lace:23};
 const NPAL=28,CHR_RIM={value:.32},CHR_RIMS={value:.45},CHR_RIMC={value:new THREE.Color(.5,.68,.95)},CHR_BNC={value:new THREE.Color(.1,.065,.035)},CHR_SKY={value:new THREE.Color(.03,.05,.08)};
@@ -72,7 +85,7 @@ function chrWarp(G){if(GFX!=='enhanced'||!G.warp)return;const C=CHR_PROP,sx=G.fe
     for(let j=0;j<2;j++){const w=sw[v+j];if(!w)continue;const b=BN[si[v+j]];let tx=x,ty=y,tz=z,f=1;
       if(b==='spine'||b==='chest'){const k=kxy(y);tx=x*k;f=1/k}
       else if(b==='neck'){tx=x*C.nk;tz=NZ+(z-NZ)*C.nk}
-      else if(b==='hL'||b==='hR'){const ax=(b[1]==='L'?-1:1)*sx,WY=.955;tx=ax*C.kx+(x-ax)*C.hand;ty=WY+(y-WY)*C.hand;tz=z*C.hand}   /* hands: scaled about the wrist */
+      else if(b==='hL'||b==='hR'||FGRE.test(b)){const q=handT(x,y,z,(b==='hL'||b[0]==='L')?-1:1,sx);tx=q[0];ty=q[1];tz=q[2]}   /* hands and fingers: scaled about the wrist */
       else if(b[0]==='a'||b[0]==='e'){const ax=(b[1]==='L'?-1:1)*sx;tx=ax*C.kx+(x-ax)*C.ta;tz=AZ+(z-AZ)*C.ta}
       X+=tx*w;Y+=ty*w;Z+=tz*w;fx+=f*w;W+=w}
     if(W>0){p[i]=X/W;p[i+1]=Y/W;p[i+2]=Z/W;const k=fx/W;if(k!==1){const a=n[i]*k,b2=n[i+1],c=n[i+2],l=Math.hypot(a,b2,c)||1;n[i]=a/l;n[i+1]=b2/l;n[i+2]=c/l}}}}
@@ -238,11 +251,19 @@ function addHair(G,o,fem,fv,lod){const hs=o.hs2,H=HAIRP[hs]||HAIRP.short,cen=[0,
       const t=new THREE.TorusGeometry(.032,.011,6,12);t.rotateX(PI/2.6);at(t,...r);gAdd(G,t,PS.dark,HW);if(!hat)for(const s of[-1,1])cl(s*.2,.82,s*.66,.38,.016,.075,.02,.025)}
     else{const b=new THREE.SphereGeometry(.085,lod?10:16,lod?8:12);b.scale(1.1,.95,1);at(b,0,1.98,-.1);gAdd(G,b,pid,HW);if(!hat)for(const s of[-1,1])cl(s*.2,.82,s*.66,.38,.016,.075,.02,.025)}}}
 // ---------------------------------------------------------------- hands, sneakers
-function addHand(G,X,s,A,fem,lod){const hw=W1(A[2]),F=fem?1.18:1.32;if(lod)return;   // the palm is part of the arm; fingers and thumb grow out of it
-  const fz=[.036,.012,-.012,-.034],fl=[.072,.082,.078,.062];
-  for(let i=0;i<4;i++){const z=fz[i]*F+.008,l=fl[i]*F,R=[];for(let k=0;k<4;k++){const t=k/3;R.push({y:.858-l*t*(1-.1*t),cx:X-s*(.006+.45*l*t*t),cz:z+.004*t,rx:.0122*F*(1-t*.15),rf:.0126*F*(1-t*.12),rb:.0126*F*(1-t*.12)})}
-    gAdd(G,tube(R,8,2,0,1),PS.skin,hw,(x,y)=>y>.845?.92:1)}
-  const th=tube([{y:.935,cx:X-s*.012,cz:.034*F,rx:.017*F,rf:.017*F,rb:.017*F},{y:.9,cx:X-s*.024,cz:.058*F,rx:.0145*F,rf:.0145*F,rb:.0145*F},{y:.868,cx:X-s*.034,cz:.068*F,rx:.013*F,rf:.013*F,rb:.013*F}],8,2,0,1);gAdd(G,th,PS.skin,hw)}
+function addHand(G,X,s,A,fem,lod){if(lod)return;   // the palm is the end of the arm tube; fingers and thumb grow out of it, each finger on its own two bones
+  const H=handLay(fem),S=s<0?'L':'R',HB=A[2],xr=X-s*H.xin,y0=H.y0;
+  const PR=[[0,1.06],[.1,1],[.3,.96],[.42,1],[.47,1.035],[.53,.99],[.64,.93],[.72,.92],[.77,.94],[.83,.9],[.9,.88],[.95,.78],[.985,.55],[1,.25]];
+  H.f.forEach(([z,l,r],i)=>{const a=S+i+'a',b=S+i+'b',yb=y0-l*H.pj,R=PR.map(([t,k])=>({y:y0+.006-(l+.006)*t,cx:xr+s*.0012*t,cz:z,rx:r*k*(t>.85?.88:1),rf:r*k,rb:r*k}));
+    const wf=(x,y)=>y>y0+.01?[BI[HB]]:y>y0-.006?Wb(HB,a,(y0+.01-y)/.016):y>yb+.005?[BI[a]]:y>yb-.005?Wb(a,b,(yb+.005-y)/.01):[BI[b]];
+    gAdd(G,tube(R,10,2.15,0,1),PS.skin,wf,(x,y,z,nx)=>(nx*s<-.4?.94:1)*(Math.abs(y-yb)<.004&&nx*s>.3?.9:1));
+    const nl=roundBox(.0035,.017*H.k,r*1.45,.0016,1);at(nl,xr+s*(r*.82),y0-(l+.006)*.9,z);gAdd(G,nl,PS.skin,W1(b),()=>1.16)});   // nail
+  const T=H.T.map(([d,y,z])=>[X-s*d,y,z]),ta=S+'Ta',tb=S+'Tb',TR=[[T[0],1.12],[T[1],.98],[[(T[1][0]+T[2][0])/2,(T[1][1]+T[2][1])/2,(T[1][2]+T[2][2])/2],.93],[T[2],.96],[T[3],.8]].map(([p,k],n)=>({y:p[1],cx:p[0],cz:p[2],rx:.0138*H.k*k,rf:.0148*H.k*k,rb:.0148*H.k*k}));
+  TR.push({y:T[3][1]-.009*H.k,cx:T[3][0]-s*.001,cz:T[3][2]+.002,rx:.007*H.k,rf:.007*H.k,rb:.007*H.k});
+  const tw=(x,y)=>y>T[0][1]+.008?[BI[HB]]:y>T[0][1]-.01?Wb(HB,ta,(T[0][1]+.008-y)/.018):y>T[1][1]+.004?[BI[ta]]:y>T[1][1]-.005?Wb(ta,tb,(T[1][1]+.004-y)/.009):[BI[tb]];
+  gAdd(G,tube(TR,10,2.1,0,1),PS.skin,tw,(x,y,z,nx)=>nx*s<-.4?.94:1);
+  {const nl=roundBox(.0035,.015*H.k,.017*H.k,.0016,1);nl.rotateX(-.55);at(nl,T[3][0]+s*.006*H.k,T[3][1]+.002,T[3][2]+.009*H.k);gAdd(G,nl,PS.skin,W1(tb),()=>1.16)}
+  {const pad=new THREE.SphereGeometry(.026*H.k,10,8);pad.scale(.5,1.15,.85);at(pad,X-s*.012*H.k,.958-(.958-.918)*H.k,.026*H.k);gAdd(G,pad,PS.skin,(x,y)=>Wb(HB,ta,.3),(x,y,z,nx)=>nx*s<-.3?.95:1)}}
 // carried things: held in the hand bone (or the chest for trays and umbrellas' poses), with a holding pose
 function addRoleProp2(n){const r=n.prole,g=n.g,P_=g.P,M_=c=>mt(c,.6);const att=(geo,c,par,x,y,z)=>{const m=new THREE.Mesh(geo,M_(c));m.position.set(x,y,z);m.castShadow=true;par.add(m);return m};
   if(r==='basketball'){n.ball=att(new THREE.SphereGeometry(.13,14,12),0xd8662a,g,.36,.4,.22);n.ball.material=bbMat()}
@@ -367,7 +388,7 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
   const sx=Math.abs(BP.aL[0]);
   for(const s of[-1,1]){const X=s*sx,A=s<0?['aL','eL','hL']:['aR','eR','hR'],F=fem?.84:1,cz=y=>y>1.19?-.01-.015*(1.47-y)/.28:-.025+.025*(1.19-y)/.235;
     const ring=([y,rx,rf,rb])=>({y,cx:X-s*((y>1.44?.008:0)+(fem?.02:.026)*sm(1.28,1.45,y)),cz:cz(y),rx:rx*F,rf:rf*F,rb:(rb||rf)*F});
-    const AR=[[1.49,.072,.07],[1.46,.086,.083],[1.41,.088,.083],[1.36,.083,.079],[1.29,.078,.076],[1.235,.068,.066],[1.19,.06,.062],[1.14,.066,.068],[1.08,.06,.06],[1.01,.047,.047],[.975,.043,.044]].map(ring);const HF=(fem?1.2:1.34)/F;AR.push(...[[.952,.034,.05,.05],[.915,.031,.058,.056],[.875,.029,.06,.057],[.842,.025,.055,.052]].map(([y,rx,rf,rb])=>({y,cx:X-s*.004,cz:.008,rx:rx*HF*F,rf:rf*HF*F,rb:rb*HF*F})));
+    const AR=[[1.49,.072,.07],[1.46,.086,.083],[1.41,.088,.083],[1.36,.083,.079],[1.29,.078,.076],[1.235,.068,.066],[1.19,.06,.062],[1.14,.066,.068],[1.08,.06,.06],[1.01,.047,.047],[.975,.043,.044]].map(ring);const HF=(fem?1.2:1.34)/F;{const hk=fem?.9:1,W=.955;AR.push(...[[.952,.026,.035,.034],[.93,.0235,.043,.04],[.9,.0215,.05,.046],[.879,.021,.053,.048],[.862,.0195,.049,.044]].map(([y,rx,rf,rb])=>({y:W-(W-y)*hk,cx:X-s*.004*hk,cz:.002,rx:rx*hk,rf:rf*hk,rb:rb*hk})))}   /* V307 palm: about 3.5 cm thick and 9 cm wide in game, was 5.5 by 13 */
     const aw=(x,y)=>y>1.4?Wb(A[0],'chest',(y-1.4)/.15*.55):y>1.24?[BI[A[0]]]:y>1.14?Wb(A[0],A[1],(1.24-y)/.1):y>.995?[BI[A[1]]]:Wb(A[1],A[2],(.995-y)/.07);
     gAdd(G,tube(AR,lod?8:14,2.1,2,2),(x,y)=>y<.97||!(cl==='hoodie'||cl==='flannel')?PS.skin:PS.sleeve,aw,(x,y,z,nx,ny,nz)=>(nx*s<-.3?.86:1)*(y>1.2&&y<1.32&&nx*s<-.5?.9:1)*(y<.96&&nx*s<-.4?.92:1));
     if(cl==='tee'||cl==='polo'){const SL=[[1.497,.08,.078],[1.462,.097,.093],[1.41,.099,.093],[1.36,.095,.089],[1.3,.092,.086],[1.278,.091,.085],[1.275,.076,.073]].map(ring);
