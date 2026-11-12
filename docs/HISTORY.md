@@ -463,3 +463,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V335 (21 lvColOf + lvDraw/lvImg/lvBadge color, 24 HUD/roster, 20/22d): level diamonds take the color of the person's fraternity (house shirt color) or, without a house, their clique; Danny and the ΑΣΡ pledge class are ΑΣΡ maroon. The HUD diamond is back in the top-right corner of Danny's panel (V334 centering removed).
 - V336 (style.css .sk*): the Skill Tree is more colorful: stronger college color bands, colored point pills, links and hex borders in each college's color, tinted hex faces and full-color icons.
 - V337 (22c skillsPage): removed the explanation paragraph under the Skill Tree title; the tree now fills that space (bigger).
+- V338 (22c skillsPage): the Skill Tree college pill shows only points to spend (the earned count is gone).

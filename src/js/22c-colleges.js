@@ -205,7 +205,7 @@ function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /
     for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
     svg+='</svg>';
     h+=`<div class="skcol" style="--skc:${C.c};width:${CW}px"><div class="skemb"><span>${C.ic}</span></div><div class="skname">${C.n}</div><div class="sksub">${C.full}</div>
-      <div class="skpts"><b>${free}</b> point${free===1?'':'s'} to spend · ${skEarned(col)} earned</div>
+      <div class="skpts"><b>${free}</b> point${free===1?'':'s'} to spend</div>
       <div class="skgrid" style="height:${H}px">${svg}`;
     for(const n of T){const own=skOn(n.id),ready=!own&&skReady(n),can=ready&&free>=n.c,[x,y]=pos(n);
       h+=`<button class="skhex${own?' own':can?' can':ready?' ready':' locked'}" style="left:${x-HX/2}px;top:${y-HY/2}px" data-col="${col}" data-sk="${n.id}" title="${n.n}: ${n.d}"><span class="ski">${n.ic}</span><span class="skc">${own?'✓':n.c}</span></button>`}
