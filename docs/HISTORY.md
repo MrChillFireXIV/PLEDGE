@@ -460,3 +460,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V332 (20/22d pqHTML, prRosterHTML): removed "(you)" after Danny's name in the pledge job box and the word "quota" under the percent in the ring gauge.
 - V333 (24 HUD #lvhud, style.css): Danny's level diamond moved to the top-right corner of the bottom-left HUD, level with the Cash line; the XP count stays on the name line.
 - V334 (24 lvHudPos): the HUD level diamond is centered above the XP count (re-centers when the count changes width).
+- V335 (21 lvColOf + lvDraw/lvImg/lvBadge color, 24 HUD/roster, 20/22d): level diamonds take the color of the person's fraternity (house shirt color) or, without a house, their clique; Danny and the ΑΣΡ pledge class are ΑΣΡ maroon. The HUD diamond is back in the top-right corner of Danny's panel (V334 centering removed).

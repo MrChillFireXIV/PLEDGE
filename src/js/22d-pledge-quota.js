@@ -176,7 +176,7 @@ function pqHTML(job){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_
   const pips=(n,tot)=>`<div class="pqpips">${Array.from({length:tot},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div>`;
   const part=(k,name,body,cnt)=>`<div class="pqpart${fr[k]>=1?' dn':''}"><div class="pqph"><b>${name}</b><span>${pts(k)}<small> / ${PQW[k]}%</small></span></div>${body}<div class="pqpc">${fr[k]>=1?'✓ Done':cnt}</div></div>`;
   return`<div class="pqbox${full?' full':''}" style="--rc:${R_.c};--rc2:${R_.c2}">
-    ${job?`<div class="pqjob"><img class="pqpic" src="${job.pic}" alt=""><div class="pqjd"><div class="pqwho">Danny Kowalski ${lvBadge(S.lvl,'big')}</div><div class="lbl">Your pledge job</div><h3>${R_.n}</h3>${job.body}</div></div>`:''}
+    ${job?`<div class="pqjob"><img class="pqpic" src="${job.pic}" alt=""><div class="pqjd"><div class="pqwho">Danny Kowalski ${lvBadge(S.lvl,'big',lvColOf(PM))}</div><div class="lbl">Your pledge job</div><h3>${R_.n}</h3>${job.body}</div></div>`:''}
     <div class="pqhead"><div class="pqring" style="--p:${pc}" role="img" aria-label="Pledge quota ${pc} percent"><div><b>${pc}<small>%</small></b></div></div>
       <div class="pqhd"><div class="lbl">Pledge quota</div><h3>${pqRank(pc)}</h3>
         <p class="pqnote">${full?'Quota full. Hell Week is open to you.':'Fill this to 100% before Hell Week (Chapter 9) will start. '+(100-pc)+'% to go.'}</p></div>${job?'':`

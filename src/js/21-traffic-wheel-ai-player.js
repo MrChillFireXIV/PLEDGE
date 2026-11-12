@@ -194,7 +194,9 @@ function tagDrop(n){const t=n.tag;if(!t)return;n.tag=null;n.tagHp=n.tagLv=null;i
 /* V327 level diamonds: a crayon-scribbled diamond with the number inside, one color per level (1 orange … 10 red, then the colors repeat). Used on name tags, the HUD and the Pledge Class. */
 const LVCOL=['#f26522','#f5a300','#d9c400','#39b54a','#29a8e0','#1f62d6','#1f2c9c','#7d33c4','#e22fbe','#e0262c'];
 function lvCol(lv){return LVCOL[(Math.max(1,lv|0)-1)%10]}
-function lvDraw(q,cx,cy,r,lv){const col=lvCol(lv);q.save();
+/* V335: the diamond takes the color of the person's fraternity (their house shirt color) or, if they have no house, their clique. Danny and the ΑΣΡ pledge class use ΑΣΡ maroon. */
+function lvColOf(n){if(!n||n===PM)return'#'+HOUSE.asr.shirt.toString(16).padStart(6,'0');const hk=n.house||(n.cl==='brothers'?'asr':null),h=hk&&HOUSE[hk];if(h&&h.shirt!=null)return'#'+h.shirt.toString(16).padStart(6,'0');return(CL[n.cl]&&CL[n.cl].c)||lvCol(n.lvl)}
+function lvDraw(q,cx,cy,r,lv,c){const col=c||lvCol(lv);q.save();
   const dia=k=>{q.beginPath();q.moveTo(cx,cy-r*k);q.lineTo(cx+r*k,cy);q.lineTo(cx,cy+r*k);q.lineTo(cx-r*k,cy);q.closePath()};
   /* V328: solid diamond in the level color, thin dark edge and a thin white inner line */
   dia(.97);q.fillStyle=col;q.fill();q.lineJoin='round';q.lineWidth=Math.max(1,r*.05);q.strokeStyle='rgba(0,0,0,.35)';q.stroke();
@@ -202,10 +204,10 @@ function lvDraw(q,cx,cy,r,lv){const col=lvCol(lv);q.save();
   const t=String(lv);q.font=`800 ${Math.round(r*(t.length>1?.72:.98))}px Archivo,"Arial Black",Arial,sans-serif`;q.textAlign='center';q.textBaseline='middle';
   q.lineWidth=Math.max(1,r*.07);q.strokeStyle='rgba(0,0,0,.28)';q.strokeText(t,cx,cy+r*.06);q.fillStyle='#fff';q.fillText(t,cx,cy+r*.06);q.restore()}
 const LVIMG={};
-function lvImg(lv){lv=Math.max(1,lv|0);if(LVIMG[lv])return LVIMG[lv];const c=document.createElement('canvas');c.width=c.height=96;lvDraw(c.getContext('2d'),48,48,45,lv);return LVIMG[lv]=c.toDataURL()}
-function lvBadge(lv,cls){return`<img class="lvd${cls?' '+cls:''}" src="${lvImg(lv)}" alt="Level ${lv}" title="Level ${lv}">`}
+function lvImg(lv,col){lv=Math.max(1,lv|0);const k=lv+'|'+(col||'');if(LVIMG[k])return LVIMG[k];const c=document.createElement('canvas');c.width=c.height=96;lvDraw(c.getContext('2d'),48,48,45,lv,col);return LVIMG[k]=c.toDataURL()}
+function lvBadge(lv,cls,col){return`<img class="lvd${cls?' '+cls:''}" src="${lvImg(lv,col)}" alt="Level ${lv}" title="Level ${lv}">`}
 function drawTag(n){const c=n.tag.userData.c,q=c.getContext('2d');q.clearRect(0,0,360,84);q.font='600 24px Archivo,Arial';const tw=Math.min(210,q.measureText(n.name).width),W=tw+78,x0=(360-W)/2;q.fillStyle='rgba(14,20,34,.86)';rrect(q,x0,4,W,46,10);q.fillStyle=CL[n.cl].c;q.fillRect(x0+10,14,8,26);q.fillStyle='#fff';q.textBaseline='middle';q.fillText(n.name,x0+26,28,210);
-  const lv=n.lvl;lvDraw(q,x0+tw+54,27,20,lv);
+  const lv=n.lvl;lvDraw(q,x0+tw+54,27,20,lv,lvColOf(n));
   const f=clamp(n.hp/n.mhp,0,1);q.fillStyle='rgba(0,0,0,.7)';rrect(q,x0+8,56,W-16,14,6);q.fillStyle=f>.5?'#6fd06a':f>.25?'#f0c040':'#e0483a';if(f>0)rrect(q,x0+10,58,(W-20)*f,10,5);
   n.tag.material.map.needsUpdate=true;n.tagHp=n.hp;n.tagLv=S.lvl}
 
