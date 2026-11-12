@@ -435,7 +435,10 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 /* V310 Skill Tree (V315: on the normal notebook page): one column per college, hexagon skills joined by circuit lines */
 .skhead p{opacity:.8;max-width:80ch;font-size:13.5px;margin:4px 0 10px}
 .skinfo[hidden]{display:none}
-.skwrap{overflow-x:auto;padding-bottom:6px}
+.skwrap{overflow:auto;max-height:min(64vh,640px);padding-bottom:6px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:contain;border-radius:10px}
+.skwrap.drag{cursor:grabbing}
+.skwrap.drag .skhex{pointer-events:none}
+.skwrap img{-webkit-user-drag:none}
 .sktree{display:flex;width:max-content;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;background:#fbf7ec}
 .skcol{position:relative;padding:14px 0 10px;text-align:center;border-right:1.5px solid color-mix(in srgb,var(--skc) 45%,#c9b48a);
   background:linear-gradient(180deg,color-mix(in srgb,var(--skc) 22%,#fbf7ec) 0%,color-mix(in srgb,var(--skc) 8%,#fbf7ec) 45%,#fbf7ec 100%)}
