@@ -194,14 +194,13 @@ function tagDrop(n){const t=n.tag;if(!t)return;n.tag=null;n.tagHp=n.tagLv=null;i
 /* V327 level diamonds: a crayon-scribbled diamond with the number inside, one color per level (1 orange … 10 red, then the colors repeat). Used on name tags, the HUD and the Pledge Class. */
 const LVCOL=['#f26522','#f5a300','#d9c400','#39b54a','#29a8e0','#1f62d6','#1f2c9c','#7d33c4','#e22fbe','#e0262c'];
 function lvCol(lv){return LVCOL[(Math.max(1,lv|0)-1)%10]}
-function lvDraw(q,cx,cy,r,lv,face){const col=lvCol(lv);let sd=(lv*9301+49297)%233280;const R=()=>(sd=(sd*9301+49297)%233280)/233280;q.save();
-  const dia=(k,keep)=>{if(!keep)q.beginPath();q.moveTo(cx,cy-r*k);q.lineTo(cx+r*k,cy);q.lineTo(cx,cy+r*k);q.lineTo(cx-r*k,cy);q.closePath()};
-  dia(1);q.fillStyle=face||'#fffaf0';q.fill();
-  q.save();dia(1);dia(.7,1);q.clip('evenodd');q.strokeStyle=col;q.lineCap='round';q.lineWidth=Math.max(1,r*.07);q.globalAlpha=.85;
-  for(let t=-r*2.2;t<r*2.2;t+=r*.11){const j=(R()-.5)*r*.08;q.beginPath();q.moveTo(cx+t-r*1.2+j,cy+r*1.2);q.lineTo(cx+t+r*1.2+j,cy-r*1.2);q.stroke()}q.restore();
-  q.strokeStyle=col;q.lineJoin='round';q.globalAlpha=.95;for(const k of[1,.7])for(let i=0;i<2;i++){q.lineWidth=Math.max(1,r*.06);q.beginPath();const p=[[0,-1],[1,0],[0,1],[-1,0],[0,-1]];p.forEach(([a,b],m)=>{const x=cx+a*r*k+(R()-.5)*r*.07,y=cy+b*r*k+(R()-.5)*r*.07;m?q.lineTo(x,y):q.moveTo(x,y)});q.stroke()}
-  q.globalAlpha=1;const t=String(lv);q.font=`900 ${Math.round(r*(t.length>1?.66:.9))}px "Comic Sans MS","Chalkboard SE","Trebuchet MS",Archivo,Arial`;q.textAlign='center';q.textBaseline='middle';q.fillStyle=col;q.fillText(t,cx,cy+r*.05);
-  /* crayon texture on the number */q.globalCompositeOperation='source-atop';q.globalAlpha=.28;q.strokeStyle='#fff';q.lineWidth=Math.max(1,r*.03);for(let k=-r*.5;k<r*.5;k+=r*.09){q.beginPath();q.moveTo(cx+k-r*.3,cy+r*.4);q.lineTo(cx+k+r*.3,cy-r*.4);q.stroke()}q.restore()}
+function lvDraw(q,cx,cy,r,lv){const col=lvCol(lv);q.save();
+  const dia=k=>{q.beginPath();q.moveTo(cx,cy-r*k);q.lineTo(cx+r*k,cy);q.lineTo(cx,cy+r*k);q.lineTo(cx-r*k,cy);q.closePath()};
+  /* V328: solid diamond in the level color, thin dark edge and a thin white inner line */
+  dia(.97);q.fillStyle=col;q.fill();q.lineJoin='round';q.lineWidth=Math.max(1,r*.05);q.strokeStyle='rgba(0,0,0,.35)';q.stroke();
+  dia(.8);q.lineWidth=Math.max(1,r*.035);q.strokeStyle='rgba(255,255,255,.85)';q.stroke();
+  const t=String(lv);q.font=`800 ${Math.round(r*(t.length>1?.72:.98))}px Archivo,"Arial Black",Arial,sans-serif`;q.textAlign='center';q.textBaseline='middle';
+  q.lineWidth=Math.max(1,r*.07);q.strokeStyle='rgba(0,0,0,.28)';q.strokeText(t,cx,cy+r*.06);q.fillStyle='#fff';q.fillText(t,cx,cy+r*.06);q.restore()}
 const LVIMG={};
 function lvImg(lv){lv=Math.max(1,lv|0);if(LVIMG[lv])return LVIMG[lv];const c=document.createElement('canvas');c.width=c.height=96;lvDraw(c.getContext('2d'),48,48,45,lv);return LVIMG[lv]=c.toDataURL()}
 function lvBadge(lv,cls){return`<img class="lvd${cls?' '+cls:''}" src="${lvImg(lv)}" alt="Level ${lv}" title="Level ${lv}">`}
