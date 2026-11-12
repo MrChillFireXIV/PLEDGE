@@ -619,3 +619,10 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .setsb:hover{border-color:var(--maroon);transform:translateY(-1px)}
 .setback{display:inline-block;margin:0 0 8px;padding:4px 12px;border-radius:99px;border:1.5px solid #d9cba8;background:#fffdf6;font:inherit;font-size:13px;cursor:pointer;color:var(--maroon)}
 .tkchip .tkic{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:color-mix(in srgb,var(--maroon) 10%,#fff);color:var(--maroon);flex:none}
+/* V348: Class Spirit on its own full-width line; roll call is a small strip below it */
+.pcrow{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.pcrow .rcall{align-self:flex-start;gap:10px;padding:6px 12px;border-radius:10px;flex-wrap:nowrap;max-width:100%}
+.pcrow .rcclock{width:26px;height:26px;box-shadow:inset 0 0 0 2px #e2b64c}
+.pcrow .rcclock i:first-child{height:7px;margin:-7px 0 0 -1px;width:2px}.pcrow .rcclock i:last-child{height:10px;margin:-10px 0 0 -1px;width:2px}
+.pcrow .rctx{min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.pcrow .rctx .lbl{font-size:10.5px}.pcrow .rctx b{display:inline;font-size:16px}
+.pcrow .rcst{padding:2px 9px;font-size:11.5px}

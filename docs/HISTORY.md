@@ -472,3 +472,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V345 (24 TABS/SUBT/renderPlanner/setPage, style.css .setsub/.setback): Skill Tree tab moved between Pledge Class and Classes; Controls and Report a Bug are no longer tabs but two buttons at the top of Settings (each opens its page with a Back to Settings button; Settings stays highlighted). Developer bug mode: click Report a Bug, then its page title twice fast.
 - V346 (24d TKI/tkIcon, style.css .tkic): the Tasks tab's top strip uses drawn maroon line icons (calendar, sun/moon, two people, columns) instead of emoji.
 - V347 (24d tkPage, 24 setPage, style.css): no icons on the Tasks tab's top strip (plain cards with a maroon top edge) or on the Controls / Report a Bug buttons in Settings.
+- V348 (style.css .pcrow): Class Spirit card spans its own full line; roll call is now a small one-line maroon strip under it.
