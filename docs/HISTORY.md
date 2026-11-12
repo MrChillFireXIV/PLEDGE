@@ -465,3 +465,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V337 (22c skillsPage): removed the explanation paragraph under the Skill Tree title; the tree now fills that space (bigger).
 - V338 (22c skillsPage): the Skill Tree college pill shows only points to spend (the earned count is gone).
 - V339 (22d PQ tn + pqHTML): the quota's job card counts in each job's own words, e.g. "0 of 15 club smashes", "0 of 20 throws", "0 of 12 pouch digs".
+- V340 (19 PR descriptions, 18 PROLE): every pledge job description rewritten as one or two natural sentences instead of clipped fragments (shown in the job box, pledge cards, Pledge Machine and the chapter-skip job menu).
