@@ -547,3 +547,19 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 #lvhud{position:absolute;top:7px;right:12px;line-height:0;pointer-events:none}
 #bl .row{align-items:center}
 .cls{position:relative}.lvd.tr{position:absolute;top:8px;right:8px;margin:0}
+/* V336: a more colorful Skill Tree: stronger college bands, tinted hexes and links, full-color icons */
+.skcol{background:linear-gradient(180deg,color-mix(in srgb,var(--skc) 48%,#fbf7ec) 0%,color-mix(in srgb,var(--skc) 26%,#fbf7ec) 40%,color-mix(in srgb,var(--skc) 14%,#fbf7ec) 100%)!important;border-right-color:color-mix(in srgb,var(--skc) 70%,#000)}
+.skemb{background:#fff;box-shadow:0 0 0 4px color-mix(in srgb,var(--skc) 45%,transparent),0 3px 8px rgba(0,0,0,.18)}
+.skname{color:color-mix(in srgb,var(--skc) 70%,#000);font-weight:700}
+.skcol .sksub{opacity:.8}
+.skpts{background:var(--skc);color:#fff;border-color:color-mix(in srgb,var(--skc) 70%,#000)}.skpts b{color:#fff}
+.sklinks path{stroke:color-mix(in srgb,var(--skc) 40%,#a89a7c)}
+.sklinks path.half{stroke:color-mix(in srgb,var(--skc) 75%,#a89a7c)}
+.skhex{background:color-mix(in srgb,var(--skc) 55%,#8a7d62)}
+.skhex::before{background:color-mix(in srgb,var(--skc) 22%,#fffaf0)}
+.skhex .ski{filter:saturate(.75) opacity(.8)}
+.skhex .skc{color:color-mix(in srgb,var(--skc) 70%,#000)}
+.skhex.ready{background:color-mix(in srgb,var(--skc) 85%,#000)}
+.skhex.ready::before{background:color-mix(in srgb,var(--skc) 35%,#fff)}
+.skhex.ready .ski{filter:none}
+.skclasses{opacity:1}.skclasses em{color:color-mix(in srgb,var(--skc) 70%,#000)}
