@@ -618,3 +618,4 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .setsb span{grid-row:1/3;font-size:26px}.setsb b{font-size:15.5px}.setsb small{opacity:.65;font-size:12.5px}
 .setsb:hover{border-color:var(--maroon);transform:translateY(-1px)}
 .setback{display:inline-block;margin:0 0 8px;padding:4px 12px;border-radius:99px;border:1.5px solid #d9cba8;background:#fffdf6;font:inherit;font-size:13px;cursor:pointer;color:var(--maroon)}
+.tkchip .tkic{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:color-mix(in srgb,var(--maroon) 10%,#fff);color:var(--maroon);flex:none}
