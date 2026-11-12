@@ -572,3 +572,16 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .rctx{flex:1;min-width:160px}.rctx .lbl{color:#e2b64c}.rctx b{display:block;font-family:var(--fh);font-size:22px;letter-spacing:.01em}
 .rcst{padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
 .rcst.now{background:#e2b64c;color:#3a1a10;border-color:#e2b64c}.rcst.done{background:#4f9a5a;border-color:#4f9a5a}.rcst.miss{opacity:.75}
+
+/* V342 class spirit card, side by side with roll call */
+.pcrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.pcrow .rcall{margin:0}
+.spcard{--spc:#d8a040;padding:10px 16px 12px;border-radius:12px;background:#fffdf6;border:2px solid var(--spc);box-shadow:0 3px 10px rgba(80,60,20,.12)}
+.spcard.hi{--spc:#3f8f50}.spcard.lo{--spc:#c0392b}
+.sptop{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.sptop .lbl{color:var(--spc)}
+.spmood{display:block;font-family:var(--fh);font-size:22px;color:var(--spc)}
+.spnum{font:800 30px/1 Archivo,Arial,sans-serif;color:var(--spc);font-variant-numeric:tabular-nums}.spnum small{font-size:13px;font-weight:600;opacity:.6}
+.spbar{position:relative;height:14px;margin-top:8px;border-radius:99px;background:rgba(0,0,0,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.25);overflow:hidden}
+.spbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#c0392b,#d8a040 45%,#3f8f50) 0 0/100% 100% no-repeat}
+.spbar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1.5px),rgba(255,255,255,.75) calc(10% - 1.5px) 10%)}
