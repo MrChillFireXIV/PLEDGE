@@ -13,7 +13,7 @@ function quitToTitle(save){if(save)saveGame();SAVEBLOCK=1;/* V284 nothing may wr
   $('hud').hidden=true;$('touch').hidden=true;$('prompt').hidden=true;$('toast').textContent='';K={};mode='title';$('title').hidden=false;unlock();setTimeout(()=>$('bnew').focus(),40)}
 function setPage(){const seg=(id,opts,cur)=>`<div class="seg" data-s="${id}">${opts.map(([v,l])=>`<button data-v="${v}"${String(v)===String(cur)?' class="on"':''}>${l}</button>`).join('')}</div>`;
   const rng=(id,min,max,st,v,lab)=>`<div class="rng"><input type="range" id="st_${id}" min="${min}" max="${max}" step="${st}" value="${v}"><span id="sv_${id}">${lab}</span></div>`;
-  return`<h2>Settings</h2><div class="setsub"><button class="setsb" data-sub="controls"><span aria-hidden="true">🎮</span><b>Controls</b><small>Every key and button</small></button><button class="setsb" data-sub="bug"><span aria-hidden="true">🐞</span><b>Report a Bug</b><small>Tell us what broke</small></button></div>
+  return`<h2>Settings</h2><div class="setsub"><button class="setsb" data-sub="controls"><b>Controls</b><small>Every key and button</small></button><button class="setsb" data-sub="bug"><b>Report a Bug</b><small>Tell us what broke</small></button></div>
   <h3>Graphics</h3><div class="setg">
    <label>Look</label>${seg('gfx',[['enhanced','Enhanced'],['classic','Classic']],GFX)}<small>Changing this reloads the game. Progress since your last save is lost.</small>
    <label>Resolution</label>${seg('gq',QL.map((q,i)=>[i,q[0]]),GQ)}
