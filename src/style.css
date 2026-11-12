@@ -563,3 +563,12 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .skhex.ready::before{background:color-mix(in srgb,var(--skc) 35%,#fff)}
 .skhex.ready .ski{filter:none}
 .skclasses{opacity:1}.skclasses em{color:color-mix(in srgb,var(--skc) 70%,#000)}
+
+/* V341 roll call card */
+.rcall{display:flex;align-items:center;gap:14px;margin:12px 0;padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#7d1f2c,#a1323f);color:#fff3e0;box-shadow:0 3px 10px rgba(80,20,30,.25);flex-wrap:wrap}
+.rcclock{position:relative;flex:none;width:40px;height:40px;border-radius:50%;background:#fff3e0;box-shadow:inset 0 0 0 3px #e2b64c}
+.rcclock i{position:absolute;left:50%;top:50%;width:3px;border-radius:2px;background:#7d1f2c;transform-origin:50% 100%}
+.rcclock i:first-child{height:11px;margin:-11px 0 0 -1.5px;transform:rotate(180deg)}.rcclock i:last-child{height:15px;margin:-15px 0 0 -1.5px}
+.rctx{flex:1;min-width:160px}.rctx .lbl{color:#e2b64c}.rctx b{display:block;font-family:var(--fh);font-size:22px;letter-spacing:.01em}
+.rcst{padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
+.rcst.now{background:#e2b64c;color:#3a1a10;border-color:#e2b64c}.rcst.done{background:#4f9a5a;border-color:#4f9a5a}.rcst.miss{opacity:.75}
