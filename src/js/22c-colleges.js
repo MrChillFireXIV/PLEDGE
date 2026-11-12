@@ -199,7 +199,7 @@ function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(i
   S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
 function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
   const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
-  let h=`<div class="skhead"><h2>Skill Tree</h2><p>Pass classes to earn a college's points. Trees grow from the bottom up and branch: pick your path. The top skill needs two of the three below it. Click a skill for details. Drag the tree left and right to see every college.</p></div><div class="skwrap"><div class="sktree">`;
+  let h=`<div class="skhead"><h2>Skill Tree</h2></div><div class="skwrap"><div class="sktree">`;
   for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col),T=SKT[col];
     let svg=`<svg class="sklinks" width="${CW}" height="${H}" viewBox="0 0 ${CW} ${H}">`;
     for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
