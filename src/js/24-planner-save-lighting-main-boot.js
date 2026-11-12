@@ -48,7 +48,7 @@ const tabsNow=()=>TABS.filter(t=>!t[2]||tabOn(t[2]));
 function openPlanner(tab){if(mode!=='play')return;if(tab==='map'&&!tabOn('map')){toast('You don\'t have a campus map yet.',2600);tab='tasks'}mode='planner';unlock();$('planner').hidden=false;renderPlanner(tab||'tasks')}
 function closePlanner(){$('planner').hidden=true;mode='play';turfNoteClosed()}
 function renderPlanner(tab){if(!tabsNow().some(t=>t[0]===tab))tab='tasks';{const pl=$('planner');if(pl)pl.classList.remove('bugdev','skdark')}if(tab==='map')S.mapHint=0;if(tab!=='map')turfNoteHide();const nt=$('ntabs');nt.innerHTML='';tabsNow().forEach(([k,l])=>{const b=document.createElement('button');b.textContent=l;if(k===tab)b.className='on';b.onclick=()=>{if(k==='bug'&&bugDevTap())return;renderPlanner(k)};nt.appendChild(b)});   /* V302 3 fast clicks on Report a Bug: developer mode */const x=document.createElement('button');x.className='x';x.textContent='Close (Tab)';x.onclick=closePlanner;nt.appendChild(x);
-  const p=$('npage');$('planner').querySelector('.note').classList.toggle('big',tab==='map');if(tab!=='map')$('planner').querySelector('.note').style.width='';const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));let h='';
+  const p=$('npage');$('planner').querySelector('.note').classList.toggle('big',tab==='map');$('planner').querySelector('.note').classList.toggle('tall',tab!=='map');if(tab!=='map')requestAnimationFrame(fitNote);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));let h='';
   if(tab==='tasks'){h=`<h2>Chapter ${Math.min(S.ch,4)}: ${CHN[Math.min(S.ch,5)]}</h2><p>Day ${S.day}, ${DAYN[(S.day-1)%7]} · ${fmtT(S.gt)} · Big Brother: <b>${S.bb?BBN[S.bb][0]:'none yet'}</b> · House standing: <b>${S.standing}</b></p>`;
     const st=curStep();if(AM)h+=`<h3>In progress</h3><p><b>★ ${esc(AM.m.name)}</b><br>${esc(st&&st.label||'')}</p>`;
     const av=availM();h+=`<h3>Available tasks</h3>`+(av.length?'<ul>'+av.map(m=>`<li><b>${esc(m.name)}</b> — ${mWho(m)&&NN[mWho(m)]?'talk to '+NN[mWho(m)].name:(m.side?'blue':'gold')+' star on your map'}${m.when?` (${fmtH(m.when[0])}–${fmtH(m.when[1])})`:''}</li>`).join('')+'</ul>':`<p>${AM?'Finish your current task first.':S.ch>10?'The story is over. Campus is yours.':'Nothing new right now.'}</p>`);
@@ -75,8 +75,14 @@ function renderPlanner(tab){if(!tabsNow().some(t=>t[0]===tab))tab='tasks';{const
   if(tab==='settings')h=setPage();
   if(tab==='bug')h='<h2>Report a Bug</h2>'+bugSection().replace('<h3>Report a bug</h3>','');
   p.innerHTML=h;if(tab==='settings')setWire(p);if(tab==='bug')bugWire(p);if(tab==='skills')skWire(p);if(tab==='map'){p.querySelectorAll('[data-mt]').forEach(b=>b.onclick=()=>{MAPTAB=b.dataset.mt;renderPlanner('map')});const tb=$('terrbtn');if(tb)tb.onclick=()=>{sfx('ui');setSave('terr',SET.terr?0:1);renderPlanner('map')};const c=$('fullmap');drawFull(c);fitMapNote();mapWire(c)}}
-function fitMapNote(){const n=$('planner').querySelector('.note'),c=$('fullmap');if(!c||!n.classList.contains('big'))return;n.style.width='';const wrap=c.parentElement,pg=$('npage'),cs=getComputedStyle(pg),padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight),maxW=$('planner').clientWidth-32;n.style.width=Math.min(wrap.clientHeight*(c.width/c.height)+padX+4,maxW)+'px'}
-addEventListener('resize',()=>{if(!$('planner').hidden)fitMapNote()});
+function fitMapNote(){const n=$('planner').querySelector('.note'),c=$('fullmap');if(!c||!n.classList.contains('big'))return;n.style.width='';const wrap=c.parentElement,pg=$('npage'),cs=getComputedStyle(pg),padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight),maxW=$('planner').clientWidth-32;n.style.width=Math.min(wrap.clientHeight*(c.width/c.height)+padX+4,maxW)+'px';NOTEW={w:n.style.width,pw:$('planner').clientWidth,ph:$('planner').clientHeight}}
+/* V324: every tab uses the Map tab's larger size: full height, and the width the map tab fits to (remembered, or worked out the same way before the map has been opened) */
+let NOTEW=null;
+function fitNote(){const pl=$('planner'),n=pl.querySelector('.note');if(pl.hidden||!n.classList.contains('tall'))return;const maxW=pl.clientWidth-32;
+  if(NOTEW&&NOTEW.pw===pl.clientWidth&&NOTEW.ph===pl.clientHeight){n.style.width=NOTEW.w;return}
+  const pg=$('npage'),cs=getComputedStyle(pg),padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight),tabs=n.querySelector('.ntabs'),h=n.clientHeight-(tabs?tabs.offsetHeight:0)-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-128;
+  n.style.width=Math.min(Math.max(h*1.2+padX+4,Math.min(760,maxW)),maxW)+'px'}
+addEventListener('resize',()=>{if(!$('planner').hidden){fitMapNote();fitNote()}});
 
 // ================================================================ SAVE
 let SAVEK=slotKey(curSlot());   // V210 the chosen save slot
