@@ -545,3 +545,4 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .lvd.big{width:34px;height:34px;margin:-8px 0 -6px 4px}
 #lv{display:inline-flex;align-items:center;gap:6px;line-height:1}.lvd.hud{width:24px;height:24px;margin:0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
 #bl .row{align-items:center}
+.cls{position:relative}.lvd.tr{position:absolute;top:8px;right:8px;margin:0}
