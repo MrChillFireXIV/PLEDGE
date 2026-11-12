@@ -62,6 +62,8 @@ const FLIRT_=[['Has anyone told you your smile could light up the quad?','Smooth
  ['You must be the reason the library\'s always full.','Stop. You\'re making me blush.','...What?','That doesn\'t even make sense.'],
  ['I\'d pledge your house just to see you every day.','You\'d look cute in our letters.','Our house doesn\'t take guys.','Our house doesn\'t take creeps either.'],
  ['Want to grab a coffee at Ruby\'s sometime?','I\'d like that. You\'re buying.','Maybe sometime.','I\'m busy. Forever.']];
+/* V321: lines that mention Danny's propeller hat get a hat-free version until Grant gives him the hat */
+function hatFix(a){if(PM&&PM.P&&PM.P.prop&&PM.P.prop.visible)return a;return a.map(t=>t.replace('If you lose the propeller hat.','If you lose the lanyard.').replace('Says the guy in a propeller hat.','Says the guy with his student ID on a lanyard.'))}
 const INS_=[['You look like a dork.','Says the guy in a propeller hat.','Ha! Takes one to know one.'],
  ['Did your mom pick out that outfit?','At least my mom loves me. What\'s your excuse?','She did, and she has great taste, thank you.'],
  ['You smell like the dining hall.','And you smell like desperation.','Mystery Meat Monday. Worth it.'],
@@ -119,9 +121,9 @@ function talkTo(n,line){if(!n||n.down)return;const id=nid(n),C=CL[n.cl],r=S.rep[
     if(n.hpr&&typeof HPR!=='undefined'&&HPR[n.hpr])ch.push(['"What\'s your pledge job?"',reply('"'+HPR[n.hpr].n+'. '+HPR[n.hpr].d+'"'),'','chat']);
     if(n.pledge||n.pclass)ch.push([say('notes'),reply(pick(['"Brett made me iron his socks. Socks, Danny."','"I failed my econ quiz because I was fetching sandwiches at 3 AM."','"Grant keeps saying the Lantern Walk will make us. Make us what?"','"At least the hat keeps the sun off."'])),'','chat']);
     if(n.auth){if(S.trouble>0)ch.push([say('sorry'),()=>{if(rnd()<.3+.2*S.grades.speech){S.trouble=0;NP.forEach(m=>m.chase=0);reply('"...Fine. Just this once."')()}else reply('"Save it for the Dean."')()},'','comp']);ch.push([say('rules'),reply('"Class at nine and one on weekdays. Curfew at eleven: be on Greek Row or inside a building. Fight in front of me and you\'re going to Van Wormer."'),'','chat'])}
-    else{{const fl=isFlirt(n),Cm=pick(fl?FLIRT_:COMP_);ch.push(['"'+Cm[0]+'"',()=>{const b=talkOdds(n);const v=clamp(Math.round(rnd()*7-3.5+(b-.5)*6),-5,5);relAdd(n,v);if(r!=null&&v!==0)rep(n.cl,v>0?2:-1);
+    else{{const fl=isFlirt(n),Cm=hatFix(pick(fl?FLIRT_:COMP_));ch.push(['"'+Cm[0]+'"',()=>{const b=talkOdds(n);const v=clamp(Math.round(rnd()*7-3.5+(b-.5)*6),-5,5);relAdd(n,v);if(r!=null&&v!==0)rep(n.cl,v>0?2:-1);
       reply('"'+(v>=2?Cm[1]:v>=-1?Cm[2]:Cm[3])+'"')()},'',fl?'flirt':'comp'])}
-      {const In=pick(INS_);ch.push(['"'+In[0]+'"',()=>{const rv=relOf(n),v=rv>=85?Math.floor(rnd()*3)-1:rv>=60?Math.floor(rnd()*5)-3:-5;relAdd(n,v);if(v<0&&n.cl==='brothers')stand(-1);
+      {const In=hatFix(pick(INS_));ch.push(['"'+In[0]+'"',()=>{const rv=relOf(n),v=rv>=85?Math.floor(rnd()*3)-1:rv>=60?Math.floor(rnd()*5)-3:-5;relAdd(n,v);if(v<0&&n.cl==='brothers')stand(-1);
       reply('"'+(v>=0?In[2]:In[1])+'"')()},'','insult'])}
       ch.push([say('fight'),()=>{relAdd(n,-15);n.aggro=1;n.tgt='P';bubble(n,pick(C.taunt||['Bring it.']),2)},'','fight'])}}
   prTalkOpts(n,ch,reply);{const tr=ch.filter(c=>c[3]==='trade');for(const c of tr)ch.splice(ch.indexOf(c),1);ch.push(...tr)}
