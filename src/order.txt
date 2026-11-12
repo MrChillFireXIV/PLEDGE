@@ -71,4 +71,5 @@ js/23b-territories.js
 js/24b-testmode.js
 js/23z-save-slots.js
 js/24a-bug-report.js
+js/24d-tasks-page.js
 js/24-planner-save-lighting-main-boot.js
