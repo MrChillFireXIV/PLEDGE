@@ -539,3 +539,8 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .pqjd{flex:1;min-width:220px}.pqjd .lbl{color:var(--rc)}.pqjd h3{margin:2px 0 4px;font-size:22px;color:var(--rc)}
 .pqjd p{font-size:13px}.pqjd ul{margin:0 0 4px;padding-left:18px;font-size:13px}
 .pqwho{font-family:var(--fh);font-size:24px;font-weight:700;color:var(--ink);line-height:1.1;margin:0 0 6px}.pqwho span{font-family:var(--fb,inherit);font-size:13px;font-weight:400;opacity:.7}
+
+/* V327 level diamonds */
+.lvd{display:inline-block;width:34px;height:34px;vertical-align:middle;margin:-8px 0 -6px 2px}
+.lvd.big{width:46px;height:46px;margin:-12px 0 -10px 4px}
+#lv{display:inline-flex;align-items:center;gap:6px}.lvd.hud{width:40px;height:40px;margin:-14px 0 -10px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
