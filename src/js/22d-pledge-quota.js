@@ -174,12 +174,10 @@ function pqHTML(){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_=PR
   const li=(kind,i,txt)=>{const s=S_.find(a=>a.kind===kind&&a.i===i),dn=q[kind][i];return`<li class="${dn?'dn':''}"><span class="pqck">${dn?'✓':''}</span><span class="pqtx"><b>${txt}</b><small>${s.place}${dn?'':pqWhere(s)}</small></span></li>`};
   const pips=(n,tot)=>`<div class="pqpips">${Array.from({length:tot},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div>`;
   const part=(k,name,body,cnt)=>`<div class="pqpart${fr[k]>=1?' dn':''}"><div class="pqph"><b>${name}</b><span>${pts(k)}<small> / ${PQW[k]}%</small></span></div>${body}<div class="pqpc">${fr[k]>=1?'✓ Done':cnt}</div></div>`;
-  const seg=(k,name)=>`<div class="pqseg" style="flex:${PQW[k]}" title="${name}: ${pts(k)} of ${PQW[k]}%"><i style="width:${Math.round(fr[k]*100)}%"></i><em>${name}</em></div>`;
   return`<div class="pqbox${full?' full':''}" style="--rc:${R_.c};--rc2:${R_.c2}">
     <div class="pqhead"><div class="pqring" style="--p:${pc}" role="img" aria-label="Pledge quota ${pc} percent"><div><b>${pc}<small>%</small></b><span>quota</span></div></div>
       <div class="pqhd"><div class="lbl">Pledge quota · ${R_.n}</div><h3>${pqRank(pc)}</h3>
-        <p class="pqnote">${full?'Quota full. Hell Week is open to you.':'Fill this to 100% before Hell Week (Chapter 9) will start. '+(100-pc)+'% to go.'}</p>
-        <div class="pqmeter">${seg('t','The job')}${seg('sp','Special cases')}${seg('mg','Trials')}</div></div>
+        <p class="pqnote">${full?'Quota full. Hell Week is open to you.':'Fill this to 100% before Hell Week (Chapter 9) will start. '+(100-pc)+'% to go.'}</p></div>
       <img class="pqico" src="${prIconURL(q.k)}" alt=""></div>
     <div class="pqparts">${part('t','The job',`<div class="pqmini"><i style="width:${Math.round(fr.t*100)}%"></i></div>`,`${D.tv} with <kbd>T</kbd> · ${p.t} of ${D.t}`)}${part('sp','Special cases',pips(p.sp,5),`${p.sp} of 5 found`)}${part('mg','Trials',pips(p.mg,3),`${p.mg} of 3 passed`)}</div>
     <div class="pqcols"><div><div class="lbl">Trials</div><ul>${D.mg.map((a,i)=>li('mg',i,a[1])).join('')}</ul></div>

@@ -510,13 +510,8 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .pqring span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-top:3px}
 .pqhd{flex:1;min-width:220px}.pqhd h3{margin:2px 0 2px;font-size:21px;color:var(--rc)}
 .pqhd .lbl{color:var(--rc)}
-.pqnote{margin:0 0 8px;font-size:12.5px;opacity:.8}
+.pqnote{margin:0;font-size:12.5px;opacity:.8}
 .pqico{flex:none;width:58px;height:58px;border-radius:12px;background:var(--rc2);border:2px solid var(--rc);transform:rotate(4deg);box-shadow:0 3px 6px rgba(0,0,0,.18)}
-.pqmeter{display:flex;gap:3px;height:18px;margin-bottom:18px}
-.pqseg{position:relative;background:rgba(0,0,0,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
-.pqseg:first-child{border-radius:99px 0 0 99px}.pqseg:last-child{border-radius:0 99px 99px 0}
-.pqseg i{display:block;height:100%;border-radius:inherit;background:repeating-linear-gradient(115deg,rgba(255,255,255,.22) 0 7px,transparent 7px 14px),linear-gradient(180deg,var(--rc2) -60%,var(--rc) 70%);transition:width .5s}
-.pqseg em{position:absolute;left:2px;right:2px;top:21px;font-style:normal;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .pqparts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0 10px}
 .pqpart{border:1.5px solid rgba(0,0,0,.14);border-left:5px solid var(--rc);border-radius:9px;padding:7px 10px;background:rgba(255,255,255,.75)}
 .pqpart.dn{border-color:#3d9a5b;background:#eef9f0}
