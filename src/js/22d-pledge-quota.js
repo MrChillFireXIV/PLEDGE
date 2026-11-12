@@ -169,16 +169,18 @@ function pqGate(){if(pqOK())return false;if(TT-PQ_GT>40){PQ_GT=TT;const pc=pqPct
 function pqHud(){const e=$('rolq');if(!e)return;const q=pqGet();e.hidden=!q;if(!q)return;const pc=pqPct();if(e.dataset.p!==''+pc){e.dataset.p=''+pc;$('rolqf').style.width=pc+'%';$('rolqn').textContent=pc+'%';e.classList.toggle('full',pc>=100);e.setAttribute('aria-label','Pledge quota '+pc+' percent')}}
 function pqWhere(s){const dx=s.x-P.x,dz=s.z-P.z,d=Math.round(Math.hypot(dx,dz));if(P.inside||P.z>OD)return'';const a=Math.atan2(dx,-dz),dir=['N','NE','E','SE','S','SW','W','NW'][Math.round(a/(PI/4)+8)%8];return' · '+d+' m '+dir}
 function pqRank(pc){return pc>=100?'Quota full':pc>=75?'Almost a brother':pc>=50?'Pulling your weight':pc>=25?'Getting somewhere':pc>0?'Barely started':'Dead weight'}
-function pqHTML(){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_=PR[q.k],S_=pqSpots(),full=pc>=100;
+/* V323: the job card and the quota are one box. job = {pic, body} from prRosterHTML. */
+function pqHTML(job){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_=PR[q.k],S_=pqSpots(),full=pc>=100;
   const fr={t:p.t/D.t,sp:p.sp/5,mg:p.mg/3},pts=k=>Math.floor(PQW[k]*fr[k]+1e-6);
   const li=(kind,i,txt)=>{const s=S_.find(a=>a.kind===kind&&a.i===i),dn=q[kind][i];return`<li class="${dn?'dn':''}"><span class="pqck">${dn?'✓':''}</span><span class="pqtx"><b>${txt}</b><small>${s.place}${dn?'':pqWhere(s)}</small></span></li>`};
   const pips=(n,tot)=>`<div class="pqpips">${Array.from({length:tot},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div>`;
   const part=(k,name,body,cnt)=>`<div class="pqpart${fr[k]>=1?' dn':''}"><div class="pqph"><b>${name}</b><span>${pts(k)}<small> / ${PQW[k]}%</small></span></div>${body}<div class="pqpc">${fr[k]>=1?'✓ Done':cnt}</div></div>`;
   return`<div class="pqbox${full?' full':''}" style="--rc:${R_.c};--rc2:${R_.c2}">
+    ${job?`<div class="pqjob"><img class="pqpic" src="${job.pic}" alt=""><div class="pqjd"><div class="lbl">Your pledge job</div><h3>${R_.n}</h3>${job.body}</div></div>`:''}
     <div class="pqhead"><div class="pqring" style="--p:${pc}" role="img" aria-label="Pledge quota ${pc} percent"><div><b>${pc}<small>%</small></b><span>quota</span></div></div>
-      <div class="pqhd"><div class="lbl">Pledge quota · ${R_.n}</div><h3>${pqRank(pc)}</h3>
-        <p class="pqnote">${full?'Quota full. Hell Week is open to you.':'Fill this to 100% before Hell Week (Chapter 9) will start. '+(100-pc)+'% to go.'}</p></div>
-      <img class="pqico" src="${prIconURL(q.k)}" alt=""></div>
+      <div class="pqhd"><div class="lbl">Pledge quota</div><h3>${pqRank(pc)}</h3>
+        <p class="pqnote">${full?'Quota full. Hell Week is open to you.':'Fill this to 100% before Hell Week (Chapter 9) will start. '+(100-pc)+'% to go.'}</p></div>${job?'':`
+      <img class="pqico" src="${prIconURL(q.k)}" alt="">`}</div>
     <div class="pqparts">${part('t','The job',`<div class="pqmini"><i style="width:${Math.round(fr.t*100)}%"></i></div>`,`${D.tv} with <kbd>T</kbd> · ${p.t} of ${D.t}`)}${part('sp','Special cases',pips(p.sp,5),`${p.sp} of 5 found`)}${part('mg','Trials',pips(p.mg,3),`${p.mg} of 3 passed`)}</div>
     <div class="pqcols"><div><div class="lbl">Trials</div><ul>${D.mg.map((a,i)=>li('mg',i,a[1])).join('')}</ul></div>
     <div><div class="lbl">Special cases</div><ul>${D.sp.map((a,i)=>li('sp',i,a[1])).join('')}</ul></div></div></div>`}

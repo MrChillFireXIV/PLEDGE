@@ -162,7 +162,9 @@ function prRosterHTML(){const k=S.pledged?S.prole:null;if(!k)return'';const R_=P
   else if(k==='burglar')x=`<p><b>Today's heist:</b> ${r.lastSteal===S.day?'done':'not yet. Every other house keeps its treasure on a stand by the lounge fireplace.'} · <b>Loot so far:</b> ${r.lootN||0}${r.loot&&r.loot.length?' ('+r.loot.slice(-6).join(', ')+')':''}</p>`;
   else if(k==='fruit')x=`<p><b>Today's fruit:</b> ${prStatus().replace(/<[^>]+>/g,'')} · Next size up: ${prStage()<3?FRUITS[prStage()+1][1].toLowerCase():'this is as big as it gets'}</p>`;
   else if(k==='skate')x=`<p><b>Best combo:</b> ×${r.best||0}</p>`;else if(k==='popstar')x=`<p>${prStatus()}</p>`;
-  return`<div class="prjob" style="--rc:${R_.c}"><img src="${prPic||prIconURL(k)}" alt=""><div><div class="lbl" style="color:${R_.c}">Your pledge job</div><h3 style="margin:2px 0 4px">${R_.n}</h3><p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>T</kbd> ${R_.ab}</p>${x}</div></div>${pqHTML()}`}
+  const body=`<p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>T</kbd> ${R_.ab}</p>${x}`,pic=prPic||prIconURL(k);
+  /* V323: one combined box (job + quota) when the quota exists */
+  return pqHTML({pic,body})||`<div class="prjob" style="--rc:${R_.c}"><img src="${pic}" alt=""><div><div class="lbl" style="color:${R_.c}">Your pledge job</div><h3 style="margin:2px 0 4px">${R_.n}</h3>${body}</div></div>`}
 
 // ---------------------------------------------------------------- the Pledge Machine
 function prPortrait(k){try{const ps=new THREE.Scene(),R_=PR[k];ps.background=new THREE.Color(0x101828).lerp(new THREE.Color(R_.c),.38);ps.add(new THREE.HemisphereLight(0xffffff,0x5a4a5a,.85));const d1=new THREE.DirectionalLight(0xfff2e0,1.15);d1.position.set(2.5,4,5);ps.add(d1);const d2=new THREE.DirectionalLight(0xb8d0ff,.55);d2.position.set(-4,2.5,-2);ps.add(d2);if(sc.environment)ps.environment=sc.environment;

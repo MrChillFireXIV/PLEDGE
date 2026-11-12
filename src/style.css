@@ -531,3 +531,9 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .pqtx{display:flex;flex-direction:column;min-width:0}.pqtx b{font-weight:600}.pqtx small{opacity:.65;font-size:11.5px}
 .pqcols li.dn .pqtx{opacity:.5}.pqcols li.dn .pqtx b{text-decoration:line-through}
 .pqbox.full{border-color:#3d9a5b;box-shadow:0 2px 0 #3d9a5b,0 8px 18px rgba(40,24,10,.12)}
+
+/* V323: pledge job merged into the quota box */
+.pqjob{display:flex;gap:14px;align-items:flex-start;padding:4px 0 12px;margin-bottom:12px;border-bottom:1px dashed rgba(0,0,0,.2);flex-wrap:wrap}
+.pqpic{width:110px;height:auto;flex:none;border-radius:10px;background:var(--rc2);border:2px solid var(--rc);box-shadow:0 3px 6px rgba(0,0,0,.15)}
+.pqjd{flex:1;min-width:220px}.pqjd .lbl{color:var(--rc)}.pqjd h3{margin:2px 0 4px;font-size:22px;color:var(--rc)}
+.pqjd p{font-size:13px}.pqjd ul{margin:0 0 4px;padding-left:18px;font-size:13px}
