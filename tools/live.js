@@ -50,7 +50,7 @@ async function boot() {
   if (!browser || !browser.isConnected()) browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   if (page) await page.close().catch(() => {});
   errs = [];
-  page = await browser.newPage({ viewport: { width: 800, height: 450 } });
+  page = await browser.newPage({ viewport: process.env.LV_VP ? { width: +process.env.LV_VP.split('x')[0], height: +process.env.LV_VP.split('x')[1] } : { width: 800, height: 450 } });   // LV_VP=1920x911 tools/lv start: test at another screen size
   page.on('pageerror', e => errs.push(e.message));
   page.on('console', m => { const t = m.text(); if (m.type() === 'error' && !/ERR_|fonts\.g|GPU stall/i.test(t)) errs.push(t.slice(0, 300)); });
   page.on('crash', () => { errs.push('page crashed (software renderer); the next command reloads it'); page = null; crashed = true; });

@@ -16,7 +16,7 @@ function colRoom(c,i){const C=CI[c],b=B.find(b=>b.id===C.bid);
 
 // ---------------------------------------------------------------- shared minigame helpers
 const MGX={};
-function mgWrap(el,c,intro,body){el.innerHTML=`<p class="mgintro">${CI[c].prof}: "${intro}"</p>${body}`}
+function mgWrap(el,c,intro,body){el.innerHTML=`<p class="mgintro">${(CI[c]||MGD[c]).prof}: "${intro}"</p>${body}`}
 function mgNeed(n,g){return Math.max(1,Math.min(n,n-2+g)-(S.studied?1:0))}   /* of n: pass 2 at grade 1, 3 at grade 2, all at grade 3; studying forgives one */
 const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹',sup=n=>String(n).split('').map(d=>SUP[+d]).join('');
 
@@ -199,13 +199,13 @@ function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(i
   S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
 function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
   const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
-  let h=`<div class="skhead"><h2>Skill Tree</h2><p>Pass classes to earn a college's points. Trees grow from the bottom up and branch: pick your path. The top skill needs two of the three below it. Click a skill for details.</p></div><div class="skwrap"><div class="sktree">`;
+  let h=`<div class="skhead"><h2>Skill Tree</h2></div><div class="skwrap"><div class="sktree">`;
   for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col),T=SKT[col];
     let svg=`<svg class="sklinks" width="${CW}" height="${H}" viewBox="0 0 ${CW} ${H}">`;
     for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
     svg+='</svg>';
     h+=`<div class="skcol" style="--skc:${C.c};width:${CW}px"><div class="skemb"><span>${C.ic}</span></div><div class="skname">${C.n}</div><div class="sksub">${C.full}</div>
-      <div class="skpts"><b>${free}</b> point${free===1?'':'s'} to spend · ${skEarned(col)} earned</div>
+      <div class="skpts"><b>${free}</b> point${free===1?'':'s'} to spend</div>
       <div class="skgrid" style="height:${H}px">${svg}`;
     for(const n of T){const own=skOn(n.id),ready=!own&&skReady(n),can=ready&&free>=n.c,[x,y]=pos(n);
       h+=`<button class="skhex${own?' own':can?' can':ready?' ready':' locked'}" style="left:${x-HX/2}px;top:${y-HY/2}px" data-col="${col}" data-sk="${n.id}" title="${n.n}: ${n.d}"><span class="ski">${n.ic}</span><span class="skc">${own?'✓':n.c}</span></button>`}
@@ -215,4 +215,16 @@ function skInfo(col,id){const n=SKT[col].find(x=>x.id===id),own=skOn(id),ready=s
   const el=$('skinfo');if(!el)return;el.hidden=false;el.style.setProperty('--skc',COLL[col].c);
   el.innerHTML=`<span class="ski">${n.ic}</span><div><b>${n.n}</b> <small>${COLL[col].n} · ${n.c} point${n.c>1?'s':''}</small><div>${n.d}</div><small>${own?'Learned.':!par.length?'The first skill of the tree.':(n.need>1?`Needs ${n.need} of: `:'Needs any of: ')+par.join(', ')}</small></div>${own?'':`<button class="btn" id="sklearn" ${ready&&free>=n.c?'':'disabled'}>${!ready?'Locked':free<n.c?`Need ${n.c-free} more point${n.c-free>1?'s':''}`:'Learn'}</button>`}`;
   const b=$('sklearn');if(b)b.onclick=()=>{skLearn(col,id);skInfo(col,id)}}
-function skWire(p){for(const b of p.querySelectorAll('.skhex'))b.onclick=()=>{sfx('ui');for(const x of p.querySelectorAll('.skhex.sel'))x.classList.remove('sel');b.classList.add('sel');skInfo(b.dataset.col,b.dataset.sk)}}
+/* V322: click and drag anywhere on the tree to pan it left, right, up and down. A drag longer than 6 px does not count as a click on a skill. */
+const SKDRAG={moved:0};
+function skDrag(w){if(!w||w._drag)return;w._drag=1;let on=0,sx=0,sy=0,sl=0,st=0,id=null;
+  w.addEventListener('pointerdown',e=>{if(e.button!==0)return;on=1;SKDRAG.moved=0;sx=e.clientX;sy=e.clientY;sl=w.scrollLeft;st=w.scrollTop;id=e.pointerId});
+  w.addEventListener('pointermove',e=>{if(!on||e.pointerId!==id)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!SKDRAG.moved&&Math.hypot(dx,dy)>6){SKDRAG.moved=1;w.classList.add('drag');try{w.setPointerCapture(id)}catch(_){}}if(SKDRAG.moved){w.scrollLeft=sl-dx;e.preventDefault()}});
+  const end=e=>{if(!on)return;on=0;w.classList.remove('drag');try{w.releasePointerCapture(id)}catch(_){}setTimeout(()=>{SKDRAG.moved=0},0)};
+  w.addEventListener('pointerup',end);w.addEventListener('pointercancel',end);w.addEventListener('dragstart',e=>e.preventDefault())}
+/* V325: the whole tree fits the page height (scaled down with zoom); it scrolls and drags left and right only */
+function skFit(){const w=document.querySelector('#npage .skwrap'),t=w&&w.querySelector('.sktree'),pg=$('npage');if(!t||!pg||!w.isConnected)return;t.style.zoom='';
+  const cs=getComputedStyle(pg),top=w.getBoundingClientRect().top-pg.getBoundingClientRect().top+pg.scrollTop,info=80,
+    avail=pg.clientHeight-top-parseFloat(cs.paddingBottom)-info-20,h=t.offsetHeight;
+  const z=Math.max(.45,Math.min(1,avail/h));t.style.zoom=z<.999?z.toFixed(3):'';w.style.height=Math.ceil(h*z+14)+'px'}
+function skWire(p){skDrag(p.querySelector('.skwrap'));setTimeout(skFit,0);for(const b of p.querySelectorAll('.skhex'))b.onclick=()=>{if(SKDRAG.moved)return;sfx('ui');for(const x of p.querySelectorAll('.skhex.sel'))x.classList.remove('sel');b.classList.add('sel');skInfo(b.dataset.col,b.dataset.sk)}}

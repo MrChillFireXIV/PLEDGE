@@ -117,6 +117,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-o
 .mapwrap{overflow:auto;max-width:100%}
 #fullmap{max-width:100%;border:2px solid var(--ink);border-radius:4px;display:block}
 .note.big{width:min(1600px,100%);height:100%}
+.note.tall{height:100%}
 .note.big .npage{display:flex;flex-direction:column;overflow:hidden;padding-top:10px;padding-bottom:12px}
 .note.big .npage h2{font-size:24px;margin:0}.note.big .npage>p{margin:2px 0;font-size:13px;line-height:1.35;max-width:none}
 .note.big .mapwrap{flex:1 1 0;min-height:0;overflow:hidden}
@@ -435,7 +436,10 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 /* V310 Skill Tree (V315: on the normal notebook page): one column per college, hexagon skills joined by circuit lines */
 .skhead p{opacity:.8;max-width:80ch;font-size:13.5px;margin:4px 0 10px}
 .skinfo[hidden]{display:none}
-.skwrap{overflow-x:auto;padding-bottom:6px}
+.skwrap{overflow-x:auto;overflow-y:hidden;padding-bottom:6px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y;overscroll-behavior-x:contain;border-radius:10px}
+.skwrap.drag{cursor:grabbing}
+.skwrap.drag .skhex{pointer-events:none}
+.skwrap img{-webkit-user-drag:none}
 .sktree{display:flex;width:max-content;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;background:#fbf7ec}
 .skcol{position:relative;padding:14px 0 10px;text-align:center;border-right:1.5px solid color-mix(in srgb,var(--skc) 45%,#c9b48a);
   background:linear-gradient(180deg,color-mix(in srgb,var(--skc) 22%,#fbf7ec) 0%,color-mix(in srgb,var(--skc) 8%,#fbf7ec) 45%,#fbf7ec 100%)}
@@ -477,3 +481,107 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .board{position:relative}
 .mgq{position:absolute;top:10px;right:12px;z-index:2;padding:5px 12px;font-size:13px;color:#f4f1e4;border-color:rgba(244,241,228,.5)}
 .mgq[data-sure]{background:#7d1f2c;border-color:#7d1f2c}
+
+/* V317 preview: pledge job menu after a chapter skip */
+#prpick{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,8,14,.72);padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+#prpick .prpk{background:#f6f0e4;color:#2a2028;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+#prpick .prpkh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 18px;background:#7a1f2b;color:#fff3e0}
+#prpick .prpkh b{font-size:20px;letter-spacing:.02em}
+#prpick .prpkh span{font-size:12px;opacity:.8;letter-spacing:.06em;text-transform:uppercase}
+#prpick .prpkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;padding:14px;overflow:auto}
+#prpick .prpkb{display:flex;gap:10px;align-items:flex-start;text-align:left;border:2px solid var(--rc);background:#fff;border-radius:10px;padding:10px;cursor:pointer;font:inherit;color:inherit}
+#prpick .prpkb:hover,#prpick .prpkb:focus-visible{background:var(--rc2);outline:none;transform:translateY(-1px)}
+#prpick .prpkb img{width:48px;height:48px;flex:none;border-radius:8px;background:var(--rc2)}
+#prpick .prpkt{display:flex;flex-direction:column;gap:3px;min-width:0}
+#prpick .prpkt b{color:var(--rc);font-size:15px}
+#prpick .prpkt small{font-size:12.5px;line-height:1.3}
+#prpick .prpkt i{font-style:normal;font-size:11px;opacity:.7}
+
+/* V318 pledge quota: bar under the pledge job on the HUD, and the planner panel */
+#rolq{display:flex;align-items:center;gap:6px;margin-top:3px}
+#rolq .rolqb{flex:1;min-width:70px;height:8px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;position:relative;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+#rolq .rolqb::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(10,14,30,.75) calc(10% - 1px) 10%)}
+#rolq i{display:block;height:100%;width:0;background:linear-gradient(180deg,#ffe08a,var(--gold));border-radius:99px;transition:width .4s}
+#rolq b{font-size:11px;min-width:30px;text-align:right;color:var(--gold)}
+#rolq.full i{background:#6fd08a}#rolq.full b{color:#6fd08a}
+.pqbox{position:relative;border:2px solid var(--rc);border-radius:14px;padding:14px 16px 12px;margin:12px 0;background:linear-gradient(135deg,#fffdf6 0%,#fff 55%,var(--rc2) 240%);box-shadow:0 2px 0 var(--rc),0 8px 18px rgba(40,24,10,.12);overflow:hidden}
+.pqbox::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:repeating-linear-gradient(90deg,var(--rc) 0 14px,transparent 14px 20px)}
+.pqhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pqring{--p:0;flex:none;width:104px;height:104px;border-radius:50%;background:conic-gradient(var(--rc) calc(var(--p)*1%),rgba(0,0,0,.1) 0);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 3px 8px rgba(0,0,0,.15);position:relative}
+.pqring::after{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.9) 0 1.2deg,transparent 1.2deg 36deg);-webkit-mask:radial-gradient(circle,transparent 56%,#000 57%);mask:radial-gradient(circle,transparent 56%,#000 57%)}
+.pqring>div{width:76px;height:76px;border-radius:50%;background:#fffdf6;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 5px rgba(0,0,0,.18);line-height:1}
+.pqring b{font-size:27px;color:var(--rc);font-variant-numeric:tabular-nums}.pqring b small{font-size:13px;margin-left:1px}
+.pqring span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-top:3px}
+.pqhd{flex:1;min-width:220px}.pqhd h3{margin:2px 0 2px;font-size:21px;color:var(--rc)}
+.pqhd .lbl{color:var(--rc)}
+.pqnote{margin:0;font-size:12.5px;opacity:.8}
+.pqico{flex:none;width:58px;height:58px;border-radius:12px;background:var(--rc2);border:2px solid var(--rc);transform:rotate(4deg);box-shadow:0 3px 6px rgba(0,0,0,.18)}
+.pqparts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0 10px}
+.pqpart{border:1.5px solid rgba(0,0,0,.14);border-left:5px solid var(--rc);border-radius:9px;padding:7px 10px;background:rgba(255,255,255,.75)}
+.pqpart.dn{border-color:#3d9a5b;background:#eef9f0}
+.pqph{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px}.pqph span{font-weight:700;color:var(--rc);font-size:16px}.pqph small{font-weight:400;font-size:11px;opacity:.7}
+.pqpart.dn .pqph span{color:#2d8048}
+.pqmini{height:8px;border-radius:99px;background:rgba(0,0,0,.12);overflow:hidden;margin:7px 0 6px}.pqmini i{display:block;height:100%;background:var(--rc);border-radius:99px}
+.pqpips{display:flex;gap:5px;margin:5px 0 4px}.pqpips i{flex:1;max-width:34px;height:10px;border-radius:3px;background:rgba(0,0,0,.12);box-shadow:inset 0 1px 2px rgba(0,0,0,.2)}.pqpips i.on{background:var(--rc);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.pqpc{font-size:12px;opacity:.85}.pqpart.dn .pqpc{color:#2d8048;font-weight:700;opacity:1}
+.pqcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 18px;border-top:1px dashed rgba(0,0,0,.2);padding-top:8px}
+.pqcols ul{list-style:none;margin:4px 0 6px;padding:0;font-size:13px;line-height:1.3}
+.pqcols li{display:flex;gap:8px;align-items:flex-start;padding:4px 0}
+.pqck{flex:none;width:17px;height:17px;border:2px solid var(--rc);border-radius:5px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;margin-top:1px}
+.pqcols li.dn .pqck{background:#3d9a5b;border-color:#3d9a5b}
+.pqtx{display:flex;flex-direction:column;min-width:0}.pqtx b{font-weight:600}.pqtx small{opacity:.65;font-size:11.5px}
+.pqcols li.dn .pqtx{opacity:.5}.pqcols li.dn .pqtx b{text-decoration:line-through}
+.pqbox.full{border-color:#3d9a5b;box-shadow:0 2px 0 #3d9a5b,0 8px 18px rgba(40,24,10,.12)}
+
+/* V323: pledge job merged into the quota box */
+.pqjob{display:flex;gap:14px;align-items:flex-start;padding:4px 0 12px;margin-bottom:12px;border-bottom:1px dashed rgba(0,0,0,.2);flex-wrap:wrap}
+.pqpic{width:110px;height:auto;flex:none;border-radius:10px;background:var(--rc2);border:2px solid var(--rc);box-shadow:0 3px 6px rgba(0,0,0,.15)}
+.pqjd{flex:1;min-width:220px}.pqjd .lbl{color:var(--rc)}.pqjd h3{margin:2px 0 4px;font-size:22px;color:var(--rc)}
+.pqjd p{font-size:13px}.pqjd ul{margin:0 0 4px;padding-left:18px;font-size:13px}
+.pqwho{font-family:var(--fh);font-size:24px;font-weight:700;color:var(--ink);line-height:1.1;margin:0 0 6px}.pqwho span{font-family:var(--fb,inherit);font-size:13px;font-weight:400;opacity:.7}
+
+/* V327 level diamonds */
+.lvd{display:inline-block;width:28px;height:28px;vertical-align:middle;margin:-5px 0 -3px 3px}
+.lvd.big{width:34px;height:34px;margin:-8px 0 -6px 4px}
+#lv{display:inline-flex;align-items:center;gap:6px;line-height:1}.lvd.hud{width:34px;height:34px;margin:0;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+#lvhud{position:absolute;top:7px;right:12px;line-height:0;pointer-events:none}
+#bl .row{align-items:center}
+.cls{position:relative}.lvd.tr{position:absolute;top:8px;right:8px;margin:0}
+/* V336: a more colorful Skill Tree: stronger college bands, tinted hexes and links, full-color icons */
+.skcol{background:linear-gradient(180deg,color-mix(in srgb,var(--skc) 48%,#fbf7ec) 0%,color-mix(in srgb,var(--skc) 26%,#fbf7ec) 40%,color-mix(in srgb,var(--skc) 14%,#fbf7ec) 100%)!important;border-right-color:color-mix(in srgb,var(--skc) 70%,#000)}
+.skemb{background:#fff;box-shadow:0 0 0 4px color-mix(in srgb,var(--skc) 45%,transparent),0 3px 8px rgba(0,0,0,.18)}
+.skname{color:color-mix(in srgb,var(--skc) 70%,#000);font-weight:700}
+.skcol .sksub{opacity:.8}
+.skpts{background:var(--skc);color:#fff;border-color:color-mix(in srgb,var(--skc) 70%,#000)}.skpts b{color:#fff}
+.sklinks path{stroke:color-mix(in srgb,var(--skc) 40%,#a89a7c)}
+.sklinks path.half{stroke:color-mix(in srgb,var(--skc) 75%,#a89a7c)}
+.skhex{background:color-mix(in srgb,var(--skc) 55%,#8a7d62)}
+.skhex::before{background:color-mix(in srgb,var(--skc) 22%,#fffaf0)}
+.skhex .ski{filter:saturate(.75) opacity(.8)}
+.skhex .skc{color:color-mix(in srgb,var(--skc) 70%,#000)}
+.skhex.ready{background:color-mix(in srgb,var(--skc) 85%,#000)}
+.skhex.ready::before{background:color-mix(in srgb,var(--skc) 35%,#fff)}
+.skhex.ready .ski{filter:none}
+.skclasses{opacity:1}.skclasses em{color:color-mix(in srgb,var(--skc) 70%,#000)}
+
+/* V341 roll call card */
+.rcall{display:flex;align-items:center;gap:14px;margin:12px 0;padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#7d1f2c,#a1323f);color:#fff3e0;box-shadow:0 3px 10px rgba(80,20,30,.25);flex-wrap:wrap}
+.rcclock{position:relative;flex:none;width:40px;height:40px;border-radius:50%;background:#fff3e0;box-shadow:inset 0 0 0 3px #e2b64c}
+.rcclock i{position:absolute;left:50%;top:50%;width:3px;border-radius:2px;background:#7d1f2c;transform-origin:50% 100%}
+.rcclock i:first-child{height:11px;margin:-11px 0 0 -1.5px;transform:rotate(180deg)}.rcclock i:last-child{height:15px;margin:-15px 0 0 -1.5px}
+.rctx{flex:1;min-width:160px}.rctx .lbl{color:#e2b64c}.rctx b{display:block;font-family:var(--fh);font-size:22px;letter-spacing:.01em}
+.rcst{padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
+.rcst.now{background:#e2b64c;color:#3a1a10;border-color:#e2b64c}.rcst.done{background:#4f9a5a;border-color:#4f9a5a}.rcst.miss{opacity:.75}
+
+/* V342 class spirit card, side by side with roll call */
+.pcrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.pcrow .rcall{margin:0}
+.spcard{--spc:#d8a040;padding:10px 16px 12px;border-radius:12px;background:#fffdf6;border:2px solid var(--spc);box-shadow:0 3px 10px rgba(80,60,20,.12)}
+.spcard.hi{--spc:#3f8f50}.spcard.lo{--spc:#c0392b}
+.sptop{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.sptop .lbl{color:var(--spc)}
+.spmood{display:block;font-family:var(--fh);font-size:22px;color:var(--spc)}
+.spnum{font:800 30px/1 Archivo,Arial,sans-serif;color:var(--spc);font-variant-numeric:tabular-nums}.spnum small{font-size:13px;font-weight:600;opacity:.6}
+.spbar{position:relative;height:14px;margin-top:8px;border-radius:99px;background:rgba(0,0,0,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.25);overflow:hidden}
+.spbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#c0392b,#d8a040 45%,#3f8f50) 0 0/100% 100% no-repeat}
+.spbar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1.5px),rgba(255,255,255,.75) calc(10% - 1.5px) 10%)}

@@ -472,7 +472,8 @@ const C1M=[
   fin:()=>{c1Next('c1gather',2500);setTimeout(()=>{if(!S.done.c1gather)toast('Grant wants a word with the new pledge. Go see him in the throne room.',5000)},3000)}},
  {id:'c1gather',ch:1,main:1,noCount:1,pre:['c1decide'],name:'Pledge Class Meeting',who:'grant',hint:'Pledge Class Meeting: Grant wants a word with the new pledge in the throne room',steps:()=>[
    go(npcSpot('grant'),'Grant wants a word with the new pledge. Go see him in the throne room.',{press:1,act:'Talk to Grant Ashby',r:4.6}),
-   C_('Pledge Class Meeting','Grant Ashby · Chapter president',T1.gather,[['\"Yes, sir.\"',()=>stand(2)]])]}];
+   C_('Pledge Class Meeting','Grant Ashby · Chapter president',T1.gather,[['\"Yes, sir.\"',()=>stand(2)]]),
+   {t:'cine',run:d=>{pqIntro().then(d,d)}}]}];
 // swap the old chapter 1 out: the old intro/cater/dean go, the Big Brother errand moves to chapter 2
 for(const id of['arrive','cater','dean']){const i=M.findIndex(m=>m.id===id);if(i>=0)M.splice(i,1)}
 {for(const m of M)if(m.bbm){m.main=0;m.side=1}   // V199 the Big Brother story is a side mission: optional, and the chapter moves on without it
