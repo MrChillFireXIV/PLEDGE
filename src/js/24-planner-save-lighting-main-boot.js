@@ -1,5 +1,5 @@
 // ================================================================ PLANNER
-const TABS=[['tasks','Tasks'],['roster','Pledge Class','pl'],['classes','Classes','cls'],['cliques','Cliques','clq'],['map','Map','map'],['people','People'],['yearbook','Yearbook'],['controls','Controls']];
+const TABS=[['tasks','Tasks'],['roster','Pledge Class','pl'],['classes','Classes','cls'],['cliques','Cliques','clq'],['map','Map','map'],['people','People'],['yearbook','Yearbook','yb'],['controls','Controls']];
 // ================================================================ V76 SETTINGS tab in the Planner, and quitting back to the title screen
 const SET=(()=>{const g=(k,d)=>{try{const v=localStorage.getItem('pledge.'+k);return v==null?d:+v}catch(e){return d}};return{vol:g('vol',.55),sfx:g('sfx',1),mus:g('mus',.4),musOn:g('musOn',1),sens:g('sens',1),inv:g('inv',0),terr:g('terr',1),cam:g('cam2',5)}})();
 const setSave=(k,v)=>{SET[k]=v;try{localStorage.setItem('pledge.'+k,String(v))}catch(e){}};

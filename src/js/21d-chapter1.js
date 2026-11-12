@@ -23,7 +23,9 @@ function c1RoleFix(){if(!S.pledged||!S.prole||C1.roleFixed===S.prole)return;C1.r
   for(const k of PCLASS){const n=NN[k];if(!n||n.prole!==S.prole)continue;for(const m of n.roleMeshes||[])m.parent&&m.parent.remove(m);n.roleMeshes=[];const f=['driver','laundry','dish'].find(r=>!used.has(r))||'dish';used.add(f);n.prole=f}}
 for(const d of NAMED)if(!SPK[d.name])SPK[d.name]=d.id;
 // planner tabs and HUD bits unlock as the chapter goes (old saves that finished the old chapter 1 have everything)
-function tabOn(k){if(k==='pl')return!!S.pledged;const old=S.ch>=2;   /* older saves get their flags from c1Migrate; S.done.arrive is true from the first minutes, so it can't unlock anything */if(k==='map')return!!(S.uMap||old);if(k==='clq')return!!(S.uCliques||old);if(k==='cls')return!!(S.uClasses||old);return true}
+function tabOn(k){if(k==='pl')return!!S.pledged;const old=S.ch>=2;   /* older saves get their flags from c1Migrate; S.done.arrive is true from the first minutes, so it can't unlock anything */if(k==='map')return!!(S.uMap||old);if(k==='clq')return!!(S.uCliques||old);if(k==='cls')return!!(S.uClasses||old);if(k==='yb')return ybOn();return true}
+/* V349: the yearbook is introduced by Tess Okafor's side story; saves that already took photos keep it */
+function ybOn(){return!!(S.uYearbook||(S.photos&&Object.keys(S.photos).length)||S.done.yearbook)}
 function clsLive(){return tabOn('cls')&&!(S.uClassesDay&&S.day<=S.uClassesDay)}
 function c1Migrate(d){if(!d)return;try{c2Migrate(d)}catch(e){}if((d.done&&d.done.arrive)||d.pledged){for(const id of C1IDS)S.done[id]=1;S.uMap=S.uCliques=S.uClasses=1;setTimeout(()=>{if(S.ch===1)checkChapter()},500)}
   if((S.done.c1rival||S.ch>=2)&&!(S.fr&&S.fr.kto))c1Frat('kto',-40);

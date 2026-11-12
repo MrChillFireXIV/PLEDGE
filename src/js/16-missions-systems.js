@@ -183,7 +183,7 @@ function nearest(){let best=null,bd=1e9;const add=(x,z,r,label,f,pri=1)=>{const 
   if(P.inside){const I=INT[P.inside];if(I)for(const o of I.objs)add(o.x,o.z,o.r,o.label,o.f,1);return best}
   if(!P.inside){if(S.ch>=3&&P.z<OD)add(70,699,3.2,'Enter the Lake District',()=>lakeGo(1),2);else if(P.z>OD&&P.z<INTZ)add(70,LZ+546.5,3.2,'Leave the Lake District',()=>lakeGo(0),2)}
   if(isR('cone'))for(const c of CONES)if(c.gD!==S.day)add(c.x,c.z,2.4,'Grab the traffic cone',()=>coneGrab(c),2);
-  for(const p of PHOTOS)if(!S.photos[p[0]]&&(p[0]!=='dock'&&p[0]!=='lodge'||S.ch>=3))add(p[2],p[3],3,'Take a yearbook photo: '+p[1],()=>takePhoto(p),2);
+  if(ybOn())for(const p of PHOTOS)if(!S.photos[p[0]]&&(p[0]!=='dock'&&p[0]!=='lodge'||S.ch>=3))add(p[2],p[3],3,'Take a yearbook photo: '+p[1],()=>takePhoto(p),2);
   try{cchUpDoor(add)}catch(e){}
   for(const b of B)if(b.ex!=null&&INT[b.id]&&!(b.id==='cch'&&P.dk!=null)&&!(st&&st.t==='go'&&st.x!=null&&st.z<INTZ&&Math.hypot(st.x-b.ex,st.z-b.ez)<4))add(b.ex,b.ez,2.6,'Enter '+b.name,()=>enterBld(b),3);
   if(S.uDie||S.pledged||S.ch>=2)add(YARDS.asr?YARDS.asr.dtx-1.9:124.5,YARDS.asr?YARDS.asr.dtz:74.6,2.2,'Play beer die',()=>startEvent('die',w=>sideResult('die',w)),3);   // V139: unlocked at the rush party

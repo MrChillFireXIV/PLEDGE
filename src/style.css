@@ -626,3 +626,5 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .pcrow .rcclock i:first-child{height:7px;margin:-7px 0 0 -1px;width:2px}.pcrow .rcclock i:last-child{height:10px;margin:-10px 0 0 -1px;width:2px}
 .pcrow .rctx{min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.pcrow .rctx .lbl{font-size:10.5px}.pcrow .rctx b{display:inline;font-size:16px}
 .pcrow .rcst{padding:2px 9px;font-size:11.5px}
+/* V349 roll call strip above Class Spirit */
+.pcrow .rcall{order:-1}
