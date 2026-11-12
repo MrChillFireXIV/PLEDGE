@@ -457,3 +457,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V329 (24 roster cards, style.css .lvd.tr): on the other pledges' cards the level diamond sits in the top-right corner.
 - V330 (21 drawTag): the level diamond on NPC name tags is about 20% smaller and now fits inside the tag.
 - V331 (21 drawTag): removed the tougher/weaker arrow beside the level diamond on NPC name tags; the tag is a little narrower.
+- V332 (20/22d pqHTML, prRosterHTML): removed "(you)" after Danny's name in the pledge job box and the word "quota" under the percent in the ring gauge.
