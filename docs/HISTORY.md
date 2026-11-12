@@ -459,3 +459,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V331 (21 drawTag): removed the tougher/weaker arrow beside the level diamond on NPC name tags; the tag is a little narrower.
 - V332 (20/22d pqHTML, prRosterHTML): removed "(you)" after Danny's name in the pledge job box and the word "quota" under the percent in the ring gauge.
 - V333 (24 HUD #lvhud, style.css): Danny's level diamond moved to the top-right corner of the bottom-left HUD, level with the Cash line; the XP count stays on the name line.
+- V334 (24 lvHudPos): the HUD level diamond is centered above the XP count (re-centers when the count changes width).
