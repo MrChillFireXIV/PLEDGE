@@ -204,9 +204,8 @@ function lvDraw(q,cx,cy,r,lv){const col=lvCol(lv);q.save();
 const LVIMG={};
 function lvImg(lv){lv=Math.max(1,lv|0);if(LVIMG[lv])return LVIMG[lv];const c=document.createElement('canvas');c.width=c.height=96;lvDraw(c.getContext('2d'),48,48,45,lv);return LVIMG[lv]=c.toDataURL()}
 function lvBadge(lv,cls){return`<img class="lvd${cls?' '+cls:''}" src="${lvImg(lv)}" alt="Level ${lv}" title="Level ${lv}">`}
-function drawTag(n){const c=n.tag.userData.c,q=c.getContext('2d');q.clearRect(0,0,360,84);q.font='600 24px Archivo,Arial';const tw=Math.min(210,q.measureText(n.name).width),W=tw+90,x0=(360-W)/2;q.fillStyle='rgba(14,20,34,.86)';rrect(q,x0,4,W,46,10);q.fillStyle=CL[n.cl].c;q.fillRect(x0+10,14,8,26);q.fillStyle='#fff';q.textBaseline='middle';q.fillText(n.name,x0+26,28,210);
+function drawTag(n){const c=n.tag.userData.c,q=c.getContext('2d');q.clearRect(0,0,360,84);q.font='600 24px Archivo,Arial';const tw=Math.min(210,q.measureText(n.name).width),W=tw+78,x0=(360-W)/2;q.fillStyle='rgba(14,20,34,.86)';rrect(q,x0,4,W,46,10);q.fillStyle=CL[n.cl].c;q.fillRect(x0+10,14,8,26);q.fillStyle='#fff';q.textBaseline='middle';q.fillText(n.name,x0+26,28,210);
   const lv=n.lvl;lvDraw(q,x0+tw+54,27,20,lv);
-  /* how tough they are next to Danny: a small arrow beside the diamond */if(lv!==S.lvl){q.fillStyle=lv>S.lvl?'#ff6a5a':'#7fe07a';q.beginPath();const ax=x0+tw+80,ay=27,u=lv>S.lvl?-1:1;q.moveTo(ax-6,ay-u*4);q.lineTo(ax+6,ay-u*4);q.lineTo(ax,ay+u*6);q.closePath();q.fill()}
   const f=clamp(n.hp/n.mhp,0,1);q.fillStyle='rgba(0,0,0,.7)';rrect(q,x0+8,56,W-16,14,6);q.fillStyle=f>.5?'#6fd06a':f>.25?'#f0c040':'#e0483a';if(f>0)rrect(q,x0+10,58,(W-20)*f,10,5);
   n.tag.material.map.needsUpdate=true;n.tagHp=n.hp;n.tagLv=S.lvl}
 

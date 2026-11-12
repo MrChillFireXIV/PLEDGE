@@ -456,3 +456,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V328 (21 lvDraw, style.css .lvd/#lv/#bl .row): level diamonds are now solid fills in the level color with a thin edge and a white number (no crayon look); Danny's name and his level diamond sit on the same line in the bottom-left HUD.
 - V329 (24 roster cards, style.css .lvd.tr): on the other pledges' cards the level diamond sits in the top-right corner.
 - V330 (21 drawTag): the level diamond on NPC name tags is about 20% smaller and now fits inside the tag.
+- V331 (21 drawTag): removed the tougher/weaker arrow beside the level diamond on NPC name tags; the tag is a little narrower.
