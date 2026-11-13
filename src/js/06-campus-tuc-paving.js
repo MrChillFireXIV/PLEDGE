@@ -216,7 +216,7 @@ function buildCampus(){
     if(b.po&&N!=='Old Chemistry'&&K!=='baldwin')porticoAt(fp,fn,N==='Baldwin Hall'?7:Math.min(12,Math.max(7,Math.hypot(b.rect[2],b.rect[3])*.18)),Math.min(h-2,N==='Baldwin Hall'?12:10),N==='Baldwin Hall'?2:4);   // Baldwin: two giant columns under the pediment
     const fx=b.f&&UCFUNC[b.f];
     /* V299 a street-level entrance on every building (07b-entrances); TUC, Zimmer, Braunstein, Daniels and the Rec Center model their own */
-    if(K!=='tuc'&&b.s!=='daniels'&&!(fx&&fx[0]==='braun'))try{   /* V357: Zimmer and the Rec Center get a street entrance at their door point too (their own models had none there) */entrancesUCD(b,main,h,b.lvo!=null?b.lvo:terrH(fp[0]+fn[0]*1.6,fp[1]+fn[1]*1.6),ALLP)}catch(e){console.warn('entrance',N,e)}
+    if(K!=='tuc'&&b.s!=='daniels'&&b.s!=='crc'&&!(fx&&fx[0]==='braun'))try{   /* V357: Zimmer gets a street entrance at its door point (its own model had none there). V365: not the Rec Center: that one stood on the terrace walkway and blocked it */entrancesUCD(b,main,h,b.lvo!=null?b.lvo:terrH(fp[0]+fn[0]*1.6,fp[1]+fn[1]*1.6),ALLP)}catch(e){console.warn('entrance',N,e)}
     if(fx){id=fx[0];if(id==='braun')FD.doors.push([fp[0],fp[1]]);const[x0,z0,x1,z1]=bbox(main);const face=Math.abs(fn[0])>Math.abs(fn[1])?(fn[0]>0?'e':'w'):(fn[1]>0?'s':'n');const bb={id,name:N,menu:fx[1],x0,z0,x1,z1,h,poly:main,mc,face,da:Math.abs(fn[0])>Math.abs(fn[1])?fp[1]:fp[0],ex:fp[0]+fn[0]*2.3,ez:fp[1]+fn[1]*2.3,fp,fn};B.push(bb)}
     else if(!b.brz)decoB(id,N,main,h,mc);
     // set the building into the hillside: level = ground at the front door; exposed base down to the lowest ground under the footprint
