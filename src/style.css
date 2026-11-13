@@ -665,3 +665,12 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .mjwk{margin-top:12px}.mjwk table{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin-top:2px}
 .mjwk th{font-size:11px;font-weight:700;opacity:.7;text-align:center}.mjwk tr th:first-child{width:44px;text-align:right;padding-right:4px}
 .mjwk td{font-size:12px;line-height:1.2;padding:5px 6px;border-radius:7px;background:color-mix(in srgb,var(--skc) 16%,#fff);border-left:4px solid var(--skc);vertical-align:middle}
+/* V354 corner panel: the name and XP never wrap, and the level diamond has its own space beside Cash (fixes the overlap on phones and foldables) */
+#bl #cash{padding-right:42px;white-space:nowrap}
+#bl .row{gap:8px;flex-wrap:nowrap}
+#bl .row>.lbl:first-child{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bl #lv{flex:none;white-space:nowrap}
+body.mob #bl{width:200px;padding:7px 10px}
+body.mob #bl .lbl{font-size:10px;letter-spacing:.06em}
+body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.mob #bl #cash{padding-right:34px}
+@media(max-width:900px){#bl{width:200px}}
