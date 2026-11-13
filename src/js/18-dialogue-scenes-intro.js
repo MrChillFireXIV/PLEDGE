@@ -185,7 +185,7 @@ function spawnLoot(t,o){let m;if(o.item){m=new THREE.Sprite(new THREE.SpriteMate
 function lootTick(dt){for(let i=LOOT.length-1;i>=0;i--){const L=LOOT[i];L.age+=dt;const here=(L.int||null)===(P.inside||null);L.m.visible=here;
   if(L.y>.3||L.vy>0){L.vy-=14*dt;L.y+=L.vy*dt;const nx=L.x+L.vx*dt,nz=L.z+L.vz*dt;if(freeAt(nx,nz,.1)){L.x=nx;L.z=nz}else{L.vx*=-.3;L.vz*=-.3}if(L.y<=.3){L.y=.3;L.vy=Math.abs(L.vy)>1.2?-L.vy*.35:0;L.vx*=.55;L.vz*=.55}}
   const d=Math.hypot(P.x-L.x,P.z-L.z);if(here&&mode==='play'&&L.age>.6&&d<3.2){const k=Math.min(1,dt*(9-d*2));L.x+=(P.x-L.x)*k;L.z+=(P.z-L.z)*k}
-  if(here&&mode==='play'&&L.age>.6&&d<.9){if(L.item){if(invAdd(L.item)){toast('Picked up: '+ITM[L.item].n,1400);sfx('coin')}else{if(lootMsgT<=0){toast('Your pockets are full (3 items).',1500);lootMsgT=3}L.age=.3;continue}}else money(L.v);sc.remove(L.m);LOOT.splice(i,1);continue}
+  if(here&&mode==='play'&&L.age>.6&&d<.9){if(L.item){if(invAdd(L.item)){toast('Picked up: '+ITM[L.item].n,1400);sfx('coin')}else{if(lootMsgT<=0){toast(`Your pockets are full (${invSize()} items).`,1500);lootMsgT=3}L.age=.3;continue}}else money(L.v);sc.remove(L.m);LOOT.splice(i,1);continue}
   if(L.age>120){sc.remove(L.m);LOOT.splice(i,1);continue}
   const bob=L.vy===0&&L.y<=.3?.18+Math.sin(TT*3+L.ph)*.08:0;L.m.position.set(L.x,L.y+bob+terrH(L.x,L.z),L.z);if(!L.item)L.m.rotation.y+=dt*4;const fade=L.age>110?(120-L.age)/10:1;if(L.item)L.m.scale.setScalar(.75*fade);}
   lootMsgT-=dt}

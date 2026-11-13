@@ -35,14 +35,18 @@ function kitLive(){const L=[];try{
     if(typeof C3!=='undefined'&&AM&&AM.m.id==='c3secret'&&typeof c3S==='function'){const s=c3S(),q=5-s.sold;if(s.bags>0&&q>0)L.push({n:'8 ball',ic:'\uD83E\uDDC2',img:IMG8BALL,q})}
     /* V280 the ten bags Danny carries into the ΚΘΩ raid */
     if(typeof C3!=='undefined'&&AM&&(AM.m.id==='c3accuse'||AM.m.id==='c3empire')&&typeof c3S==='function'){const k=c3S().kbags;if(k>0)L.push({n:'Bags',ic:'\uD83E\uDDC2',img:IMG8BALL,q:k})}
+    /* V370 a pledge job that is something Danny carries takes up one item slot while he has it */
+    if(S.pledged&&PRITEM[S.prole]&&(S.prole!=='cone'||RS().cnD===S.day)){const it=PRITEM[S.prole];L.push({n:typeof it[0]==='function'?it[0]():it[0],ic:it[1],img:prIconURL(S.prole),job:1})}
     if(PM&&PM.HOLD==='tray'&&!L.length)L.push({n:'Tray',ic:'🍽'});if(PM&&PM.HOLD==='box'&&!L.length)L.push({n:'Box',ic:'📦'});
   }catch(e){}return L}
-function kitList(){const id=AM&&AM.m&&AM.m.id;KIT.grab=KIT.grab.filter(g=>g.m===id);const L=kitLive();for(const g of KIT.grab)if(!L.some(x=>x.n===g.n))L.push(g);return L.slice(0,3)}
+const PRITEM={popstar:['Microphone','🎤'],stats:['Clipboard','📋'],skate:['Skateboard','🛹'],fruit:[()=>['Lemon','Orange','Grapefruit','Watermelon'][Math.min(3,prStage?prStage():0)]||'Fruit','🍉'],ouija:['Ouija board','🔮'],
+  caveman:['Club','🦴'],weather:['Umbrella','☂️'],basketball:['Basketball','🏀'],pouch:['Fanny pack','👝'],morning:['Megaphone','📣'],delinquent:['Spray can','🎨'],captain:['Clipboard','📋'],hype:['Boombox','📻'],snack:['Snack tray','🍽'],scribe:['Notebook','📓'],cone:['Traffic cone','🚧']};
+function kitList(){const id=AM&&AM.m&&AM.m.id;KIT.grab=KIT.grab.filter(g=>g.m===id);const L=kitLive();for(const g of KIT.grab)if(!L.some(x=>x.n===g.n))L.push(g);return L.slice(0,invSize())}
 /* V225: story items are drawn in the normal 1-2-3 slots (no extra slots). They take empty slots first, then cover the rightmost pocket item until the quest ends; the covered item is not lost and not usable meanwhile. kitOverlay() gives per-slot {n,ic} or null. */
 KIT.pos={};
-function kitOverlay(){const L=kitList(),V=[null,null,null];if(!L.length){KIT.pos={};return V}const used=new Set();
+function kitOverlay(){const N_=invSize(),IX=[...Array(N_).keys()],L=kitList(),V=Array(N_).fill(null);if(!L.length){KIT.pos={};return V}const used=new Set();
   for(const it of L){const p=KIT.pos[it.n];if(p!=null&&!used.has(p)&&!S.inv[p]){V[p]=it;used.add(p)}}
-  for(const it of L){if(V.includes(it))continue;let p=[0,1,2].find(i=>!used.has(i)&&!S.inv[i]);if(p==null)p=[2,1,0].find(i=>!used.has(i));if(p==null)break;V[p]=it;used.add(p)}
+  for(const it of L){if(V.includes(it))continue;let p=IX.find(i=>!used.has(i)&&!S.inv[i]);if(p==null)p=IX.slice().reverse().find(i=>!used.has(i));if(p==null)break;V[p]=it;used.add(p)}
   KIT.pos={};V.forEach((it,i)=>{if(it)KIT.pos[it.n]=i});return V}
 function kitRender(force){const V=kitOverlay(),sig=V.map(v=>v?v.ic+v.n+(v.q||''):'-').join('|')+'#'+S.inv.join(',');if(!force&&sig===KIT.sig)return;KIT.sig=sig;renderInv()}
 function kitTick(dt){KIT.t-=dt;if(KIT.t>0)return;KIT.t=.3;kitRender(0)}
@@ -80,5 +84,5 @@ function lootOpen(c){const e=lootGet(c);tone(240,.08,'triangle',.05);noise(.08,.
   if(!e.items.length){card({title:LOOTN[c.t],sp:'Empty',text:'Nothing left in here today. Check back tomorrow.',ch:[['Close',null]]});return}
   const take=i=>{const it=e.items[i];if(!it)return;if(it.k==='cash'){money(it.v);e.items.splice(i,1)}else if(invAdd(it.k)){e.items.splice(i,1);sfx('coin')}else return;setTimeout(()=>lootOpen(c),40)};
   const ch=e.items.map((it,i)=>['Take '+(it.k==='cash'?'$'+it.v:ITM[it.k].n),()=>take(i)]);
-  if(e.items.length>1)ch.push(['Take everything',()=>{for(let i=e.items.length-1;i>=0;i--){const it=e.items[i];if(it.k==='cash'){money(it.v);e.items.splice(i,1)}else if(S.inv.includes(null)&&invAdd(it.k))e.items.splice(i,1)}if(e.items.length)toast('Your pockets are full (3 items).',2200);sfx('coin');if(e.items.length)setTimeout(()=>lootOpen(c),40)}]);
+  if(e.items.length>1)ch.push(['Take everything',()=>{for(let i=e.items.length-1;i>=0;i--){const it=e.items[i];if(it.k==='cash'){money(it.v);e.items.splice(i,1)}else if(invFree()>=0&&invAdd(it.k))e.items.splice(i,1)}if(e.items.length)toast(`Your pockets are full (${invSize()} items).`,2200);sfx('coin');if(e.items.length)setTimeout(()=>lootOpen(c),40)}]);
   ch.push(['Close',null]);card({title:LOOTN[c.t],sp:c.t==='dumpster'?'Smells like last week':c.t==='fridge'?'House fridge':'Inside',text:'You find:\n'+e.items.map(lootLine).join('\n'),ch})}
