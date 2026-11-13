@@ -136,7 +136,9 @@ function chatTick(n,dt){if(!n.chP||!socVis(n.chP)||n.chP.mode!=='chat'||(n.chT=(
   const seed=((n.x+m.x)*13.7+(n.z+m.z)*7.1)%17,ph=Math.floor((TT+Math.abs(seed))/3.4),me=(n.x+n.z*1.31)<(m.x+m.z*1.31),speak=(ph%2===0)===me;
   /* the pair shares a script: each new turn the speaker says the next line (bubbles only near Danny) */
   const C=n.chC&&n.chC===m.chC?n.chC:(m.chC&&m.chC.p===n?m.chC:null)||(n.chC={p:m,lines:dlgConv(n),i:0,ph:-1});n.chC=C;m.chC=C;
-  if(speak&&C.ph!==ph){C.ph=ph;if(C.i>=C.lines.length){C.lines=dlgConv(n);C.i=0}const line=C.lines[C.i++];if(n.dp<14&&rnd()<.75)bubble(n,line,Math.min(3.2,1.6+line.length*.05))}
+  /* V362 a person says at most one line every 3.4 s. In a big group (five sorority sisters on a lawn) people kept re-pairing, two pairs overwrote each
+     other's shared script every frame, and someone like Hailey Z. fired a new bubble every frame */
+  if(speak&&C.ph!==ph&&TT-(n.saidT||-99)>=3.4){C.ph=ph;n.saidT=TT;if(C.i>=C.lines.length){C.lines=dlgConv(n);C.i=0}const line=C.lines[C.i++];if(n.dp<14&&rnd()<.75)bubble(n,line,Math.min(3.2,1.6+line.length*.05))}
   if(speak){n.alPose='talkS';return'talk'}n.alPose=(ph%5===3)?'laugh':'talkL';return''}
 
 function socStats(){const S_={};let seated=0;for(const n of NP){if(!n.al||!n.g)continue;const k=n.al.k;S_[k]=(S_[k]||0)+1}for(const s of SEATS)if(s.by)seated++;return{states:S_,convs:SOCC.filter(c=>!c.done&&c.m.length>1).length,seats:SEATS.length,seated}}
