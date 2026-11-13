@@ -48,6 +48,8 @@ const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. 
  ['clsm','Classroom Management','edu','uc54','Dyer Hall','Prof. Dunleavy','meter','EDST 2050 · WAIT FOR QUIET','teach'],
  ['coach','Coaching','edu','uc54','Dyer Hall','Coach Brannock','rhythm','EDST 2100 · ON MY WHISTLE','teach']
 ].forEach(([k,n,col,bid,bn,prof,mg,board,host])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]};if(host)CI[k].host=host});
+/* V355: classes only give skill points. What the five original classes used to unlock by grade now lives on skill-tree nodes (SKPERK in 22c). */
+for(const c of CLS)CI[c].perk=[];
 /* the five classes of each college, in schedule order */
 const COLK=Object.keys(COLL),COLCLS={design:['art','arch','indd','gfx','fash'],as:['chem','geol','fchem','write','hist'],eng:['phys','calc','mech','robo','cs'],bus:['econ','mkt','acct','fin','entr'],ccm:['speech','music','act','film','dance'],law:['trial','cj','conlaw','contract','invest'],health:['smed','psych','nutr','anat','aid'],edu:['teach','child','edpsy','clsm','coach']};
 const DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -64,7 +66,7 @@ const stand=d=>{if(d>0)d=Math.round(d*(1+skv('stand')));S.standing=clamp(S.stand
 const money=d=>{const b=S.money;S.money=Math.max(0,Math.round((S.money+d)*100)/100);const c=Math.round((S.money-b)*100)/100;if(c>0)sfx('coin');if(c&&typeof dmgNum==='function'&&PM)dmgNum(P.x,2.7,P.z,(c>0?'+':'-')+money$(Math.abs(c)),c>0?'#a6e597':'#ffcf6a');const e=$('cash');e.textContent='Cash '+money$(S.money);e.animate&&e.animate([{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
 const has=k=>!!S.items[k];const give=k=>{S.items[k]=1};const take=k=>{delete S.items[k]};
 const trouble=d=>{if(d>0)d*=1-Math.min(.9,skv('heat'));S.trouble=clamp(S.trouble+d,0,100)};
-const disc=()=>S.grades.econ*.07+(S.bb==='reese'?.15:0)+skv('disc');
+const disc=()=>(S.bb==='reese'?.15:0)+skv('disc');
 const priceOf=p=>Math.round(p*(1-disc())*100)/100;
 const money$=v=>'$'+(Math.round(v*100)%100?v.toFixed(2):Math.round(v));
 
@@ -158,7 +160,7 @@ const M=[
    ['Walk over and take it. Let them try to stop you.',()=>[fight([60,30],'Take on the Kappa Theta Omega brothers guarding the ram',[['legacies',3],['legacies',3],['legacies',4],['legacies',4]],{start:()=>trouble(30),done:()=>rep('legacies',-10)}),go(SPOT.RAM,'Grab the ram',{press:1,act:'Grab the ram',done:()=>pickupRam()})]]]),
    go(SPOT.BACK,'Carry the ram to the ΑΣΡ backyard (no bike, no sprinting)',{press:1,act:'Set the ram down',carry:'ram'}),C_('The Ram','',"The brothers pour out of the house when they see it. Somebody puts a party hat on the ram. Grant nods once, which you're learning counts as high praise.")],fin:()=>{S.carry=null;placeRam();stand(15);rep('legacies',-15)},reset:()=>{resetRam()}},
  {id:'phone',ch:2,main:1,name:'Phone Home',who:'brett',steps:()=>[C_('Phone Home','Brett Calloway',"Brett looks pale.\n\n\"My ex has my phone. Kayla, at Theta Zeta. She won't give it back, and I need it before... I just need it. Please.\"",[
-   ['Talk her into giving it back',()=>[go(SPOT.TZ,'Ask for the phone at Theta Zeta',{press:1,act:'Knock'}),C_('Theta Zeta','Kayla',"Kayla crosses her arms, then sighs and hands it over. \"Tell Brett he's a coward. He'll know why.\"",null,{fx:()=>{give('phone');rep('sororities',5)}})],()=>(S.rep.sororities>=15||S.grades.speech>=1)?'':'Needs Sororities rep 15 or a Public Speaking grade.'],
+   ['Talk her into giving it back',()=>[go(SPOT.TZ,'Ask for the phone at Theta Zeta',{press:1,act:'Knock'}),C_('Theta Zeta','Kayla',"Kayla crosses her arms, then sighs and hands it over. \"Tell Brett he's a coward. He'll know why.\"",null,{fx:()=>{give('phone');rep('sororities',5)}})],()=>(S.rep.sororities>=15||skv('spk')>=1)?'':'Needs Sororities rep 15 or the Stage Presence skill (CCM skill tree).'],
    ['Buy a knockoff phone at Lucky Pawn ($12) and swap it',()=>[items(SPOT.PAWN,'Buy a knockoff phone at Lucky Pawn',['fakephone']),go(SPOT.TZ,'Swap the phones at Theta Zeta',{press:1,act:'Swap the phones',done:()=>{take('fakephone');give('phone')}})]],
    ['Climb in through the back window after 9 PM',()=>[go(SPOT.TZWIN,'Climb in the back window of Theta Zeta after 9 PM. Stay quiet.',{press:1,act:'Climb in',when:[21,4],stealth:1,watch:['sororities','auth'],spot:'trouble',done:()=>{give('phone');rep('sororities',-5)}})]]]),
    go(SPOT.ASR,'Give Brett his phone',{press:1,act:'Hand over the phone',need:['phone']}),C_('Phone Home','',"On the walk back, the phone lights up in your hand. A group chat called LANTERN '19:\n\n\"Statute of limitations isn't up. Delete everything. — G.\"\n\nBrett snatches it away. \"You didn't see that.\"",null,{fx:()=>{take('phone');S.clue++}})],fin:()=>stand(5),reset:()=>{take('phone');take('fakephone')}},

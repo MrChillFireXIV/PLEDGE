@@ -173,6 +173,8 @@ function animX(g,sp,t,st){const p=g.P;if(!p.kL||g.RAG)return;const k=Math.min(1,
   p.aL.rotation.z=azL-A.lz*.4;p.aR.rotation.z=azR-A.lz*.4;p.aL.rotation.x+=A.lx*.5;p.aR.rotation.x+=A.lx*.5;
   p.fL.rotation.x=-kl*.3*(k>.05?1:0);p.fR.rotation.x=-kr*.3*(k>.05?1:0);
   if(st!=='sit'&&st!=='bike'&&k>.05){p.lL.rotation.x-=.06;p.lR.rotation.x-=.06}
+  /* V355 stance: the legs splay out a little from the hip so the feet stand apart instead of touching (widest standing still, slight while walking) */
+  {const sp_=st==='sit'||st==='bike'?0:k<.05?.085:.03;p.lL.rotation.z=-sp_;p.lR.rotation.z=sp_;p.fL.rotation.z=sp_;p.fR.rotation.z=-sp_}
   if(g.HOLD==='up'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(-.35,0,.14);p.eR.rotation.set(-1.35,0,0)}else if(g.HOLD==='overhead'&&st!=='punch'&&st!=='guard'){p.aL.rotation.set(-2.9,0,-.2);p.aR.rotation.set(-2.9,0,.2);p.eL.rotation.set(-.45,0,0);p.eR.rotation.set(-.45,0,0)}else if(g.HOLD==='bucket'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(p.aR.rotation.x*.35,0,.24);p.eR.rotation.set(-.12,0,0)}
   else if(g.HOLD==='box'&&st!=='punch'&&st!=='guard'){p.aR.rotation.set(-.3,0,.3);p.eR.rotation.set(-2.05,0,0)}
   else if(g.HOLD==='tray'&&st!=='punch'&&st!=='guard'){for(const[a,e,sg]of[[p.aL,p.eL,-1],[p.aR,p.eR,1]]){a.rotation.set(-.03,-sg*.02,-sg*.254);e.rotation.set(-1.296,0,0)}}   // V166 solved so both palms sit on the rim of a tray at chest (0,-.135,.27), r .25

@@ -278,6 +278,14 @@ const SKT={
  edu:skMake('edu',[['📚','Lesson Plans','Education classes count as studied: easier to pass.',{study:1}],['✏️','Quick Study','+5% XP from everything.',{xp:.05}],['🍏','Teacher\'s Pet','Reputation gains are 10% bigger.',{rep:.1}],['📣','Homeroom','Class Spirit gains are 15% bigger.',{spirit:.15}],
    ['🧠','Study Habits','+6% XP from everything.',{xp:.06}],['🗣️','Office Hours','Conversations go your way more often.',{talk:.05}],['🤝','Mentor','Standing with the brothers grows 10% faster.',{stand:.1}],['🏫','Pep Rally','Class Spirit gains are 20% bigger.',{spirit:.2}],
    ['🎓','Honor Roll','+8% XP from everything.',{xp:.08}],['🏆','Teacher of the Year','+8% XP and reputation gains are 15% bigger.',{xp:.08,rep:.15}]])};
+/* V355: the perks the five original classes used to give by grade are now part of these nodes (index 1, 4 and 7: the left-hand line of each tree).
+   [node index, text added to the description, fx merged in, new name (optional), replace the description instead of adding to it (optional)] */
+const SKPERK={design:[[1,'Yearbook photo spots appear on your map.',{ybMap:1}],[4,'Yearbook photos pay $5 each, and you know every spot by name.',{ybPay:1}],[7,'Your yearbook spread makes the cover: $50 more when it is complete.',{ybCov:1}]],
+  as:[[1,'You can mix stink bombs at the Rieveschl lab bench for $2.',{stk:1},'Lab Chemistry'],[4,'You wake up each morning with a stink bomb.',{stkD:1}],[7,'Your stink bombs stun people twice as long.',{stkK:1}]],
+  eng:[[1,'You jump 12% higher.',{jmp:1}],[4,'Your kicks hit 15% harder.',{kick:1}],[7,'Dodge rolls cost half the stamina.',{roll:1}]],
+  bus:[[1,'Shops are 7% cheaper, and Hank will haggle with you.',{disc:.07,hag:1},0,1],[4,'Shops are another 7% cheaper, and you win more often at the pool table.',{disc:.07,pool:1},0,1],[7,'Shops are another 7% cheaper.',{disc:.07}]],
+  ccm:[[1,'New dialogue options open up in tasks.',{spk:1}],[4,'A 60% chance to talk your way out of getting busted.',{spk:1,bust:.6}],[7,'Talking your way out of a bust works 30% more often.',{spk:1,bust:.3}]]};
+for(const col in SKPERK)for(const[i,t,fx,nm,repl]of SKPERK[col]){const n=SKT[col][i];n.d=repl?t:n.d+' '+t;Object.assign(n.fx,fx);if(nm)n.n=nm}
 const skOn=id=>!!(S.sk&&S.sk[id]);
 const skReady=n=>!n.r.length||n.r.filter(skOn).length>=Math.min(n.need||1,n.r.length);
 function skv(k){let v=0;if(!S.sk)return 0;for(const col in SKT)for(const n of SKT[col])if(S.sk[n.id]&&typeof n.fx[k]==='number'&&k!=='study')v+=n.fx[k];return v}
@@ -291,7 +299,7 @@ function skMig(){if(S.spMig)return;S.sp=S.sp||{};S.sk=S.sk||{};for(const c of CL
 function skGain(col,n=1){skMig();S.sp[col]=(S.sp[col]||0)+n}
 function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(id))return;if(!skReady(n)){toast(n.need>1?`Learn ${n.need} of the skills linked below it first.`:'Learn a skill linked below it first.');sfx('bad');return}
   if(skFree(col)<n.c){toast(`You need ${n.c} ${COLL[col].n} point${n.c>1?'s':''}. Pass more ${COLL[col].n} classes.`);sfx('bad');return}
-  S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
+  S.sk[id]=1;if(n.fx.stk&&!invHas('stink'))invAdd('stink');if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
 function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
   const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
   let h=`<div class="skhead"><h2>Skill Tree</h2><span class="mjtag">Major: ${mjNow()?mjNow().n:''}</span></div><div class="skwrap"><div class="sktree">`;

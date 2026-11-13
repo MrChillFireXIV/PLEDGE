@@ -65,7 +65,7 @@ function hbInfo(e){const L=[],b=e.b,bb=e.bb,inB=(x,z,m=4)=>x>=bb[0]-m&&x<=bb[2]+
     if(INT[b.id])L.push(['🚪',b.id==='lodge'&&S.ch<3?'Locked until Chapter 3':'You can go inside'])}
   for(const m of availM()){const[x,z]=mAt(m);if(inB(x,z))L.push([m.side?'🔷':'⭐',m.name.replace(/^Side: /,''),m.side?'Side task':'Story task'])}
   const st=curStep();if(st&&st.x!=null&&st.t!=='card'&&inB(st.x,st.z))L.push(['◎','Your current objective',st.label||'']);
-  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(S.grades.art>=1||(S.tips&&S.tips[p[0]]))&&inB(p[2],p[3]))L.push(['📷','Yearbook photo spot nearby']);
+  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(skv('ybMap')>=1||(S.tips&&S.tips[p[0]]))&&inB(p[2],p[3]))L.push(['📷','Yearbook photo spot nearby']);
   if(!L.length)L.push(['·','Nothing to do inside, but it\'s a landmark on the walking tour']);
   return{sub,L,about:AB[1],cat:AB[0]}}
 function hbTarget(e){const b=e.b;if(b&&b.ex!=null)return[b.ex,b.ez];{const u=(UCD.B||[]).find(u=>u.n===e.name&&u.fp&&u.fn);if(u)return[u.fp[0]+u.fn[0]*2.3,u.fp[1]+u.fn[1]*2.3]}const P0=mapPos();let best=null,bd=1e9;const p=e.poly,n=p.length;
@@ -83,7 +83,7 @@ function mapMarkers(q,X,Z,k,full){const st=curStep(),f=full?1.45:1;if(full)MKH=[
   q.save();if(full){q.shadowColor='rgba(0,0,0,.6)';q.shadowBlur=5;q.shadowOffsetY=1.5}
   const disc=(x,y,r,fill,stroke,lw=2)=>{q.beginPath();q.arc(x,y,r,0,TAU);q.fillStyle=fill;q.fill();q.lineWidth=lw;q.strokeStyle=stroke;q.stroke()};
   {q.fillStyle=TRGOLD?'#ffd873':'#7fd8ff';q.strokeStyle=TRGOLD?'#6a4a00':'#123a7a';q.lineWidth=1.2;for(const p of trailPts){q.beginPath();q.arc(X(p[0]),Z(p[1]),full?3.2:1.8,0,TAU);q.fill();if(full)q.stroke()}}
-  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(S.grades.art>=1||(S.tips&&S.tips[p[0]]))){const x=X(p[2]),y=Z(p[3]),r=6*f;disc(x,y,r,'#14203a','#e2b64c',1.6);q.shadowBlur=0;q.fillStyle='#e2b64c';q.fillRect(x-r*.5,y-r*.28,r,r*.62);q.fillStyle='#14203a';q.beginPath();q.arc(x,y+r*.03,r*.22,0,TAU);q.fill();hit(x,y,r,'Yearbook photo spot',S.grades.art>=2?p[1]:'Somewhere around here',p[2],p[3],()=>cardForPhoto(p))}
+  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(skv('ybMap')>=1||(S.tips&&S.tips[p[0]]))){const x=X(p[2]),y=Z(p[3]),r=6*f;disc(x,y,r,'#14203a','#e2b64c',1.6);q.shadowBlur=0;q.fillStyle='#e2b64c';q.fillRect(x-r*.5,y-r*.28,r,r*.62);q.fillStyle='#14203a';q.beginPath();q.arc(x,y+r*.03,r*.22,0,TAU);q.fill();hit(x,y,r,'Yearbook photo spot',skv('ybPay')>=1?p[1]:'Somewhere around here',p[2],p[3],()=>cardForPhoto(p))}
   for(const b of B)if(b.ex!=null&&['diner','pawn','hank'].includes(b.menu)){const x=X(b.ex),y=Z(b.ez),r=7*f;q.shadowBlur=0;q.font=`900 ${Math.round(17*f)}px Archivo,Arial`;q.textAlign='center';q.textBaseline='middle';q.lineJoin='round';q.lineWidth=Math.max(3,3.2*f);q.strokeStyle='#1d1a16';q.strokeText('$',x,y+.5);q.fillStyle='#e2b64c';q.fillText('$',x,y+.5);hit(x,y,r,b.name,'Shop: '+(SHOP[b.menu]||[]).filter(o=>!o[3]).map(o=>o[1].replace(/ \(.*\)$/,'')).slice(0,4).join(', '),b.ex,b.ez,()=>cardForShop(b))}
   const sl=classWindow();if(sl!==null&&!S.att[S.day+'-'+sl])for(const c of classesAt(S.day,sl)){const b=clsBld(c);if(b&&b.ex!=null){const x=X(b.ex),y=Z(b.ez),r=8*f;q.fillStyle='#2f7fd0';q.strokeStyle='#fff';q.lineWidth=2;q.beginPath();q.roundRect?q.roundRect(x-r,y-r*.8,r*2,r*1.6,3):q.rect(x-r,y-r*.8,r*2,r*1.6);q.fill();q.stroke();q.shadowBlur=0;q.fillStyle='#fff';q.fillRect(x-r*.6,y-r*.45,r*.5,r*.9);q.fillRect(x+r*.1,y-r*.45,r*.5,r*.9);q.fillStyle='#2f7fd0';q.fillRect(x-.6,y-r*.5,1.2,r);
     hit(x,y,r,`Class now: ${CI[c].n}`,`${CI[c].bn} · ${CI[c].prof} · starts at ${sl?'1 PM':'9 AM'}`,b.ex,b.ez,()=>cardForClass(c,b,sl))}}
@@ -203,7 +203,7 @@ function cardForArea(wx,wz,tx,tz){const a=areaAt(wx,wz),nm=a?a[0]:(inCampus(wx,w
   const near=hbList().map(e=>[e,Math.hypot(e.c[0]-wx,e.c[1]-wz)]).sort((a,b)=>a[1]-b[1]).slice(0,3).map(([e,d])=>['🏛',e.name,`${bldAbout(e)[0]} · ${Math.round(d)} m away`]);
   const todo=[];for(const m of availM()){const[x,z]=mAt(m);const d=Math.hypot(x-wx,z-wz);if(d<45)todo.push([m.side?'🔷':'⭐',m.name.replace(/^Side: /,''),`${m.side?'Side task':'Story task'} · ${Math.round(d)} m away`])}
   for(const s2 of SIDES()){const d=Math.hypot(s2[0]-wx,s2[1]-wz);if(d<45)todo.push([MGIC[s2[2]]||'◆',s2[2],`Minigame · ${Math.round(d)} m away`])}
-  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(S.grades.art>=1||(S.tips&&S.tips[p[0]]))&&Math.hypot(p[2]-wx,p[3]-wz)<45)todo.push(['📷','Yearbook photo spot nearby'])
+  for(const p of PHOTOS)if(!S.photos[p[0]]&&ybOn()&&(skv('ybMap')>=1||(S.tips&&S.tips[p[0]]))&&Math.hypot(p[2]-wx,p[3]-wz)<45)todo.push(['📷','Yearbook photo spot nearby'])
   return{name:pretty,cat:info[0],sub:(()=>{try{return terrSub(wx,wz)}catch(e){return''}})(),about:info[1],secs:[['NEARBY BUILDINGS',near,'No buildings nearby.'],['THINGS TO DO NEARBY',todo.slice(0,4),'Nothing going on here right now.']],route:{x:tx,z:tz,px:wx,pz:wz,name:pretty}}}
 
 
@@ -223,7 +223,7 @@ function cardForMission(m,w){const nm=m.name.replace(/^Side: /,''),n=w&&NN[w],ro
   if(m.when)rows.push(['🕒','Available '+m.when[0]+':00 to '+m.when[1]+':00']);
   return{cat:m.side?'Side Task':'Story Task',name:nm,sub:m.side?'Optional · extra cash and reputation':'Main story',about:m.side?'An optional favor for someone on campus.':'Part of the main story. Finishing it moves your rush week forward.',secs:[['WHERE TO GO',rows,'']]}}
 function cardForObjective(st){return{cat:'Current Objective',name:st.label||'Objective',sub:'Your next step',about:'Where your current task wants you to go next.',secs:[['WHERE',[['📍',mkArea(st.x,st.z)||'Campus',mkNear(st.x,st.z)]],'']]}}
-function cardForPhoto(p){const known=S.grades.art>=2;return{cat:'Yearbook Photo',name:known?p[1]:'Yearbook photo spot',sub:'Photo spot',about:known?'A shot the yearbook editor wants. Stand near it and take the picture.':'The yearbook editor wants a shot somewhere around here.',secs:[['WHERE',[['📷',mkArea(p[2],p[3])||'Around here',mkNear(p[2],p[3])]],'']]}}
+function cardForPhoto(p){const known=skv('ybPay')>=1;return{cat:'Yearbook Photo',name:known?p[1]:'Yearbook photo spot',sub:'Photo spot',about:known?'A shot the yearbook editor wants. Stand near it and take the picture.':'The yearbook editor wants a shot somewhere around here.',secs:[['WHERE',[['📷',mkArea(p[2],p[3])||'Around here',mkNear(p[2],p[3])]],'']]}}
 function cardForGiver(n){const o=n.gigOffer||{},T=GIGT[o.k]||{};
   return{cat:'Odd Job',name:n.name,sub:(T.title||'Student')+' · pays about $'+(o.pay||'?'),about:GIGABOUT[o.k]||'Somebody needs a favor and will pay for it.',secs:[['HOW IT WORKS',[['💬','Walk up and talk to them','Accept the offer to start'],['💵','Pays $'+(o.pay||'?'),'Paid when you report back']],''],['WHERE THEY ARE',[['📍',mkArea(n.x,n.z)||'Campus',mkNear(n.x,n.z)]],'']]}}
 function cardForGigPoint(g){let lab='',pt=[0,0];try{lab=GIGT[g.k].lab(g);pt=GIGT[g.k].pts(g)[0]||pt}catch(e){}return{cat:'Odd Job Objective',name:lab||'Odd job',sub:'Pays $'+(g.pay||'?'),about:GIGABOUT[g.k]||'Your current odd job.',secs:[['STATUS',[['💵','Pays $'+(g.pay||'?')],['📍',mkArea(pt[0],pt[1])||'Campus',mkNear(pt[0],pt[1])]],'']]}}
