@@ -2,7 +2,7 @@
 // (one for the body, one for the wallet, one for people skills) and their courses; classes outside the major are closed to him, and the Skill Tree
 // shows exactly those three colleges. cols[0] is the home college (all five courses); the other two give four courses each (skip = left out).
 const COLFX={design:['Wallet','Shop discounts, weekly pay and faster XP'],as:['Body','Harder hits, more stamina and faster XP'],eng:['Body','Punch damage, defense and run speed'],
-  bus:['Wallet','Weekly pay, discounts and reputation'],ccm:['People','Persuasion, class spirit and house standing'],law:['People','Less police heat and talking out of busts'],health:['Body','More health, stamina and defense']};
+  bus:['Wallet','Weekly pay, discounts and reputation'],ccm:['People','Persuasion, class spirit and house standing'],law:['People','Less police heat and talking out of busts'],edu:['People','Faster XP, class spirit and reputation'],health:['Body','More health, stamina and defense']};
 const MAJ={
   civil:{n:'Civil Engineering',d:'Bridges, buildings and the codes that keep them standing.',cols:['eng','design','law'],skip:['fash','trial']},
   indd:{n:'Industrial Design',d:'Making things people want to pick up, then selling the idea to a room.',cols:['design','eng','ccm'],skip:['cs','music']},
@@ -25,7 +25,26 @@ const MAJ={
   musbiz:{n:'Music Business',d:'The band is the easy part. The contract and the tour budget are the job.',cols:['ccm','as','bus'],skip:['chem','acct']},
   crimjust:{n:'Criminal Justice',d:'Police work from the inside: procedure, people and paperwork.',cols:['law','health','bus'],skip:['nutr','mkt']},
   hca:{n:'Health Care Administration',d:'Running the hospital instead of working the floor.',cols:['health','bus','law'],skip:['mkt','invest']},
-  psychology:{n:'Psychology',d:'Why people do what they do, and how to stand in front of a room and explain it.',cols:['health','bus','ccm'],skip:['acct','music']}};
+  psychology:{n:'Psychology',d:'Why people do what they do, and how to stand in front of a room and explain it.',cols:['health','bus','ccm'],skip:['acct','music']},
+  /* V352 eighteen more, including the School of Education (39 in all) */
+  busadmin:{n:'Business Administration',d:'A little of everything a company needs, and the law that keeps it out of court.',cols:['bus','as','law'],skip:['geol','invest']},
+  accounting:{n:'Accounting',d:'Somebody has to know where the money went. It pays well to be that person.',cols:['bus','eng','ccm'],skip:['robo','dance']},
+  econ:{n:'Economics',d:'Why prices move and people don\'t, argued out loud.',cols:['as','bus','ccm'],skip:['mkt','dance']},
+  english:{n:'English',d:'Read closely, write clearly, argue well.',cols:['as','design','law'],skip:['arch','invest']},
+  history:{n:'History',d:'Old arguments, primary sources and a classroom of your own some day.',cols:['as','design','edu'],skip:['indd','coach']},
+  chemistry:{n:'Chemistry',d:'The lab, the patent office or the front of a classroom. Your pick.',cols:['as','bus','edu'],skip:['mkt','coach']},
+  aero:{n:'Aerospace Engineering',d:'Things that fly, and the drawings and presentations that get them funded.',cols:['eng','design','ccm'],skip:['fash','dance']},
+  elec:{n:'Electrical Engineering',d:'Circuits, a product to sell and a lab section to teach.',cols:['eng','bus','edu'],skip:['mkt','child']},
+  interior:{n:'Interior Design',d:'Rooms that work for the people in them, and pass inspection.',cols:['design','health','law'],skip:['nutr','trial']},
+  comm:{n:'Communications',d:'Writing, speaking and making it look good on a screen.',cols:['ccm','as','design'],skip:['chem','arch']},
+  film:{n:'Film',d:'Cameras, cuts and the gear that makes both possible.',cols:['ccm','eng','design'],skip:['mech','fash']},
+  musicperf:{n:'Music Performance',d:'Hours in a practice room, a body that survives it, and a way to get paid.',cols:['ccm','health','bus'],skip:['anat','acct']},
+  polisci:{n:'Political Science',d:'Power, history and the campaign poster.',cols:['law','as','design'],skip:['chem','fash']},
+  cyber:{n:'Cybersecurity',d:'Break into systems legally, then bill for it.',cols:['law','eng','bus'],skip:['mech','mkt']},
+  exsci:{n:'Exercise Science',d:'How bodies move, how gyms make money, and how to coach.',cols:['health','bus','edu'],skip:['acct','child']},
+  earlyed:{n:'Early Childhood Education',d:'Small people, big feelings, and a lot of construction paper.',cols:['edu','health','design'],skip:['smed','arch']},
+  seced:{n:'Secondary Education',d:'Teach a subject you love to teenagers who don\'t. Yet.',cols:['edu','as','bus'],skip:['fchem','fin']},
+  physed:{n:'Physical Education',d:'A whistle, a clipboard and a gym full of kids.',cols:['edu','health','bus'],skip:['anat','acct']}};
 /* majors grouped by home college, in college order */
 const MAJG=COLK.map(col=>[col,Object.keys(MAJ).filter(k=>MAJ[k].cols[0]===col)]).filter(g=>g[1].length);
 function mjNow(){return S.major&&MAJ[S.major]||null}

@@ -1,8 +1,8 @@
 // ================================================================ GAME STATE
 /* V308 colleges: every passed class gives a skill point of its college, spent in the Skill Tree tab */
 const COLL={design:{n:'DAAP',full:'Design, Architecture, Art & Planning',ic:'✏️',c:'#9a4ac0'},as:{n:'Arts & Sciences',full:'College of Arts & Sciences',ic:'🔬',c:'#2f78c8'},eng:{n:'Engineering',full:'College of Engineering & Applied Science',ic:'⚙️',c:'#c87a1a'},
-  bus:{n:'Business',full:'Lindner College of Business',ic:'💼',c:'#1f9a5e'},ccm:{n:'CCM',full:'College-Conservatory of Music',ic:'🎭',c:'#c83a5e'},law:{n:'Law & Justice',full:'College of Law · Criminal Justice',ic:'⚖️',c:'#8a6a2a'},health:{n:'Health',full:'Health & Human Services',ic:'🩺',c:'#1fa0a0'}};
-const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych','gfx','fash','hist','acct','fin','entr','act','film','dance','conlaw','contract','invest','nutr','anat','aid'];
+  bus:{n:'Business',full:'Lindner College of Business',ic:'💼',c:'#1f9a5e'},ccm:{n:'CCM',full:'College-Conservatory of Music',ic:'🎭',c:'#c83a5e'},law:{n:'Law & Justice',full:'College of Law · Criminal Justice',ic:'⚖️',c:'#8a6a2a'},health:{n:'Health',full:'Health & Human Services',ic:'🩺',c:'#1fa0a0'},edu:{n:'Education',full:'School of Education',ic:'📚',c:'#7a8f1f'}};
+const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych','gfx','fash','hist','acct','fin','entr','act','film','dance','conlaw','contract','invest','nutr','anat','aid','teach','child','edpsy','clsm','coach'];
 const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. Lindqvist',perk:['Shops give you 7% off.','14% off everywhere, and Hank will haggle with you.','21% off everywhere. You think in margins now.']},
   chem:{n:'Chemistry',col:'as',b:'chem',bn:'Rieveschl Hall',prof:'Dr. Abernathy',perk:['You can mix stink bombs in the Rieveschl lab for $2.','You wake up each morning with a stink bomb.','Your stink bombs knock people out of a fight twice as long.']},
   speech:{n:'Public Speaking',col:'ccm',b:'speech',bn:'CCM',prof:'Prof. Okafor',perk:['New dialogue options open up in tasks.','60% chance to talk your way out of getting busted.','90% chance to talk your way out of getting busted.']},
@@ -40,10 +40,16 @@ const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. 
  ['invest','Criminal Investigation','law','uc27','Teachers College','Det. Ruiz (ret.)','memory','CJ 2040 · NOTICE EVERYTHING','cj'],
  ['nutr','Nutrition','health','uc21','Edwards Center','Dr. Lindgren','sort','NUTR 1030 · PROTEIN, CARBS, FAT','smed'],
  ['aid','First Aid','health','uc21','Edwards Center','Nurse Castillo','meter','HLTH 1050 · DIRECT PRESSURE STOPS BLEEDING','smed'],
- ['anat','Anatomy','health','uc23','Clifton Court Hall','Dr. Osei','quiz','BIOL 2001 · 206 BONES, GIVE OR TAKE','psych']
+ ['anat','Anatomy','health','uc23','Clifton Court Hall','Dr. Osei','quiz','BIOL 2001 · 206 BONES, GIVE OR TAKE','psych'],
+ /* V352 School of Education, in Dyer Hall (its own classroom; the other four share it) */
+ ['teach','Intro to Teaching','edu','uc54','Dyer Hall','Prof. Hargrove','quiz','EDST 1001 · ASK, DON\'T TELL'],
+ ['child','Child Development','edu','uc54','Dyer Hall','Prof. Mendes','sort','EDST 1010 · EVERY CHILD, IN THEIR OWN TIME','teach'],
+ ['edpsy','Educational Psychology','edu','uc54','Dyer Hall','Prof. Achebe','memory','EDST 2010 · REPETITION BUILDS MEMORY','teach'],
+ ['clsm','Classroom Management','edu','uc54','Dyer Hall','Prof. Dunleavy','meter','EDST 2050 · WAIT FOR QUIET','teach'],
+ ['coach','Coaching','edu','uc54','Dyer Hall','Coach Brannock','rhythm','EDST 2100 · ON MY WHISTLE','teach']
 ].forEach(([k,n,col,bid,bn,prof,mg,board,host])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]};if(host)CI[k].host=host});
 /* the five classes of each college, in schedule order */
-const COLK=Object.keys(COLL),COLCLS={design:['art','arch','indd','gfx','fash'],as:['chem','geol','fchem','write','hist'],eng:['phys','calc','mech','robo','cs'],bus:['econ','mkt','acct','fin','entr'],ccm:['speech','music','act','film','dance'],law:['trial','cj','conlaw','contract','invest'],health:['smed','psych','nutr','anat','aid']};
+const COLK=Object.keys(COLL),COLCLS={design:['art','arch','indd','gfx','fash'],as:['chem','geol','fchem','write','hist'],eng:['phys','calc','mech','robo','cs'],bus:['econ','mkt','acct','fin','entr'],ccm:['speech','music','act','film','dance'],law:['trial','cj','conlaw','contract','invest'],health:['smed','psych','nutr','anat','aid'],edu:['teach','child','edpsy','clsm','coach']};
 const DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const CHN=['','Rush Week','Rivalries','The Old Guard','The Lantern Walk','Epilogue'];
 const S0=()=>({day:1,gt:15,ch:1,hp:100,mhp:100,sta:100,lvl:1,xp:0,money:5,pledged:0,spirit:50,pimg:{},trouble:0,standing:0,ev:0,clue:0,ally:0,bb:null,deanDeal:0,radioKey:0,lena:0,trust:0,budget:0,studied:0,grades:Object.fromEntries(CLS.map(c=>[c,0])),sp:{},sk:{},spMig:0,att:{},rep:{legacies:-10,athletes:0,studentgov:0,activists:0,townies:-10,sororities:0},done:{},photos:{},inv:[null,null,null],items:{},carry:null,ending:null,stats:{kos:0,pong:0,ff:0,kart:0,radio:0,busts:0},daily:{}});

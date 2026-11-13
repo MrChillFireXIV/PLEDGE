@@ -233,7 +233,24 @@ const MGD={
    ['The biceps is in the…','Upper arm','Thigh','Calf','Back',''],
    ['The diaphragm helps you…','Breathe','Digest','See','Balance',''],
    ['An adult human has about how many bones?','206','106','306','412','']]},
- aid:{intro:'Direct pressure stops bleeding. Press down while the gauge is in the green. Five wounds.',act:'Press',unit:'Wound',good:'Firm, steady pressure. The bleeding slows.',bad:'Too light or too hard. Try again.'}};
+ aid:{intro:'Direct pressure stops bleeding. Press down while the gauge is in the green. Five wounds.',act:'Press',unit:'Wound',good:'Firm, steady pressure. The bleeding slows.',bad:'Too light or too hard. Try again.'},
+ /* V352 School of Education */
+ teach:{intro:'Teaching is mostly asking the right question and then waiting. Four questions.',q:[
+   ['A student gives a wrong answer in front of the class. The best first move is to…','Ask how they got there','Tell them the right answer and move on','Call on someone smarter','Sigh loudly','Their reasoning shows you what to fix.'],
+   ['"Wait time" after asking a question should be about…','Three to five seconds','Half a second','A full minute','No pause at all','Most teachers wait under one second.'],
+   ['A rubric is…','A written guide to how work will be graded','A seating chart','A type of pop quiz','A late pass',''],
+   ['A lesson plan starts with…','What students should be able to do by the end','A list of jokes','The homework','The test answers','Begin with the goal.'],
+   ['Which is formative assessment?','A quick ungraded check during the lesson','The final exam','The report card','The diploma','It tells you what to reteach.'],
+   ['Students remember the most from…','Doing it and explaining it themselves','Hearing it once','Reading the slide','Watching the clock',''],
+   ['Praise works best when it is…','Specific about what they did well','Loud','Given to everyone equally','Saved for the end of the year',''],
+   ['The best way to learn every student\'s name is to…','Use the names from day one','Wait until midterms','Number the desks','Avoid names entirely','']]},
+ child:{intro:'Every child grows in their own time, but there is an order to it. Sort each milestone: toddler, grade school or teenager.',bins:['Toddler','Grade school','Teenager'],items:[
+   ['First steps','Toddler',''],['First words','Toddler',''],['Stacking blocks','Toddler',''],['Potty training','Toddler',''],['Playing beside other kids, not with them','Toddler','Parallel play.'],
+   ['Learning to read','Grade school',''],['Losing baby teeth','Grade school',''],['Riding a bike','Grade school',''],['Multiplication tables','Grade school',''],['Tying shoelaces','Grade school',''],
+   ['Getting a driver\'s permit','Teenager',''],['Voice changes and growth spurts','Teenager',''],['First part-time job','Teenager',''],['Applying to college','Teenager',''],['High school algebra','Teenager','']]},
+ edpsy:{intro:'Repetition builds memory. Watch the pattern the class is learning, then repeat it back.'},
+ clsm:{intro:'A loud room goes quiet for a second at a time. Give your instruction while the noise is in the green. Five instructions.',act:'Give the instruction',unit:'Instruction',good:'They heard you. Pencils move.',bad:'Nobody heard a word of that.'},
+ coach:{intro:'Drills run on the whistle. Blow it on every beat and keep the line moving.',bpm:[100,108,116],n:16,win:[150,120,95],metro:1,act:'Whistle',how:'16 whistles on the beat (button or Space)'}};
 const MGF={quiz:mgQuiz,math:mgMath,sort:mgSort,memory:mgMemory,meter:mgMeter,rhythm:mgRhythm,grid:mgGrid};
 
 // ---------------------------------------------------------------- the Skill Tree
@@ -258,7 +275,10 @@ const SKT={
  law:skMake('law',[['⚖️','Case Briefs','Law & Justice classes count as studied.',{study:1}],['🪪','Know Your Rights','Police heat builds 15% slower.',{heat:.15}],['📜','Plea Deal','+8% chance to talk your way out of a bust.',{bust:.08}],['🗨️','Cross-Examination','Conversations go your way more often.',{talk:.05}],
    ['🕶️','Low Profile','Police heat builds another 15% slower.',{heat:.15}],['📁','Precedent','+10% chance to talk your way out of a bust.',{bust:.1}],['🛡️','Self-Defense','Take 5% less damage.',{def:.05}],['🚔','Clean Record','Police heat builds another 20% slower.',{heat:.2}],['🧑‍⚖️','Objection!','+12% chance to talk your way out of a bust.',{bust:.12}],['🏛️','Supreme Court','+10% bust escape, heat 15% slower.',{bust:.1,heat:.15}]]),
  health:skMake('health',[['🩺','Rounds','Health classes count as studied.',{study:1}],['💪','Conditioning','+10 max health.',{hp:10}],['🫁','Cardio','Stamina recovers 12% faster.',{sta:.12}],['🧘','Composure','Take 5% less damage.',{def:.05}],
-   ['🍎','Nutrition','+10 max health.',{hp:10}],['👟','Agility','Run 4% faster.',{spd:.04}],['❤️‍🩹','Recovery','Stamina recovers 15% faster.',{sta:.15}],['🏋️','Strength Block','+15 max health.',{hp:15}],['🦺','Iron Constitution','Take 7% less damage.',{def:.07}],['🏥','Chief Resident','+20 max health, take 6% less damage.',{hp:20,def:.06}]])};
+   ['🍎','Nutrition','+10 max health.',{hp:10}],['👟','Agility','Run 4% faster.',{spd:.04}],['❤️‍🩹','Recovery','Stamina recovers 15% faster.',{sta:.15}],['🏋️','Strength Block','+15 max health.',{hp:15}],['🦺','Iron Constitution','Take 7% less damage.',{def:.07}],['🏥','Chief Resident','+20 max health, take 6% less damage.',{hp:20,def:.06}]]),
+ edu:skMake('edu',[['📚','Lesson Plans','Education classes count as studied: easier to pass.',{study:1}],['✏️','Quick Study','+5% XP from everything.',{xp:.05}],['🍏','Teacher\'s Pet','Reputation gains are 10% bigger.',{rep:.1}],['📣','Homeroom','Class Spirit gains are 15% bigger.',{spirit:.15}],
+   ['🧠','Study Habits','+6% XP from everything.',{xp:.06}],['🗣️','Office Hours','Conversations go your way more often.',{talk:.05}],['🤝','Mentor','Standing with the brothers grows 10% faster.',{stand:.1}],['🏫','Pep Rally','Class Spirit gains are 20% bigger.',{spirit:.2}],
+   ['🎓','Honor Roll','+8% XP from everything.',{xp:.08}],['🏆','Teacher of the Year','+8% XP and reputation gains are 15% bigger.',{xp:.08,rep:.15}]])};
 const skOn=id=>!!(S.sk&&S.sk[id]);
 const skReady=n=>!n.r.length||n.r.filter(skOn).length>=Math.min(n.need||1,n.r.length);
 function skv(k){let v=0;if(!S.sk)return 0;for(const col in SKT)for(const n of SKT[col])if(S.sk[n.id]&&typeof n.fx[k]==='number'&&k!=='study')v+=n.fx[k];return v}
