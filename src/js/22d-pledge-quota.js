@@ -56,7 +56,7 @@ const PQ={
   mg:[["spencer","Weather Quiz","quiz",{intro:"A forecast is science, pledge. Four questions.",q:[["Tall, dark cumulonimbus clouds bring…","Thunderstorms","Fog","Clear skies","Light breezes",""],["A barometer measures…","Air pressure","Wind speed","Rainfall","Humidity","Falling pressure means a storm is coming."],["An anemometer measures…","Wind speed","Temperature","Cloud height","Snow depth",""],["Water freezes at…","32°F","0°F","50°F","212°F","That's 0°C."],["Hurricanes are ranked in…","Categories 1 to 5","Levels A to F","Stars","Decibels","The Saffir-Simpson scale."]]}],
       ["budig","Read the Barometer","meter",PQ_METER("The needle is jumpy. Take each reading when it settles in the band. Five readings.","Read it","Reading","Logged.","Bad reading. Do it again tomorrow.")],
       ["sheakley","Radar Pattern","memory",{intro:"The radar lights up cells in order as the storm moves. Watch, then track it."}]]},
- basketball:{t:20,tv:"Throw the ball",tn:"throws",host:"Assistant coach",
+ basketball:{t:15,tv:"Tell someone about your basketball",tn:"people told about the ball",host:"Assistant coach",
   sp:[["bigo","Pay respects at the Big O statue","Mr. Robertson. Sir. I'm trying my best."],["gym","Dribble through the Rec Center doors","No, I can't put it down. Pledge rules."],["armory","Spin the ball outside the Armory Fieldhouse","Three seconds on one finger. New record."],["sheakley","Run a suicide drill at the Sheakley Center","Baseline. Free throw. Baseline. Why."],["victory","Dribble a lap around Victory Plaza","Left hand only. Coach's orders."]],
   mg:[["steger","Free Throws","meter",PQ_METER("Release at the top of your shot. Five free throws.","Shoot","Shot","Nothing but net.","Brick.")],
       ["slawn","Dribble Drill","rhythm",PQ_BEAT("Keep the dribble on the beat. Lose it and you run laps.","Dribble",116)],
@@ -119,7 +119,9 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
   try{saveGame()}catch(e){}}
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
-function pqUse(){const q=pqGet();if(!q||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
+/* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
+const PQ_JOBTALK={basketball:1};
+function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
 // ---------------------------------------------------------------- the marked places
@@ -154,7 +156,7 @@ let PQ_IB=0;
 async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_IB=1;const D=PQ[q.k],R_=PR[q.k],g=NN.grant;
   try{if(g&&NP.includes(g)&&!g.hidden){
     await c1Line(g,'One more thing, '+R_.n+'. Every pledge in this house carries a quota. The job is not a costume. It is a debt.');
-    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times. Press T. I will know.');
+    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times.'+(PQ_JOBTALK[q.k]?' Different people. I will know.':' Press T. I will know.'));
     await c1Line(g,'Two: five special cases around campus. Places where a '+R_.n+' is expected to show up. They are marked. Go to each one.');
     await c1Line(g,'Three: three trials that only a '+R_.n+' can run. Also marked. Pass all three.');
     await c1Line(g,'The patch under your job shows the number. Nobody walks into Hell Week under one hundred percent. Nobody.');
