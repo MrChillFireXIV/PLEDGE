@@ -79,7 +79,9 @@ const NAMED=[
   {id:'charles',name:'Charles Ashby',title:'ΑΣΡ Alumni Trust',cl:'oldguard',x:121,z:570,a:0,lvl:9,shirt:0x1d2440,sleeve:0x1d2440,hair:0x9a9a9a,ch:3},
   {id:'gus',name:'Gus Pappas',title:'Groundskeeper',cl:'staff',x:196,z:86,a:PI/2,lvl:5,shirt:0x3a5a3a,sleeve:0x3a5a3a,pants:0x4a4038,hair:0x9a9a9a,skin:0xe0ac80},
   {id:'marisol',name:'Marisol Vega',title:"Waitress at Ruby's",cl:'townies',x:176,z:595.2,a:PI,lvl:4,fem:1,shirt:0xb3262e,sleeve:0xb3262e,hair:0x151515,skin:0xc68a5c},
-  {id:'priya',name:'Priya Nair',title:'Student Gov Treasurer',cl:'studentgov',x:212,z:116.5,a:0,lvl:3,fem:1,hair:0x151515,skin:0x9b6640}];
+  {id:'priya',name:'Priya Nair',title:'Student Gov Treasurer',cl:'studentgov',x:212,z:116.5,a:0,lvl:3,fem:1,hair:0x151515,skin:0x9b6640},
+  /* V349 yearbook editor: gives the side story that introduces the yearbook */
+  {id:'tess',name:'Tess Okafor',title:'Yearbook Editor',cl:'studentgov',x:199,z:121,a:-PI/2,lvl:3,fem:1,shirt:0xe2b64c,sleeve:0xe2b64c,pants:0x2a2c40,hair:0x2a1a12,skin:0x8a5a36}];
 
 // ---------- Lambda Chi Alpha roster (green shirts, purple letters, yellow outline)
 const LXA_BUILD={skinny:[.84,1,.84],avg:[1,1,1],semi:[1.14,1,1.2],fat:[1.38,1,1.45],big:[1.34,1.05,1.4],shortSkinny:[.84,.88,.84],short:[1,.88,1],shortSemi:[1.14,.88,1.2],tallSkinny:[.84,1.1,.84],builder:[1.5,1.04,1.25]};

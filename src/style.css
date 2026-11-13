@@ -585,3 +585,46 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .spbar{position:relative;height:14px;margin-top:8px;border-radius:99px;background:rgba(0,0,0,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.25);overflow:hidden}
 .spbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#c0392b,#d8a040 45%,#3f8f50) 0 0/100% 100% no-repeat}
 .spbar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1.5px),rgba(255,255,255,.75) calc(10% - 1.5px) 10%)}
+
+/* V344 Tasks tab */
+.tkstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:6px 0 4px}
+.tkchip{display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:4px solid var(--maroon)!important;border-radius:10px;background:#fffdf6;border:1.5px solid #d9cba8;box-shadow:0 2px 0 #e7dcc2}
+.tkchip .tkic{font-size:22px;line-height:1}.tkchip small{display:block;font-family:var(--fd);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a7350}
+.tkchip b{font-size:15px}.tkchip.up b{color:#3f8f50}.tkchip.down b{color:#c0392b}
+.tkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:6px 0 4px}
+.tkgrid.now{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.tkcard{--tk:#c9a227;position:relative;padding:10px 14px 12px;border-radius:12px;background:#fffdf6;border:1.5px solid color-mix(in srgb,var(--tk) 55%,#d9cba8);border-left:6px solid var(--tk);box-shadow:0 2px 8px rgba(60,40,10,.08)}
+.tkcard.side{--tk:#2f6fc0}.tkcard.odd{--tk:#2f9a4a}.tkcard.main{--tk:#c9a227}
+.tkcard h4{margin:2px 0 4px;font-size:16.5px;line-height:1.25}
+.tkcard p{margin:0;font-size:13.5px;line-height:1.4}
+.tktag{font-family:var(--fd);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--tk) 80%,#000)}
+.tkdist{display:block;margin-top:5px;font-size:12px;opacity:.7}
+.tkwhen{display:inline-block;margin-left:4px;padding:0 7px;border-radius:99px;font-size:11.5px;background:color-mix(in srgb,var(--tk) 15%,#fff);color:color-mix(in srgb,var(--tk) 80%,#000)}
+.tkcard.tknow{background:linear-gradient(135deg,color-mix(in srgb,var(--tk) 16%,#fffdf6),#fffdf6 60%);border-width:2px;border-left-width:7px}
+.tkcard.tknow h4{font-family:var(--fh);font-size:22px;color:color-mix(in srgb,var(--tk) 75%,#000)}
+.tkcard.tknow h4::before{content:'★ ';color:var(--tk)}
+.tkstep{font-size:14.5px!important}
+.tkprog{height:8px;border-radius:99px;background:rgba(0,0,0,.1);overflow:hidden;margin:8px 0 3px}.tkprog i{display:block;height:100%;background:var(--tk);border-radius:99px}
+.tkpn{font-size:11.5px;opacity:.7}
+.tkempty{opacity:.7;font-style:italic}
+.tkchk{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:3px 18px;font-size:13.5px}
+.tkchk li{display:flex;gap:8px;align-items:flex-start}.tkchk li span{flex:none;width:15px;height:15px;margin-top:2px;border:2px solid var(--tk);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff}
+.tkchk li.dn span{background:var(--tk)}.tkchk li.dn{opacity:.55;text-decoration:line-through}
+.tkh{font-family:var(--fb);font-size:12px;letter-spacing:0;text-transform:none;color:#8a7350;font-weight:400}
+
+/* V345 Settings sub-pages */
+.setsub{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:6px 0 14px}
+.setsb{display:grid;grid-template-columns:1fr;grid-template-rows:auto auto;align-items:center;text-align:left;padding:10px 14px;border-radius:12px;border:1.5px solid #d9cba8;background:#fffdf6;box-shadow:0 2px 0 #e7dcc2;cursor:pointer;font:inherit;color:inherit}
+.setsb span{grid-row:1/3;font-size:26px}.setsb b{font-size:15.5px}.setsb small{opacity:.65;font-size:12.5px}
+.setsb:hover{border-color:var(--maroon);transform:translateY(-1px)}
+.setback{display:inline-block;margin:0 0 8px;padding:4px 12px;border-radius:99px;border:1.5px solid #d9cba8;background:#fffdf6;font:inherit;font-size:13px;cursor:pointer;color:var(--maroon)}
+.tkchip .tkic{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:color-mix(in srgb,var(--maroon) 10%,#fff);color:var(--maroon);flex:none}
+/* V348: Class Spirit on its own full-width line; roll call is a small strip below it */
+.pcrow{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.pcrow .rcall{align-self:flex-start;gap:10px;padding:6px 12px;border-radius:10px;flex-wrap:nowrap;max-width:100%}
+.pcrow .rcclock{width:26px;height:26px;box-shadow:inset 0 0 0 2px #e2b64c}
+.pcrow .rcclock i:first-child{height:7px;margin:-7px 0 0 -1px;width:2px}.pcrow .rcclock i:last-child{height:10px;margin:-10px 0 0 -1px;width:2px}
+.pcrow .rctx{min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.pcrow .rctx .lbl{font-size:10.5px}.pcrow .rctx b{display:inline;font-size:16px}
+.pcrow .rcst{padding:2px 9px;font-size:11.5px}
+/* V349 roll call strip above Class Spirit */
+.pcrow .rcall{order:-1}
