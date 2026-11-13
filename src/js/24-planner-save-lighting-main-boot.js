@@ -226,15 +226,22 @@ function setupTouch(){if(!matchMedia('(pointer:coarse)').matches)return;$('touch
 
 // ================================================================ BOOT
 function gfxReady(){if(GFX!=='enhanced')return;try{ppInit()}catch(e){console.warn('post-processing off:',e);PP.ready=false;R.toneMapping=THREE.ACESFilmicToneMapping}for(const m of FMLIST)pbrize(m,{detail:1});sc.traverse(o=>{const m=o.material;if(o.isMesh&&m&&!Array.isArray(m)&&m.isMeshStandardMaterial&&m.map&&m.map.image&&m.map.image.width>256&&!o.userData.terrain&&!m.transparent)pbrize(m)});envUpdate(true)}
-function prewarm(){try{gfxReady();for(const id in INT)INT[id].g.visible=true;for(const n of NP)n.g.visible=true;const n0=NP.find(n=>!n.tag);if(n0)mkTag(n0);const d=mkDad();sc.add(d);TRUCK.visible=true;
-  /* V296 shaders for everything (interiors, every character, the truck, a name tag) are compiled without drawing, so their textures only go to the graphics card when they're first seen. Before, this drew every interior and gave all ~740 characters a name tag, which loaded about a gigabyte of textures up front and could run the graphics card out of memory */
-  R.compile(sc,cam);sc.remove(d);TRUCK.visible=false;for(const id in INT)INT[id].g.visible=false;for(const n of NP)n.g.visible=false;if(n0)tagDrop(n0);
-  for(const[x,z]of[[70,80],[70,300],[220,150],[330,150],[460,120],[600,120],[260,320],[400,320],[540,330],[650,320],[260,480],[420,500],[580,500],[250,640],[70,620]]){cam.position.set(x,70,z+.01);cam.lookAt(x,0,z);R.render(sc,cam)}}catch(e){console.warn(e)}}
-function begin(fresh){SAVEBLOCK=0;audioInit();window.__played=1;try{const pn=document.querySelector('#title .pennant');TC.pr=fresh&&pn&&!$('title').hidden?pn.getBoundingClientRect():null}catch(e){}$('title').hidden=true;if(matchMedia('(pointer:coarse)').matches)$('touch').hidden=false;$('hud').hidden=false;mode='play';
+/* V360: the graphics warm-up runs after the title screen is up instead of holding the loading screen. It is cut into steps (shader compile, then one
+   overhead render per part of campus) with a pause between each so the menu stays responsive; pressing Play finishes whatever is left at once. */
+let PREWQ=[];
+function prewarmSteps(){const q=[()=>{gfxReady();for(const id in INT)INT[id].g.visible=true;for(const n of NP)n.g.visible=true;const n0=NP.find(n=>!n.tag&&!n.g.userData.lazy);if(n0)mkTag(n0);const d=mkDad();sc.add(d);TRUCK.visible=true;
+    /* V296 shaders for everything (interiors, the characters that are built, the truck, a name tag) are compiled without drawing, so their textures only go to the graphics card when they're first seen */
+    R.compile(sc,cam);sc.remove(d);TRUCK.visible=false;for(const id in INT)INT[id].g.visible=false;for(const n of NP)n.g.visible=false;if(n0)tagDrop(n0)}];
+  for(const[x,z]of[[70,80],[70,300],[220,150],[330,150],[460,120],[600,120],[260,320],[400,320],[540,330],[650,320],[260,480],[420,500],[580,500],[250,640],[70,620]])q.push(()=>{const p=cam.position.clone(),r=cam.quaternion.clone();cam.position.set(x,70,z+.01);cam.lookAt(x,0,z);R.render(sc,cam);cam.position.copy(p);cam.quaternion.copy(r)});
+  return q}
+function prewarm(){PREWQ=prewarmSteps();prewarmFlush()}
+function prewarmFlush(){const q=PREWQ;PREWQ=[];for(const f of q)try{f()}catch(e){console.warn(e)}}
+function prewarmLater(){PREWQ=prewarmSteps();const t0=performance.now(),step=()=>{const f=PREWQ.shift();if(!f){BOOTT.prewarmDone=Math.round(performance.now()-t0);return}try{f()}catch(e){console.warn(e)}setTimeout(step,40)};setTimeout(step,300)}
+function begin(fresh){prewarmFlush();SAVEBLOCK=0;audioInit();window.__played=1;try{const pn=document.querySelector('#title .pennant');TC.pr=fresh&&pn&&!$('title').hidden?pn.getBoundingClientRect():null}catch(e){}$('title').hidden=true;if(matchMedia('(pointer:coarse)').matches)$('touch').hidden=false;$('hud').hidden=false;mode='play';
   if(fresh){S=S0();setHat(0);try{localStorage.removeItem(SAVEK)}catch(e){}P.x=77.9;P.z=76.9;P.face=PI/2;yaw=-PI/2;refreshNamed();renderInv();startMission(M[0])}
   else{if(!loadGame()){begin(true);return}yaw=-PI/2;toast(`Welcome back. ${DAYN[(S.day-1)%7]}, ${fmtT(S.gt)}.`)}}
 async function boot(){BOOTT.scriptStart=Math.round(performance.now());if(TEST==null)try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch(e){}BOOTT.afterFonts=Math.round(performance.now());
-  bootT('world',buildWorld);bootT('optimize',optimizeScene);mkMarkers();mkPlayer();bootT('spawn',spawnAll);prWorldInit();carsInit();TRUCK=mkTruck();try{lootBuild()}catch(e){console.warn('loot',e)}bootT('prewarm',()=>{if(TEST!=null)testPrewarm();else prewarm()});refreshNamed();renderInv();setupTouch();
+  bootT('world',buildWorld);bootT('optimize',optimizeScene);mkMarkers();mkPlayer();bootT('spawn',spawnAll);prWorldInit();carsInit();TRUCK=mkTruck();try{lootBuild()}catch(e){console.warn('loot',e)}bootT('prewarm',()=>{if(TEST!=null)testPrewarm();else if(/[?&]eagerbodies/.test(location.search))prewarm();else prewarmLater()});refreshNamed();renderInv();setupTouch();
   BOOTT.ready=Math.round(performance.now());$('loading').hidden=true;$('title').hidden=false;$('touch').hidden=true;mode='title';
   $('chapback').onclick=chapSelClose;slotsBoot();$('bhow').onclick=()=>ctrlShow();
   if(MOB&&GFX==='enhanced')adpSet(1);
