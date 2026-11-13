@@ -6,17 +6,23 @@ function deckMk(P,ys,w,k,o={}){const n=P.length,s=[0];for(let i=1;i<n;i++)s.push
   const d={P,ys,s,L:s[n-1],hw:w/2,w,k,cov:o.cov||0,bb:[x0-w,z0-w,x1+w,z1+w],t0:0,t1:s[n-1]};DECKS.push(d);return d}
 function deckY(d,t){const s=d.s,y=d.ys;if(t<=0)return y[0];for(let i=1;i<s.length;i++)if(t<=s[i])return y[i-1]+(y[i]-y[i-1])*(t-s[i-1])/((s[i]-s[i-1])||1);return y[y.length-1]}
 function deckPt(d,t){const s=d.s,P=d.P;for(let i=1;i<s.length;i++)if(t<=s[i]||i===s.length-1){const f=Math.max(0,Math.min(1,(t-s[i-1])/((s[i]-s[i-1])||1)));return[P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f]}return P[0]}
-function deckQ(d,x,z){if(d.area){const ins=inPoly(x,z,d.area.poly)&&!d.area.holes.some(h=>inPoly(x,z,h));return{i:0,u:.5,off:ins?0:200,t:1,out:ins?0:1,y:d.y}}let b=null;const P=d.P,n=P.length;for(let i=0;i<n-1;i++){const a=P[i][0],c=P[i][1],vx=P[i+1][0]-a,vz=P[i+1][1]-c,L2=vx*vx+vz*vz||1e-9,u=((x-a)*vx+(z-c)*vz)/L2,uc=u<0?0:u>1?1:u,off=Math.hypot(x-a-vx*uc,z-c-vz*uc);if(!b||off<b.off-1e-6)b={i,u,off,t:d.s[i]+uc*(d.s[i+1]-d.s[i])}}
+/* V364 a stadium stand as a deck: rows = [[ring, top height]]. Danny stands on the highest row under him, so he can climb the bleachers row by row,
+   step down onto the field from the front row and walk off the top row onto the concourse. */
+function standDeck(rows){let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[r]of rows)for(const[x,z]of r){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z)}
+  const R=rows.map(([r,y])=>{let a=1e9,b=1e9,c=-1e9,e=-1e9;for(const[x,z]of r){a=Math.min(a,x);c=Math.max(c,x);b=Math.min(b,z);e=Math.max(e,z)}return{r,y,bb:[a,b,c,e]}});
+  const d={P:[[x0,z0],[x1,z1]],ys:[0,0],s:[0,1],L:1,hw:1,w:2,k:'stand',cov:0,bb:[x0-.6,z0-.6,x1+.6,z1+.6],t0:0,t1:2,rows:R,step:1.05,nob:1};DECKS.push(d);return d}
+function standY(d,x,z){let y=null;for(const w of d.rows){if(x<w.bb[0]-.05||x>w.bb[2]+.05||z<w.bb[1]-.05||z>w.bb[3]+.05)continue;if((y==null||w.y>y)&&inPoly(x,z,w.r))y=w.y}return y}
+function deckQ(d,x,z){if(d.rows){const y=standY(d,x,z);return{i:0,u:.5,off:y==null?200:0,t:1,out:y==null?1:0,y:y==null?(d.lastY!=null?d.lastY:0):(d.lastY=y)}}if(d.area){const ins=inPoly(x,z,d.area.poly)&&!d.area.holes.some(h=>inPoly(x,z,h));return{i:0,u:.5,off:ins?0:200,t:1,out:ins?0:1,y:d.y}}let b=null;const P=d.P,n=P.length;for(let i=0;i<n-1;i++){const a=P[i][0],c=P[i][1],vx=P[i+1][0]-a,vz=P[i+1][1]-c,L2=vx*vx+vz*vz||1e-9,u=((x-a)*vx+(z-c)*vz)/L2,uc=u<0?0:u>1?1:u,off=Math.hypot(x-a-vx*uc,z-c-vz*uc);if(!b||off<b.off-1e-6)b={i,u,off,t:d.s[i]+uc*(d.s[i+1]-d.s[i])}}
   b.out=(b.i===0&&b.u<0)?-1:(b.i===n-2&&b.u>1)?1:0;b.y=deckY(d,b.t);return b}
 const deckOn=(d,q,m=.34)=>q.out===0&&q.off<=d.hw-m&&q.t>=d.t0&&q.t<=d.t1;
 const inBB=(e,x,z)=>x>=e.bb[0]&&x<=e.bb[2]&&z>=e.bb[1]&&z<=e.bb[3];
 // stepping onto a deck from the ground: only through one of its open ends, where it meets the ground
-function deckEnter(x,z){const g=terrH(x,z);for(let k=0;k<DECKS.length;k++){const e=DECKS[k];if(!inBB(e,x,z))continue;const q=deckQ(e,x,z);if(deckOn(e,q)&&Math.abs(q.y-g)<.75&&(q.t<e.t0+1.8||q.t>e.t1-1.8))return k}return null}
+function deckEnter(x,z){const g=terrH(x,z);for(let k=0;k<DECKS.length;k++){const e=DECKS[k];if(!inBB(e,x,z))continue;const q=deckQ(e,x,z);if(deckOn(e,q)&&Math.abs(q.y-g)<(e.step||.75)&&(q.t<e.t0+1.8||q.t>e.t1-1.8))return k}return null}
 function mvOK(x,z,r){if(P.inside||P.kart)return freeAt(x,z,r);
   if(P.dk!=null){const d=DECKS[P.dk],q=deckQ(d,x,z);if(deckOn(d,q))return true;const y=deckQ(d,P.x,P.z).y;
-    for(let k=0;k<DECKS.length;k++){if(k===P.dk)continue;const e=DECKS[k];if(!inBB(e,x,z))continue;const q2=deckQ(e,x,z);if(deckOn(e,q2)&&Math.abs(q2.y-y)<.6){P.dk=k;return true}}
+    for(let k=0;k<DECKS.length;k++){if(k===P.dk)continue;const e=DECKS[k];if(!inBB(e,x,z))continue;const q2=deckQ(e,x,z);if(deckOn(e,q2)&&Math.abs(q2.y-y)<Math.max(.6,(e.step||0),(d.step||0))){P.dk=k;return true}}
     if(q.out===0&&q.t>=d.t0&&q.t<=d.t1&&q.off<d.hw+.8)return false;          // the parapet
-    if(Math.abs(terrH(x,z)-y)<.75&&freeAt(x,z,r)){P.dk=null;return true}return false}
+    {const g=terrH(x,z);if((Math.abs(g-y)<(d.step||.75)||(d.rows&&g<y))&&freeAt(x,z,r)){P.dk=null;return true}}return false}   /* V364 from the front row of a stand Danny can hop down onto the field */
   if(freeAt(x,z,r)){const k=deckEnter(x,z);if(k!=null)P.dk=k;return true}
   const k=deckEnter(x,z);if(k!=null){P.dk=k;return true}return false}
 function deckHere(){if(P.dk==null)return null;if(P.kart){P.dk=null;return null}const d=DECKS[P.dk];if(!d){P.dk=null;return null}const q=deckQ(d,P.x,P.z);if(q.off>d.hw+1.5||q.t<-1.5||q.t>d.L+1.5){P.dk=null;return null}return q.y}
