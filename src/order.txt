@@ -66,6 +66,7 @@ js/22-events-minigames-maps.js
 js/22b-beer-die.js
 js/22c-colleges.js
 js/22d-pledge-quota.js
+js/22e-majors.js
 js/23-campus-map.js
 js/23b-territories.js
 js/24b-testmode.js

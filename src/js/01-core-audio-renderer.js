@@ -6,7 +6,7 @@
 const $=id=>document.getElementById(id),PI=Math.PI,TAU=PI*2,clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,rnd=Math.random,pick=a=>a[Math.floor(rnd()*a.length)],NOW=()=>performance.now()/1000;
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
-const WW=740,WD=2650,OD=720,CR=2,GW=WW*CR,GD=WD*CR,WG=new Uint8Array(GW*GD),HG=new Uint8Array(GW*GD),SH=new Uint8Array(GW*GD),RG=new Uint8Array(GW*GD);
+const WW=740,WD=3300 /* V354: was 2650; the interiors laid out past z=2650 (Van Wormer, library, diner, police…) had no collision grid under them, so Danny could not move inside */,OD=720,CR=2,GW=WW*CR,GD=WD*CR,WG=new Uint8Array(GW*GD),HG=new Uint8Array(GW*GD),SH=new Uint8Array(GW*GD),RG=new Uint8Array(GW*GD);
 function cells(x0,z0,x1,z1,f){const a=Math.max(0,Math.floor(x0*CR)),b=Math.min(GW-1,Math.ceil(x1*CR)-1),c=Math.max(0,Math.floor(z0*CR)),d=Math.min(GD-1,Math.ceil(z1*CR)-1);for(let j=c;j<=d;j++)for(let i=a;i<=b;i++)f(j*GW+i,(i+.5)/CR,(j+.5)/CR)}
 // V174 jump-on-objects: SH = top of low solid things in tenths of a metre (set by markR/markTop for tops up to 1 m). A cell is climbable when WG=1, SH>0 and HG<=1
 // (any taller thing overlapping it raises HG). While Danny moves, FH = his feet height above the ground; with FH>=0 `solid` lets him into a climbable cell once his feet are

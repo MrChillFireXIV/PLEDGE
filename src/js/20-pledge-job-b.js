@@ -112,6 +112,7 @@ let prAmb=20;
 function prTick(dt){if(!PM||mode==='title'||mode==='loading')return;const r=RS(),k=S.pledged?S.prole:null;
   if(S.pledged&&!S.prole&&mode==='play'&&!prSpinOn&&!CINE&&!EV)prSpin();
   try{pqTick()}catch(e){}
+  try{clsAutoTick()}catch(e){}
   if((PM.userData.prk||'')!==(k?k+prStage():''))prApply();
   // party guests show up at night
   if((prTick.pt=(prTick.pt||0)-dt)<=0){prTick.pt=1;const on=S.gt>=20.5||S.gt<1.5;for(const p of PARTY)if(!p.aggro&&!p.down&&!p.follow)p.hidden=!on}

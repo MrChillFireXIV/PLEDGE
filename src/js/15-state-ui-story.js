@@ -1,19 +1,19 @@
 // ================================================================ GAME STATE
 /* V308 colleges: every passed class gives a skill point of its college, spent in the Skill Tree tab */
 const COLL={design:{n:'DAAP',full:'Design, Architecture, Art & Planning',ic:'✏️',c:'#9a4ac0'},as:{n:'Arts & Sciences',full:'College of Arts & Sciences',ic:'🔬',c:'#2f78c8'},eng:{n:'Engineering',full:'College of Engineering & Applied Science',ic:'⚙️',c:'#c87a1a'},
-  bus:{n:'Business',full:'Lindner College of Business',ic:'💼',c:'#1f9a5e'},ccm:{n:'CCM',full:'College-Conservatory of Music',ic:'🎭',c:'#c83a5e'},law:{n:'Law & Justice',full:'College of Law · Criminal Justice',ic:'⚖️',c:'#8a6a2a'},health:{n:'Health',full:'Health & Human Services',ic:'🩺',c:'#1fa0a0'}};
-const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych'];
+  bus:{n:'Business',full:'Lindner College of Business',ic:'💼',c:'#1f9a5e'},ccm:{n:'CCM',full:'College-Conservatory of Music',ic:'🎭',c:'#c83a5e'},law:{n:'Law & Justice',full:'College of Law · Criminal Justice',ic:'⚖️',c:'#8a6a2a'},health:{n:'Health',full:'Health & Human Services',ic:'🩺',c:'#1fa0a0'},edu:{n:'Education',full:'School of Education',ic:'📚',c:'#7a8f1f'}};
+const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych','gfx','fash','hist','acct','fin','entr','act','film','dance','conlaw','contract','invest','nutr','anat','aid','teach','child','edpsy','clsm','coach'];
 const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. Lindqvist',perk:['Shops give you 7% off.','14% off everywhere, and Hank will haggle with you.','21% off everywhere. You think in margins now.']},
   chem:{n:'Chemistry',col:'as',b:'chem',bn:'Rieveschl Hall',prof:'Dr. Abernathy',perk:['You can mix stink bombs in the Rieveschl lab for $2.','You wake up each morning with a stink bomb.','Your stink bombs knock people out of a fight twice as long.']},
   speech:{n:'Public Speaking',col:'ccm',b:'speech',bn:'CCM',prof:'Prof. Okafor',perk:['New dialogue options open up in tasks.','60% chance to talk your way out of getting busted.','90% chance to talk your way out of getting busted.']},
-  phys:{n:'Physics',col:'as',b:'phys',bn:'Braunstein Hall',prof:'Prof. Halvorsen',perk:['You jump 12% higher.','Your kicks hit 15% harder.','Dodge rolls cost half the stamina.']},
+  phys:{n:'Physics',col:'eng',b:'phys',bn:'Braunstein Hall',prof:'Prof. Halvorsen',perk:['You jump 12% higher.','Your kicks hit 15% harder.','Dodge rolls cost half the stamina.']},
   art:{n:'Art History',col:'design',b:'art',bn:'DAAP',prof:'Prof. Delacroix-Hale',perk:['Yearbook photo spots appear on your map.','Yearbook photos pay $5 each.','Your yearbook spread makes the cover: $40 bonus.']}};
 /* V308 the fifteen new classes: building id (its classroom is INT[id]), minigame type, chalkboard */
 [['arch','Architecture Studio','design','uc34','DAAP Addition','Prof. Renwick','meter','ARCH 201 · LOADS FOLLOW THE PATH OF LEAST RESISTANCE'],
  ['indd','Industrial Design','design','uc45','Wolfson Center','Prof. Saarinen-Moss','quiz','DSGN 150 · FORM FOLLOWS FUNCTION'],
  ['geol','Geology','as','uc38','Geology-Physics Building','Dr. Okonkwo','sort','GEOL 101 · THE ROCK CYCLE'],
  ['fchem','Forensic Chemistry','as','uc20','Old Chemistry','Dr. Varga','quiz','CHEM 240 · EVERY CONTACT LEAVES A TRACE'],
- ['calc','Calculus','as','uc26','Zimmer Hall','Prof. Mbeki','math','MATH 1061 · d/dx xⁿ = n·xⁿ⁻¹'],
+ ['calc','Calculus','eng','uc26','Zimmer Hall','Prof. Mbeki','math','MATH 1061 · d/dx xⁿ = n·xⁿ⁻¹'],
  ['write','Creative Writing','as','uc50','Swift Hall','Prof. Ellison-Park','quiz','ENGL 210 · SHOW, DON\'T TELL'],
  ['mech','Mechanical Engineering','eng','uc18','Rhodes Hall','Dr. Strand','math','MECH 2010 · OUTPUT RPM = INPUT × DRIVER ÷ DRIVEN'],
  ['robo','Robotics','eng','uc41','Baldwin Hall','Dr. Iyer','grid','EECE 3093 · TELL THE ROBOT EXACTLY WHAT TO DO'],
@@ -24,7 +24,34 @@ const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. 
  ['cj','Criminal Justice','law','uc27','Teachers College','Prof. Dawes','sort','CJ 1001 · INNOCENT UNTIL PROVEN GUILTY'],
  ['smed','Sports Medicine','health','uc21','Edwards Center','Dr. Haddad','rhythm','ATHL 2010 · PUSH HARD, PUSH FAST: 100 TO 120 A MINUTE'],
  ['psych','Psychology','health','uc23','Clifton Court Hall','Prof. Ferreira','memory','PSYC 1001 · SEVEN, PLUS OR MINUS TWO']
-].forEach(([k,n,col,bid,bn,prof,mg,board])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]}});
+,
+ /* V350 fifteen more classes (five per college). Each shares the classroom of an existing class of its college: host = that class */
+ ['gfx','Graphic Design','design','uc34','DAAP Addition','Prof. Okabe','sort','DSGN 210 · WARM ADVANCES, COOL RECEDES','arch'],
+ ['fash','Fashion Design','design','uc45','Wolfson Center','Prof. Marchetti','meter','FASH 101 · MEASURE TWICE, CUT ONCE','indd'],
+ ['hist','History','as','uc50','Swift Hall','Prof. Brannigan','quiz','HIST 1001 · WHO WROTE IT, WHEN, AND WHY','write'],
+ ['acct','Accounting','bus','uc13','Carl H. Lindner Hall','Prof. Whitlow','sort','ACCT 2081 · ASSETS = LIABILITIES + EQUITY','mkt'],
+ ['fin','Finance','bus','uc13','Carl H. Lindner Hall','Prof. Adeyemi','math','FIN 3080 · A DOLLAR TODAY BEATS A DOLLAR TOMORROW','mkt'],
+ ['entr','Entrepreneurship','bus','uc13','Carl H. Lindner Hall','Prof. Greer','quiz','ENTR 2020 · FIND THE PROBLEM FIRST','mkt'],
+ ['act','Acting','ccm','uc19','Mary Emery Hall','Prof. Sinclair','memory','DRAM 1010 · KNOW YOUR BLOCKING','music'],
+ ['film','Film & E-Media','ccm','uc19','Mary Emery Hall','Prof. Tanaka','quiz','EMED 1015 · EVERY CUT IS A CHOICE','music'],
+ ['dance','Dance','ccm','uc19','Mary Emery Hall','Madame Volkova','rhythm','DNCE 1001 · FIVE, SIX, SEVEN, EIGHT','music'],
+ ['conlaw','Constitutional Law','law','uc25','College of Law','Prof. Abernethy','sort','LAW 7021 · THREE BRANCHES, ONE GOVERNMENT','trial'],
+ ['contract','Contracts','law','uc25','College of Law','Prof. Nakamura','quiz','LAW 7011 · OFFER, ACCEPTANCE, CONSIDERATION','trial'],
+ ['invest','Criminal Investigation','law','uc27','Teachers College','Det. Ruiz (ret.)','memory','CJ 2040 · NOTICE EVERYTHING','cj'],
+ ['nutr','Nutrition','health','uc21','Edwards Center','Dr. Lindgren','sort','NUTR 1030 · PROTEIN, CARBS, FAT','smed'],
+ ['aid','First Aid','health','uc21','Edwards Center','Nurse Castillo','meter','HLTH 1050 · DIRECT PRESSURE STOPS BLEEDING','smed'],
+ ['anat','Anatomy','health','uc23','Clifton Court Hall','Dr. Osei','quiz','BIOL 2001 · 206 BONES, GIVE OR TAKE','psych'],
+ /* V352 School of Education, in Dyer Hall (its own classroom; the other four share it) */
+ ['teach','Intro to Teaching','edu','uc54','Dyer Hall','Prof. Hargrove','quiz','EDST 1001 · ASK, DON\'T TELL'],
+ ['child','Child Development','edu','uc54','Dyer Hall','Prof. Mendes','sort','EDST 1010 · EVERY CHILD, IN THEIR OWN TIME','teach'],
+ ['edpsy','Educational Psychology','edu','uc54','Dyer Hall','Prof. Achebe','memory','EDST 2010 · REPETITION BUILDS MEMORY','teach'],
+ ['clsm','Classroom Management','edu','uc54','Dyer Hall','Prof. Dunleavy','meter','EDST 2050 · WAIT FOR QUIET','teach'],
+ ['coach','Coaching','edu','uc54','Dyer Hall','Coach Brannock','rhythm','EDST 2100 · ON MY WHISTLE','teach']
+].forEach(([k,n,col,bid,bn,prof,mg,board,host])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]};if(host)CI[k].host=host});
+/* V355: classes only give skill points. What the five original classes used to unlock by grade now lives on skill-tree nodes (SKPERK in 22c). */
+for(const c of CLS)CI[c].perk=[];
+/* the five classes of each college, in schedule order */
+const COLK=Object.keys(COLL),COLCLS={design:['art','arch','indd','gfx','fash'],as:['chem','geol','fchem','write','hist'],eng:['phys','calc','mech','robo','cs'],bus:['econ','mkt','acct','fin','entr'],ccm:['speech','music','act','film','dance'],law:['trial','cj','conlaw','contract','invest'],health:['smed','psych','nutr','anat','aid'],edu:['teach','child','edpsy','clsm','coach']};
 const DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const CHN=['','Rush Week','Rivalries','The Old Guard','The Lantern Walk','Epilogue'];
 const S0=()=>({day:1,gt:15,ch:1,hp:100,mhp:100,sta:100,lvl:1,xp:0,money:5,pledged:0,spirit:50,pimg:{},trouble:0,standing:0,ev:0,clue:0,ally:0,bb:null,deanDeal:0,radioKey:0,lena:0,trust:0,budget:0,studied:0,grades:Object.fromEntries(CLS.map(c=>[c,0])),sp:{},sk:{},spMig:0,att:{},rep:{legacies:-10,athletes:0,studentgov:0,activists:0,townies:-10,sororities:0},done:{},photos:{},inv:[null,null,null],items:{},carry:null,ending:null,stats:{kos:0,pong:0,ff:0,kart:0,radio:0,busts:0},daily:{}});
@@ -39,7 +66,7 @@ const stand=d=>{if(d>0)d=Math.round(d*(1+skv('stand')));S.standing=clamp(S.stand
 const money=d=>{const b=S.money;S.money=Math.max(0,Math.round((S.money+d)*100)/100);const c=Math.round((S.money-b)*100)/100;if(c>0)sfx('coin');if(c&&typeof dmgNum==='function'&&PM)dmgNum(P.x,2.7,P.z,(c>0?'+':'-')+money$(Math.abs(c)),c>0?'#a6e597':'#ffcf6a');const e=$('cash');e.textContent='Cash '+money$(S.money);e.animate&&e.animate([{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:260})};
 const has=k=>!!S.items[k];const give=k=>{S.items[k]=1};const take=k=>{delete S.items[k]};
 const trouble=d=>{if(d>0)d*=1-Math.min(.9,skv('heat'));S.trouble=clamp(S.trouble+d,0,100)};
-const disc=()=>S.grades.econ*.07+(S.bb==='reese'?.15:0)+skv('disc');
+const disc=()=>(S.bb==='reese'?.15:0)+skv('disc');
 const priceOf=p=>Math.round(p*(1-disc())*100)/100;
 const money$=v=>'$'+(Math.round(v*100)%100?v.toFixed(2):Math.round(v));
 
@@ -133,7 +160,7 @@ const M=[
    ['Walk over and take it. Let them try to stop you.',()=>[fight([60,30],'Take on the Kappa Theta Omega brothers guarding the ram',[['legacies',3],['legacies',3],['legacies',4],['legacies',4]],{start:()=>trouble(30),done:()=>rep('legacies',-10)}),go(SPOT.RAM,'Grab the ram',{press:1,act:'Grab the ram',done:()=>pickupRam()})]]]),
    go(SPOT.BACK,'Carry the ram to the ΑΣΡ backyard (no bike, no sprinting)',{press:1,act:'Set the ram down',carry:'ram'}),C_('The Ram','',"The brothers pour out of the house when they see it. Somebody puts a party hat on the ram. Grant nods once, which you're learning counts as high praise.")],fin:()=>{S.carry=null;placeRam();stand(15);rep('legacies',-15)},reset:()=>{resetRam()}},
  {id:'phone',ch:2,main:1,name:'Phone Home',who:'brett',steps:()=>[C_('Phone Home','Brett Calloway',"Brett looks pale.\n\n\"My ex has my phone. Kayla, at Theta Zeta. She won't give it back, and I need it before... I just need it. Please.\"",[
-   ['Talk her into giving it back',()=>[go(SPOT.TZ,'Ask for the phone at Theta Zeta',{press:1,act:'Knock'}),C_('Theta Zeta','Kayla',"Kayla crosses her arms, then sighs and hands it over. \"Tell Brett he's a coward. He'll know why.\"",null,{fx:()=>{give('phone');rep('sororities',5)}})],()=>(S.rep.sororities>=15||S.grades.speech>=1)?'':'Needs Sororities rep 15 or a Public Speaking grade.'],
+   ['Talk her into giving it back',()=>[go(SPOT.TZ,'Ask for the phone at Theta Zeta',{press:1,act:'Knock'}),C_('Theta Zeta','Kayla',"Kayla crosses her arms, then sighs and hands it over. \"Tell Brett he's a coward. He'll know why.\"",null,{fx:()=>{give('phone');rep('sororities',5)}})],()=>(S.rep.sororities>=15||skv('spk')>=1)?'':'Needs Sororities rep 15 or the Stage Presence skill (CCM skill tree).'],
    ['Buy a knockoff phone at Lucky Pawn ($12) and swap it',()=>[items(SPOT.PAWN,'Buy a knockoff phone at Lucky Pawn',['fakephone']),go(SPOT.TZ,'Swap the phones at Theta Zeta',{press:1,act:'Swap the phones',done:()=>{take('fakephone');give('phone')}})]],
    ['Climb in through the back window after 9 PM',()=>[go(SPOT.TZWIN,'Climb in the back window of Theta Zeta after 9 PM. Stay quiet.',{press:1,act:'Climb in',when:[21,4],stealth:1,watch:['sororities','auth'],spot:'trouble',done:()=>{give('phone');rep('sororities',-5)}})]]]),
    go(SPOT.ASR,'Give Brett his phone',{press:1,act:'Hand over the phone',need:['phone']}),C_('Phone Home','',"On the walk back, the phone lights up in your hand. A group chat called LANTERN '19:\n\n\"Statute of limitations isn't up. Delete everything. — G.\"\n\nBrett snatches it away. \"You didn't see that.\"",null,{fx:()=>{take('phone');S.clue++}})],fin:()=>stand(5),reset:()=>{take('phone');take('fakephone')}},

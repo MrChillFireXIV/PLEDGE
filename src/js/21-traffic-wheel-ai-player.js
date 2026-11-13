@@ -202,7 +202,8 @@ function lvDraw(q,cx,cy,r,lv,c){const col=c||lvCol(lv);q.save();
   dia(.97);q.fillStyle=col;q.fill();q.lineJoin='round';q.lineWidth=Math.max(1,r*.05);q.strokeStyle='rgba(0,0,0,.35)';q.stroke();
   dia(.8);q.lineWidth=Math.max(1,r*.035);q.strokeStyle='rgba(255,255,255,.85)';q.stroke();
   const t=String(lv);q.font=`800 ${Math.round(r*(t.length>1?.72:.98))}px Archivo,"Arial Black",Arial,sans-serif`;q.textAlign='center';q.textBaseline='middle';
-  q.lineWidth=Math.max(1,r*.07);q.strokeStyle='rgba(0,0,0,.28)';q.strokeText(t,cx,cy+r*.06);q.fillStyle='#fff';q.fillText(t,cx,cy+r*.06);q.restore()}
+  /* light fills (Staff beige, RA gold) get a dark number so it stays readable */const lum=(()=>{const m=/^#?([0-9a-f]{6})$/i.exec(col);if(!m)return 0;const v=parseInt(m[1],16);return(.299*(v>>16&255)+.587*(v>>8&255)+.114*(v&255))/255})(),dark=lum>.62;
+  q.lineWidth=Math.max(1,r*.07);q.strokeStyle=dark?'rgba(255,255,255,.35)':'rgba(0,0,0,.28)';q.strokeText(t,cx,cy+r*.06);q.fillStyle=dark?'#2a2028':'#fff';q.fillText(t,cx,cy+r*.06);q.restore()}
 const LVIMG={};
 function lvImg(lv,col){lv=Math.max(1,lv|0);const k=lv+'|'+(col||'');if(LVIMG[k])return LVIMG[k];const c=document.createElement('canvas');c.width=c.height=96;lvDraw(c.getContext('2d'),48,48,45,lv,col);return LVIMG[k]=c.toDataURL()}
 function lvBadge(lv,cls,col){return`<img class="lvd${cls?' '+cls:''}" src="${lvImg(lv,col)}" alt="Level ${lv}" title="Level ${lv}">`}
@@ -370,8 +371,8 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   const blkWant=!!(K.KeyR||RMB||BLKT)&&mode==='play'&&!P.bike&&!carry&&!P.blkBrk&&S.sta>=3&&P.roll<=0&&P.jy<=.05&&P.jv===0&&!P.atk&&P.punch<=0&&!P.med&&!GRAB.on;
   P.blk=clamp((P.blk||0)+(blkWant?dt*8:-dt*6),0,1);P.blocking=blkWant&&P.blk>.4?1:0;if(P.blkHitT>0)P.blkHitT-=dt;
   const run=sprintK&&mv&&!P.exh&&!cr&&!carry&&S.sta>0&&!blkWant;
-  if(K.KeyQ||K.ControlLeft){K.KeyQ=K.ControlLeft=0;if(P.roll<=0&&S.sta>=15&&!cr&&!P.bike&&!carry){P.roll=.45;S.sta-=S.grades.phys>=3?10:20;P.rdx=mv?wx:Math.sin(P.face);P.rdz=mv?wz:Math.cos(P.face);P.pt=.5}}
-  if(K.Space){K.Space=0;if(P.jy<=0&&P.jv===0&&!P.bike&&!carry&&S.sta>=6){P.jv=6.4*(S.grades.phys>=1?1.12:1);S.sta-=6;P.pt=.5}}
+  if(K.KeyQ||K.ControlLeft){K.KeyQ=K.ControlLeft=0;if(P.roll<=0&&S.sta>=15&&!cr&&!P.bike&&!carry){P.roll=.45;S.sta-=skv('roll')>=1?10:20;P.rdx=mv?wx:Math.sin(P.face);P.rdz=mv?wz:Math.cos(P.face);P.pt=.5}}
+  if(K.Space){K.Space=0;if(P.jy<=0&&P.jv===0&&!P.bike&&!carry&&S.sta>=6){P.jv=6.4*(skv('jmp')>=1?1.12:1);S.sta-=6;P.pt=.5}}
   let sp=P.bike?(run?14.5:10):carry?2.1:(cr?1.7*prCrouchMul():run?6.2*(1+skv('spd')):3.3)*prSpeedMul()*(blkWant?.45:1);let tx=wx*sp,tz=wz*sp;
   if(P.roll>0){P.roll-=dt;tx=P.rdx*7.6;tz=P.rdz*7.6}
   const acc=P.bike?3.2:P.roll>0?30:prAcc(),k=Math.min(1,acc*dt);P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
@@ -438,7 +439,7 @@ function punch(){if(P.pcd>0||S.sta<5||P.blocking)return;let best=null,bd=9;const
   {const ty=atkPick(best?Math.hypot(best.x-P.x,best.z-P.z):9),A=ATK[ty];P.atk={ty,t:0,d:A.d};P.punch=A.d;P.pcd=A.d*.85+.04;S.sta-=ty[0]==='k'?8:5;P.pt=.5;if(best&&Math.hypot(best.x-P.x,best.z-P.z)>A.r)best=null;P.atkM=A}
   if(!best){const kid=NP.find(n=>n.kid&&!n.down&&n.dp<2.4);if(kid&&(kid.kidT||0)<TT){kid.kidT=TT+4;bubble(kid,pick(['Whoa! I\'m in high school, man!','Dude! Chill!','Not cool, college guy!']),2.2);kid.flee=2}}
   sfx('whiff');try{maWhoosh(P.atkM&&P.atkM.d>.4?.05:.035)}catch(e){}if(!best)return;P.face=Math.atan2(best.x-P.x,best.z-P.z);P.combo=P.comboT>0?P.combo+1:1;P.comboT=1;
-  let dmg=clamp(10*LVM(S.lvl,best.lvl)*(S.bb==='tank'?1.2:1)*(1+skv('dmg'))*prPunchMul()*P.atkM.m*(P.atk&&P.atk.ty[0]==='k'&&S.grades.phys>=2?1.15:1),2,60);if(P.atkM.push){const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1,pu=P.atkM.push;if(freeAt(best.x+dx/l*pu,best.z+dz/l*pu,.32)){best.x+=dx/l*pu;best.z+=dz/l*pu}}if(P.combo>=3){dmg*=1.8;P.combo=0;best.stun=.8;const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1;if(freeAt(best.x+dx/l*1.4,best.z+dz/l*1.4,.32)){best.x+=dx/l*1.4;best.z+=dz/l*1.4}big('COMBO!',500)}
+  let dmg=clamp(10*LVM(S.lvl,best.lvl)*(S.bb==='tank'?1.2:1)*(1+skv('dmg'))*prPunchMul()*P.atkM.m*(P.atk&&P.atk.ty[0]==='k'&&skv('kick')>=1?1.15:1),2,60);if(P.atkM.push){const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1,pu=P.atkM.push;if(freeAt(best.x+dx/l*pu,best.z+dz/l*pu,.32)){best.x+=dx/l*pu;best.z+=dz/l*pu}}if(P.combo>=3){dmg*=1.8;P.combo=0;best.stun=.8;const dx=best.x-P.x,dz=best.z-P.z,l=Math.hypot(dx,dz)||1;if(freeAt(best.x+dx/l*1.4,best.z+dz/l*1.4,.32)){best.x+=dx/l*1.4;best.z+=dz/l*1.4}big('COMBO!',500)}
   if(!punchHint){punchHint=1;toast('The level gap decides the damage. Red levels are stronger than you; green ones go down fast.',5200)}
   const unprov=!best.aggro&&!best.foe&&!best.def&&best.tgt!=='P';if(unprov&&!best.temp&&!best.auth)relAdd(best,-15);
   if(unprov&&!best.temp){if(best.auth)trouble(100);else{if(best.cl==='brothers')stand(best.named?-6:-3);else if(S.rep[best.cl]!=null)rep(best.cl,best.named?-6:-4);if(best===NN.dean)trouble(100);if(NP.some(m=>m.auth&&m.dp<26&&canSee(m,26)))trouble(35);NP.forEach(m=>{if(m.cl===best.cl&&m!==best&&!m.named&&!m.pledge&&(m.int||null)===(best.int||null)&&Math.hypot(m.x-best.x,m.z-best.z)<10&&(S.rep[m.cl]==null||S.rep[m.cl]<50)){m.aggro=1;m.tgt='P'}})}}

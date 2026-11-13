@@ -5,12 +5,25 @@
 
 // ---------------------------------------------------------------- schedule
 function clsDay(d){const w=(d-1)%7;return d>=2&&w>=1&&w<=5}
-function classesAt(d,sl){if(!clsDay(d))return[];const k=((d-1)%7-1)*2+sl;return CLS.filter((c,i)=>i%10===k||(i+5)%10===k)}
+/* V353: ten slots a week (9 AM and 1 PM, Monday to Friday) and ten courses in a major: exactly one class meets in each slot, each class once a week. */
+function classesAt(d,sl){if(!clsDay(d)||!S.major||!MAJ[S.major])return[];const c=mjWeek(S.major)[((d-1)%7-1)*2+sl];return c?[c]:[]}
+/* V356: class starts by itself. If Danny is in the classroom of the class that meets in this slot when the bell goes (9:00 AM / 1:00 PM), or walks in
+   during the first half hour, he is seated and the class begins. Arriving early (from 8:30 / 12:30) shows a one-time note to wait. */
+let CLSA={k:'',w:''};
+const CLSROOM={econ:'whit',chem:'hollis',phys:'braun',art:'arts',speech:'banc'};   /* the five original classes meet in these interiors */
+function clsRoomId(c){return CI[c].bid||CLSROOM[c]}
+function clsAutoTick(){if(mode!=='play'||!P.inside||CINE||EV||!clsLive())return;const sl=classWindow();if(sl===null)return;const key=S.day+'-'+sl;if(S.att[key])return;
+  const c=classesAt(S.day,sl)[0];if(!c||clsRoomId(c)!==P.inside)return;const st=sl?13:9;
+  if(S.gt<st){if(CLSA.w!==key){CLSA.w=key;toast(`${CI[c].n} starts at ${fmtH(st)}. Stay in the room and class will begin.`,4200)}return}
+  if(CLSA.k===key)return;CLSA.k=key;toast(`${CI[c].prof}: "Seats, please. We're starting."`,2200);setTimeout(()=>{if(mode==='play'&&P.inside===clsRoomId(c)&&!S.att[key])attendClass(c,sl);else CLSA.k=''},900)}
+/* a classroom shared by several classes: the one in session right now */
+function roomCls(c){const sl=classWindow();if(sl===null)return c;return classesAt(S.day,sl).find(x=>CI[x].bid===CI[c].bid)||c}
 function clsBld(c){const k=CI[c].b;return B.find(b=>b.menu===k||b.id===k)}
 
 // ---------------------------------------------------------------- classrooms: a door on each building (its real front door) and a lecture room inside
 function colRoom(c,i){const C=CI[c],b=B.find(b=>b.id===C.bid);
-  if(b.ex==null){const u=UCD.B.find(u=>u.n===C.bn&&u.fp&&u.fn);if(u){b.ex=u.fp[0]+u.fn[0]*1.6;b.ez=u.fp[1]+u.fn[1]*1.6;b.fn=u.fn;b.face=Math.abs(u.fn[0])>Math.abs(u.fn[1])?(u.fn[0]>0?'e':'w'):(u.fn[1]>0?'s':'n')}}
+  if(b.ex==null){const u=UCD.B.find(u=>u.n===C.bn&&u.fp&&u.fn);if(u){const E=ENTAT[C.bn],q=E?[E[0],E[1]]:u.fp,n=E?[E[2],E[3]]:u.fn;   /* V357: the prompt stands in front of the entrance that was actually built */
+    b.ex=q[0]+n[0]*1.6;b.ez=q[1]+n[1]*1.6;b.fn=n;b.face=Math.abs(n[0])>Math.abs(n[1])?(n[0]>0?'e':'w'):(n[1]>0?'s':'n')}}
   const W=[0xe6dcc6,0xe2e6ea,0xece4d4,0xdfe6dc,0xe8e0e6][i%5];
   return classInt(C.bid,{name:C.bn+', Room '+(101+i*13),cls:c,board:C.board,wall:W,floor:['wood','tile','carpet'][i%3]})}
 
@@ -157,7 +170,96 @@ const MGD={
    ['Shoplifting a $20 shirt','Misdemeanor','Petty theft.'],['Underage drinking','Misdemeanor',''],['Trespassing','Misdemeanor',''],['Vandalism under $1,000','Misdemeanor',''],['Disorderly conduct','Misdemeanor',''],
    ['Armed robbery','Felony',''],['Burglary','Felony',''],['Arson','Felony',''],['Selling cocaine','Felony','Possession with intent to sell is a felony.'],['Kidnapping','Felony','']]},
  smed:{intro:'Hands-only CPR. Push hard and fast in the centre of the chest: 100 to 120 compressions a minute. No metronome, keep the rhythm yourself.',bpm:[110,110,110],n:21,win:[140,100,70],metro:0,act:'Compress',how:'21 compressions at 100 to 120 a minute'},
- psych:{intro:'Short-term memory holds about seven things. Let\'s see yours. Watch the squares, then repeat the sequence.'}};
+ psych:{intro:'Short-term memory holds about seven things. Let\'s see yours. Watch the squares, then repeat the sequence.'},
+ /* V350 the fifteen newer classes */
+ gfx:{intro:'Colour sets the mood before anyone reads a word. Sort each colour: warm, cool or neutral.',bins:['Warm','Cool','Neutral'],items:[
+   ['Red','Warm',''],['Orange','Warm',''],['Yellow','Warm',''],['Coral','Warm',''],['Gold','Warm',''],
+   ['Blue','Cool',''],['Teal','Cool',''],['Violet','Cool',''],['Mint green','Cool',''],['Navy','Cool',''],
+   ['Gray','Neutral',''],['Beige','Neutral',''],['White','Neutral',''],['Black','Neutral',''],['Taupe','Neutral','']]},
+ fash:{intro:'Measure twice, cut once. Stop the shears while they sit on the chalk line. Five cuts.',act:'Cut',unit:'Cut',good:'A clean cut, right on the chalk.',bad:'Off the line. That panel is scrap.'},
+ hist:{intro:'History is an argument about evidence. Four questions.',q:[
+   ['Printing with movable type in Europe is credited to…','Johannes Gutenberg','Leonardo da Vinci','Isaac Newton','Martin Luther','Around 1450, in Mainz.'],
+   ['The Berlin Wall came down in…','1989','1979','1999','1969',''],
+   ['A primary source is…','A record made at the time by someone who was there','A textbook chapter','A documentary made years later','An encyclopedia entry','Letters, diaries, photographs, court records.'],
+   ['The Declaration of Independence was adopted in…','1776','1789','1812','1865',''],
+   ['Which empire built Machu Picchu?','The Inca','The Aztec','The Maya','The Olmec',''],
+   ['The Industrial Revolution began in…','Britain','Japan','Brazil','Russia','Coal, iron and textile mills.'],
+   ['Who was the first U.S. president?','George Washington','Thomas Jefferson','Abraham Lincoln','John Adams',''],
+   ['The University of Cincinnati traces its founding to…','1819','1919','1776','1865','Cincinnati College and the Medical College of Ohio.']]},
+ acct:{intro:'Every dollar lives somewhere on the books. Sort each item: asset, liability or expense.',bins:['Asset','Liability','Expense'],items:[
+   ['Cash in the bank','Asset',''],['Inventory','Asset',''],['Equipment','Asset',''],['Money customers owe you','Asset','Accounts receivable.'],['A building you own','Asset',''],
+   ['A bank loan','Liability',''],['Bills you owe suppliers','Liability','Accounts payable.'],['A mortgage','Liability',''],['Unpaid wages','Liability',''],['A credit card balance','Liability',''],
+   ['This month\'s rent','Expense',''],['Salaries paid','Expense',''],['The electric bill','Expense',''],['Advertising','Expense',''],['Insurance premiums','Expense','']]},
+ fin:{intro:'Money has a price, and the price is time. Four problems.',gen:(g,k)=>{const R=a=>a[Math.floor(rnd()*a.length)];
+   if(k===0){const P_=R([200,500,800,1000]),r=R([3,4,5,6]),t=R([2,3,4]),a=P_*r*t/100;return{q:`$${P_} earns ${r}% simple interest a year. Interest after ${t} years?`,a:'$'+a,w:['$'+P_*r*(t+1)/100,'$'+P_*r/100,'$'+(P_+a)],why:`${P_} × ${r}% × ${t}.`}}
+   if(k===1){const pr=R([40,60,80,120]),off=R([10,20,25,30]);return{q:`A $${pr} jacket is ${off}% off. What do you pay?`,a:'$'+pr*(100-off)/100,w:['$'+pr*off/100,'$'+(pr-off),'$'+pr*(100+off)/100],why:`${pr} × ${100-off}%.`}}
+   if(k===2){const Rv=R([500,800,1200,2000]),C=Rv*R([.3,.4,.6,.75]);return{q:`Revenue $${Rv}, costs $${C}. Profit?`,a:'$'+(Rv-C),w:['$'+(Rv+C),'$'+C,'$'+Rv],why:'Profit = revenue − costs.'}}
+   const r=R([3,4,6,8,9]),y=72/r;return{q:`At ${r}% a year, about how long does money take to double? (Rule of 72)`,a:y+' years',w:[(y+4)+' years',(y*2)+' years',(Math.round(100/r)+2)+' years'],why:`72 ÷ ${r}.`}}},
+ entr:{intro:'A business is a solved problem that someone will pay for. Four questions.',q:[
+   ['The first thing a startup should prove is that…','People actually have the problem it solves','The logo looks good','The office is big enough','It can go public',''],
+   ['An MVP (minimum viable product) is…','The simplest version you can test with real customers','The most valuable player on the team','A finished, polished product','A type of loan','Build, measure, learn.'],
+   ['"Bootstrapping" a business means…','Funding it from your own money and sales','Borrowing from a bank','Selling it to a rival','Hiring only interns',''],
+   ['An elevator pitch should take about…','30 seconds','10 minutes','An hour','A full slide deck',''],
+   ['Break-even is the point where…','Revenue covers all costs','You make your first sale','You hire your first employee','Investors get paid',''],
+   ['A competitor lowering prices is a…','Threat','Strength','Weakness','Patent','SWOT: strengths, weaknesses, opportunities, threats.'],
+   ['Equity given to an investor means they own…','A share of the company','Your product design','Your debts only','Nothing until you sell',''],
+   ['The best market research is…','Talking to the people who would buy it','Asking your friends if they like it','Reading your own business plan','Guessing','']]},
+ act:{intro:'Blocking is where you stand and when. Watch the marks light up, then hit them in the same order.'},
+ film:{intro:'Every cut is a choice. Four questions from the editing room.',q:[
+   ['A "close-up" mostly shows…','A face or one detail','The whole landscape','Two people talking','The room from above',''],
+   ['Cutting from one scene to another by fading through black is a…','Fade','Jump cut','Whip pan','Zoom',''],
+   ['The 180-degree rule keeps…','Characters on the same sides of the screen','The camera level','Scenes under three minutes','Sound in sync',''],
+   ['A storyboard is…','A drawn plan of the shots','The film\'s budget','A list of actors','The final edit',''],
+   ['Sound recorded on set with the actors is called…','Production sound','Foley','Score','Voice-over','Foley is added afterwards.'],
+   ['The standard frame rate for film is…','24 frames a second','12 frames a second','60 frames a second','100 frames a second',''],
+   ['A "wide shot" is used to…','Show where the scene takes place','Hide the background','Show an actor\'s eyes','Save film',''],
+   ['B-roll is…','Extra footage that covers the cuts','A second director','The blooper reel','The end credits','']]},
+ dance:{intro:'Five, six, seven, eight. Step on every beat with the music.',bpm:[112,120,128],n:16,win:[150,120,95],metro:1,act:'Step',how:'16 steps on the beat (button or Space)'},
+ conlaw:{intro:'Three branches, each checking the others. Sort each power: legislative, executive or judicial.',bins:['Legislative','Executive','Judicial'],items:[
+   ['Writes and passes laws','Legislative',''],['Declares war','Legislative',''],['Controls the federal budget','Legislative','The power of the purse.'],['Confirms Supreme Court justices','Legislative','The Senate votes.'],['Can override a veto','Legislative','With two-thirds of both houses.'],
+   ['Vetoes bills','Executive',''],['Commands the armed forces','Executive',''],['Enforces the laws','Executive',''],['Nominates federal judges','Executive',''],['Negotiates treaties','Executive',''],
+   ['Interprets the Constitution','Judicial',''],['Strikes down unconstitutional laws','Judicial','Judicial review.'],['Hears appeals','Judicial',''],['Settles disputes between states','Judicial','']]},
+ contract:{intro:'A deal is a deal, if it is a contract. Four questions.',q:[
+   ['A contract needs an offer, acceptance and…','Consideration','A notary','A handshake','A witness','Each side gives something of value.'],
+   ['"Consideration" means…','Something of value each side gives up','Being polite','Thinking it over','A late fee',''],
+   ['A contract signed by a 15-year-old is usually…','Voidable by the minor','Fully binding','A felony','Automatically void for both',''],
+   ['Breaking a contract is called a…','Breach','Tort','Felony','Lien',''],
+   ['Which usually has to be in writing?','The sale of a house','Buying a coffee','A dinner invitation','Lending a pencil','The statute of frauds.'],
+   ['"Damages" in a contract case are…','Money to make up for the loss','Broken goods','Jail time','An apology',''],
+   ['A promise to give a gift, with nothing in return, is generally…','Not an enforceable contract','Binding forever','A crime to break','A lease','No consideration.'],
+   ['Reading the fine print matters because…','You are bound by what you sign','It is always illegal','Judges ignore it','It only binds the seller','']]},
+ invest:{intro:'A good detective notices the order things happened in. Watch the sequence, then repeat it.'},
+ nutr:{intro:'Food is fuel. Sort each one by what it mostly gives you: protein, carbohydrate or fat.',bins:['Protein','Carbohydrate','Fat'],items:[
+   ['Chicken breast','Protein',''],['Eggs','Protein',''],['Tofu','Protein',''],['Tuna','Protein',''],['Greek yogurt','Protein',''],
+   ['Rice','Carbohydrate',''],['Bread','Carbohydrate',''],['Pasta','Carbohydrate',''],['Oatmeal','Carbohydrate',''],['Banana','Carbohydrate',''],
+   ['Olive oil','Fat',''],['Butter','Fat',''],['Avocado','Fat',''],['Almonds','Fat','Mostly fat, with some protein.'],['Mayonnaise','Fat','']]},
+ anat:{intro:'Two hundred and six bones, give or take. Four questions.',q:[
+   ['The longest bone in the body is the…','Femur','Humerus','Tibia','Spine','The thigh bone.'],
+   ['Blood is pumped out to the body by the heart\'s…','Left ventricle','Right atrium','Aorta valve','Left lung',''],
+   ['The patella is the…','Kneecap','Collarbone','Shoulder blade','Jawbone',''],
+   ['Muscles attach to bones with…','Tendons','Ligaments','Cartilage','Nerves','Ligaments join bone to bone.'],
+   ['Which organ filters your blood?','The kidneys','The stomach','The lungs','The pancreas',''],
+   ['The biceps is in the…','Upper arm','Thigh','Calf','Back',''],
+   ['The diaphragm helps you…','Breathe','Digest','See','Balance',''],
+   ['An adult human has about how many bones?','206','106','306','412','']]},
+ aid:{intro:'Direct pressure stops bleeding. Press down while the gauge is in the green. Five wounds.',act:'Press',unit:'Wound',good:'Firm, steady pressure. The bleeding slows.',bad:'Too light or too hard. Try again.'},
+ /* V352 School of Education */
+ teach:{intro:'Teaching is mostly asking the right question and then waiting. Four questions.',q:[
+   ['A student gives a wrong answer in front of the class. The best first move is to…','Ask how they got there','Tell them the right answer and move on','Call on someone smarter','Sigh loudly','Their reasoning shows you what to fix.'],
+   ['"Wait time" after asking a question should be about…','Three to five seconds','Half a second','A full minute','No pause at all','Most teachers wait under one second.'],
+   ['A rubric is…','A written guide to how work will be graded','A seating chart','A type of pop quiz','A late pass',''],
+   ['A lesson plan starts with…','What students should be able to do by the end','A list of jokes','The homework','The test answers','Begin with the goal.'],
+   ['Which is formative assessment?','A quick ungraded check during the lesson','The final exam','The report card','The diploma','It tells you what to reteach.'],
+   ['Students remember the most from…','Doing it and explaining it themselves','Hearing it once','Reading the slide','Watching the clock',''],
+   ['Praise works best when it is…','Specific about what they did well','Loud','Given to everyone equally','Saved for the end of the year',''],
+   ['The best way to learn every student\'s name is to…','Use the names from day one','Wait until midterms','Number the desks','Avoid names entirely','']]},
+ child:{intro:'Every child grows in their own time, but there is an order to it. Sort each milestone: toddler, grade school or teenager.',bins:['Toddler','Grade school','Teenager'],items:[
+   ['First steps','Toddler',''],['First words','Toddler',''],['Stacking blocks','Toddler',''],['Potty training','Toddler',''],['Playing beside other kids, not with them','Toddler','Parallel play.'],
+   ['Learning to read','Grade school',''],['Losing baby teeth','Grade school',''],['Riding a bike','Grade school',''],['Multiplication tables','Grade school',''],['Tying shoelaces','Grade school',''],
+   ['Getting a driver\'s permit','Teenager',''],['Voice changes and growth spurts','Teenager',''],['First part-time job','Teenager',''],['Applying to college','Teenager',''],['High school algebra','Teenager','']]},
+ edpsy:{intro:'Repetition builds memory. Watch the pattern the class is learning, then repeat it back.'},
+ clsm:{intro:'A loud room goes quiet for a second at a time. Give your instruction while the noise is in the green. Five instructions.',act:'Give the instruction',unit:'Instruction',good:'They heard you. Pencils move.',bad:'Nobody heard a word of that.'},
+ coach:{intro:'Drills run on the whistle. Blow it on every beat and keep the line moving.',bpm:[100,108,116],n:16,win:[150,120,95],metro:1,act:'Whistle',how:'16 whistles on the beat (button or Space)'}};
 const MGF={quiz:mgQuiz,math:mgMath,sort:mgSort,memory:mgMemory,meter:mgMeter,rhythm:mgRhythm,grid:mgGrid};
 
 // ---------------------------------------------------------------- the Skill Tree
@@ -182,7 +284,18 @@ const SKT={
  law:skMake('law',[['⚖️','Case Briefs','Law & Justice classes count as studied.',{study:1}],['🪪','Know Your Rights','Police heat builds 15% slower.',{heat:.15}],['📜','Plea Deal','+8% chance to talk your way out of a bust.',{bust:.08}],['🗨️','Cross-Examination','Conversations go your way more often.',{talk:.05}],
    ['🕶️','Low Profile','Police heat builds another 15% slower.',{heat:.15}],['📁','Precedent','+10% chance to talk your way out of a bust.',{bust:.1}],['🛡️','Self-Defense','Take 5% less damage.',{def:.05}],['🚔','Clean Record','Police heat builds another 20% slower.',{heat:.2}],['🧑‍⚖️','Objection!','+12% chance to talk your way out of a bust.',{bust:.12}],['🏛️','Supreme Court','+10% bust escape, heat 15% slower.',{bust:.1,heat:.15}]]),
  health:skMake('health',[['🩺','Rounds','Health classes count as studied.',{study:1}],['💪','Conditioning','+10 max health.',{hp:10}],['🫁','Cardio','Stamina recovers 12% faster.',{sta:.12}],['🧘','Composure','Take 5% less damage.',{def:.05}],
-   ['🍎','Nutrition','+10 max health.',{hp:10}],['👟','Agility','Run 4% faster.',{spd:.04}],['❤️‍🩹','Recovery','Stamina recovers 15% faster.',{sta:.15}],['🏋️','Strength Block','+15 max health.',{hp:15}],['🦺','Iron Constitution','Take 7% less damage.',{def:.07}],['🏥','Chief Resident','+20 max health, take 6% less damage.',{hp:20,def:.06}]])};
+   ['🍎','Nutrition','+10 max health.',{hp:10}],['👟','Agility','Run 4% faster.',{spd:.04}],['❤️‍🩹','Recovery','Stamina recovers 15% faster.',{sta:.15}],['🏋️','Strength Block','+15 max health.',{hp:15}],['🦺','Iron Constitution','Take 7% less damage.',{def:.07}],['🏥','Chief Resident','+20 max health, take 6% less damage.',{hp:20,def:.06}]]),
+ edu:skMake('edu',[['📚','Lesson Plans','Education classes count as studied: easier to pass.',{study:1}],['✏️','Quick Study','+5% XP from everything.',{xp:.05}],['🍏','Teacher\'s Pet','Reputation gains are 10% bigger.',{rep:.1}],['📣','Homeroom','Class Spirit gains are 15% bigger.',{spirit:.15}],
+   ['🧠','Study Habits','+6% XP from everything.',{xp:.06}],['🗣️','Office Hours','Conversations go your way more often.',{talk:.05}],['🤝','Mentor','Standing with the brothers grows 10% faster.',{stand:.1}],['🏫','Pep Rally','Class Spirit gains are 20% bigger.',{spirit:.2}],
+   ['🎓','Honor Roll','+8% XP from everything.',{xp:.08}],['🏆','Teacher of the Year','+8% XP and reputation gains are 15% bigger.',{xp:.08,rep:.15}]])};
+/* V355: the perks the five original classes used to give by grade are now part of these nodes (index 1, 4 and 7: the left-hand line of each tree).
+   [node index, text added to the description, fx merged in, new name (optional), replace the description instead of adding to it (optional)] */
+const SKPERK={design:[[1,'Yearbook photo spots appear on your map.',{ybMap:1}],[4,'Yearbook photos pay $5 each, and you know every spot by name.',{ybPay:1}],[7,'Your yearbook spread makes the cover: $50 more when it is complete.',{ybCov:1}]],
+  as:[[1,'You can mix stink bombs at the Rieveschl lab bench for $2.',{stk:1},'Lab Chemistry'],[4,'You wake up each morning with a stink bomb.',{stkD:1}],[7,'Your stink bombs stun people twice as long.',{stkK:1}]],
+  eng:[[1,'You jump 12% higher.',{jmp:1}],[4,'Your kicks hit 15% harder.',{kick:1}],[7,'Dodge rolls cost half the stamina.',{roll:1}]],
+  bus:[[1,'Shops are 7% cheaper, and Hank will haggle with you.',{disc:.07,hag:1},0,1],[4,'Shops are another 7% cheaper, and you win more often at the pool table.',{disc:.07,pool:1},0,1],[7,'Shops are another 7% cheaper.',{disc:.07}]],
+  ccm:[[1,'New dialogue options open up in tasks.',{spk:1}],[4,'A 60% chance to talk your way out of getting busted.',{spk:1,bust:.6}],[7,'Talking your way out of a bust works 30% more often.',{spk:1,bust:.3}]]};
+for(const col in SKPERK)for(const[i,t,fx,nm,repl]of SKPERK[col]){const n=SKT[col][i];n.d=repl?t:n.d+' '+t;Object.assign(n.fx,fx);if(nm)n.n=nm}
 const skOn=id=>!!(S.sk&&S.sk[id]);
 const skReady=n=>!n.r.length||n.r.filter(skOn).length>=Math.min(n.need||1,n.r.length);
 function skv(k){let v=0;if(!S.sk)return 0;for(const col in SKT)for(const n of SKT[col])if(S.sk[n.id]&&typeof n.fx[k]==='number'&&k!=='study')v+=n.fx[k];return v}
@@ -190,17 +303,18 @@ function skStudy(col){return!!(SKT[col]&&SKT[col].some(n=>n.fx.study&&skOn(n.id)
 function skEarned(col){return(S.sp&&S.sp[col])||0}
 function skSpent(col){return(SKT[col]||[]).reduce((a,n)=>a+(skOn(n.id)?n.c:0),0)}
 function skFree(col){return skEarned(col)-skSpent(col)}
-function skTotalFree(){return Object.keys(COLL).reduce((a,k)=>a+Math.max(0,skFree(k)),0)}
+function skTotalFree(){const m=mjNow();return(m?m.cols:[]).reduce((a,k)=>a+Math.max(0,skFree(k)),0)}
 /* old saves: points for every grade star earned before skill points existed */
 function skMig(){if(S.spMig)return;S.sp=S.sp||{};S.sk=S.sk||{};for(const c of CLS){const col=CI[c].col;if(col)S.sp[col]=(S.sp[col]||0)+((S.grades&&S.grades[c])||0)}S.spMig=1}
 function skGain(col,n=1){skMig();S.sp[col]=(S.sp[col]||0)+n}
 function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(id))return;if(!skReady(n)){toast(n.need>1?`Learn ${n.need} of the skills linked below it first.`:'Learn a skill linked below it first.');sfx('bad');return}
   if(skFree(col)<n.c){toast(`You need ${n.c} ${COLL[col].n} point${n.c>1?'s':''}. Pass more ${COLL[col].n} classes.`);sfx('bad');return}
-  S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
+  S.sk[id]=1;if(n.fx.stk&&!invHas('stink'))invAdd('stink');if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
 function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
   const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
-  let h=`<div class="skhead"><h2>Skill Tree</h2></div><div class="skwrap"><div class="sktree">`;
-  for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col),T=SKT[col];
+  let h=`<div class="skhead"><h2>Skill Tree</h2><span class="mjtag">Major: ${mjNow()?mjNow().n:''}</span></div><div class="skwrap"><div class="sktree">`;
+  const MJ=mjNow();if(!MJ)return`<div class="skhead"><h2>Skill Tree</h2></div>${mjNeedHTML()}`;
+  for(const col of MJ.cols){const C=COLL[col],cls=COLCLS[col].filter(mjHas),free=skFree(col),T=SKT[col];
     let svg=`<svg class="sklinks" width="${CW}" height="${H}" viewBox="0 0 ${CW} ${H}">`;
     for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
     svg+='</svg>';
