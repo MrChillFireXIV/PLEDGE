@@ -654,3 +654,10 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .mjtag{display:inline-block;padding:2px 12px;border-radius:99px;background:#7a1f2b;color:#fff3e0;font-size:12.5px;font-weight:700}
 .skhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.mjline{margin:4px 0}
 @media(max-width:700px){.mjbody{grid-template-columns:1fr}.mjlist{border-right:0;border-bottom:1px solid #dccfae}}
+/* V351: 21 majors, grouped by home college; the list and the preview scroll on their own */
+.mjbody{overflow:hidden}.mjlist{overflow:auto;gap:5px}.mjprev{overflow:auto}
+.mjgh{margin:8px 0 1px;font-family:var(--fd);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--skc) 75%,#000);border-bottom:2px solid var(--skc);padding-bottom:2px}
+.mjgh:first-child{margin-top:0}
+.mjopt{padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.mjopt b{margin:0;font-size:14.5px}
+.mjbody{grid-template-columns:minmax(260px,340px) 1fr}
+@media(max-width:700px){.mjbody{overflow:auto;grid-template-columns:1fr}.mjlist{max-height:40vh}}
