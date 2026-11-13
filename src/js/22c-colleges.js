@@ -5,9 +5,8 @@
 
 // ---------------------------------------------------------------- schedule
 function clsDay(d){const w=(d-1)%7;return d>=2&&w>=1&&w<=5}
-/* V350: ten slots a week. In every slot one class of each college meets (class j of college ci meets in slots where slot%5 = (j+ci)%5, so twice a week).
-   Danny only sees the classes his major allows: three colleges, so up to three choices per slot. */
-function classesAt(d,sl){if(!clsDay(d))return[];const M_=mjNow();if(!M_)return[];const k=(((d-1)%7-1)*2+sl)%5,out=[];for(const col of M_.cols){const c=COLCLS[col][((k-COLK.indexOf(col))%5+5)%5];if(mjHas(c))out.push(c)}return out}
+/* V353: ten slots a week (9 AM and 1 PM, Monday to Friday) and ten courses in a major: exactly one class meets in each slot, each class once a week. */
+function classesAt(d,sl){if(!clsDay(d)||!S.major||!MAJ[S.major])return[];const c=mjWeek(S.major)[((d-1)%7-1)*2+sl];return c?[c]:[]}
 /* a classroom shared by several classes: the one in session right now */
 function roomCls(c){const sl=classWindow();if(sl===null)return c;return classesAt(S.day,sl).find(x=>CI[x].bid===CI[c].bid)||c}
 function clsBld(c){const k=CI[c].b;return B.find(b=>b.menu===k||b.id===k)}

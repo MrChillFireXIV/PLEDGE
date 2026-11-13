@@ -661,3 +661,7 @@ body.mob #mapnote .mnpaper{padding:14px 16px 16px 44px}body.mob #mapnote .mnpape
 .mjopt{padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.mjopt b{margin:0;font-size:14.5px}
 .mjbody{grid-template-columns:minmax(260px,340px) 1fr}
 @media(max-width:700px){.mjbody{overflow:auto;grid-template-columns:1fr}.mjlist{max-height:40vh}}
+/* V353 weekly timetable in the major preview */
+.mjwk{margin-top:12px}.mjwk table{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin-top:2px}
+.mjwk th{font-size:11px;font-weight:700;opacity:.7;text-align:center}.mjwk tr th:first-child{width:44px;text-align:right;padding-right:4px}
+.mjwk td{font-size:12px;line-height:1.2;padding:5px 6px;border-radius:7px;background:color-mix(in srgb,var(--skc) 16%,#fff);border-left:4px solid var(--skc);vertical-align:middle}
