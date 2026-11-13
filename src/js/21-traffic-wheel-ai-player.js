@@ -423,7 +423,9 @@ function dustTick(dt){for(let i=DUST.length-1;i>=0;i--){const d=DUST[i];d.t+=dt;
 // basketball pledge: dribble the ball while it's in hand
 function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prole!=='basketball'||!S.pledged)return;const rest=b.userData.rest||(b.userData.rest=b.position.clone());
   if(off||mode!=='play'){b.position.copy(rest);b.rotation.x=0;P.dbU=null;return}
-  const rate=1.9+Math.min(spd,6.2)*.28,u=(TT*rate)%1,q=PM.P;
+  /* V361 the bounce phase is accumulated, not taken from the clock: before, phase = clock × rate, so any change in speed (walk → run → stop) made the ball jump to a
+     new point in its bounce and look like it was spinning fast. The rate also eases toward its target so speed-ups and slow-downs are gradual. */
+  const tgt=2.1+Math.min(spd,6.2)*.12;P.dbR=P.dbR==null?tgt:P.dbR+(tgt-P.dbR)*Math.min(1,dt*2.5);P.dbPh=((P.dbPh||0)+dt*P.dbR)%1;const u=P.dbPh,q=PM.P;
   q.aR.rotation.x=-.3-.62*(1-Math.cos(u*TAU))/2;q.aR.rotation.z=.06;
   PM.updateMatrixWorld(true);const H=q.hR.localToWorld(rest.clone()),fy=P.y+P.jy+.13,A=Math.max(.12,H.y-fy),y=fy+A*(1-(2*u-1)*(2*u-1));
   const lead=Math.min(spd,6)*.045,wx=H.x+Math.sin(P.face)*lead,wz=H.z+Math.cos(P.face)*lead;
