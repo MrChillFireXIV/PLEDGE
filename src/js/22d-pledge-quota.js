@@ -61,7 +61,7 @@ const PQ={
   mg:[["steger","Free Throws","meter",PQ_METER("Release at the top of your shot. Five free throws.","Shoot","Shot","Nothing but net.","Brick.")],
       ["slawn","Dribble Drill","rhythm",PQ_BEAT("Keep the dribble on the beat. Lose it and you run laps.","Dribble",116)],
       ["classen","Hoops Quiz","quiz",{intro:"Know the game, pledge. Four questions.",q:[["A shot from beyond the arc is worth…","3 points","2 points","4 points","1 point",""],["How many players per team are on the court?","5","6","7","11",""],["Taking steps without dribbling is called…","Traveling","Icing","Offside","A balk",""],["A regulation rim is how high?","10 feet","8 feet","12 feet","9 feet",""],["A free throw is worth…","1 point","2 points","3 points","Nothing",""]]}]]},
- pouch:{t:12,tv:"Dig something out of the pouch",tn:"pouch digs",host:"Housemother",
+ pouch:{t:12,tv:"Hand a brother what he asked for",tn:"brothers served",host:"Housemother",
   sp:[["lib","Deliver chapstick to a brother at Langsam","Cherry or mint? I carry both."],["gym","Run a Gatorade to the Rec Center","Lemon-lime, still cold. Mostly."],["westpav","Bring a phone charger to the West Pavilion","Lightning, USB-C and the old wide one. Covered."],["anchor","Drop off a forgotten wallet at the Rusty Anchor","Found it in the pouch. Don't ask."],["lindner","Hand a brother a pen before his exam at Lindner","Blue or black. And a spare. Good luck."]],
   mg:[["rieveschl","Remember the Orders","memory",{intro:"Four brothers shout orders at once. Watch who asks in what order, then deliver."}],
       ["daap","Pack the Pouch","sort",PQ_SORT("Everything has a pocket. Put it in the right one.",["Drinks","Snacks","Gear"],[["Gatorade","Drinks"],["Coffee","Drinks"],["Water bottle","Drinks"],["Energy drink","Drinks"],["Protein bar","Snacks"],["Beef jerky","Snacks"],["Gummy worms","Snacks"],["Pretzels","Snacks"],["Phone charger","Gear"],["Chapstick","Gear"],["Spare keys","Gear"],["Duct tape","Gear"]])],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1};
+const PQ_JOBTALK={basketball:1,pouch:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
@@ -156,7 +156,7 @@ let PQ_IB=0;
 async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_IB=1;const D=PQ[q.k],R_=PR[q.k],g=NN.grant;
   try{if(g&&NP.includes(g)&&!g.hidden){
     await c1Line(g,'One more thing, '+R_.n+'. Every pledge in this house carries a quota. The job is not a costume. It is a debt.');
-    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times.'+(PQ_JOBTALK[q.k]?' Different people. I will know.':' Press T. I will know.'));
+    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times.'+(q.k==='basketball'?' Different people. I will know.':q.k==='pouch'?' When a brother asks, you deliver. I will know.':' Press T. I will know.'));
     await c1Line(g,'Two: five special cases around campus. Places where a '+R_.n+' is expected to show up. They are marked. Go to each one.');
     await c1Line(g,'Three: three trials that only a '+R_.n+' can run. Also marked. Pass all three.');
     await c1Line(g,'The patch under your job shows the number. Nobody walks into Hell Week under one hundred percent. Nobody.');
