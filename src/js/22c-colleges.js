@@ -22,7 +22,8 @@ function clsBld(c){const k=CI[c].b;return B.find(b=>b.menu===k||b.id===k)}
 
 // ---------------------------------------------------------------- classrooms: a door on each building (its real front door) and a lecture room inside
 function colRoom(c,i){const C=CI[c],b=B.find(b=>b.id===C.bid);
-  if(b.ex==null){const u=UCD.B.find(u=>u.n===C.bn&&u.fp&&u.fn);if(u){b.ex=u.fp[0]+u.fn[0]*1.6;b.ez=u.fp[1]+u.fn[1]*1.6;b.fn=u.fn;b.face=Math.abs(u.fn[0])>Math.abs(u.fn[1])?(u.fn[0]>0?'e':'w'):(u.fn[1]>0?'s':'n')}}
+  if(b.ex==null){const u=UCD.B.find(u=>u.n===C.bn&&u.fp&&u.fn);if(u){const E=ENTAT[C.bn],q=E?[E[0],E[1]]:u.fp,n=E?[E[2],E[3]]:u.fn;   /* V357: the prompt stands in front of the entrance that was actually built */
+    b.ex=q[0]+n[0]*1.6;b.ez=q[1]+n[1]*1.6;b.fn=n;b.face=Math.abs(n[0])>Math.abs(n[1])?(n[0]>0?'e':'w'):(n[1]>0?'s':'n')}}
   const W=[0xe6dcc6,0xe2e6ea,0xece4d4,0xdfe6dc,0xe8e0e6][i%5];
   return classInt(C.bid,{name:C.bn+', Room '+(101+i*13),cls:c,board:C.board,wall:W,floor:['wood','tile','carpet'][i%3]})}
 

@@ -6,7 +6,7 @@
 // (vehicle opening, steel door, PARKING sign), roll (garage roll-up door), side (single service door).
 // All parts are plain boxes/planes with a handful of shared materials and four small door textures, so mergeStatic folds them
 // into the existing static chunks (no extra draw calls to speak of, well under 1 MB of texture).
-let ENTX=null;const ENTM={},ENTC={},ENTL=[];   /* ENTC: entrances built per style, ENTL: [x,z,nx,nz,kind] (for tests) */
+let ENTX=null;const ENTM={},ENTC={},ENTL=[],ENTAT={};   /* ENTAT[building name] = [x,z,nx,nz] of its front entrance */   /* ENTC: entrances built per style, ENTL: [x,z,nx,nz,kind] (for tests) */
 function entTex(){if(ENTX)return ENTX;const T=(w,h,f)=>{const t=ctex(w,h,f);t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;return t};
   const glassG=(q,x,y,w,h)=>{const g=q.createLinearGradient(x,y,x+w*.3,y+h);g.addColorStop(0,'#5d7184');g.addColorStop(.45,'#33414f');g.addColorStop(1,'#1f2933');q.fillStyle=g;q.fillRect(x,y,w,h);
     q.fillStyle='rgba(255,255,255,.10)';q.beginPath();q.moveTo(x+w*.15,y);q.lineTo(x+w*.45,y);q.lineTo(x+w*.05,y+h*.55);q.lineTo(x,y+h*.55);q.lineTo(x,y+h*.3);q.closePath();q.fill()};
@@ -104,7 +104,11 @@ function entrancesUCD(b,main,h,lv,others){const fp=b.fp,fn=b.fn;if(!fp||!fn)retu
   W.sort((a,b)=>a.sc-b.sc);let E=W.find(e=>e.L-.8>=MINW[kind]),k2=kind;if(!E){E=W.find(e=>e.L-.8>=MINW.side);k2='side'}if(!E)return;
   const want={house:2.4,apt:3.8,shop:Math.min(9,Math.max(4,E.L*.45)),classic:h>=15?4.6:3.9,modern:Math.min(9,Math.max(5.4,Math.sqrt(area)*.28)),garage:9.5,roll:3.2,side:1.8}[k2];
   const F=entFit(E,E.t,want);if(!F)return;if(F.w<MINW[k2])k2='side';
-  entrance(F.p,F.n,k2,F.w,{seed:entSeed(b),wood:/^(baldB|diet|stone)$/.test(b.s),dark:/^(darkM|metal|lindD|zinc|stegB)$/.test(b.s)});
+  /* V357: the door sits on the ground Danny actually walks on. A building whose floor level (lvo) is above or below the pavement at its door used to
+     get its entrance at floor level, floating a storey up the wall or buried; now it is moved to pavement height (down the plinth or up the wall). */
+  const gy=terrH(F.p[0]+F.n[0]*1.6,F.p[1]+F.n[1]*1.6)-lv,y0=Math.abs(gy)>.3?clamp(gy,-9,9):0;
+  entrance(F.p,F.n,k2,F.w,{seed:entSeed(b),y0,wood:/^(baldB|diet|stone)$/.test(b.s),dark:/^(darkM|metal|lindD|zinc|stegB)$/.test(b.s)});
+  ENTAT[b.n]=[F.p[0],F.p[1],F.n[0],F.n[1]];
   /* side door on big campus buildings: the longest wall facing away from the front, if the ground there is about level and nothing is in the way */
   if(!b.u||area<900||kind==='garage')return;let best=null;
   for(let i=0;i<main.length;i++){const A=main[i],B_=main[(i+1)%main.length],L=Math.hypot(B_[0]-A[0],B_[1]-A[1]);if(L<6)continue;const e=entWall(main,[(A[0]+B_[0])/2,(A[1]+B_[1])/2]);if(!e||(e.n[0]*fn[0]+e.n[1]*fn[1])>-.3)continue;if(!best||L>best.L)best=Object.assign(e,{L})}
