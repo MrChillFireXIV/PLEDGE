@@ -7,6 +7,15 @@
 function clsDay(d){const w=(d-1)%7;return d>=2&&w>=1&&w<=5}
 /* V353: ten slots a week (9 AM and 1 PM, Monday to Friday) and ten courses in a major: exactly one class meets in each slot, each class once a week. */
 function classesAt(d,sl){if(!clsDay(d)||!S.major||!MAJ[S.major])return[];const c=mjWeek(S.major)[((d-1)%7-1)*2+sl];return c?[c]:[]}
+/* V356: class starts by itself. If Danny is in the classroom of the class that meets in this slot when the bell goes (9:00 AM / 1:00 PM), or walks in
+   during the first half hour, he is seated and the class begins. Arriving early (from 8:30 / 12:30) shows a one-time note to wait. */
+let CLSA={k:'',w:''};
+const CLSROOM={econ:'whit',chem:'hollis',phys:'braun',art:'arts',speech:'banc'};   /* the five original classes meet in these interiors */
+function clsRoomId(c){return CI[c].bid||CLSROOM[c]}
+function clsAutoTick(){if(mode!=='play'||!P.inside||CINE||EV||!clsLive())return;const sl=classWindow();if(sl===null)return;const key=S.day+'-'+sl;if(S.att[key])return;
+  const c=classesAt(S.day,sl)[0];if(!c||clsRoomId(c)!==P.inside)return;const st=sl?13:9;
+  if(S.gt<st){if(CLSA.w!==key){CLSA.w=key;toast(`${CI[c].n} starts at ${fmtH(st)}. Stay in the room and class will begin.`,4200)}return}
+  if(CLSA.k===key)return;CLSA.k=key;toast(`${CI[c].prof}: "Seats, please. We're starting."`,2200);setTimeout(()=>{if(mode==='play'&&P.inside===clsRoomId(c)&&!S.att[key])attendClass(c,sl);else CLSA.k=''},900)}
 /* a classroom shared by several classes: the one in session right now */
 function roomCls(c){const sl=classWindow();if(sl===null)return c;return classesAt(S.day,sl).find(x=>CI[x].bid===CI[c].bid)||c}
 function clsBld(c){const k=CI[c].b;return B.find(b=>b.menu===k||b.id===k)}
