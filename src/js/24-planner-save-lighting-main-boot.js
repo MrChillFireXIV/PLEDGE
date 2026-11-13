@@ -233,9 +233,9 @@ function prewarm(){try{gfxReady();for(const id in INT)INT[id].g.visible=true;for
 function begin(fresh){SAVEBLOCK=0;audioInit();window.__played=1;try{const pn=document.querySelector('#title .pennant');TC.pr=fresh&&pn&&!$('title').hidden?pn.getBoundingClientRect():null}catch(e){}$('title').hidden=true;if(matchMedia('(pointer:coarse)').matches)$('touch').hidden=false;$('hud').hidden=false;mode='play';
   if(fresh){S=S0();setHat(0);try{localStorage.removeItem(SAVEK)}catch(e){}P.x=77.9;P.z=76.9;P.face=PI/2;yaw=-PI/2;refreshNamed();renderInv();startMission(M[0])}
   else{if(!loadGame()){begin(true);return}yaw=-PI/2;toast(`Welcome back. ${DAYN[(S.day-1)%7]}, ${fmtT(S.gt)}.`)}}
-async function boot(){if(TEST==null)try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch(e){}
-  buildWorld();optimizeScene();mkMarkers();mkPlayer();spawnAll();prWorldInit();carsInit();TRUCK=mkTruck();try{lootBuild()}catch(e){console.warn('loot',e)}if(TEST!=null)testPrewarm();else prewarm();refreshNamed();renderInv();setupTouch();
-  $('loading').hidden=true;$('title').hidden=false;$('touch').hidden=true;mode='title';
+async function boot(){BOOTT.scriptStart=Math.round(performance.now());if(TEST==null)try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch(e){}BOOTT.afterFonts=Math.round(performance.now());
+  bootT('world',buildWorld);bootT('optimize',optimizeScene);mkMarkers();mkPlayer();bootT('spawn',spawnAll);prWorldInit();carsInit();TRUCK=mkTruck();try{lootBuild()}catch(e){console.warn('loot',e)}bootT('prewarm',()=>{if(TEST!=null)testPrewarm();else prewarm()});refreshNamed();renderInv();setupTouch();
+  BOOTT.ready=Math.round(performance.now());$('loading').hidden=true;$('title').hidden=false;$('touch').hidden=true;mode='title';
   $('chapback').onclick=chapSelClose;slotsBoot();$('bhow').onclick=()=>ctrlShow();
   if(MOB&&GFX==='enhanced')adpSet(1);
   if(TEST!=null)testBoot();
