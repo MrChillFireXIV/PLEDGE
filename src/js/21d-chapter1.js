@@ -26,7 +26,7 @@ for(const d of NAMED)if(!SPK[d.name])SPK[d.name]=d.id;
 function tabOn(k){if(k==='pl')return!!S.pledged;const old=S.ch>=2;   /* older saves get their flags from c1Migrate; S.done.arrive is true from the first minutes, so it can't unlock anything */if(k==='map')return!!(S.uMap||old);if(k==='clq')return!!(S.uCliques||old);if(k==='cls')return!!(S.uClasses||old);if(k==='yb')return ybOn();return true}
 /* V349: the yearbook is introduced by Tess Okafor's side story; saves that already took photos keep it */
 function ybOn(){return!!(S.uYearbook||(S.photos&&Object.keys(S.photos).length)||S.done.yearbook)}
-function clsLive(){return tabOn('cls')&&!(S.uClassesDay&&S.day<=S.uClassesDay)}
+function clsLive(){return tabOn('cls')&&!!mjNow()&&!(S.uClassesDay&&S.day<=S.uClassesDay)}
 function c1Migrate(d){if(!d)return;try{c2Migrate(d)}catch(e){}if((d.done&&d.done.arrive)||d.pledged){for(const id of C1IDS)S.done[id]=1;S.uMap=S.uCliques=S.uClasses=1;setTimeout(()=>{if(S.ch===1)checkChapter()},500)}
   if((S.done.c1rival||S.ch>=2)&&!(S.fr&&S.fr.kto))c1Frat('kto',-40);
   if(S.done.c1blackout)setTimeout(()=>{try{dungDoorOpen(1)}catch(e){}},0)}
@@ -405,7 +405,7 @@ const T1={
  rivalEnd:'Tank Hale comes down off the porch steps and looks at you like he\'s seeing you for the first time.\n\n"Rushee! Where\'d a scrawny kid like you learn to hit like that? Kappa Theta\'s gonna remember your face now. That\'s good AND bad."',
  blackout:'Grant finds you in the dark with his phone flashlight in your face.\n\n"Kowalski. The fuse box is in the basement. Door at the west end of the hall. Padlock\'s off; some of the brothers are already down there. The fuse room has a keypad. I change the code every semester and I never remember it, so don\'t ask me. Get the lights back on before these people walk across the street and tell Kappa Theta we can\'t throw a party."\n\nHe lowers his voice. "And whatever you see down there, you didn\'t see it."',
  lightsOn:'Grant is waiting at the top of the basement stairs. Behind him, the house is thumping again.\n\n"Lights are on, and the whole Row came back inside like nothing happened. Not bad, rushee." His eyes go to the basement door. "You went past the haze room to get there." It isn\'t a question. "Whatever you saw down there, you didn\'t see. Understood?"',
- classes:'"Sit. You\'re a scholarship student, Mr. Kowalski. That means this university is paying for you to be here, and it expects something back."\n\n"Classes meet every weekday: nine in the morning and one in the afternoon. Economics, Chemistry, Public Speaking, Art History and Physics. Yours start tomorrow. Curfew is eleven."',
+ classes:'"Sit. You\'re a scholarship student, Mr. Kowalski. That means this university is paying for you to be here, and it expects something back."\n\n"Classes meet every weekday: nine in the morning and one in the afternoon. Curfew is eleven."\n\nShe turns a form around and slides it across the desk. "Which brings me to this. You never declared a major, Mr. Kowalski. Your major decides which three colleges will have you. Choose carefully. I don\'t process changes."',
  ask:'"Now." She folds her hands. "You were in that house last night. You went down into that basement, didn\'t you? Don\'t look so surprised. Somebody always tells me."\n\n"Have you seen anything I should know about?"',
  decide:'Grant leans forward on the throne.\n\n"Kowalski. You fought for this house. You fixed my lights. And the Dean had you in her office today." He lets that hang. "So. Are you in, or are you out?"',
  hat:'\"One more thing.\" Grant reaches under the throne and tosses you a maroon beanie with a plastic propeller on top.\n\n\"That\'s your propeller hat. Every pledge wears the propeller hat. Every day. Until the Lantern Walk. Take it off and I will hear about it.\"',
@@ -460,6 +460,7 @@ const C1M=[
    ...(S.c1deanSeen?[{t:'cine',run:c1DeanOffice}]:[{t:'cine',run:c1DeanCine},
    go(c1W('main',32,2.2),'Go to the Dean\'s office in Van Wormer Hall.',{press:1,act:'Knock on the Dean\'s door',r:1.8,done:()=>{sfx('ui');toast('"Come in, Mr. Kowalski. Shut the door."',2400)}}),{t:'cine',run:c1DeanOffice}]),
    C_('Classes','Dean Margaret Halvorsen · Dean of Students',T1.classes,[['"Understood."',null]]),
+   {t:'cine',run:done=>mjPick(done)},
    fx(()=>{S.uClasses=1;S.uClassesDay=S.day;sfx('lvl');big('CLASSES UNLOCKED',2000);setTimeout(()=>toast('Tab › Classes: your schedule. Classes start tomorrow.',5000),600)}),
    C_('A Question','Dean Margaret Halvorsen · Dean of Students',T1.ask,[
     ['Tell her about the haze room in the basement',()=>{rep('studentgov',15);S.deanDeal=1;S.deanTold=1;stand(-15);return[C_('A Question','Dean Margaret Halvorsen · Dean of Students','"…A haze room. With a chair." She writes it down very slowly. "Thank you, Mr. Kowalski. This stays between us, for now. My door is always open to you."\n\nThe Dean likes you more. If Alpha Sigma Rho ever finds out who told her, they will like you a lot less.')]}],

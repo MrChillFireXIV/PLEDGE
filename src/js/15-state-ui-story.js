@@ -2,18 +2,18 @@
 /* V308 colleges: every passed class gives a skill point of its college, spent in the Skill Tree tab */
 const COLL={design:{n:'DAAP',full:'Design, Architecture, Art & Planning',ic:'✏️',c:'#9a4ac0'},as:{n:'Arts & Sciences',full:'College of Arts & Sciences',ic:'🔬',c:'#2f78c8'},eng:{n:'Engineering',full:'College of Engineering & Applied Science',ic:'⚙️',c:'#c87a1a'},
   bus:{n:'Business',full:'Lindner College of Business',ic:'💼',c:'#1f9a5e'},ccm:{n:'CCM',full:'College-Conservatory of Music',ic:'🎭',c:'#c83a5e'},law:{n:'Law & Justice',full:'College of Law · Criminal Justice',ic:'⚖️',c:'#8a6a2a'},health:{n:'Health',full:'Health & Human Services',ic:'🩺',c:'#1fa0a0'}};
-const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych'];
+const CLS=['econ','chem','speech','art','phys','arch','indd','geol','fchem','calc','write','mech','robo','cs','mkt','music','trial','cj','smed','psych','gfx','fash','hist','acct','fin','entr','act','film','dance','conlaw','contract','invest','nutr','anat','aid'];
 const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. Lindqvist',perk:['Shops give you 7% off.','14% off everywhere, and Hank will haggle with you.','21% off everywhere. You think in margins now.']},
   chem:{n:'Chemistry',col:'as',b:'chem',bn:'Rieveschl Hall',prof:'Dr. Abernathy',perk:['You can mix stink bombs in the Rieveschl lab for $2.','You wake up each morning with a stink bomb.','Your stink bombs knock people out of a fight twice as long.']},
   speech:{n:'Public Speaking',col:'ccm',b:'speech',bn:'CCM',prof:'Prof. Okafor',perk:['New dialogue options open up in tasks.','60% chance to talk your way out of getting busted.','90% chance to talk your way out of getting busted.']},
-  phys:{n:'Physics',col:'as',b:'phys',bn:'Braunstein Hall',prof:'Prof. Halvorsen',perk:['You jump 12% higher.','Your kicks hit 15% harder.','Dodge rolls cost half the stamina.']},
+  phys:{n:'Physics',col:'eng',b:'phys',bn:'Braunstein Hall',prof:'Prof. Halvorsen',perk:['You jump 12% higher.','Your kicks hit 15% harder.','Dodge rolls cost half the stamina.']},
   art:{n:'Art History',col:'design',b:'art',bn:'DAAP',prof:'Prof. Delacroix-Hale',perk:['Yearbook photo spots appear on your map.','Yearbook photos pay $5 each.','Your yearbook spread makes the cover: $40 bonus.']}};
 /* V308 the fifteen new classes: building id (its classroom is INT[id]), minigame type, chalkboard */
 [['arch','Architecture Studio','design','uc34','DAAP Addition','Prof. Renwick','meter','ARCH 201 · LOADS FOLLOW THE PATH OF LEAST RESISTANCE'],
  ['indd','Industrial Design','design','uc45','Wolfson Center','Prof. Saarinen-Moss','quiz','DSGN 150 · FORM FOLLOWS FUNCTION'],
  ['geol','Geology','as','uc38','Geology-Physics Building','Dr. Okonkwo','sort','GEOL 101 · THE ROCK CYCLE'],
  ['fchem','Forensic Chemistry','as','uc20','Old Chemistry','Dr. Varga','quiz','CHEM 240 · EVERY CONTACT LEAVES A TRACE'],
- ['calc','Calculus','as','uc26','Zimmer Hall','Prof. Mbeki','math','MATH 1061 · d/dx xⁿ = n·xⁿ⁻¹'],
+ ['calc','Calculus','eng','uc26','Zimmer Hall','Prof. Mbeki','math','MATH 1061 · d/dx xⁿ = n·xⁿ⁻¹'],
  ['write','Creative Writing','as','uc50','Swift Hall','Prof. Ellison-Park','quiz','ENGL 210 · SHOW, DON\'T TELL'],
  ['mech','Mechanical Engineering','eng','uc18','Rhodes Hall','Dr. Strand','math','MECH 2010 · OUTPUT RPM = INPUT × DRIVER ÷ DRIVEN'],
  ['robo','Robotics','eng','uc41','Baldwin Hall','Dr. Iyer','grid','EECE 3093 · TELL THE ROBOT EXACTLY WHAT TO DO'],
@@ -24,7 +24,26 @@ const CI={econ:{n:'Economics',col:'bus',b:'econ',bn:'McMicken Hall',prof:'Prof. 
  ['cj','Criminal Justice','law','uc27','Teachers College','Prof. Dawes','sort','CJ 1001 · INNOCENT UNTIL PROVEN GUILTY'],
  ['smed','Sports Medicine','health','uc21','Edwards Center','Dr. Haddad','rhythm','ATHL 2010 · PUSH HARD, PUSH FAST: 100 TO 120 A MINUTE'],
  ['psych','Psychology','health','uc23','Clifton Court Hall','Prof. Ferreira','memory','PSYC 1001 · SEVEN, PLUS OR MINUS TWO']
-].forEach(([k,n,col,bid,bn,prof,mg,board])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]}});
+,
+ /* V350 fifteen more classes (five per college). Each shares the classroom of an existing class of its college: host = that class */
+ ['gfx','Graphic Design','design','uc34','DAAP Addition','Prof. Okabe','sort','DSGN 210 · WARM ADVANCES, COOL RECEDES','arch'],
+ ['fash','Fashion Design','design','uc45','Wolfson Center','Prof. Marchetti','meter','FASH 101 · MEASURE TWICE, CUT ONCE','indd'],
+ ['hist','History','as','uc50','Swift Hall','Prof. Brannigan','quiz','HIST 1001 · WHO WROTE IT, WHEN, AND WHY','write'],
+ ['acct','Accounting','bus','uc13','Carl H. Lindner Hall','Prof. Whitlow','sort','ACCT 2081 · ASSETS = LIABILITIES + EQUITY','mkt'],
+ ['fin','Finance','bus','uc13','Carl H. Lindner Hall','Prof. Adeyemi','math','FIN 3080 · A DOLLAR TODAY BEATS A DOLLAR TOMORROW','mkt'],
+ ['entr','Entrepreneurship','bus','uc13','Carl H. Lindner Hall','Prof. Greer','quiz','ENTR 2020 · FIND THE PROBLEM FIRST','mkt'],
+ ['act','Acting','ccm','uc19','Mary Emery Hall','Prof. Sinclair','memory','DRAM 1010 · KNOW YOUR BLOCKING','music'],
+ ['film','Film & E-Media','ccm','uc19','Mary Emery Hall','Prof. Tanaka','quiz','EMED 1015 · EVERY CUT IS A CHOICE','music'],
+ ['dance','Dance','ccm','uc19','Mary Emery Hall','Madame Volkova','rhythm','DNCE 1001 · FIVE, SIX, SEVEN, EIGHT','music'],
+ ['conlaw','Constitutional Law','law','uc25','College of Law','Prof. Abernethy','sort','LAW 7021 · THREE BRANCHES, ONE GOVERNMENT','trial'],
+ ['contract','Contracts','law','uc25','College of Law','Prof. Nakamura','quiz','LAW 7011 · OFFER, ACCEPTANCE, CONSIDERATION','trial'],
+ ['invest','Criminal Investigation','law','uc27','Teachers College','Det. Ruiz (ret.)','memory','CJ 2040 · NOTICE EVERYTHING','cj'],
+ ['nutr','Nutrition','health','uc21','Edwards Center','Dr. Lindgren','sort','NUTR 1030 · PROTEIN, CARBS, FAT','smed'],
+ ['aid','First Aid','health','uc21','Edwards Center','Nurse Castillo','meter','HLTH 1050 · DIRECT PRESSURE STOPS BLEEDING','smed'],
+ ['anat','Anatomy','health','uc23','Clifton Court Hall','Dr. Osei','quiz','BIOL 2001 · 206 BONES, GIVE OR TAKE','psych']
+].forEach(([k,n,col,bid,bn,prof,mg,board,host])=>{CI[k]={n,col,b:bid,bid,bn,prof,mg,board,perk:[]};if(host)CI[k].host=host});
+/* the five classes of each college, in schedule order */
+const COLK=Object.keys(COLL),COLCLS={design:['art','arch','indd','gfx','fash'],as:['chem','geol','fchem','write','hist'],eng:['phys','calc','mech','robo','cs'],bus:['econ','mkt','acct','fin','entr'],ccm:['speech','music','act','film','dance'],law:['trial','cj','conlaw','contract','invest'],health:['smed','psych','nutr','anat','aid']};
 const DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const CHN=['','Rush Week','Rivalries','The Old Guard','The Lantern Walk','Epilogue'];
 const S0=()=>({day:1,gt:15,ch:1,hp:100,mhp:100,sta:100,lvl:1,xp:0,money:5,pledged:0,spirit:50,pimg:{},trouble:0,standing:0,ev:0,clue:0,ally:0,bb:null,deanDeal:0,radioKey:0,lena:0,trust:0,budget:0,studied:0,grades:Object.fromEntries(CLS.map(c=>[c,0])),sp:{},sk:{},spMig:0,att:{},rep:{legacies:-10,athletes:0,studentgov:0,activists:0,townies:-10,sororities:0},done:{},photos:{},inv:[null,null,null],items:{},carry:null,ending:null,stats:{kos:0,pong:0,ff:0,kart:0,radio:0,busts:0},daily:{}});

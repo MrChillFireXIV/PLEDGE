@@ -5,7 +5,11 @@
 
 // ---------------------------------------------------------------- schedule
 function clsDay(d){const w=(d-1)%7;return d>=2&&w>=1&&w<=5}
-function classesAt(d,sl){if(!clsDay(d))return[];const k=((d-1)%7-1)*2+sl;return CLS.filter((c,i)=>i%10===k||(i+5)%10===k)}
+/* V350: ten slots a week. In every slot one class of each college meets (class j of college ci meets in slots where slot%5 = (j+ci)%5, so twice a week).
+   Danny only sees the classes his major allows: three colleges, so up to three choices per slot. */
+function classesAt(d,sl){if(!clsDay(d))return[];const M_=mjNow();if(!M_)return[];const k=(((d-1)%7-1)*2+sl)%5,out=[];for(const col of M_.cols){const c=COLCLS[col][((k-COLK.indexOf(col))%5+5)%5];if(mjHas(c))out.push(c)}return out}
+/* a classroom shared by several classes: the one in session right now */
+function roomCls(c){const sl=classWindow();if(sl===null)return c;return classesAt(S.day,sl).find(x=>CI[x].bid===CI[c].bid)||c}
 function clsBld(c){const k=CI[c].b;return B.find(b=>b.menu===k||b.id===k)}
 
 // ---------------------------------------------------------------- classrooms: a door on each building (its real front door) and a lecture room inside
@@ -157,7 +161,79 @@ const MGD={
    ['Shoplifting a $20 shirt','Misdemeanor','Petty theft.'],['Underage drinking','Misdemeanor',''],['Trespassing','Misdemeanor',''],['Vandalism under $1,000','Misdemeanor',''],['Disorderly conduct','Misdemeanor',''],
    ['Armed robbery','Felony',''],['Burglary','Felony',''],['Arson','Felony',''],['Selling cocaine','Felony','Possession with intent to sell is a felony.'],['Kidnapping','Felony','']]},
  smed:{intro:'Hands-only CPR. Push hard and fast in the centre of the chest: 100 to 120 compressions a minute. No metronome, keep the rhythm yourself.',bpm:[110,110,110],n:21,win:[140,100,70],metro:0,act:'Compress',how:'21 compressions at 100 to 120 a minute'},
- psych:{intro:'Short-term memory holds about seven things. Let\'s see yours. Watch the squares, then repeat the sequence.'}};
+ psych:{intro:'Short-term memory holds about seven things. Let\'s see yours. Watch the squares, then repeat the sequence.'},
+ /* V350 the fifteen newer classes */
+ gfx:{intro:'Colour sets the mood before anyone reads a word. Sort each colour: warm, cool or neutral.',bins:['Warm','Cool','Neutral'],items:[
+   ['Red','Warm',''],['Orange','Warm',''],['Yellow','Warm',''],['Coral','Warm',''],['Gold','Warm',''],
+   ['Blue','Cool',''],['Teal','Cool',''],['Violet','Cool',''],['Mint green','Cool',''],['Navy','Cool',''],
+   ['Gray','Neutral',''],['Beige','Neutral',''],['White','Neutral',''],['Black','Neutral',''],['Taupe','Neutral','']]},
+ fash:{intro:'Measure twice, cut once. Stop the shears while they sit on the chalk line. Five cuts.',act:'Cut',unit:'Cut',good:'A clean cut, right on the chalk.',bad:'Off the line. That panel is scrap.'},
+ hist:{intro:'History is an argument about evidence. Four questions.',q:[
+   ['Printing with movable type in Europe is credited to…','Johannes Gutenberg','Leonardo da Vinci','Isaac Newton','Martin Luther','Around 1450, in Mainz.'],
+   ['The Berlin Wall came down in…','1989','1979','1999','1969',''],
+   ['A primary source is…','A record made at the time by someone who was there','A textbook chapter','A documentary made years later','An encyclopedia entry','Letters, diaries, photographs, court records.'],
+   ['The Declaration of Independence was adopted in…','1776','1789','1812','1865',''],
+   ['Which empire built Machu Picchu?','The Inca','The Aztec','The Maya','The Olmec',''],
+   ['The Industrial Revolution began in…','Britain','Japan','Brazil','Russia','Coal, iron and textile mills.'],
+   ['Who was the first U.S. president?','George Washington','Thomas Jefferson','Abraham Lincoln','John Adams',''],
+   ['The University of Cincinnati traces its founding to…','1819','1919','1776','1865','Cincinnati College and the Medical College of Ohio.']]},
+ acct:{intro:'Every dollar lives somewhere on the books. Sort each item: asset, liability or expense.',bins:['Asset','Liability','Expense'],items:[
+   ['Cash in the bank','Asset',''],['Inventory','Asset',''],['Equipment','Asset',''],['Money customers owe you','Asset','Accounts receivable.'],['A building you own','Asset',''],
+   ['A bank loan','Liability',''],['Bills you owe suppliers','Liability','Accounts payable.'],['A mortgage','Liability',''],['Unpaid wages','Liability',''],['A credit card balance','Liability',''],
+   ['This month\'s rent','Expense',''],['Salaries paid','Expense',''],['The electric bill','Expense',''],['Advertising','Expense',''],['Insurance premiums','Expense','']]},
+ fin:{intro:'Money has a price, and the price is time. Four problems.',gen:(g,k)=>{const R=a=>a[Math.floor(rnd()*a.length)];
+   if(k===0){const P_=R([200,500,800,1000]),r=R([3,4,5,6]),t=R([2,3,4]),a=P_*r*t/100;return{q:`$${P_} earns ${r}% simple interest a year. Interest after ${t} years?`,a:'$'+a,w:['$'+P_*r*(t+1)/100,'$'+P_*r/100,'$'+(P_+a)],why:`${P_} × ${r}% × ${t}.`}}
+   if(k===1){const pr=R([40,60,80,120]),off=R([10,20,25,30]);return{q:`A $${pr} jacket is ${off}% off. What do you pay?`,a:'$'+pr*(100-off)/100,w:['$'+pr*off/100,'$'+(pr-off),'$'+pr*(100+off)/100],why:`${pr} × ${100-off}%.`}}
+   if(k===2){const Rv=R([500,800,1200,2000]),C=Rv*R([.3,.4,.6,.75]);return{q:`Revenue $${Rv}, costs $${C}. Profit?`,a:'$'+(Rv-C),w:['$'+(Rv+C),'$'+C,'$'+Rv],why:'Profit = revenue − costs.'}}
+   const r=R([3,4,6,8,9]),y=72/r;return{q:`At ${r}% a year, about how long does money take to double? (Rule of 72)`,a:y+' years',w:[(y+4)+' years',(y*2)+' years',(Math.round(100/r)+2)+' years'],why:`72 ÷ ${r}.`}}},
+ entr:{intro:'A business is a solved problem that someone will pay for. Four questions.',q:[
+   ['The first thing a startup should prove is that…','People actually have the problem it solves','The logo looks good','The office is big enough','It can go public',''],
+   ['An MVP (minimum viable product) is…','The simplest version you can test with real customers','The most valuable player on the team','A finished, polished product','A type of loan','Build, measure, learn.'],
+   ['"Bootstrapping" a business means…','Funding it from your own money and sales','Borrowing from a bank','Selling it to a rival','Hiring only interns',''],
+   ['An elevator pitch should take about…','30 seconds','10 minutes','An hour','A full slide deck',''],
+   ['Break-even is the point where…','Revenue covers all costs','You make your first sale','You hire your first employee','Investors get paid',''],
+   ['A competitor lowering prices is a…','Threat','Strength','Weakness','Patent','SWOT: strengths, weaknesses, opportunities, threats.'],
+   ['Equity given to an investor means they own…','A share of the company','Your product design','Your debts only','Nothing until you sell',''],
+   ['The best market research is…','Talking to the people who would buy it','Asking your friends if they like it','Reading your own business plan','Guessing','']]},
+ act:{intro:'Blocking is where you stand and when. Watch the marks light up, then hit them in the same order.'},
+ film:{intro:'Every cut is a choice. Four questions from the editing room.',q:[
+   ['A "close-up" mostly shows…','A face or one detail','The whole landscape','Two people talking','The room from above',''],
+   ['Cutting from one scene to another by fading through black is a…','Fade','Jump cut','Whip pan','Zoom',''],
+   ['The 180-degree rule keeps…','Characters on the same sides of the screen','The camera level','Scenes under three minutes','Sound in sync',''],
+   ['A storyboard is…','A drawn plan of the shots','The film\'s budget','A list of actors','The final edit',''],
+   ['Sound recorded on set with the actors is called…','Production sound','Foley','Score','Voice-over','Foley is added afterwards.'],
+   ['The standard frame rate for film is…','24 frames a second','12 frames a second','60 frames a second','100 frames a second',''],
+   ['A "wide shot" is used to…','Show where the scene takes place','Hide the background','Show an actor\'s eyes','Save film',''],
+   ['B-roll is…','Extra footage that covers the cuts','A second director','The blooper reel','The end credits','']]},
+ dance:{intro:'Five, six, seven, eight. Step on every beat with the music.',bpm:[112,120,128],n:16,win:[150,120,95],metro:1,act:'Step',how:'16 steps on the beat (button or Space)'},
+ conlaw:{intro:'Three branches, each checking the others. Sort each power: legislative, executive or judicial.',bins:['Legislative','Executive','Judicial'],items:[
+   ['Writes and passes laws','Legislative',''],['Declares war','Legislative',''],['Controls the federal budget','Legislative','The power of the purse.'],['Confirms Supreme Court justices','Legislative','The Senate votes.'],['Can override a veto','Legislative','With two-thirds of both houses.'],
+   ['Vetoes bills','Executive',''],['Commands the armed forces','Executive',''],['Enforces the laws','Executive',''],['Nominates federal judges','Executive',''],['Negotiates treaties','Executive',''],
+   ['Interprets the Constitution','Judicial',''],['Strikes down unconstitutional laws','Judicial','Judicial review.'],['Hears appeals','Judicial',''],['Settles disputes between states','Judicial','']]},
+ contract:{intro:'A deal is a deal, if it is a contract. Four questions.',q:[
+   ['A contract needs an offer, acceptance and…','Consideration','A notary','A handshake','A witness','Each side gives something of value.'],
+   ['"Consideration" means…','Something of value each side gives up','Being polite','Thinking it over','A late fee',''],
+   ['A contract signed by a 15-year-old is usually…','Voidable by the minor','Fully binding','A felony','Automatically void for both',''],
+   ['Breaking a contract is called a…','Breach','Tort','Felony','Lien',''],
+   ['Which usually has to be in writing?','The sale of a house','Buying a coffee','A dinner invitation','Lending a pencil','The statute of frauds.'],
+   ['"Damages" in a contract case are…','Money to make up for the loss','Broken goods','Jail time','An apology',''],
+   ['A promise to give a gift, with nothing in return, is generally…','Not an enforceable contract','Binding forever','A crime to break','A lease','No consideration.'],
+   ['Reading the fine print matters because…','You are bound by what you sign','It is always illegal','Judges ignore it','It only binds the seller','']]},
+ invest:{intro:'A good detective notices the order things happened in. Watch the sequence, then repeat it.'},
+ nutr:{intro:'Food is fuel. Sort each one by what it mostly gives you: protein, carbohydrate or fat.',bins:['Protein','Carbohydrate','Fat'],items:[
+   ['Chicken breast','Protein',''],['Eggs','Protein',''],['Tofu','Protein',''],['Tuna','Protein',''],['Greek yogurt','Protein',''],
+   ['Rice','Carbohydrate',''],['Bread','Carbohydrate',''],['Pasta','Carbohydrate',''],['Oatmeal','Carbohydrate',''],['Banana','Carbohydrate',''],
+   ['Olive oil','Fat',''],['Butter','Fat',''],['Avocado','Fat',''],['Almonds','Fat','Mostly fat, with some protein.'],['Mayonnaise','Fat','']]},
+ anat:{intro:'Two hundred and six bones, give or take. Four questions.',q:[
+   ['The longest bone in the body is the…','Femur','Humerus','Tibia','Spine','The thigh bone.'],
+   ['Blood is pumped out to the body by the heart\'s…','Left ventricle','Right atrium','Aorta valve','Left lung',''],
+   ['The patella is the…','Kneecap','Collarbone','Shoulder blade','Jawbone',''],
+   ['Muscles attach to bones with…','Tendons','Ligaments','Cartilage','Nerves','Ligaments join bone to bone.'],
+   ['Which organ filters your blood?','The kidneys','The stomach','The lungs','The pancreas',''],
+   ['The biceps is in the…','Upper arm','Thigh','Calf','Back',''],
+   ['The diaphragm helps you…','Breathe','Digest','See','Balance',''],
+   ['An adult human has about how many bones?','206','106','306','412','']]},
+ aid:{intro:'Direct pressure stops bleeding. Press down while the gauge is in the green. Five wounds.',act:'Press',unit:'Wound',good:'Firm, steady pressure. The bleeding slows.',bad:'Too light or too hard. Try again.'}};
 const MGF={quiz:mgQuiz,math:mgMath,sort:mgSort,memory:mgMemory,meter:mgMeter,rhythm:mgRhythm,grid:mgGrid};
 
 // ---------------------------------------------------------------- the Skill Tree
@@ -190,7 +266,7 @@ function skStudy(col){return!!(SKT[col]&&SKT[col].some(n=>n.fx.study&&skOn(n.id)
 function skEarned(col){return(S.sp&&S.sp[col])||0}
 function skSpent(col){return(SKT[col]||[]).reduce((a,n)=>a+(skOn(n.id)?n.c:0),0)}
 function skFree(col){return skEarned(col)-skSpent(col)}
-function skTotalFree(){return Object.keys(COLL).reduce((a,k)=>a+Math.max(0,skFree(k)),0)}
+function skTotalFree(){const m=mjNow();return(m?m.cols:[]).reduce((a,k)=>a+Math.max(0,skFree(k)),0)}
 /* old saves: points for every grade star earned before skill points existed */
 function skMig(){if(S.spMig)return;S.sp=S.sp||{};S.sk=S.sk||{};for(const c of CLS){const col=CI[c].col;if(col)S.sp[col]=(S.sp[col]||0)+((S.grades&&S.grades[c])||0)}S.spMig=1}
 function skGain(col,n=1){skMig();S.sp[col]=(S.sp[col]||0)+n}
@@ -199,8 +275,9 @@ function skLearn(col,id){const n=(SKT[col]||[]).find(n=>n.id===id);if(!n||skOn(i
   S.sk[id]=1;if(n.fx.hp){S.mhp+=n.fx.hp;S.hp=Math.min(S.mhp,S.hp+n.fx.hp)}sfx('lvl');toast(`Learned: ${n.n}. ${n.d}`,4200);try{saveGame()}catch(e){}renderPlanner('skills');setTimeout(()=>{const b=document.querySelector(`.skhex[data-sk="${id}"]`);if(b)b.click()},0)}
 function skillsPage(){skMig();const HX=64,HY=58,PX=26,PY=34,CW=PX*2+HX*3+52;   /* V310 hex grid: three columns, six rows per college */
   const pos=n=>[PX+n.x*(HX+26)+HX/2,PY+(5-n.y)*(HY+22)+HY/2],H=PY*2+6*(HY+22)-22;
-  let h=`<div class="skhead"><h2>Skill Tree</h2></div><div class="skwrap"><div class="sktree">`;
-  for(const col in COLL){const C=COLL[col],cls=CLS.filter(c=>CI[c].col===col),free=skFree(col),T=SKT[col];
+  let h=`<div class="skhead"><h2>Skill Tree</h2><span class="mjtag">Major: ${mjNow()?mjNow().n:''}</span></div><div class="skwrap"><div class="sktree">`;
+  const MJ=mjNow();if(!MJ)return`<div class="skhead"><h2>Skill Tree</h2></div>${mjNeedHTML()}`;
+  for(const col of MJ.cols){const C=COLL[col],cls=COLCLS[col].filter(mjHas),free=skFree(col),T=SKT[col];
     let svg=`<svg class="sklinks" width="${CW}" height="${H}" viewBox="0 0 ${CW} ${H}">`;
     for(const n of T)for(const r of n.r){const m=T.find(x=>x.id===r),[x1,y1]=pos(n),[x2,y2]=pos(m),on=skOn(n.id)&&skOn(r);svg+=`<path d="M${x2} ${y2}V${(y1+y2)/2}H${x1}V${y1}" class="${on?'on':skOn(r)?'half':''}"/>`}
     svg+='</svg>';
