@@ -41,8 +41,17 @@ function c1CineOff(){c1Sub(null);CINE=null;EAVES=0;mode='play';endScene();docume
 function c1Lines(n,L){if(!L||!L.length||(S.pledged&&!(n&&n.pclass)))return L;const f=L.filter(x=>!/^"?Pledge,|, pledge[.!?…]/.test(x));return f.length?f:L}
 function c1Voc(t){if(S.pledged||typeof t!=='string')return t;return t.replace(/, pledge([.!?…])/g,', freshman$1').replace(/(^|["“] ?)Pledge, /g,'$1Freshman, ')}
 const c1Esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
-function c1Sub(nm,t){let e=$('c1sub');if(!e){e=document.createElement('div');e.id='c1sub';e.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:31;max-width:min(760px,88vw);padding:8px 16px;border-radius:10px;background:rgba(10,12,18,.72);color:#f6efe0;font:600 18px Archivo,Arial,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 2px #000';document.body.appendChild(e)}e.hidden=!t;if(t)e.innerHTML=(nm?'<b style="color:#e2b64c">'+c1Esc(nm)+':</b> ':'')+c1Esc(t)}
-function c1Say(n,t,d=9){for(const a of C1.act){a.c1talk=0;if(a.bub)a.bub.visible=false}if(!n||!NP.includes(n))return;n.c1talk=1;bubble(n,t,d);c1Sub(n.name,t)}
+function c1Sub(nm,t){if(!t&&C1B)c1Bal(null);let e=$('c1sub');if(!e){e=document.createElement('div');e.id='c1sub';e.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:31;max-width:min(760px,88vw);padding:8px 16px;border-radius:10px;background:rgba(10,12,18,.72);color:#f6efe0;font:600 18px Archivo,Arial,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 2px #000';document.body.appendChild(e)}e.hidden=!t;if(t)e.innerHTML=(nm?'<b style="color:#e2b64c">'+c1Esc(nm)+':</b> ':'')+c1Esc(t)}
+/* V368 lines said during scenes without stopping (the Greek Games' relay, tug-of-war and egg toss, cutscene asides) use the same cream speech balloon
+   as conversations, over the speaker's head, instead of a small sprite bubble plus a dark subtitle bar. Narration (no speaker) keeps the subtitle bar. */
+let C1B=null;
+function c1Bal(n,t,d){let e=$('c1bal');if(!e){e=document.createElement('div');e.id='c1bal';e.innerHTML='<div class="c1bn"></div><div class="c1bt"></div>';document.body.appendChild(e)}
+  if(!n||!t){e.hidden=true;C1B=null;return}e.querySelector('.c1bn').textContent=n.name+(n.title?' · '+n.title:'');e.querySelector('.c1bt').textContent=t;e.hidden=false;C1B={n,until:TT+Math.max(1.6,d||0)};c1BalPos()}
+function c1BalPos(){const e=$('c1bal');if(!e||e.hidden||!C1B)return;const n=C1B.n;if(TT>C1B.until||!NP.includes(n)||mode==='wheel'||mode==='card'){e.hidden=true;C1B=null;return}
+  if(innerWidth<1000||matchMedia('(pointer:coarse)').matches){e.classList.add('dock');return}e.classList.remove('dock');
+  const v=new THREE.Vector3(n.x,(n.g?n.g.position.y:terrH(n.x,n.z))+(n.tall?3.35:(n.prop?2.25:2.05)*((n.g&&n.g.scale.y)||1))+.25,n.z).project(cam);if(v.z>1){e.style.opacity=0;return}e.style.opacity=1;
+  const W=innerWidth,H=innerHeight,bw=e.offsetWidth,bh=e.offsetHeight;e.style.left=clamp((v.x+1)/2*W,bw/2+12,W-bw/2-12)+'px';e.style.top=clamp((1-v.y)/2*H,bh+12,H-40)+'px'}
+function c1Say(n,t,d=9){for(const a of C1.act){a.c1talk=0;if(a.bub)a.bub.visible=false}if(!n||!NP.includes(n))return;n.c1talk=1;bubble(n,t,d);if(n.bub)n.bub.visible=false;c1Sub(null);c1Bal(n,t,Math.min(d,1.2+t.length*.06))}
 function c1Card(n,title,sp,text,ch){return new Promise(res=>card({title,sp,text,focus:n,ch:(ch||[['▸ Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';res(f?f():0)}])}))}
 // V141 cinematic speech uses the normal conversation box (speaker framed by sceneCam); '▸ Continue' moves on without Danny butting in, ack = Danny's reply
 function c1Line(n,text,ack){if(!n||!NP.includes(n))return Promise.resolve();for(const a of C1.act)a.c1talk=0;return c1Card(n,n.name,n.title||'','"'+text+'"',[[ack||'▸ Continue',null]])}
