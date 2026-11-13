@@ -120,7 +120,10 @@ function c4PlayCard(k){const p=C4PLAYS[k],c=document.createElement('canvas');c.w
 
 // ================================================================ scenes
 // ---- the new chapters on Greek Row (chapter 4 opening)
-CHSCENE[4]=async function(){c4Apply(1);const fade=$('fade');fade.style.opacity=1;await c4Sl(500);endScene();C1.act=[];if(P.inside)goOut(81,76);c4CamOn();
+/* V366 Homecoming week runs Thursday to Saturday, as the plan board and everyone in the story says (kickoff Thursday 6 PM, the Games Friday 2 PM,
+   the party Friday 10 PM, the game Saturday 3 PM). Chapter 4 opens on the next Thursday morning so the calendar matches. */
+function c4ToThursday(){const dw=(S.day-1)%7;if(dw===4&&S.gt<15)return;let k=(4-dw+7)%7;if(k===0)k=7;for(let i=0;i<k;i++){S.day++;try{newDay()}catch(e){}}S.gt=9}
+CHSCENE[4]=async function(){c4ToThursday();c4Apply(1);const fade=$('fade');fade.style.opacity=1;await c4Sl(500);endScene();C1.act=[];if(P.inside)goOut(81,76);c4CamOn();
   const g=c4Dup('grant',...c3Free(84.6,74.6),-PI/2,{pup:1,tag:'intro'}),tk=c4Dup('tank',...c3Free(84.4,77.4),-PI/2,{pup:1,tag:'intro'});c4DanAt(...c3Free(80.8,76.2),PI/2);
   c4Shot([66,7,24],[50,5,31],0);fade.style.opacity=0;big('CHAPTER 4',2400);await c4Wt(1.4);
   const lines=[['kto','Delta Tau Omega! Now rushing!'],['opd','ΒΛΕ. We\'re new. We\'re legit.'],['kan','Sigma Delta Rho! Free wings Thursday!'],['gwz','Gamma Gamma Eta. Yes. Two gammas.']];
@@ -188,7 +191,7 @@ function c4GamesScene(){if(c4Live(C4.cast['Derek Vance'])&&C4.cast['Derek Vance'
   [0,2,3].forEach((l,i)=>{const n=C4.gm.leg[i],[x,z]=c4F(C4RU0,C4LANE[l]);n.x=x;n.z=z;c4To(n,x,z);c4Face(n,c4A(1,0));const a=C4.gm.anc[i],[ax,az]=c4F(C4RU1+.8,C4LANE[l]);a.x=ax;a.z=az;c4To(a,ax,az);c4Face(a,c4A(-1,0))});
   const m=C4.gm.mem[0],[mx,mz]=c4F(C4RU1+.8,C4LANE[1]);m.x=mx;m.z=mz;c4To(m,mx,mz);c4Face(m,c4A(-1,0))}
 async function c4GamesDay(done){const so=c4Soro();try{
-  await c4Fade(async()=>{c4Band(0);c4KickCast(0);c4At(14);c4Hype(.15);c4GamesSet(1);c4GamesScene();if(!C4.cam)c4CamOn();c4DanAt(...c4F(-2.5,-7.6),c4A(0,-1));c4ShotF(-30,-18,9,0,0,0,0)});
+  await c4Fade(async()=>{c4Band(0);c4KickCast(0);if(S.gt<14)S.gt=14;c4Hype(.15);c4GamesSet(1);c4GamesScene();if(!C4.cam)c4CamOn();c4DanAt(...c4F(-2.5,-7.6),c4A(0,-1));c4ShotF(-30,-18,9,0,0,0,0)});
   big('FRIDAY · THE GREEK GAMES',2600);c4ShotF(-14,-16,6,-2,-6,1,.5);await c4Wt(2.6);const em=C4.gm.em,g=C4.gm.grant;
   c4ShotF(1,-5.5,2.3,-1,-12.4,2.4,1.6);await c4Wt(.8);$('cineskip').hidden=true;
   await c1Line(em,'Event one: the relay! Fifty yards out, fifty yards back! Runners, find your lanes!');
@@ -451,8 +454,11 @@ const C4M=[
   fin:()=>{c4Off('soro');c4Next('c4games')}},
 
  {id:'c4games',ch:4,main:1,name:'Greek Games',who:'grant',pre:['c4welcome'],steps:()=>[
-   go(c4F(-27,-3),'Go to Nippert Stadium for the Homecoming Kickoff',{r:9}),
-   {t:'cine',run:c4Kickoff},
+   go(c4F(-27,-3),'Go to Nippert Stadium for the Homecoming Kickoff at 6 PM',{r:9,when:[17,23.9]}),
+   {t:'cine',run:d=>{C4.kickDay=S.day;c4Kickoff(d)}},
+   /* V366 the Games are the next afternoon at 2:00 PM, as the kickoff and the plan board say: Danny has to come back to Nippert then, and waits there if he is early */
+   {t:'cond',lab:()=>{const tm=S.day<=(C4.kickDay||S.day);return tm?'The Greek Games start tomorrow at 2:00 PM at Nippert. Rest up (sleep, or Z to meditate).':S.gt<14?`Be at Nippert for the Greek Games. They start at 2:00 PM (${fmtT(S.gt)} now). Wait on the field or press Z to meditate.`:'Get to Nippert for the Greek Games. They started at 2:00 PM!'},
+    ok:()=>S.day>(C4.kickDay||S.day-1)&&S.gt>=14&&!P.inside&&Math.hypot(P.x-c4F(-27,-3)[0],P.z-c4F(-27,-3)[1])<14,goal:()=>c4F(-27,-3)},
    {t:'cine',run:c4GamesDay},
    c4RelayStep(),
    {t:'cine',run:c4TugCine},
