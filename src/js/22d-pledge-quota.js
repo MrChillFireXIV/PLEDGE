@@ -161,7 +161,7 @@ async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_
     try{await c8Lines([[DANNY,'(A quota. Of course there is a quota.)']])}catch(e){}}
   }catch(e){console.warn(e)}
   S.pqI=1;PQ_IB=0;if(mode==='cine'&&!CINE)mode='play';toast('Pledge quota: '+pqPct()+'%. Details are in the Planner (Tab → Pledge Class). Marked spots show up around campus.',6000);try{saveGame()}catch(e){}}
-function pqTick(){pqMarks();const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;if(S.ch>=9){S.pqI=1;return}pqIntro()}
+function pqTick(){pqMarks();const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;/* V363 Grant explains the quota only once, at the end of chapter 1 when Danny pledges. A save or chapter skip past chapter 1 counts it as heard (the Planner's quota box explains it) */if(S.ch>=2||S.done.c1decide){S.pqI=1;return}pqIntro()}
 // ---------------------------------------------------------------- the Hell Week gate
 let PQ_GT=-99;
 function pqGate(){if(pqOK())return false;if(TT-PQ_GT>40){PQ_GT=TT;const pc=pqPct();setTimeout(()=>{if(mode==='play')toast('Hell Week will not start until your pledge quota is full. You are at '+pc+'%. Check the Planner (Tab → Pledge Class).',7000)},2600)}return true}
