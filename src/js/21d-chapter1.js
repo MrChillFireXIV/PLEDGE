@@ -47,7 +47,7 @@ function c1Sub(nm,t){if(!t&&C1B)c1Bal(null);let e=$('c1sub');if(!e){e=document.c
 let C1B=null;
 function c1Bal(n,t,d){let e=$('c1bal');if(!e){e=document.createElement('div');e.id='c1bal';e.innerHTML='<div class="c1bn"></div><div class="c1bt"></div>';document.body.appendChild(e)}
   if(!n||!t){e.hidden=true;C1B=null;return}e.querySelector('.c1bn').textContent=n.name+(n.title?' · '+n.title:'');e.querySelector('.c1bt').textContent=t;e.hidden=false;C1B={n,until:TT+Math.max(1.6,d||0)};c1BalPos()}
-function c1BalPos(){const e=$('c1bal');if(!e||e.hidden||!C1B)return;const n=C1B.n;if(TT>C1B.until||!NP.includes(n)||mode==='wheel'||mode==='card'){e.hidden=true;C1B=null;return}
+function c1BalPos(){const e=$('c1bal');if(!e||e.hidden||!C1B)return;const n=C1B.n;if(TT>C1B.until||(!NP.includes(n)&&n!==DANNY)||mode==='wheel'||mode==='card'){e.hidden=true;C1B=null;return}
   if(innerWidth<1000||matchMedia('(pointer:coarse)').matches){e.classList.add('dock');return}e.classList.remove('dock');
   const v=new THREE.Vector3(n.x,(n.g?n.g.position.y:terrH(n.x,n.z))+(n.tall?3.35:(n.prop?2.25:2.05)*((n.g&&n.g.scale.y)||1))+.25,n.z).project(cam);if(v.z>1){e.style.opacity=0;return}e.style.opacity=1;
   const W=innerWidth,H=innerHeight,bw=e.offsetWidth,bh=e.offsetHeight;e.style.left=clamp((v.x+1)/2*W,bw/2+12,W-bw/2-12)+'px';e.style.top=clamp((1-v.y)/2*H,bh+12,H-40)+'px'}
