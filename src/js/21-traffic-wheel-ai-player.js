@@ -438,8 +438,8 @@ function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prol
   if(P.dbU!=null&&u<P.dbU){try{maBall(P.x,P.z,1)}catch(e){}}P.dbU=u}
 let punchHint=0;
 // V119 Danny's attack moves: left and right punches, palm strike, elbow strike, front kick and side kick, each a short wind-up/strike/recover
-const ATK={jabL:{d:.3,m:1,r:2.5},jabR:{d:.3,m:1,r:2.5},palm:{d:.36,m:1.05,r:2.4,push:.5},elbow:{d:.36,m:1.2,r:1.9},kickF:{d:.5,m:1.25,r:2.9,push:.6},kickS:{d:.52,m:1.3,r:3,push:1}};
-function atkPick(d){const fin=P.comboT>0&&P.combo===2;if(fin)return rnd()<.5?'kickF':'kickS';const r=rnd();
+const ATK={club:{d:.52,m:1.4,r:2.8,push:.7},jabL:{d:.3,m:1,r:2.5},jabR:{d:.3,m:1,r:2.5},palm:{d:.36,m:1.05,r:2.4,push:.5},elbow:{d:.36,m:1.2,r:1.9},kickF:{d:.5,m:1.25,r:2.9,push:.6},kickS:{d:.52,m:1.3,r:3,push:1}};
+function atkPick(d){const fin=P.comboT>0&&P.combo===2;if(fin)return rnd()<.5?'kickF':'kickS';const r=rnd();/* V389 the Caveman Pledge fights with his club and his feet only */if(isR('caveman')&&PM.userData.club)return r<.62?'club':r<.82?'kickF':'kickS';
   if(r<.12)return'kickF';if(r<.22)return'kickS';if(r<.36)return d<1.6?'elbow':'palm';if(r<.48)return'palm';P.hand=P.hand==='L'?'R':'L';return P.hand==='L'?'jabL':'jabR'}
 function punch(){if(P.pcd>0||S.sta<5||P.blocking)return;let best=null,bd=9;const fx_=Math.sin(P.face),fz=Math.cos(P.face);
   for(const n of NP){if(n.down||n.ally||n.follow||n.actor||n.hidden||n.kid||n.mute||!n.g.visible||(n.int||null)!==(P.inside||null))continue;if(P.dk!=null&&Math.abs(P.y-terrH(n.x,n.z))>1.4)continue;const dx=n.x-P.x,dz=n.z-P.z,d=Math.hypot(dx,dz);if(d>2.5)continue;const sc_=d-(dx*fx_+dz*fz)/(d||1)*.7;if(sc_<bd){bd=sc_;best=n}}
@@ -482,6 +482,8 @@ function atkPose(g,ty,k){const p=g.P;if(!p||!p.chest||!p.kL)return;k=clamp(k,0,1
     guard(o,oe,sg*-.12);a.rotation.x=-.55*w-1.55*st+a.rotation.x*(1-Math.max(w,st));e.rotation.x=-1.9*w-.08*st+e.rotation.x*(1-Math.max(w,st));a.rotation.z=sg*.12*(1-st);
     p.chest.rotation.y+=sg*(.28*w-.5*st);p.spine.rotation.x+=.1*st;p.hips.rotation.y+=sg*-.15*st;
     if(ty==='palm'&&p.hR){p.hR.rotation.x=-1.2*st;p.spine.rotation.x+=.08*st}}
+  else if(ty==='club'){/* V389 club swing: raised back over the shoulder, then chopped down and across */guard(p.aL,p.eL,-.15);const a=p.aR,e=p.eR,up=k<.35?sm(k/.35):1-sm((k-.35)/.2),dn=k<.35?0:k<.55?sm((k-.35)/.2):1-sm((k-.6)/.4);
+    a.rotation.x=-2.7*up-.55*dn+a.rotation.x*(1-Math.max(up,dn));a.rotation.z=.35*up+.05*dn;e.rotation.x=-1.2*up-.15*dn+e.rotation.x*(1-Math.max(up,dn));if(p.hR)p.hR.rotation.x=.4*up-.6*dn;p.chest.rotation.y+=.45*up-.55*dn;p.spine.rotation.x+=-.12*up+.3*dn;p.hips.rotation.y+=-.2*dn}
   else if(ty==='elbow'){guard(p.aL,p.eL,-.12);const a=p.aR,e=p.eR;a.rotation.x=-.5*w-1.15*st+a.rotation.x*(1-Math.max(w,st));a.rotation.z=.25*w+1.0*st;e.rotation.x=-2.3*Math.max(w,st)+e.rotation.x*(1-Math.max(w,st));
     p.chest.rotation.y+=.35*w-.85*st;p.hips.rotation.y+=-.25*st}
   else{const side=ty==='kickS',ch=k<.3?sm(k/.3):k<.7?1:1-sm((k-.7)/.3),ext=k<.3?0:k<.42?sm((k-.3)/.12):k<.6?1:1-sm((k-.6)/.25);

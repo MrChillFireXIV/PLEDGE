@@ -161,3 +161,18 @@ function bbTick(dt){if(!BBL.on){if(BBL.m){BBL.m.visible=false;BBL.mk.visible=fal
   const sp=Math.hypot(B_.vx,B_.vz);B_.mk.visible=B_.m.visible&&sp<1.5;B_.mk.position.set(B_.x,B_.y+.55+Math.sin(TT*3)*.06,B_.z);B_.mk.rotation.y=TT*2;
   if(B_.t>.5&&B_.int===(P.inside||null)&&Math.hypot(P.x-B_.x,P.z-B_.z)<.9&&B_.y-PM.position.y<1.4){B_.on=0;B_.m.visible=false;B_.mk.visible=false;tone(330,.06,'triangle',.05);toast('Got your ball back.',1000)}
   if(B_.t>240){B_.on=0;toast('Somebody brought your basketball back to the house. Lucky.',2400)}}
+
+// ---------------------------------------------------------------- V389 Caveman Pledge club smash: a jump with the club raised over his head, then it slams into the ground a step in
+// front of him. A dust ring spreads from the impact and everyone within about three feet of it (0.9 m, plus whoever is right up against him) is shoved back and stunned.
+const CVR=[];
+function cvTick(dt){for(let i=CVR.length-1;i>=0;i--){const o=CVR[i];o.t+=dt;o.m.scale.setScalar(.3+o.t*5);o.m.material.opacity=.7*(1-o.t/.5);if(o.t>.5){sc.remove(o.m);o.m.material.dispose();CVR.splice(i,1)}}
+  const S_=P.smash;if(!S_)return;S_.t+=dt;if(!isR('caveman')||mode!=='play'){P.smash=null;return}
+  if(!S_.land&&S_.t>.18&&P.jy<=.02&&P.jv<=0){S_.land=1;S_.lt=S_.t;const fx=Math.sin(P.face),fz=Math.cos(P.face),ix=P.x+fx*1.05,iz=P.z+fz*1.05,y=PM.position.y+.04;
+    const m=new THREE.Mesh(GC.cvRing||(GC.cvRing=new THREE.RingGeometry(.7,1,32).rotateX(-PI/2)),new THREE.MeshBasicMaterial({color:0xb09a70,transparent:true,opacity:.7,depthWrite:false,side:THREE.DoubleSide}));m.position.set(ix,y,iz);sc.add(m);CVR.push({m,t:0});for(let k=0;k<6;k++)maDust(ix+(rnd()-.5)*.8,iz+(rnd()-.5)*.8);
+    tone(62,.35,'sine',.3);noise(.25,.25,300);dmgNum(ix,1.6,iz,'BONK!','#ffb14a');let hit=0;
+    for(const n of NP){if(n.down||n.kid||n.hidden||!n.g||!n.g.visible||n.actor||n.statue||n.ally||n.follow||n.mute||(n.int||null)!==(P.inside||null))continue;const d=Math.hypot(n.x-ix,n.z-iz),dp=Math.hypot(n.x-P.x,n.z-P.z);if(d>.9+.35&&dp>1.1)continue;
+      hit++;prHitN(n,clamp(20*LVM(S.lvl,n.lvl),3,60),1.6,0);const dx=n.x-ix,dz=n.z-iz,l=Math.hypot(dx,dz)||1;for(let s=0;s<6;s++){const nx=n.x+dx/l*.35,nz=n.z+dz/l*.35;if(!freeAt(nx,nz,.32))break;n.x=nx;n.z=nz}}
+    if(hit)tone(70,.25,'sine',.25)}
+  if(S_.land&&S_.t-S_.lt>.45)P.smash=null}
+function cvPose(p){const S_=P.smash;if(!S_||!p.aR)return;if(!S_.land){const u=Math.min(1,S_.t/.15);p.aR.rotation.set(-3.0*u,0,.15*u);p.eR.rotation.set(-.5*u,0,0);p.aL.rotation.set(-2.6*u,0,-.35*u);p.eL.rotation.set(-.7*u,0,0);p.spine.rotation.x-=.18*u;if(p.hR)p.hR.rotation.x=.3*u}
+  else{const u=1-Math.max(0,(S_.t-S_.lt-.15)/.3);p.aR.rotation.set(-.55*u,0,.1*u);p.eR.rotation.set(-.1*u,0,0);p.aL.rotation.set(-.6*u,0,-.2*u);p.spine.rotation.x+=.55*u;p.hips.position.y-=.12*u;if(p.kL){p.kL.rotation.x+=.5*u;p.kR.rotation.x+=.5*u}if(p.hR)p.hR.rotation.x=-.9*u}}
