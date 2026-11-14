@@ -160,7 +160,7 @@ function bbTick(dt){if(!BBL.on){if(BBL.m){BBL.m.visible=false;BBL.mk.visible=fal
   if(!B_.hit&&Math.hypot(B_.vx,B_.vz)>4){for(const n of NP){if(n.down||n.hidden||!n.g||!n.g.visible||n.kid||n.actor||n.statue||(n.int||null)!==B_.int)continue;if(Math.hypot(n.x-B_.x,n.z-B_.z)<.55&&B_.y-n.g.position.y<2){B_.hit=1;prHitN(n,clamp(9*LVM(S.lvl,n.lvl),2,40),.9,.6);dmgNum(n.x,2.7,n.z,'SWISH!','#ff9a4a');B_.vx*=-.3;B_.vz*=-.3;B_.vy=2;break}}}
   const sp=Math.hypot(B_.vx,B_.vz);B_.mk.visible=B_.m.visible&&sp<1.5;B_.mk.position.set(B_.x,B_.y+.55+Math.sin(TT*3)*.06,B_.z);B_.mk.rotation.y=TT*2;
   if(B_.t>.5&&B_.int===(P.inside||null)&&Math.hypot(P.x-B_.x,P.z-B_.z)<.9&&B_.y-PM.position.y<1.4){B_.on=0;B_.m.visible=false;B_.mk.visible=false;tone(330,.06,'triangle',.05);toast('Got your ball back.',1000)}
-  if(B_.t>240){B_.on=0;toast('Somebody brought your basketball back to the house. Lucky.',2400)}}
+  /* V404 walk far enough away (25 m, or into or out of a building) and the ball is back in his hand */if(B_.t>.8&&(B_.int!==(P.inside||null)||Math.hypot(P.x-B_.x,P.z-B_.z)>25)){B_.on=0;B_.m.visible=false;B_.mk.visible=false;tone(330,.06,'triangle',.05);toast('Your basketball is back in your hand.',1400)}}
 
 // ---------------------------------------------------------------- V389 Caveman Pledge club smash: a jump with the club raised over his head, then it slams into the ground a step in
 // front of him. A dust ring spreads from the impact and everyone within about three feet of it (0.9 m, plus whoever is right up against him) is shoved back and stunned.

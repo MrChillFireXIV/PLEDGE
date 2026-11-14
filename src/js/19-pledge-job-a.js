@@ -24,7 +24,7 @@ Object.assign(PR,{
  weather:{n:'Weather Pledge',d:'Any brother can stop him at any time and ask for the forecast, and he\'d better have a full report ready.',c:'#2a6aa8',c2:'#cfe6fa',ab:'Forecast',
   perks:['Carries an umbrella everywhere, rain or shine','T: Give a weather report. Listeners are grateful and a few tip','Everyone you forecast to likes you a little more']},
  basketball:{n:'Basketball Pledge',d:'He carries a basketball everywhere he goes, and he\'s not supposed to let it touch the ground for very long.',c:'#d8662a',c2:'#ffe0c4',ab:'Shoot',
-  perks:['A basketball always in your hand','T: Shoot the ball. It flies, bounces and rolls, and stuns whoever it hits. Then go pick it up (just walk over it)','Never gets winded: stamina comes back faster']},
+  perks:['A basketball always in your hand','T: Shoot the ball. It flies, bounces and rolls, and stuns whoever it hits. Then go pick it up (just walk over it), or walk far enough away and it comes back to your hand','Never gets winded: stamina comes back faster']},
  pouch:{n:'Pouch Pledge',d:'He wears a fanny pack stuffed with whatever a brother might ask for, whether that\'s a Gatorade, chapstick, or a phone charger.',c:'#7a4a24',c2:'#f0dcc0',ab:'Dig',
   perks:['A fanny pack that holds everything','T: Dig in the pouch. Gatorade, protein bars, coffee, chargers','Short cooldown, always something useful']},
  grenade:{n:'Grenade Pledge',d:'If a brother drops something and yells "GRENADE!", he has to throw himself on top of it, no matter where they are.',c:'#4a6a2a',c2:'#d8eab8',ab:'Dive',
