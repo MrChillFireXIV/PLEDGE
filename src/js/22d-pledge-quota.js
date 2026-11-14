@@ -186,3 +186,8 @@ function pqHTML(job){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_
     <div class="pqparts">${part('t','The job',`<div class="pqmini"><i style="width:${Math.round(fr.t*100)}%"></i></div>`,`${p.t} of ${D.t} ${D.tn||'uses'}`)}${part('sp','Special cases',pips(p.sp,5),`${p.sp} of 5 found`)}${part('mg','Trials',pips(p.mg,3),`${p.mg} of 3 passed`)}</div>
     <div class="pqcols"><div><div class="lbl">Trials</div><ul>${D.mg.map((a,i)=>li('mg',i,a[1])).join('')}</ul></div>
     <div><div class="lbl">Special cases</div><ul>${D.sp.map((a,i)=>li('sp',i,a[1])).join('')}</ul></div></div></div>`}
+
+/* V396 pledge job spots on the full map: a star for each special case and a target for each trial still to do, in the job's colour */
+function pqMapDraw(q,X,Z,f,disc,hit){if(!SET.pqm)return;const p=pqGet();if(!p)return;const D=PQ[p.k],col=PR[p.k].c;for(const s of pqSpots()){if(p[s.kind][s.i])continue;const x=X(s.x),y=Z(s.z),r=7.5*f;disc(x,y,r,col,'#fff8e6',2);q.shadowBlur=0;q.fillStyle='#fff8e6';
+    if(s.kind==='sp'){q.beginPath();for(let i=0;i<10;i++){const a=-PI/2+i*PI/5,rr=i%2?r*.28:r*.66;q.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}q.closePath();q.fill()}else{q.lineWidth=1.6*f;q.strokeStyle='#fff8e6';q.beginPath();q.arc(x,y,r*.55,0,TAU);q.stroke();q.beginPath();q.arc(x,y,r*.2,0,TAU);q.fill()}
+    hit(x,y,r,s.kind==='sp'?'Pledge job · special case':'Pledge job · trial',s.kind==='sp'?D.sp[s.i][1]:D.mg[s.i][1]+' ('+s.place+')',s.x,s.z,null)}}
