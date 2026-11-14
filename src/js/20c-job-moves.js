@@ -144,3 +144,20 @@ function gnTick(dt){const I=GN.it;if(I){I.t+=dt;const u=Math.min(1,I.t/.7);I.g.p
 function gnAim(){const I=GN.it;if(!I||I.done||!I.land&&I.t<.45)return;I.dv=TT;const dx=I.x-P.x,dz=I.z-P.z,d=Math.hypot(dx,dz);if(d>5)return;P.face=Math.atan2(dx,dz);P.rdx=dx/(d||1);P.rdz=dz/(d||1);P.roll=clamp(d/7.6,.12,.62)}
 function gnWin(){const I=GN.it;I.done=1;const r=RS();r.gnN=(r.gnN||0)+1;dmgNum(I.x,1.6,I.z,'SMOTHERED!','#9ac84a');sfx('ok');gainXP(3);try{pqUse(1)}catch(e){}try{relAdd(I.n,2);bubble(I.n,pick(['GOOD PLEDGE!','He actually did it!','Hero. Absolute hero.','Okay, that was committed.']),2.4)}catch(e){}toast('You threw yourself on '+I.it[0]+'. The house is safe.',2400);gnClear(.6)}
 function gnClear(s){const I=GN.it;GN.next=TT+25+rnd()*15;setTimeout(()=>{if(GN.it===I){sc.remove(I.g);sc.remove(I.ring);I.ring.material.dispose();GN.it=null}},s*1000)}
+
+// ---------------------------------------------------------------- V387 Basketball Pledge: T shoots the ball for real. It flies out of his hand, bounces off the ground and walls,
+// stuns the first person it hits, rolls to a stop, and sits there (with a marker) until Danny walks over it to pick it up.
+const BBL={on:0,m:null,x:0,y:0,z:0,vx:0,vy:0,vz:0,hit:0,mk:null,t:0};
+function bbShoot(){const b=PM.userData.ball;if(!b)return;PM.updateMatrixWorld(true);const w=new THREE.Vector3();b.getWorldPosition(w);const fx=Math.sin(P.face),fz=Math.cos(P.face);
+  if(!BBL.m){BBL.m=new THREE.Mesh(b.geometry,b.material);BBL.m.castShadow=true;BBL.mk=new THREE.Mesh(new THREE.OctahedronGeometry(.13),new THREE.MeshBasicMaterial({color:0xff9a4a}));sc.add(BBL.m);sc.add(BBL.mk)}
+  Object.assign(BBL,{on:1,x:w.x+fx*.3,y:Math.max(w.y,PM.position.y+1.2),z:w.z+fz*.3,vx:fx*11+P.vx*.5,vy:3.2,vz:fz*11+P.vz*.5,hit:0,t:0,int:P.inside||null});BBL.m.visible=true;P.punch=.3;sfx('whiff');tone(200,.1,'sine',.08);prSay(pick(['Nothing but net!','Bank shot!','FROM DOWNTOWN!']),1.4)}
+function bbFloor(x,z){return P.inside?(P.y||0):terrH(x,z)}
+function bbTick(dt){if(!BBL.on){if(BBL.m){BBL.m.visible=false;BBL.mk.visible=false}return}if(!isR('basketball')){BBL.on=0;return}const B_=BBL;B_.t+=dt;
+  const steps=3,h=dt/steps;for(let s=0;s<steps;s++){B_.vy-=17*h;let nx=B_.x+B_.vx*h,nz=B_.z+B_.vz*h;
+    if(solid(nx,B_.z)&&hAt(nx,B_.z)>B_.y-bbFloor(nx,B_.z)-.1){B_.vx*=-.6;nx=B_.x;noise(.04,.06,900)}if(solid(nx,nz)&&hAt(nx,nz)>B_.y-bbFloor(nx,nz)-.1){B_.vz*=-.6;nz=B_.z;noise(.04,.06,900)}B_.x=nx;B_.z=nz;B_.y+=B_.vy*h;
+    const fl=bbFloor(B_.x,B_.z)+.13;if(B_.y<fl){B_.y=fl;if(B_.vy<-1.2){B_.vy=-B_.vy*.62;tone(110,.06,'sine',.07)}else B_.vy=0;B_.vx*=.88;B_.vz*=.88}if(B_.y<=fl+.001){const k=Math.max(0,1-1.6*h);B_.vx*=k;B_.vz*=k}}
+  B_.m.position.set(B_.x,B_.y,B_.z);B_.m.rotation.x+=Math.hypot(B_.vx,B_.vz)*dt*4;B_.m.visible=(P.inside||null)===B_.int;
+  if(!B_.hit&&Math.hypot(B_.vx,B_.vz)>4){for(const n of NP){if(n.down||n.hidden||!n.g||!n.g.visible||n.kid||n.actor||n.statue||(n.int||null)!==B_.int)continue;if(Math.hypot(n.x-B_.x,n.z-B_.z)<.55&&B_.y-n.g.position.y<2){B_.hit=1;prHitN(n,clamp(9*LVM(S.lvl,n.lvl),2,40),.9,.6);dmgNum(n.x,2.7,n.z,'SWISH!','#ff9a4a');B_.vx*=-.3;B_.vz*=-.3;B_.vy=2;break}}}
+  const sp=Math.hypot(B_.vx,B_.vz);B_.mk.visible=B_.m.visible&&sp<1.5;B_.mk.position.set(B_.x,B_.y+.55+Math.sin(TT*3)*.06,B_.z);B_.mk.rotation.y=TT*2;
+  if(B_.t>.5&&B_.int===(P.inside||null)&&Math.hypot(P.x-B_.x,P.z-B_.z)<.9&&B_.y-PM.position.y<1.4){B_.on=0;B_.m.visible=false;B_.mk.visible=false;tone(330,.06,'triangle',.05);toast('Got your ball back.',1000)}
+  if(B_.t>240){B_.on=0;toast('Somebody brought your basketball back to the house. Lucky.',2400)}}

@@ -426,7 +426,7 @@ function rollDust(x,y,z,n,sc){if(!DUSTG){DUSTG=new THREE.SphereGeometry(1,8,6)}f
 const sc_add=m=>sc.add(m);
 function dustTick(dt){for(let i=DUST.length-1;i>=0;i--){const d=DUST[i];d.t+=dt;d.m.position.x+=d.vx*dt;d.m.position.z+=d.vz*dt;d.m.position.y+=.5*dt;d.m.scale.multiplyScalar(1+dt*3.2);d.m.material.opacity=Math.max(0,.5-d.t*1.1);if(d.t>.45){sc.remove(d.m);d.m.material.dispose();DUST.splice(i,1)}}}
 // basketball pledge: dribble the ball while it's in hand
-function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prole!=='basketball'||!S.pledged)return;const rest=b.userData.rest||(b.userData.rest=b.position.clone());
+function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prole!=='basketball'||!S.pledged)return;if(BBL.on){b.visible=false;return}b.visible=true;const rest=b.userData.rest||(b.userData.rest=b.position.clone());
   if(off||mode!=='play'){b.position.copy(rest);b.rotation.x=0;P.dbU=null;return}
   /* V361 the bounce phase is accumulated, not taken from the clock: before, phase = clock × rate, so any change in speed (walk → run → stop) made the ball jump to a
      new point in its bounce and look like it was spinning fast. The rate also eases toward its target so speed-ups and slow-downs are gradual. */
