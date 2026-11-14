@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}

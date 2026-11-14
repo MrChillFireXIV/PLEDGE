@@ -34,7 +34,7 @@ function prAbility(){if(mode!=='play'||!S.pledged||!S.prole||EV||P.kart||P.med||
   else if(k==='captain'){r.cd=TT+30;prSay('PLEDGES! STAND UP STRAIGHT!',2.6);tone(392,.2,'square',.07);let c=0;for(const n of NP){if(!n.pclass||n.down||n.hidden||(n.int||null)!==(P.inside||null)||n.dp>26)continue;bubble(n,pick(['Yes, Captain!','Standing, sir!','On it!']),2);c++}if(c&&r.cpD!==S.day){r.cpD=S.day;classSpirit(3);gainXP(5)}toast(c?`${c} pledge${c>1?'s':''} snap to attention.`:'Nobody to command. Find your pledges.',2400)}
   else if(k==='hype'){/* V376 the beat drops: five seconds of jumping, notes out of the boombox, and the people nearby come dance with him (hyStart) */r.cd=TT+12;prSay('LET\'S GOOOOO!',2.4);let c=0;for(const n of prNearN(14)){if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null;n.stun=1}if(!n.auth&&(n.cl==='brothers'||n.cl==='sororities'))relAdd(n,1);c++}hyStart();if(c>=3)gainXP(4);if(c&&r.hyD!==S.day){r.hyD=S.day;classSpirit(2)}}
   else if(k==='snack'){/* V377 hand a snack to whoever is next to him; they eat it, and about half the time they like it (snGive) */r.cd=TT+1.5;if(r.snD!==S.day){r.snD=S.day;r.sn=12;r.fed={}}if(!r.sn){toast('The tray is empty. It refills tomorrow.',2200);return}const n=prNearN(3.2,m=>!m.auth&&!m.eat&&!m.aggro&&!m.kid)[0];if(n){if((r.fed||(r.fed={}))[n.uid]){bubble(n,pick(['I already had one, thanks.','I\'m good, man.']),1.8);return}r.fed[n.uid]=1;r.sn--;snGive(n)}else{r.sn--;S.hp=Math.min(S.mhp,S.hp+12);S.sta=Math.min(100,S.sta+10);toast('You sneak a snack off your own tray. ('+r.sn+' left)',1800)}sfx('ok')}
-  else if(k==='scribe'){r.cd=TT+3;const L=prNearN(9,m=>!m.statue);r.nt=r.ntD===S.day?r.nt||{}:{};r.ntD=S.day;const n=L.find(m=>!r.nt[m.uid]);if(!n){toast('Nothing new to write down. Find someone talkative.',1800);return}r.nt[n.uid]=1;r.notes=(r.notes||0)+1;gainXP(2);bubble(n,pick(['Are you... writing that down?','Do NOT put that in the minutes.']),2);prSay('*scribbling*',1.4);toast(`Noted: ${n.name}. (${r.notes} pages)`,1800);if(r.notes%5===0){money(1.5);toast('Five pages! Grant slips you $1.50 for the minutes.',2600)}}
+  else if(k==='scribe'){/* V378 T writes down the last thing someone nearby said out loud (scTally) */r.cd=TT+1;scTally(r)}
   else if(k==='mascot'){r.cd=TT+6;P.punch=.35;S.sta=Math.max(0,S.sta-10);sfx('whiff');prSay(pick(['BAAAAAH!','GO ALPHA SIG! BAAAH!']),1.6);const hit=prFront(2.8,.2);for(const n of hit)prHitN(n,clamp(16*LVM(S.lvl,n.lvl),3,50),1.2,1.8);if(hit.length)dmgNum(P.x,2.7,P.z,'BAAAM!','#e8dcc0');if(r.maD!==S.day){r.maD=S.day;classSpirit(1)}tone(280,.2,'sawtooth',.07)}
   else if(k==='cone'){if(r.cnD!==S.day){toast('Grab a cone off the road first.',1800);return}r.cd=TT+14;prSay('CONE-TEST! CONE-TEST!',2.2);tone(520,.3,'square',.08);tone(430,.3,'square',.08,.12);for(const n of prNearN(9)){n.stun=1.4;if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null}if(!n.auth)bubble(n,pick(['Is that a TRAFFIC CONE?!','My ears!']),2)}}}
 
@@ -144,7 +144,7 @@ function prTick(dt){try{pouchTick()}catch(e){}try{tgWorld(dt)}catch(e){}if(!PM||
   if(mode!=='play'||!k)return;
   if(K.KeyT){K.KeyT=0;pqT()}   // V172: R is Block now, the job move moved to T
   if(k==='delinquent')tgTick(dt,r);else P.spray=0;
-  hyTick(dt);
+  hyTick(dt);if(k==='scribe')scTick();
   // ambient chatter
   if((prAmb-=dt)<=0){prAmb=26+rnd()*24;if(!P.inside||rnd()<.5){if(k==='popstar'){prSay(pick(['♪ la la laaa~ ♪','♪ Alpha Sig, oh oh ohhh~ ♪','♪ Hmm hmm hmmm~ ♪','♪ Do re mi fa SOOOL~ ♪']),2.4);prMelody(4,659);P.sing=1.5}
       else if(k==='caveman'){prSay(pick(['OOGA BOOGA!','UGH.','Me hungry.','Fire GOOD.','Ooga?','Rock. Nice rock.']),2.2);tone(98,.25,'sawtooth',.05)}
@@ -167,7 +167,7 @@ function prStatus(){const k=S.prole,r=RS();
   if(k==='caveman')return(r.cd||0)>TT?`Catching breath… ${Math.ceil(r.cd-TT)}s`:'Club ready. UGH.';
   if(k==='cone')return r.cnD===S.day?'Today\'s cone: grabbed':'<span class="bad">Today\'s cone: not yet</span>';
   if(k==='snack')return`Tray: ${r.snD===S.day?r.sn:12} left · liked today: ${r.snD===S.day?r.snOk||0:0}`;
-  if(k==='scribe')return`Pages written: ${r.notes||0}`;
+  if(k==='scribe')return SCH&&!SCH.done&&TT-SCH.at<4.5?'<b>✎ T: write that down</b>':`Quotes in the minutes: ${(r.min||[]).length}`;
   if(k==='delinquent'){const n=r.tgD===S.day?r.tgN||0:0;return n?`Tags today: ${n} · fights over tags: ${r.tgF||0}`:'<span class="bad">No tags today. Hold T at a wall</span>'}
   if(['weather','basketball','pouch','grenade','morning','captain','hype','mascot'].includes(k))return(r.cd||0)>TT?`${PR[k].ab} recharging... ${Math.ceil(r.cd-TT)}s`:`${PR[k].ab} ready`;return''}
 function prHud(){const e=$('rolep');if(!e)return;const k=S.pledged?S.prole:null;e.hidden=!k||mode==='slots';if(!k)return;if(e.dataset.k!==k){e.dataset.k=k;const c=$('rolei').getContext('2d');c.clearRect(0,0,64,64);c.drawImage(prIcon(k),0,0,64,64);$('rolen').textContent=PR[k].n;$('rolea').textContent=PR[k].ab}
@@ -176,6 +176,7 @@ function prRosterHTML(){const k=S.pledged?S.prole:null;if(!k)return'';const R_=P
   if(k==='stats'){const L=r.led||{bong:0,women:0,beers:{}},bs=Object.entries(L.beers||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);x=`<p><b>Season totals:</b> ${Object.values(L.beers||{}).reduce((a,c)=>a+c,0)} beers · ${L.bong||0} bong hits · ${L.women||0} women at parties · ${r.since||0} tallies not yet reported</p>${bs.length?'<p><b>Beers by brother:</b> '+bs.map(([n,c])=>`${n} ${c}`).join(' · ')+'</p>':''}`}
   else if(k==='burglar')x=`<p><b>Today's heist:</b> ${r.lastSteal===S.day?'done':'not yet. Every other house keeps its treasure on a stand by the lounge fireplace.'} · <b>Loot so far:</b> ${r.lootN||0}${r.loot&&r.loot.length?' ('+r.loot.slice(-6).join(', ')+')':''}</p>`;
   else if(k==='fruit')x=`<p><b>Today's fruit:</b> ${prStatus().replace(/<[^>]+>/g,'')} · Next size up: ${prStage()<3?FRUITS[prStage()+1][1].toLowerCase():'this is as big as it gets'}</p>`;
+  else if(k==='scribe')x=scMinutesHTML(r);
   else if(k==='skate')x=`<p><b>Best combo:</b> ×${r.best||0}</p>`;else if(k==='popstar')x=`<p>${prStatus()}</p>`;
   const body=`<p style="margin:0 0 6px">${R_.d}</p><ul>${R_.perks.map(p=>`<li>${p}</li>`).join('')}</ul><p style="margin:4px 0 0"><kbd>T</kbd> ${R_.ab}</p>${x}`,pic=prPic||prIconURL(k);
   /* V323: one combined box (job + quota) when the quota exists */

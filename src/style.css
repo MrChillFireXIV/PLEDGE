@@ -702,3 +702,9 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 #c1bal .c1bt{font-size:16px;line-height:1.35}
 #c1bal.dock{left:max(14px,env(safe-area-inset-left,0px))!important;right:max(14px,env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px))!important;transform:none;max-width:none;width:auto;text-align:left}
 #c1bal.dock::after{display:none}
+/* V378 the Scribe Pledge's minutes, in the pledge job box */
+.scmin{margin-top:8px;border:1px solid #d9cfb6;border-radius:8px;background:#fbf6e8;padding:8px 10px;font-family:Georgia,serif}
+.scmh{font:700 12px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:#2a3a5a;display:flex;justify-content:space-between;border-bottom:1px solid #e3d9bf;padding-bottom:4px;margin-bottom:4px}
+.scmh span{font-weight:400;letter-spacing:0;text-transform:none;color:#7a6f58}
+.scq{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:3px 0;font-size:13px;border-bottom:1px dashed #eadfc4}
+.scq:last-child{border-bottom:0}.scq b{color:#2a3a5a;white-space:nowrap}.scq q{color:#3a3326;font-style:italic}.scq i{color:#9a8f76;font-size:11px;white-space:nowrap}

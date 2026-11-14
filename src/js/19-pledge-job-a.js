@@ -40,7 +40,7 @@ Object.assign(PR,{
  snack:{n:'Snack Pledge',d:'He carries a snack tray around the house, and if you stop by once a day he\'ll hand you something to eat.',c:'#c9822a',c2:'#fff0d0',ab:'Serve',
   perks:['A tray of snacks held out in front of you (when he blocks, the tray balances on his knee)','T: Hand a snack to whoever is next to you. About half of people like it, fewer if they\'re high level or don\'t know you','Eat one yourself when nobody is near. Twelve a day']},
  scribe:{n:'Scribe Pledge',d:'He writes down everything the brothers say, and his notebook turns out to be pretty useful when exams roll around.',c:'#2a3a5a',c2:'#d0dcf2',ab:'Note',
-  perks:['A notebook in one hand, a pen in the other','T: Write down what someone just said. Each page earns XP','Every fifth page, Grant pays you for the minutes']},
+  perks:['A notebook in one hand, a pen in the other','When someone near you says something (a ✎ pops up over them), press T to write it down','Every quote goes in the minutes, and every fifth one Grant pays you for']},
  mascot:{n:'Mascot Pledge',d:'He wears the ram horns, bleats whenever someone tells him to, and starts dancing the moment the mood in the house drops.',c:'#a89a78',c2:'#f4ecd8',ab:'Ram charge',
   perks:['Wears the ram horns','T: Ram charge. Knocks back and stuns everyone in front of you','Bleating lifts Class Spirit once a day']}});
 for(const k of PR_KEYS)if(!PROLE[k])PROLE[k]=[PR[k].n,PR[k].d];

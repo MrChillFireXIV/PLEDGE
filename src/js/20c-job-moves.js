@@ -82,3 +82,16 @@ function snEatPose(n){const E=n.eat,p=n.g.P;if(!E||!p||!p.aR)return;if(!E.m&&p.h
 function snKnee(){const T=PM.userData.tray,p=PM.P;if(!T||!p||!p.kR)return;const b=P.blk||0,e=b*b*(3-2*b);if(e<.001){T.position.set(0,-.135,.27);return}
   p.lR.rotation.x+=(-1.5-p.lR.rotation.x)*e;p.kR.rotation.x+=(1.55-p.kR.rotation.x)*e;p.lR.rotation.z*=1-e;PM.updateMatrixWorld(true);
   const k=new THREE.Vector3();p.kR.getWorldPosition(k);k.y+=.11;const l=p.chest.worldToLocal(k);T.position.set(l.x*e,-.135+(l.y+.135)*e,.27+(l.z-.27)*e)}
+
+// ---------------------------------------------------------------- V378 Scribe Pledge: whenever someone nearby says something out loud (a speech bubble) while Danny
+// isn't in a conversation, a ✎ pops up over them for a few seconds and T writes the line into the minutes. The minutes are in the Planner's pledge job box.
+let SCH=null,SCM=null;
+function scHear(n,t){if(!t||!n||n===DANNY||mode!=='play'||!S.pledged||S.prole!=='scribe'||!n.name||!n.g||n.scQuiet||!NP.includes(n))return;if((n.int||null)!==(P.inside||null)||Math.hypot(n.x-P.x,n.z-P.z)>14)return;
+  SCH={n,t:String(t).replace(/\s+/g,' ').trim(),at:TT,done:0};if(SCM&&SCM.s.parent)SCM.s.parent.remove(SCM.s);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texMark(),transparent:true,depthWrite:false,depthTest:false}));s.scale.set(.9,.45,1);s.position.y=3.35;s.renderOrder=6;n.g.add(s);SCM={s,at:TT}}
+function scTick(){if(SCM){SCM.s.position.y=3.35+Math.sin((TT-SCM.at)*6)*.05;if(TT-SCM.at>4.5||(SCH&&SCH.done)){if(SCM.s.parent)SCM.s.parent.remove(SCM.s);SCM=null}}}
+function scTally(r){const h=SCH;if(!h||h.done||TT-h.at>4.5||!NP.includes(h.n)||Math.hypot(h.n.x-P.x,h.n.z-P.z)>16){toast('Nothing to write down. Wait for someone to say something (✎ over them), then press T.',2400);return}
+  h.done=1;const L=r.min||(r.min=[]);L.push({w:h.n.name,t:h.t,d:S.day});if(L.length>80)L.shift();r.notes=(r.notes||0)+1;gainXP(2);prSay('*scribbling*',1.4);tone(1300,.04,'square',.03);tone(1100,.04,'square',.03,.07);
+  toast(`Minutes: ${h.n.name}: "${h.t.length>70?h.t.slice(0,68)+'…':h.t}"`,2600);try{pqUse(1)}catch(e){}if(r.notes%5===0){money(1.5);setTimeout(()=>toast('Five more quotes in the minutes. Grant slips you $1.50.',2600),900)}
+  if(rnd()<.25){const n=h.n;n.scQuiet=1;setTimeout(()=>{try{bubble(n,pick(['Are you... writing that down?','Do NOT put that in the minutes.','Wait, are you quoting me?']),2)}catch(e){}n.scQuiet=0},900)}}
+function scMinutesHTML(r){const L=(r.min||[]).slice(-8).reverse(),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return`<div class="scmin"><div class="scmh">The minutes <span>${(r.min||[]).length} quote${(r.min||[]).length===1?'':'s'}</span></div>${L.length?L.map(e=>`<div class="scq"><b>${esc(e.w)}</b><q>${esc(e.t)}</q><i>Day ${e.d}</i></div>`).join(''):'<div class="scq"><q>Nothing yet. Stand near people and wait for them to talk.</q></div>'}</div>`}
