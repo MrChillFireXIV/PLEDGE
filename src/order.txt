@@ -28,6 +28,7 @@ js/17c-dungeon.js
 js/18-dialogue-scenes-intro.js
 js/19-pledge-job-a.js
 js/20-pledge-job-b.js
+js/20c-job-moves.js
 js/21-traffic-wheel-ai-player.js
 js/21b-motion-audio.js
 js/21c-rollcall-grab.js

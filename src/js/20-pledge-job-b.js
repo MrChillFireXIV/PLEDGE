@@ -30,7 +30,7 @@ function prAbility(){if(mode!=='play'||!S.pledged||!S.prole||EV||P.kart||P.med||
   else if(k==='pouch'){/* V372 a brother who asked for something gets it from the pouch, and that is the job */const rq=pouchReq();if(rq){r.cd=TT+1.2;pouchGive(rq);return}r.cd=TT+14;const it=pick([['a Gatorade',()=>{S.sta=100}],['a protein bar',()=>{S.hp=Math.min(S.mhp,S.hp+25)}],['a lukewarm coffee',()=>{S.sta=Math.min(100,S.sta+50);S.hp=Math.min(S.mhp,S.hp+10)}],['a phone charger',()=>{gainXP(3)}],['chapstick',()=>{const n=prNearN(6)[0];if(n)relAdd(n,3)}]]);it[1]();toast('You dig through the pouch and find '+it[0]+'.',2200);sfx('ok')}
   else if(k==='grenade'){r.cd=TT+8;if(P.roll<=0){P.roll=.5;P.diveT=TT+.55;P.rdx=Math.sin(P.face);P.rdz=Math.cos(P.face);P.pt=.5}S.sta=Math.max(0,S.sta-8);prSay('GRENADE!',1.6);tone(1400,.08,'square',.05);setTimeout(()=>{if(mode!=='play')return;for(const n of prFront(2.6,-.2,true))prHitN(n,clamp(10*LVM(S.lvl,n.lvl),2,40),.6,1.4);dmgNum(P.x,2.7,P.z,'DIVE!','#9ac84a')},350)}
   else if(k==='morning'){r.cd=TT+20;P.mega=2.6;prSay(pick(['RISE AND SHINE, GENTLEMEN!','WAKE UP! IT IS A BEAUTIFUL DAY!']),2.6);[523,659,784,1046].forEach((f,i)=>tone(f,.18,'square',.06,i*.14));let c=0;for(const n of prNearN(13)){if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null}n.stun=1.8;if(!n.auth)bubble(n,pick(['AAH! My ears!','What time is it?!','Who is yelling?']),2);c++}if(c&&S.gt>=6&&S.gt<9.5&&r.mrD!==S.day){r.mrD=S.day;gainXP(8);money(2);toast('Early-bird bonus for the wake-up call: +$2, +8 XP.',2600)}}
-  else if(k==='delinquent'){r.cd=TT+9;puff(P.x,P.z);prSay(pick(['MAYHEM!','ALPHA SIG FOREVER!','You saw NOTHING.']),2);tone(180,.2,'sawtooth',.08);for(const n of prNearN(8,m=>!m.auth&&!m.named)){n.flee=3;bubble(n,'Hey! What is that smell?!',2)}if(r.dlD!==S.day){r.dlD=S.day;gainXP(10);stand(1)}if(NP.some(m=>m.auth&&m.dp<16&&canSee(m,16)))trouble(25)}
+  else if(k==='delinquent'){/* V374 the can sprays while T is held (tgTick); the press only explains it the first time */if(!r.tgHint){r.tgHint=1;toast('Hold T to spray. Keep it on a wall to leave a tag.',2800)}}
   else if(k==='captain'){r.cd=TT+30;prSay('PLEDGES! STAND UP STRAIGHT!',2.6);tone(392,.2,'square',.07);let c=0;for(const n of NP){if(!n.pclass||n.down||n.hidden||(n.int||null)!==(P.inside||null)||n.dp>26)continue;bubble(n,pick(['Yes, Captain!','Standing, sir!','On it!']),2);c++}if(c&&r.cpD!==S.day){r.cpD=S.day;classSpirit(3);gainXP(5)}toast(c?`${c} pledge${c>1?'s':''} snap to attention.`:'Nobody to command. Find your pledges.',2400)}
   else if(k==='hype'){r.cd=TT+18;prSay('LET\'S GOOOOO!',2.4);[0,.25,.5,.75,1,1.25].forEach(t=>tone(t%.5?180:90,.14,'sine',.14,t));let c=0;for(const n of prNearN(14)){if(n.aggro&&n.tgt==='P'){n.aggro=0;n.tgt=null;n.stun=1}if(!n.auth&&(n.cl==='brothers'||n.cl==='sororities'))relAdd(n,1);c++}if(c>=3)gainXP(4);if(c&&r.hyD!==S.day){r.hyD=S.day;classSpirit(2)}}
   else if(k==='snack'){r.cd=TT+1.5;if(r.snD!==S.day){r.snD=S.day;r.sn=8}if(!r.sn){toast('The tray is empty. It refills tomorrow.',2200);return}const n=prNearN(3.2,m=>!m.auth)[0];r.sn--;if(n){bubble(n,pick(['Ooh, pretzels!','You are a good pledge.','Thanks, Snack Pledge!']),2.2);relAdd(n,4);gainXP(1);money(.25);toast('Snack served. ('+r.sn+' left)',1400)}else{S.hp=Math.min(S.mhp,S.hp+12);S.sta=Math.min(100,S.sta+10);toast('You sneak a snack off your own tray. ('+r.sn+' left)',1800)}sfx('ok')}
@@ -120,7 +120,7 @@ function pouchTick(){const R=POUCH;if(R.m&&R.m.parent)R.m.rotation.y+=.05;if(!S.
   if(R.n){if(TT>R.until||!NP.includes(R.n)||R.n.down){if(NP.includes(R.n))try{bubble(R.n,pick(['Forget it, pledge.','Useless.','Never mind.']),2)}catch(e){}R.n=null;pouchMark(null);R.next=TT+10+rnd()*10}return}
   if(TT<R.next)return;R.next=TT+3;const c=NP.filter(n=>n.cl==='brothers'&&!n.pledge&&!n.prop&&!n.down&&!n.aggro&&n.g&&n.g.visible&&(n.int||null)===(P.inside||null)&&Math.hypot(n.x-P.x,n.z-P.z)<12);if(!c.length)return;
   const n=pick(c),it=pick(POUCHIT);R.n=n;R.it=it[0];R.until=TT+25;pouchMark(n);try{bubble(n,it[1],3.2)}catch(e){}toast(`${n.name.split(' ')[0]} wants ${it[0]}. Walk over and press T.`,3000)}
-function prTick(dt){try{pouchTick()}catch(e){}if(!PM||mode==='title'||mode==='loading')return;const r=RS(),k=S.pledged?S.prole:null;
+function prTick(dt){try{pouchTick()}catch(e){}try{tgWorld(dt)}catch(e){}if(!PM||mode==='title'||mode==='loading')return;const r=RS(),k=S.pledged?S.prole:null;
   if(S.pledged&&!S.prole&&mode==='play'&&!prSpinOn&&!CINE&&!EV)prSpin();
   try{pqTick()}catch(e){}
   try{clsAutoTick()}catch(e){}
@@ -142,6 +142,7 @@ function prTick(dt){try{pouchTick()}catch(e){}if(!PM||mode==='title'||mode==='lo
     G.userData.M.emissiveIntensity=.25+(typeof NIGHT==='number'?NIGHT:0)*.75;if(GHB.bub&&GHB.bubT>0){GHB.bubT-=dt;if(GHB.bubT<=0)GHB.bub.visible=false}}
   if(mode!=='play'||!k)return;
   if(K.KeyT){K.KeyT=0;pqT()}   // V172: R is Block now, the job move moved to T
+  if(k==='delinquent')tgTick(dt,r);else P.spray=0;
   // ambient chatter
   if((prAmb-=dt)<=0){prAmb=26+rnd()*24;if(!P.inside||rnd()<.5){if(k==='popstar'){prSay(pick(['♪ la la laaa~ ♪','♪ Alpha Sig, oh oh ohhh~ ♪','♪ Hmm hmm hmmm~ ♪','♪ Do re mi fa SOOOL~ ♪']),2.4);prMelody(4,659);P.sing=1.5}
       else if(k==='caveman'){prSay(pick(['OOGA BOOGA!','UGH.','Me hungry.','Fire GOOD.','Ooga?','Rock. Nice rock.']),2.2);tone(98,.25,'sawtooth',.05)}
@@ -165,7 +166,7 @@ function prStatus(){const k=S.prole,r=RS();
   if(k==='cone')return r.cnD===S.day?'Today\'s cone: grabbed':'<span class="bad">Today\'s cone: not yet</span>';
   if(k==='snack')return`Tray: ${r.snD===S.day?r.sn:8} snacks left today`;
   if(k==='scribe')return`Pages written: ${r.notes||0}`;
-  if(k==='delinquent')return r.dlD===S.day?'Today\'s mayhem: done':'<span class=\"bad\">Today\'s mayhem: not yet</span>';
+  if(k==='delinquent'){const n=r.tgD===S.day?r.tgN||0:0;return n?`Tags today: ${n} · fights over tags: ${r.tgF||0}`:'<span class="bad">No tags today. Hold T at a wall</span>'}
   if(['weather','basketball','pouch','grenade','morning','captain','hype','mascot'].includes(k))return(r.cd||0)>TT?`${PR[k].ab} recharging... ${Math.ceil(r.cd-TT)}s`:`${PR[k].ab} ready`;return''}
 function prHud(){const e=$('rolep');if(!e)return;const k=S.pledged?S.prole:null;e.hidden=!k||mode==='slots';if(!k)return;if(e.dataset.k!==k){e.dataset.k=k;const c=$('rolei').getContext('2d');c.clearRect(0,0,64,64);c.drawImage(prIcon(k),0,0,64,64);$('rolen').textContent=PR[k].n;$('rolea').textContent=PR[k].ab}
   const st=prStatus();if(e.dataset.s!==st){e.dataset.s=st;$('roles').innerHTML=st}const cd=(RS().cd||0)>TT&&k!=='stats';$('rolek').classList.toggle('cd',cd);pqHud()}

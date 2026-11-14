@@ -1,0 +1,52 @@
+// ================================================================ V374+ pledge job moves that need more than a T press (deck of slides, Nov 2026)
+/* THELD = T (or the role badge on phones) is being held down. prAbility still fires once on the press; moves that care about holding read THELD */
+let THELD=0;
+
+// ---------------------------------------------------------------- V374 Delinquent Pledge: hold T to spray paint. Hold it on a wall to leave a tag.
+// Whoever owns the wall comes after him: a frat's brothers fight right away; on campus, people who saw it bug him until it turns into a fight.
+// A tag that starts a fight counts for the job quota.
+const TAGS=[],TGP=[];let TGCUR=null,TGRC=null;
+const TGWORD=['ΑΣΡ','ΑΣΡ!','ASR','PLEDGE','ΑΣΡ 4 LIFE','RAM'];
+const tgTex=i=>prTex('tag'+i,256,144,(q,w,h)=>{const t=TGWORD[i%TGWORD.length];q.clearRect(0,0,w,h);q.textAlign='center';q.textBaseline='middle';let fs=t.length>6?54:t.length>4?66:84;q.font=`900 ${fs}px Impact, 'Arial Black', sans-serif`;
+  q.save();q.translate(w/2,h/2);q.rotate(-.08);q.lineJoin='round';q.lineWidth=16;q.strokeStyle='#1a0d0d';q.strokeText(t,0,4);q.lineWidth=7;q.strokeStyle='#f3e9df';q.strokeText(t,0,4);
+  const g=q.createLinearGradient(0,-fs/2,0,fs/2);g.addColorStop(0,'#ff4a3a');g.addColorStop(1,'#a8161a');q.fillStyle=g;q.fillText(t,0,4);
+  q.globalAlpha=.85;q.fillStyle='#b81c1e';const m=q.measureText(t).width;for(let k=0;k<7;k++){const x=-m/2+m*(k+.5)/7+Math.sin(k*7.3)*6,l=10+((k*37)%28);q.fillRect(x-2,fs*.36,4,l);q.beginPath();q.arc(x,fs*.36+l,3.2,0,TAU);q.fill()}
+  q.globalAlpha=.35;q.fillStyle='#d8261e';for(let k=0;k<26;k++){q.beginPath();q.arc((Math.sin(k*12.9)*.5)*m*1.1,(Math.cos(k*7.7)*.5)*fs*1.3,1+(k%3),0,TAU);q.fill()}q.restore()});
+const tgDot=()=>prTex('tgdot',32,32,(q,w,h)=>{const g=q.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(214,40,32,.9)');g.addColorStop(1,'rgba(214,40,32,0)');q.fillStyle=g;q.fillRect(0,0,w,h)});
+function tgTip(){const u=PM&&PM.userData.can,v=new THREE.Vector3(0,.13,0);if(u){PM.updateMatrixWorld(true);u.localToWorld(v)}else v.set(P.x,PM.position.y+1.3,P.z);return v}
+/* what the can is pointed at: the first vertical surface within 2.2 m in front of him at chest height (people and his own body don't count) */
+function tgRay(){const fx=Math.sin(P.face),fz=Math.cos(P.face),y=PM.position.y+1.3,c=tgTip(),o=new THREE.Vector3(c.x-fx*.3,y,c.z-fz*.3),d=new THREE.Vector3(fx,0,fz);/* from the can's side of his body, so the tag lands where the spray goes */
+  const rc=TGRC||(TGRC=new THREE.Raycaster());rc.set(o,d);rc.near=0;rc.far=2.2;const skip=new Set([PM]);for(const n of NP)if(n.g)skip.add(n.g);for(const t of TAGS)skip.add(t.m);
+  const L=[];sc.traverseVisible(m=>{if(m.isMesh&&!m.isInstancedMesh&&m.geometry&&!(m.material&&m.material.transparent&&m.material.opacity<.6))L.push(m)});let hits;try{hits=rc.intersectObjects(L,false)}catch(e){return null}
+  for(const h of hits){let a=h.object;while(a&&!skip.has(a))a=a.parent;if(a||!h.face)continue;const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);if(Math.abs(n.y)>.45)continue;n.y=0;n.normalize();if(n.dot(d)>0)n.negate();
+    const bx=h.point.x-n.x*.3,bz=h.point.z-n.z*.3;if(!solid(bx,bz))continue;return{p:h.point.clone(),n}}return null}
+function tgOwner(p){if(P.inside){const f=FRATS.find(f=>P.inside===f.id||P.inside.indexOf(f.id+'_')===0);return f?{f}:{camp:1}}const b=B.find(b=>p.x>=b.x0-1.2&&p.x<=b.x1+1.2&&p.z>=b.z0-1.2&&p.z<=b.z1+1.2);const f=b&&FRATS.find(f=>f.id===b.id);return f?{f,b}:{b,camp:1}}
+function tgNew(h){const i=Math.floor(rnd()*TGWORD.length),M=new THREE.MeshStandardMaterial({map:tgTex(i),transparent:true,opacity:0,depthWrite:false,roughness:.85,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+  const m=new THREE.Mesh(GC.tgPlane||(GC.tgPlane=new THREE.PlaneGeometry(1.25,.7)),M);m.position.copy(h.p).addScaledVector(h.n,.025);m.lookAt(m.position.clone().add(h.n));m.rotateZ((rnd()-.5)*.12);m.userData.tag=1;sc.add(m);
+  const t={m,p:h.p,n:h.n,prog:0,done:0,fought:0,t:TT,int:P.inside||null,own:tgOwner(h.p)};TAGS.push(t);while(TAGS.length>30){const o=TAGS.shift();sc.remove(o.m);o.m.material.dispose()}return t}
+function tgMist(){if(TGP.length>60)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tgDot(),transparent:true,depthWrite:false,opacity:.75}));const v=tgTip();s.position.copy(v);s.scale.setScalar(.1);sc.add(s);
+  const sp=3.2+rnd()*1.2,fx=Math.sin(P.face),fz=Math.cos(P.face),sd=(rnd()-.5)*.5;TGP.push({s,t:0,vx:fx*sp+fz*sd,vz:fz*sp-fx*sd,vy:(rnd()-.45)*.6})}
+/* the people who might care: not the police (they just get you in trouble), not kids, actors or anyone busy */
+const tgCand=(t,r)=>NP.filter(n=>!n.down&&!n.kid&&!n.hidden&&n.g&&n.g.visible&&!n.actor&&!n.statue&&!n.auth&&!n.pclass&&!n.ally&&!n.follow&&!n.aggro&&!n.chase&&!n.job&&!n.nag&&!n.temp&&!n.mute&&(n.int||null)===t.int&&Math.hypot(n.x-t.p.x,n.z-t.p.z)<r);
+const tgOwns=(n,f)=>(n.title||'').indexOf(f.L)===0||(n.cl===f.cl&&!n.pledge&&Math.hypot(n.x-P.x,n.z-P.z)<14);
+const TGNAG=['Hey! Did you just spray that?','That\'s not your wall, man. Clean it up.','I\'m not asking again. Clean. It. Up.'];
+function tgFight(n,t){n.nag=null;n.aggro=1;n.tgt='P';n.wait=0;n.path=null;bubble(n,pick(['Alright. You asked for it.','You think that\'s funny?!','Now you\'re gonna clean it with your face.']),2.4);
+  if(t&&!t.cnt){t.cnt=t.fought=1;const r=RS();r.tgF=(r.tgF||0)+1;try{pqUse(1)}catch(e){}toast('Your tag started a fight. That counts for the job.',2600)}}
+function tgReact(t,now){const o=t.own;if(t.seen)return 1;if(o.f&&o.f.id==='asr'){const n=NP.find(n=>n.cl==='brothers'&&!n.pledge&&!n.down&&n.g&&n.g.visible&&(n.int||null)===t.int&&Math.hypot(n.x-t.p.x,n.z-t.p.z)<18);if(n){bubble(n,pick(['Not on OUR house, pledge!','You\'re scrubbing that off before roll call.']),2.6);stand(-1);t.seen=t.fought=1}return 1}
+  if(o.f){const own=tgCand(t,now?24:14).filter(n=>tgOwns(n,o.f)).sort((a,b)=>a.dp-b.dp).slice(0,2);if(own.length){t.seen=1;own.forEach((n,i)=>setTimeout(()=>{if(mode==='play'&&!n.down){bubble(n,pick(['Did you just tag OUR house?!','That\'s '+o.f.L+' property, pledge!']),2);setTimeout(()=>tgFight(n,t),900)}},i*500));if(o.f.cl)rep(o.f.cl,-3);return 1}return 0}
+  const w=tgCand(t,now?16:11).filter(n=>n.dp<5||canSee(n,16)).sort((a,b)=>a.dp-b.dp).slice(0,2);if(w.length)t.seen=1;w.forEach((n,i)=>{n.nag={t,c:1,nx:TT+2.4+i*.8};n.path=null;bubble(n,TGNAG[0],2.4)});return w.length}
+function tgDone(t,r){t.done=1;t.t=TT;t.m.material.opacity=1;TGCUR=null;tone(880,.06,'triangle',.05);dmgNum(t.p.x,1.9,t.p.z,'TAGGED!','#ff6a5a');if(r.tgD!==S.day){r.tgD=S.day;r.tgN=0}r.tgN++;gainXP(2);
+  if(r.dlD!==S.day){r.dlD=S.day;gainXP(10);stand(1)}const cop=NP.find(m=>m.auth&&m.dp<18&&canSee(m,18));if(cop){bubble(cop,pick(['Hey! That\'s vandalism!','Drop the can, pledge!']),2.4);trouble(25)}
+  if(!tgReact(t,1))toast(t.own.f&&t.own.f.id!=='asr'?'Tagged. When a '+t.own.f.L+' brother sees it, he\'ll come for you.':t.own.f?'You tagged your own house. Bold.':'Tagged. Nobody saw it... yet.',2400)}
+function tgTick(dt,r){const can=PM&&PM.userData.can,on=!!(THELD&&can&&mode==='play'&&!CINE&&!EV&&!P.dead&&!P.kart&&!P.bike&&!P.med&&P.punch<=0&&!(P.roll>0));P.spray=on?1:0;
+  if(on){if((tgTick.e=(tgTick.e||0)-dt)<=0){tgTick.e=.03;tgMist();tgMist()}if((tgTick.s=(tgTick.s||0)-dt)<=0){tgTick.s=.12;noise(.14,.035,6500)}
+    if((tgTick.r=(tgTick.r||0)-dt)<=0||!tgTick.hit){tgTick.r=.2;tgTick.hit=tgRay()}const h=tgTick.hit;
+    if(h&&!TAGS.some(t=>t.done&&t.p.distanceTo(h.p)<.9&&t.n.dot(h.n)>.8)){/* no second tag on top of a finished one */let t=TGCUR&&!TGCUR.done&&TGCUR.p.distanceTo(h.p)<.8&&TGCUR.n.dot(h.n)>.8?TGCUR:null;if(!t)t=TGCUR=tgNew(h);t.prog=Math.min(1,t.prog+dt/1.5);t.m.material.opacity=Math.min(1,.08+t.prog*.92);t.m.scale.setScalar(.75+t.prog*.25);if(t.prog>=1)tgDone(t,r)}}
+  else tgTick.hit=null}
+/* runs whatever his job: the spray mist, fresh tags somebody walks past, and people nagging him */
+function tgWorld(dt){for(let i=TGP.length-1;i>=0;i--){const o=TGP[i];o.t+=dt;o.s.position.x+=o.vx*dt;o.s.position.z+=o.vz*dt;o.s.position.y+=o.vy*dt;o.vx*=.9;o.vz*=.9;o.s.scale.setScalar(.1+o.t*.9);o.s.material.opacity=.75*(1-o.t/.55);if(o.t>.55){sc.remove(o.s);o.s.material.dispose();TGP.splice(i,1)}}
+  if((tgWorld.w=(tgWorld.w||0)-dt)>0||mode!=='play')return;tgWorld.w=.6;for(const t of TAGS)if(t.done&&!t.seen&&TT-t.t<150&&t.int===(P.inside||null)&&Math.hypot(t.p.x-P.x,t.p.z-P.z)<30)tgReact(t,0)}
+/* someone who saw the tag walks up and bugs him; the third time, he swings */
+function tgNagTick(n,dt){const g=n.nag;if(!g||mode!=='play'){n.nag=null;return''}if(n.dp>26||(n.int||null)!==(P.inside||null)||P.dead){if(n.dp<40)bubble(n,pick(['Yeah, keep walking!','Coward.']),2);n.nag=null;return''}
+  if(n.dp>1.8)navTo(n,P.x,P.z,2.8,dt);else n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);
+  if(TT>=g.nx&&n.dp<9){g.nx=TT+2.6;if(g.c>=TGNAG.length){tgFight(n,g.t);return'guard'}bubble(n,TGNAG[g.c++],2.4)}return n.dp<=1.8?'talk':''}

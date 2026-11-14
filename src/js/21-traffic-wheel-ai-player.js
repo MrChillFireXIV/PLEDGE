@@ -311,6 +311,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   else if(n.chase){navTo(n,P.x,P.z,(n.cl==='cops'?5.4:5.0),dt);st='guard';if(n.dp<1.3&&P.roll<=0){n.chase=0;busted()}}
   else if(n.aggro){fightAI(n,dt);st=n.punch>0?'punch':'guard';n.punch-=dt}
   else if(n.rob===1){navTo(n,P.x,P.z,2.9,dt)}
+  else if(n.nag){st=tgNagTick(n,dt)}
   else if(n.follow){}
   else if(n.flee>0){n.flee-=dt;moveTo(n,n.x-dx,n.z-dz,3.6,dt)}
   else if(n.job){if(jobTick(n,dt)){animP(n.g,0,n.t,'');return}}

@@ -76,7 +76,7 @@ const PQ={
   mg:[["corbett","Play Reveille","rhythm",PQ_BEAT("Reveille is quick and bright. Tongue every note on the beat.","Note",126,14)],
       ["memorial","Bugle Calls","memory",{intro:"The director plays a call on four notes. Listen, then play it back."}],
       ["teachers","Morning Quiz","quiz",{intro:"A bugler knows his calls. Four questions.",q:[["Reveille is played to…","Wake everyone up","End the day","Call for dinner","Signal a retreat",""],["Which call ends the day?","Taps","Reveille","Charge","First Call","Lights out."],["How many valves does a bugle have?","None","Three","One","Four","Every note is made with the lips."],["A.M. stands for…","Ante meridiem","After midnight","Any morning","Ahead of midday","Latin for 'before midday'."],["The sun rises in the…","East","West","North","South",""]]}]]},
- delinquent:{t:12,tv:"Cause some mayhem",tn:"bits of mayhem",host:"A hooded senior",
+ delinquent:{t:12,tv:"Tag a wall and get in the fight over it",tn:"tags that started a fight",host:"A hooded senior",
   sp:[["statue","Put a traffic vest on Herman Schneider","Safety first, Herman."],["lions","Give Mick and Mack party hats","They look thrilled. Stone-cold thrilled."],["fount","Add bubble bath to the Campus Green fountain","It's biodegradable. I checked. Run."],["taft","Stick googly eyes on the Taft statue","The Chief Justice sees all."],["police","Leave a whoopee cushion at the police station","Do not look back. Do NOT look back."]],
   mg:[["gatehouse","Tag the Wall","meter",PQ_METER("Chalk, not paint. Press the can while the stencil is lined up. Five letters.","Spray","Letter","Crisp line.","Drips. Amateur hour.")],
       ["french","Lose the Campus Cops","grid",{intro:"Plan a getaway to the green exit. Brown squares are patrols. Queue your moves, then run."}],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
