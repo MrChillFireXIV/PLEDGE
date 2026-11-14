@@ -65,3 +65,20 @@ function hyDancePose(n){const D=n.dance,p=n.g.P;if(!D||!p||!p.aL)return;n.g.HPF=
   p.aL.rotation.set((-2.65+b*.3)*k,0,-.4*k);p.aR.rotation.set((-2.65+(1-b)*.3)*k,0,.4*k);p.eL.rotation.set(-.3,0,0);p.eR.rotation.set(-.3,0,0);if(p.head)p.head.rotation.x+=(b-.5)*.18;if(p.kL&&D.at){p.kL.rotation.x=.35*b;p.kR.rotation.x=.35*b}}
 function hyTick(dt){if(!(P.hype>0))return;P.hype-=dt;if(!isR('hype')||mode!=='play'){P.hype=0;return}const bx=PM.userData.box;if(bx&&(hyTick.n=(hyTick.n||0)-dt)<=0){hyTick.n=.22;const v=new THREE.Vector3();bx.getWorldPosition(v);
     const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texNote(),transparent:true,depthWrite:false}));s.scale.setScalar(.34);s.position.set(v.x+(rnd()-.5)*.3,v.y+.15,v.z+(rnd()-.5)*.3);sc.add(s);prNotes.push({s,t:0,vx:(rnd()-.5)*1.2})}}
+
+// ---------------------------------------------------------------- V377 Snack Pledge: T hands the person next to him a snack. They eat it, and it's a coin flip whether they like it:
+// strangers and high-level people are harder to please, friends easier. Only snacks people like count for the quota.
+const SNACKS=[['pretzels',0xd8a040],['a pizza roll',0xc0302a],['a brownie',0x5a3420],['a cheese puff',0xf2a030],['a mini taco',0xe8c060],['a gummy worm',0x7ad04a]];
+function snOdds(n){return clamp(.64-n.lvl*.04+relOf(n)/250,.12,.9)}
+function snGive(n){const it=pick(SNACKS),ok=rnd()<snOdds(n);n.eat={t:0,ok,it,said:0};n.path=null;n.wait=0;prSay(pick(['Snack?','Try one!','Fresh off the tray!']),1.4);tone(700,.05,'triangle',.05)}
+function snEatTick(n,dt){const E=n.eat;E.t+=dt;n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);
+  if(E.t>1.9&&!E.said){E.said=1;const r=RS();if(E.ok){bubble(n,pick(['Mmm! Okay, that\'s actually good.','Oh, that hits.','You\'re alright, Snack Pledge.','Can I get another one of those tomorrow?']),2.4);relAdd(n,4);gainXP(1);money(.25);r.snOk=(r.snD===S.day?r.snOk||0:0)+1;try{pqUse(1)}catch(e){}dmgNum(n.x,2.5,n.z,'♥','#ff7aa0')}
+    else{bubble(n,pick(['Ugh. What IS this?','...Is this stale?','Nope. No thank you.','Did you drop this on the floor?']),2.4);relAdd(n,-1);dmgNum(n.x,2.5,n.z,'BLEH','#9ab84a')}}
+  if(E.t>3){if(E.m&&E.m.parent)E.m.parent.remove(E.m);n.eat=null}return''}
+function snEatPose(n){const E=n.eat,p=n.g.P;if(!E||!p||!p.aR)return;if(!E.m&&p.hR){E.m=new THREE.Mesh(GC.snBite||(GC.snBite=new THREE.SphereGeometry(.045,8,6)),mt(E.it[1],.6));E.m.position.set(-.03,-.1,.03);p.hR.add(E.m)}
+  const u=E.t<.35?E.t/.35:E.t<1.8?1:Math.max(0,1-(E.t-1.8)/.4),chew=E.t>.35&&E.t<1.8?Math.sin(E.t*18)*.06:0;p.aR.rotation.set(-.8*u,0,.45*u);p.eR.rotation.set(-2.6*u+chew,0,0);if(E.m){E.m.visible=E.t<1.5;if(E.t>.9)E.m.scale.setScalar(Math.max(.2,1-(E.t-.9)))}
+  if(E.said&&!E.ok&&p.head)p.head.rotation.y+=Math.sin(E.t*14)*.18*Math.max(0,1-(E.t-1.9))}
+/* blocking with the tray: his right knee comes up and the tray rests on it while his arms guard */
+function snKnee(){const T=PM.userData.tray,p=PM.P;if(!T||!p||!p.kR)return;const b=P.blk||0,e=b*b*(3-2*b);if(e<.001){T.position.set(0,-.135,.27);return}
+  p.lR.rotation.x+=(-1.5-p.lR.rotation.x)*e;p.kR.rotation.x+=(1.55-p.kR.rotation.x)*e;p.lR.rotation.z*=1-e;PM.updateMatrixWorld(true);
+  const k=new THREE.Vector3();p.kR.getWorldPosition(k);k.y+=.11;const l=p.chest.worldToLocal(k);T.position.set(l.x*e,-.135+(l.y+.135)*e,.27+(l.z-.27)*e)}

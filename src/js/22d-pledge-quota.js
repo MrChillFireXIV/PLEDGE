@@ -91,7 +91,7 @@ const PQ={
   mg:[["victory","Drop the Beat","rhythm",PQ_BEAT("Hit the pad on every beat, then the crowd does the rest.","Hit it",120,14)],
       ["westpav","Call and Response","memory",{intro:"You shout it, they shout it back. Watch the chant, then lead it in the same order."}],
       ["slawn","Peak the Crowd","meter",PQ_METER("Drop the bass when the crowd meter is in the green. Five drops.","DROP IT","Drop","The lawn goes OFF.","Too early. Awkward silence.")]]},
- snack:{t:25,tv:"Serve a snack",tn:"snacks served",host:"Dining hall manager",
+ snack:{t:20,tv:"Serve a snack someone likes",tn:"snacks people liked",host:"Dining hall manager",
   sp:[["lib","Feed the all-nighters at Langsam","Pretzels for the finals crowd. No crumbs on the books."],["westpav","Work the stands at the West Pavilion","Peanuts! Get your free pledge peanuts!"],["mew","Set up a snack table in Mew Gardens","Garden party. Gummy worms are thematic."],["steger","Hand out samples at the Steger Center","One per customer. One. Sir."],["herald","Bribe the Herald newsroom with cookies","Off the record: they're oatmeal raisin."]],
   mg:[["classen","Sweet or Salty","sort",PQ_SORT("Two sides of the tray. Don't mix them.",["Sweet","Salty"],[["Gummy worms","Sweet"],["Brownie","Sweet"],["Donut","Sweet"],["Chocolate bar","Sweet"],["Cookie","Sweet"],["Pretzels","Salty"],["Potato chips","Salty"],["Popcorn","Salty"],["Beef jerky","Salty"],["Peanuts","Salty"]])],
       ["edwards","Balance the Tray","meter",PQ_METER("The tray is wobbling. Steady it when it's level. Five steps across the room.","Steady","Step","Not a crumb spilled.","A cookie hits the floor.")],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
