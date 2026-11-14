@@ -67,16 +67,22 @@ function chapJump(id){
   setHat(S.pledged);refreshNamed();renderInv();
   P.x=77.9;P.z=76.9;P.face=PI/2;yaw=-PI/2;
   /* put Danny where the task begins: inside the giver's building, or outside near the spot */
-  const who=mWho(m),n=who&&NN[who];
+  try{c1DeanSync()}catch(e){}/* V415 the Dean moves to his office for his task: do it before Danny is placed */
+  const who=mWho(m),n=who&&NN[who];let spot=null;try{spot=mAt(m)}catch(e){}if(!Array.isArray(spot)||spot[0]==null)spot=null;
+  /* V415 a task that opens with talking is not started by the skip any more: Danny is set down a short walk away and starts it the normal way, by talking to its giver or pressing E at its gold star. Tasks that open with their own cutscene, a walk-to marker or a goal still start right away (they place Danny themselves) */
+  let s0=null;try{s0=m.steps().find(x=>x.t!=='fx')}catch(e){}
+  const first=M.find(x=>x.ch===1&&!x.side&&!x.auto);
+  const wait=m!==first&&availM().includes(m)&&!!((n&&!n.hidden&&!n.down)||(spot&&s0&&s0.t==='card'&&spot[1]<INTZ));
   if(n&&n.int&&INT[n.int])goIn(n.int);
-  else{const p=m.at||(n?npcSpot(who):[77.9,76.9]);let done=0;
-    for(const[dx,dz]of[[-2.5,0],[2.5,0],[0,2.5],[0,-2.5],[-4,0],[4,0],[0,4],[0,-4],[0,0]]){if(freeAt(p[0]+dx,p[1]+dz,.34)){goOut(p[0]+dx,p[1]+dz);done=1;break}}
-    if(!done)goOut(p[0],p[1])}
+  else{const p=spot||[77.9,76.9];let done=0;const R=wait?[7,5.5,9,4]:[2.5,4];const O=[];for(const r of R)for(const[ux,uz]of[[-1,0],[1,0],[0,1],[0,-1],[-.7,.7],[.7,.7],[-.7,-.7],[.7,-.7]])O.push([ux*r,uz*r]);O.push([0,0]);
+    const iid=p[1]>=INTZ?Object.keys(INT).find(k=>{const I=INT[k];return I&&p[0]>=I.x0-1&&p[0]<=I.x0+I.w+1&&p[1]>=I.z0-1&&p[1]<=I.z0+I.d+1}):null;if(iid)goIn(iid);else{for(const[dx,dz]of O){if(freeAt(p[0]+dx,p[1]+dz,.34)){goOut(p[0]+dx,p[1]+dz);done=1;break}}
+    if(!done)goOut(p[0],p[1]);
+    if(wait){P.face=Math.atan2(p[0]-P.x,p[1]-P.z);yaw=P.face+PI}}}
   try{P.y=P.inside?P.y:terrH(P.x,P.z)}catch(e){}
-  /* V92: a task flagged talkFirst (Meet the Brothers) is not started by the skip: Danny is dropped beside its giver, whose gold star / 'Task' option starts it the normal way */
-  const go=()=>{if(m.talkFirst&&n){toast('Chapter '+m.ch+': talk to '+n.name+' to start \u201c'+m.name+'\u201d.',4200)}
+  const nm=m.name.replace(/^Side:\s*/,'');
+  const go=()=>{if(wait){toast('Chapter '+m.ch+': '+(n?'talk to '+n.name:'go to the '+(m.side?'blue':'gold')+' star and press E')+' to start \u201c'+nm+'\u201d.',5200)}
   else{startMission(m);
-  toast('Chapter '+m.ch+': '+m.name.replace(/^Side:\s*/,''),3200)}
+  toast('Chapter '+m.ch+': '+nm,3200)}
   setTimeout(()=>{try{saveGame()}catch(e){}},4000)};
   /* V317: on the preview, a skip that lands with Danny already pledged lets the tester pick his pledge job from the full menu */
   if(S.pledged&&prPickOn())prPick(go);else go()}
