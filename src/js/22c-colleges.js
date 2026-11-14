@@ -37,30 +37,31 @@ const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹',sup=n=>String(n).split('').map(d=>SUP[+d
 function mgQuiz(el,g,done,c){const D=MGD[c],Q=shuffle(D.q.slice()).slice(0,4),need=mgNeed(4,g);let i=0,ok=0;
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="qzn"></div><div class="item" id="qzq" style="font-size:19px;line-height:1.35"></div><div id="qzo" class="mgopts"></div><div class="log" id="qzl"></div></div>`);
   function show(){if(!$('qzq'))return;const q=Q[i],opts=shuffle([q[1],...q.slice(2,5)].filter(Boolean));$('qzn').textContent=`Question ${i+1} of 4 · need ${need} right`;$('qzq').textContent=q[0];$('qzl').textContent='';
-    const o=$('qzo');o.innerHTML='';opts.forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===q[1];if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===q[1])x.classList.add('ok')}
+    const o=$('qzo');o.innerHTML='';opts.forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===q[1];mgEv('res',{ok:r});if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===q[1])x.classList.add('ok')}
       $('qzl').textContent=(r?'Right. ':'Not quite. ')+(q[5]||'');setTimeout(()=>{i++;if(i<4)show();else done(ok>=need,`You got ${ok} of 4. Passing mark: ${need}.`)},q[5]?1900:1100)};o.appendChild(b)})}
   show()}
 // ---- generated problems with four options (calculus, gears, binary)
 function mgMath(el,g,done,c){const D=MGD[c],need=mgNeed(4,g);let i=0,ok=0;const P_=[0,1,2,3].map(k=>D.gen(g,k));
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="mtn"></div><div class="item" id="mtq" style="font-size:21px;line-height:1.35"></div><div id="mto" class="mgopts"></div><div class="log" id="mtl"></div></div>`);
   function show(){if(!$('mtq'))return;const p=P_[i],opts=shuffle([...new Set([String(p.a),...p.w.map(String)])].slice(0,4));if(!opts.includes(String(p.a)))opts[0]=String(p.a);$('mtn').textContent=`Problem ${i+1} of 4 · need ${need} right`;$('mtq').textContent=p.q;$('mtl').textContent='';
-    const o=$('mto');o.innerHTML='';shuffle(opts).forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===String(p.a);if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===String(p.a))x.classList.add('ok')}
+    const o=$('mto');o.innerHTML='';shuffle(opts).forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===String(p.a);mgEv('res',{ok:r});if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===String(p.a))x.classList.add('ok')}
       $('mtl').textContent=(r?'Right. ':'The answer is '+p.a+'. ')+(p.why||'');setTimeout(()=>{i++;if(i<4)show();else done(ok>=need,`You solved ${ok} of 4. Passing mark: ${need}.`)},1700)};o.appendChild(b)})}
   show()}
 // ---- sorting: put each item in the right bin
 function mgSort(el,g,done,c){const D=MGD[c],n=6+g,items=shuffle(D.items.slice()).slice(0,n),need=Math.max(1,Math.round(n*(.6+.1*g))-(S.studied?1:0));let i=0,ok=0;
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="srn"></div><div class="item" id="sri" style="text-align:center;font-size:26px"></div><div id="sro" class="mgopts"></div><div class="log" id="srl"></div></div>`);
-  function show(){if(!$('sri'))return;const it=items[i];$('srn').textContent=`${i+1} of ${n} · need ${need} right`;$('sri').textContent=it[0];$('srl').textContent='';const o=$('sro');o.innerHTML='';
-    D.bins.forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===it[1];if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===it[1])x.classList.add('ok')}
+  mgEv('bins',{bins:D.bins});
+  function show(){if(!$('sri'))return;const it=items[i];mgEv('item',{item:it[0]});$('srn').textContent=`${i+1} of ${n} · need ${need} right`;$('sri').textContent=it[0];$('srl').textContent='';const o=$('sro');o.innerHTML='';
+    D.bins.forEach(t=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=t;b.onclick=()=>{for(const x of o.children)x.disabled=true;const r=t===it[1];mgEv('res',{ok:r,bin:D.bins.indexOf(t),item:it[0]});if(r){ok++;sfx('ok');b.classList.add('ok')}else{sfx('bad');b.classList.add('no');for(const x of o.children)if(x.textContent===it[1])x.classList.add('ok')}
       $('srl').textContent=(r?'Right. ':'That one is '+it[1]+'. ')+(it[2]||'');setTimeout(()=>{i++;if(i<n)show();else done(ok>=need,`You sorted ${ok} of ${n} correctly. Passing mark: ${need}.`)},it[2]?1700:1000)};o.appendChild(b)})}
   show()}
 // ---- memory: watch a sequence of coloured squares light up, then repeat it
 function mgMemory(el,g,done,c){const D=MGD[c],L=[4+g,5+g,6+g],need=S.studied?1:2,COL=['#d84a4a','#3a8ad8','#e2b64c','#3aa86a'];let r=0,ok=0,seq=[],inp=[],busy=1;
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="mmn"></div><div id="mmg" style="display:grid;grid-template-columns:repeat(2,96px);gap:12px;justify-content:center;margin:8px 0">${COL.map((k,j)=>`<button data-j="${j}" style="height:96px;border-radius:12px;border:3px solid rgba(0,0,0,.35);background:${k};opacity:.35;cursor:pointer"></button>`).join('')}</div><div class="log" id="mml"></div></div>`);
-  const pads=[...$('mmg').children];const lit=(j,on)=>{pads[j].style.opacity=on?1:.35;pads[j].style.transform=on?'scale(1.06)':''};
+  const pads=[...$('mmg').children];const lit=(j,on)=>{if(on)mgEv('pad',{j,play:busy});pads[j].style.opacity=on?1:.35;pads[j].style.transform=on?'scale(1.06)':''};
   pads.forEach(p=>p.onclick=()=>{if(busy)return;const j=+p.dataset.j;lit(j,1);setTimeout(()=>lit(j,0),180);tone(330+j*110,.12,'triangle',.08);inp.push(j);const k=inp.length-1;
-    if(inp[k]!==seq[k]){busy=1;sfx('bad');$('mml').textContent='Wrong square. The pattern was lost.';setTimeout(next,1200)}else if(inp.length===seq.length){busy=1;ok++;sfx('ok');$('mml').textContent='Perfect recall.';setTimeout(next,1000)}});
-  function play(){busy=1;let k=0;$('mml').textContent='Watch…';const step=()=>{if(k>=seq.length){busy=0;$('mml').textContent='Your turn: repeat it.';return}const j=seq[k++];lit(j,1);tone(330+j*110,.18,'triangle',.08);setTimeout(()=>{lit(j,0);setTimeout(step,170)},Math.max(320,560-g*90))};setTimeout(step,600)}
+    if(inp[k]!==seq[k]){busy=1;sfx('bad');mgEv('res',{ok:false});$('mml').textContent='Wrong square. The pattern was lost.';setTimeout(next,1200)}else if(inp.length===seq.length){busy=1;ok++;sfx('ok');mgEv('res',{ok:true});$('mml').textContent='Perfect recall.';setTimeout(next,1000)}});
+  function play(){busy=1;let k=0;$('mml').textContent='Watch…';const step=()=>{if(!$('mml'))return;if(k>=seq.length){busy=0;$('mml').textContent='Your turn: repeat it.';return}const j=seq[k++];lit(j,1);tone(330+j*110,.18,'triangle',.08);setTimeout(()=>{lit(j,0);setTimeout(step,170)},Math.max(320,560-g*90))};setTimeout(step,600)}
   function next(){if(!$('mmg'))return;if(r>=3||ok>=need&&r>=2){done(ok>=need,`You recalled ${ok} of ${r} sequences. Passing mark: ${need}.`);return}seq=Array.from({length:L[r]},()=>Math.floor(rnd()*4));inp=[];r++;$('mmn').textContent=`Sequence ${r} of 3 · ${seq.length} squares · need ${need}`;play()}
   next()}
 // ---- timing meter: stop the needle inside the green zone
@@ -68,8 +69,8 @@ function mgMeter(el,g,done,c){const D=MGD[c],N=5,need=Math.max(1,3+(g>=1?1:0)-(S
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="mrn"></div><div style="position:relative;height:46px;background:#1b2a22;border-radius:8px;border:1px solid #3d5a48;overflow:hidden"><div id="mrz" style="position:absolute;top:0;bottom:0;background:rgba(90,200,120,.55)"></div><div id="mrk" style="position:absolute;top:-4px;bottom:-4px;width:4px;background:#ffe2a0;box-shadow:0 0 8px #ffe2a0"></div></div><div style="text-align:center"><button class="btn" id="mrb">${D.act}</button></div><div class="log" id="mrl"></div></div>`);
   const pos=()=>.5+.5*Math.sin((performance.now()-t0)/1000*spd*Math.PI);
   function set(){if(!$('mrz'))return;z=.08+rnd()*(.84-zw);$('mrz').style.left=(z*100)+'%';$('mrz').style.width=(zw*100)+'%';$('mrn').textContent=`${D.unit} ${i+1} of ${N} · need ${need}`;t0=performance.now()-rnd()*900;stop=0}
-  function loop(){if(!$('mrk'))return;if(!stop)$('mrk').style.left='calc('+(pos()*100)+'% - 2px)';raf=requestAnimationFrame(loop)}
-  $('mrb').onclick=()=>{if(stop)return;stop=1;const p=pos(),hit=p>=z&&p<=z+zw;if(hit){ok++;sfx('ok')}else sfx('bad');$('mrl').textContent=hit?D.good:D.bad;$('mrb').disabled=true;
+  function loop(){if(!$('mrk'))return;if(!stop){$('mrk').style.left='calc('+(pos()*100)+'% - 2px)';mgEv('pos',{p:pos(),z,zw})}raf=requestAnimationFrame(loop)}
+  $('mrb').onclick=()=>{if(stop)return;stop=1;const p=pos(),hit=p>=z&&p<=z+zw;mgEv('res',{ok:hit,i});if(hit){ok++;sfx('ok')}else sfx('bad');$('mrl').textContent=hit?D.good:D.bad;$('mrb').disabled=true;
     setTimeout(()=>{i++;$('mrb').disabled=false;if(i<N)set();else{cancelAnimationFrame(raf);done(ok>=need,`${ok} of ${N} ${D.unit.toLowerCase()}s placed. Passing mark: ${need}.`)}},900)};
   set();loop()}
 // ---- rhythm: tap on the beat (music) or keep a steady rate (CPR)
@@ -77,8 +78,8 @@ function mgRhythm(el,g,done,c){const D=MGD[c],bpm=D.bpm[g],per=60000/bpm,N=D.n,w
   mgWrap(el,c,D.intro,`<div class="deal"><div class="lbl" id="rhn">${D.how}</div><div style="display:flex;justify-content:center;margin:6px 0"><div id="rhc" style="width:110px;height:110px;border-radius:50%;border:4px solid #e2b64c;display:flex;align-items:center;justify-content:center;font:700 26px var(--fd);color:#f4f1e4">●</div></div><div style="text-align:center"><button class="btn" id="rhb">${D.act}</button></div><div class="log" id="rhl">Press the button (or Space) to start.</div></div>`);
   const ring=$('rhc');
   function loop(){if(!$('rhc'))return;const t=performance.now()-t0,ph=(t%per)/per,show=D.metro||taps.length<4;ring.style.transform='scale('+(show?1+.18*Math.max(0,1-ph*5):1)+')';ring.style.borderColor=show&&ph<.18?'#ffe2a0':'#e2b64c';raf=requestAnimationFrame(loop)}
-  function tap(){if(fin)return;const now=performance.now();if(!started){started=1;t0=now;taps=[];$('rhl').textContent=D.metro?'Tap on every beat.':'Keep going. Steady.';loop();tone(660,.05,'square',.05);return}
-    taps.push(now-t0);tone(D.metro?520:180,.05,D.metro?'square':'sine',.06);ring.textContent=taps.length;if(taps.length>=N){fin=1;cancelAnimationFrame(raf);score()}}
+  function tap(){if(fin)return;const now=performance.now();if(!started){started=1;t0=now;taps=[];mgEv('start',{per});$('rhl').textContent=D.metro?'Tap on every beat.':'Keep going. Steady.';loop();tone(660,.05,'square',.05);return}
+    taps.push(now-t0);mgEv('beat',{n:taps.length,N});tone(D.metro?520:180,.05,D.metro?'square':'sine',.06);ring.textContent=taps.length;if(taps.length>=N){fin=1;cancelAnimationFrame(raf);score()}}
   function score(){let good=0,txt;if(D.metro){for(const t of taps){const off=Math.abs(t-Math.round(t/per)*per);if(off<=win)good++}const need=Math.round(N*(.6+.08*g))-(S.studied?1:0);txt=`${good} of ${N} taps landed on the beat. Passing mark: ${need}.`;done(good>=need,txt)}
     else{const iv=[];for(let k=1;k<taps.length;k++)iv.push(taps[k]-taps[k-1]);const avg=iv.reduce((a,b)=>a+b,0)/iv.length,rate=Math.round(60000/avg);for(const v of iv){const r=60000/v;if(r>=100-win/10&&r<=120+win/10)good++}
       const need=Math.round(iv.length*(.55+.1*g))-(S.studied?1:0),pass=good>=need&&rate>=95&&rate<=125;txt=`Average rate: ${rate} a minute. ${good} of ${iv.length} compressions were in the 100 to 120 range. Passing mark: ${need}.`;done(pass,txt)}}
@@ -92,12 +93,12 @@ function mgGrid(el,g,done,c){const D=MGD[c],Nn=[5,6,6][g],T=3,need=S.studied?1:2
   function draw(rx,ry){q.fillStyle='#16241c';q.fillRect(0,0,300,300);for(let y=0;y<Nn;y++)for(let x=0;x<Nn;x++){q.fillStyle=grid[y][x]?'#5a4a3a':'#21362a';q.fillRect(x*cs+1,y*cs+1,cs-2,cs-2)}
     q.fillStyle='#3aa86a';q.fillRect(gl[0]*cs+6,gl[1]*cs+6,cs-12,cs-12);q.fillStyle='#e2b64c';q.beginPath();q.arc((rx+.5)*cs,(ry+.5)*cs,cs*.32,0,TAU);q.fill();q.fillStyle='#1b1b1b';q.fillRect((rx+.5)*cs-cs*.14,(ry+.5)*cs-cs*.08,cs*.08,cs*.08);q.fillRect((rx+.5)*cs+cs*.06,(ry+.5)*cs-cs*.08,cs*.08,cs*.08)}
   function upd(){$('gdp').textContent=prog.join(' ')||'(empty program)';$('gdn').textContent=`Course ${lv+1} of ${T} · need ${need} · at most ${maxL} moves · ${prog.length}/${maxL}`}
-  function level(){make();prog=[];run=0;draw(st[0],st[1]);upd();$('gdl').textContent='Queue moves to reach the green pad, then press Run. Brown squares are walls.'}
+  function level(){make();prog=[];run=0;draw(st[0],st[1]);upd();mgEv('grid',{grid,st,gl,N:Nn});$('gdl').textContent='Queue moves to reach the green pad, then press Run. Brown squares are walls.'}
   for(const b of el.querySelectorAll('.gdk'))b.onclick=()=>{if(run||prog.length>=maxL)return;prog.push(b.textContent);sfx('ui');upd()};
   $('gdu').onclick=()=>{if(run)return;prog.pop();upd()};
   $('gdr').onclick=()=>{if(run||!prog.length)return;run=1;let x=st[0],y=st[1],k=0;const stepF=()=>{if(k>=prog.length){fin(x===gl[0]&&y===gl[1],'The robot stops short of the pad.');return}const[dx,dy]=DIR[prog[k++]],X=x+dx,Y=y+dy;
-      if(X<0||Y<0||X>=Nn||Y>=Nn||grid[Y][X]){sfx('hit');fin(false,'CLUNK. The robot drives into a wall.');return}x=X;y=Y;draw(x,y);tone(400,.04,'square',.04);if(x===gl[0]&&y===gl[1]){fin(true,'Beep boop. Course complete.');return}setTimeout(stepF,260)};setTimeout(stepF,200)};
-  function fin(w,msg){if(w){ok++;sfx('ok')}else sfx('bad');$('gdl').textContent=msg;setTimeout(()=>{lv++;if(ok>=need||lv>=T||ok+(T-lv)<need)done(ok>=need,`The robot finished ${ok} of ${lv} courses. Passing mark: ${need}.`);else level()},1300)}
+      if(X<0||Y<0||X>=Nn||Y>=Nn||grid[Y][X]){sfx('hit');mgEv('step',{x:X,y:Y,crash:1});fin(false,'CLUNK. The robot drives into a wall.');return}x=X;y=Y;draw(x,y);mgEv('step',{x,y});tone(400,.04,'square',.04);if(x===gl[0]&&y===gl[1]){fin(true,'Beep boop. Course complete.');return}setTimeout(stepF,260)};setTimeout(stepF,200)};
+  function fin(w,msg){mgEv('res',{ok:w});if(w){ok++;sfx('ok')}else sfx('bad');$('gdl').textContent=msg;setTimeout(()=>{lv++;if(ok>=need||lv>=T||ok+(T-lv)<need)done(ok>=need,`The robot finished ${ok} of ${lv} courses. Passing mark: ${need}.`);else level()},1300)}
   level()}
 
 // ---------------------------------------------------------------- per-class content

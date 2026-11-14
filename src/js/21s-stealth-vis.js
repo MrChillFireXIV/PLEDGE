@@ -19,7 +19,7 @@ function svFor(n){let v=STV.cones.get(n);if(v)return v;const half=Math.acos(.3),
   const eye=new THREE.Sprite(new THREE.SpriteMaterial({map:svEyeTex(0),transparent:true,depthTest:false,depthWrite:false,fog:false}));eye.scale.set(.6,.6,1);eye.renderOrder=22;eye.userData.noMerge=1;sc.add(eye);
   v={g,cone,rim,near,eye,k:-1};STV.cones.set(n,v);return v}
 function stealthVis(st,mx){STV.last=TT;const seen=new Set(),crouch=K.KeyC||toggles.KeyC,base=crouch?6.5:10.5,mul=typeof prSeeMul==='function'?prSeeMul():1,R=base*mul,play=mode==='play';
-  if(st)for(const n of NP){if(n.down||n.blind||n.hidden||n.temp&&!n.stepTemp||!n.g||!n.g.visible)continue;const w=st.watch.includes(n.cl)||(n.auth&&st.watch.includes('auth'));if(!w||n.dp>26||(n.int||null)!==(P.inside||null))continue;
+  if(st)for(const n of NP){if(n.down||n.blind||n.hidden||n.temp&&!n.stepTemp||!n.g||!n.g.visible)continue;const w=st.pqg?n.pqg:st.watch.includes(n.cl)||(n.auth&&st.watch.includes('auth'));if(!w||n.dp>26||(n.int||null)!==(P.inside||null))continue;
     const v=svFor(n);seen.add(n);const y=(n.g.position.y||0)+.06,s=Math.min(1,n.sus||0),sees=canSee(n,base);
     v.g.position.set(n.x,y,n.z);v.g.rotation.y=n.a-PI/2;v.cone.scale.set(R,1,R);v.rim.scale.set(R,1,R);v.g.visible=play;
     const c=svCol(s);for(const m of[v.cone,v.rim,v.near])m.material.color.copy(c);v.cone.material.opacity=sees?.26+.08*Math.sin(TT*14):.13;v.rim.material.opacity=sees?1:.6;v.near.material.opacity=sees?.75:.4;

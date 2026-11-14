@@ -44,6 +44,7 @@ One-line purpose per file, in load order (`src/order.txt`). Sizes are in KB, and
 | 21f-gigs, 21g-chapter-select | 16+3 | odd jobs; chapter select |
 | 21h-crowd, 21h2-ambient-life | 5+5 | crowd streaming (`CROWD`); idle activities (`ambLife`/`ambPose`) |
 | 22e-majors | ~7 | V350 majors: `MAJ` (3 colleges each, `skip` courses), `S.major`, `mjNow`, `mjHas(c)`, `mjPick(done)` picker with preview, `COLFX` college roles; classes per college in `COLCLS` (15-state) |
+| 22f-trial-stage | ~9 | V411 pledge trials on an animated stage: `TRS` (active stage), `mgEv(type,data)` hooks fired by the 22c engines, `TRL[job+i]` act table, `trOpen/trClose/trTick`, acts `trMeter` (`TRMETER`), `trBeat`, `trMem`, `trSort`, `trQuiz`, `trGrid`; live sneaking trials `TRSNEAK`, `trSneak`, `TSN`, `trSnTick` (reuse `stealthVis` cones via `st.pqg`/`n.pqg`) |
 | 22d-pledge-quota | ~34 | V318 pledge quota: `PQ[role]` (T count, 5 special cases, 3 trials on `PHOTOS` landmarks), `S.pq`, `pqPct`, `pqGate` (blocks chapter 9), `pqIntro` (Grant's speech), `pqHud`/`pqHTML`, markers `pqMarks`; trials reuse `MGF` engines via `MGD['pq_…']` |
 | 21h3-house-pledges | ~12 | the other fraternities' own pledges: `HPR` roles, `HP_HOUSE` (3 per house), `housePledges`, `hpProp`, `hpTick` |
 | 21s-stealth-vis | 4 | stealth step visuals |

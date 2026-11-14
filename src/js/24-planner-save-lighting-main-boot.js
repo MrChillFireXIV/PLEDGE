@@ -140,7 +140,7 @@ function update(dt){TT+=dt;if(mode!=='title'&&mode!=='loading'&&S)S.playT=(S.pla
     navBudget=8;const tk=SCENE&&SCENE.n;for(let i=NP.length-1;i>=0;i--){const m=NP[i];if(m===tk||m.chase||m.actor)continue;npcUpd(m,dt)}
   }
   // ambient anim always
-  prTick(dt);try{compassTick()}catch(e){}try{c1Tick(dt)}catch(e){console.warn('c1Tick',e)}
+  prTick(dt);try{compassTick()}catch(e){}try{c1Tick(dt)}catch(e){console.warn('c1Tick',e)}try{trTick(dt)}catch(e){console.warn('trTick',e)}
   if(fountainPts){const a=fountainPts.geometry.attributes.position.array,ph=fountainPts.userData.ph;for(let i=0;i<ph.length;i++){const p=ph[i];const t=((TT*.6+p[0])%1);const r=t*1.9*p[2];a[i*3]=FOUNT[0]+Math.cos(p[1])*r;a[i*3+1]=3.2+t*3.2-t*t*5.2;a[i*3+2]=FOUNT[1]+Math.sin(p[1])*r}fountainPts.geometry.attributes.position.needsUpdate=true}
   for(const pr of PROPS)propSpin(pr,dt);dmgTick(dt);lootTick(dt);
   puffs=puffs.filter(p=>{p[1]+=dt;p[0].scale.setScalar(1+p[1]*3);p[0].material.opacity=.5*(1-p[1]/2.5);if(p[1]>2.5){sc.remove(p[0]);return false}return true});
@@ -148,7 +148,7 @@ function update(dt){TT+=dt;if(mode!=='title'&&mode!=='loading'&&S)S.playT=(S.pla
   // camera
   if(GRAB.on&&mode!=='play'){try{grabEnd(true)}catch(e){GRAB.on=0;$('fade').style.opacity=0;PM.visible=true}}   // V166 safety: a card/cutscene took over mid-grab, so drop him instead of leaving a black screen
   if(mode==='cine'||CINE)cineTick(dt);
-  if(mode==='cine'||((mode==='card'||mode==='wheel')&&CINE&&CINE.ride)){}else if(mode==='title'||mode==='loading'){const a=TT*.05;cam.position.set(400+Math.cos(a)*110,58,320+Math.sin(a)*110);cam.lookAt(400,10,300)}
+  if(mode==='cine'||((mode==='card'||mode==='wheel')&&CINE&&CINE.ride)||(TRS&&mode==='mg')){/* V411 a trial stage drives the camera itself */}else if(mode==='title'||mode==='loading'){const a=TT*.05;cam.position.set(400+Math.cos(a)*110,58,320+Math.sin(a)*110);cam.lookAt(400,10,300)}
   else if((mode==='card'||mode==='wheel')&&SCENE&&SCENE.n&&NP.includes(SCENE.n)){if(!EAVES)sceneCam(dt);if(mode==='wheel')wheelPos()}
   else if(GRAB.on&&mode==='play')grabCam(dt);
   else{const cp=Math.cos(pitch),dx=Math.sin(yaw)*cp,dy=Math.sin(pitch),dz=Math.cos(yaw)*cp,ty=P.y+P.jy+1.55,gy=P.y-(P.dk==null&&!P.bike?P.sup||0:0);/* V174: gy = floor level without the object he stands on */let t=camTarget*(P.kart?1.1:P.bike?1.15:1);if(P.inside)t=Math.min(t,3.6);if(P.inside&&dy>.02&&(Math.abs(gy)<.3||daisAt()))t=Math.min(t,Math.max(1.2,(5.3-ty)/dy));/* V407 on the stadium stands the rows behind him don't pull the camera in: it keeps its normal distance and rises to stay above the seats instead */const onSt=!P.inside&&P.dk!=null&&DECKS[P.dk]&&DECKS[P.dk].k==='stand';for(let q=.6;q<=t;q+=.25){const x=P.x+dx*q,z=P.z+dz*q,y=ty+dy*q;if((!onSt&&camTop(x,z)>y-.3)||CAMBLK&&CAMBLK(x,y,z)){t=Math.max(1.2,q-.4);break}}camT+=(t-camT)*Math.min(1,(t<camT?20:4)*dt);cam.position.set(P.x+dx*camT,P.inside?ty+dy*camT:Math.max(.6+terrH(P.x+dx*camT,P.z+dz*camT),ty+dy*camT),P.z+dz*camT);if(onSt){const sy=standY(DECKS[P.dk],cam.position.x,cam.position.z);if(sy!=null)cam.position.y=Math.max(cam.position.y,sy+1.4)}if(P.inside&&(P.inside==='asr_up'||P.inside==='asr_top')&&Math.abs(gy)>.3&&typeof c3StairOK==='function'&&c3StairOK()&&(()=>{const I=INT[P.inside],[a,b,c,e]=C3SW,lx=P.x-I.x0,lz=P.z-I.z0;return lx>a-.5&&lx<c+.5&&lz>b-1&&lz<e+1})()){const I=INT[P.inside],[a,b,c,e]=C3SW;   // V206 the 2nd→3rd floor stairs: the camera stays free inside their own stairwell
