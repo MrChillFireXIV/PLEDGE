@@ -1,6 +1,8 @@
 // ================================================================ V75 DANNY'S PLEDGE JOB: Grant sends him to the Pledge Machine (a slot machine), which lands on one of seven jobs.
 // Each job changes how he looks, how he talks and what he can do (R is the job's own move).
 const PR_KEYS=['popstar','stats','skate','burglar','fruit','ouija','caveman','weather','basketball','pouch','grenade','morning','delinquent','captain','hype','snack','scribe','mascot','cone'];
+/* V375 Andre Wallace is always the pledge captain: Danny's machine never lands on it */
+const PR_DANNY=PR_KEYS.filter(k=>k!=='captain');
 const PR={
  popstar:{n:'Popstar Pledge',d:'He isn\'t allowed to just talk anymore, so every single thing he says comes out sung, whether it\'s a question in class or an apology to a cop.',c:'#b8327e',c2:'#ffc6e6',ab:'Perform',
   perks:['Everything you say comes out sung','T: Perform. Listeners tip you and fights cool off','Charm: better odds when you chat people up']},
