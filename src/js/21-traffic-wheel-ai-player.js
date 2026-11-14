@@ -110,7 +110,7 @@ function roleTick(n,dt){if(n.aggro||n.follow||n.job||n.down||mode!=='play')retur
   else if(r==='scribe')bubble(n,pick(['*scribbling furiously*','Noted, sir.','Page forty-one...']),2.2);
   else if(r==='cone')bubble(n,pick(['Got my cone for today.','Found it by the road. It is MINE.','Do not ask where I got this.']),2.6);
   else if(r==='popstar')bubble(n,pick(['? Alpha Sigma, baby, ooh! ?','? Roll call tonight, na na na! ?','? I did not choose this lyric! ?']),2.8);
-  else if(r==='stats')bubble(n,pick(['Beers by brother: Tank is up four.','Tally: nine bong hits since lunch.','Women at the party: still zero. Noted.']),3);
+  else if(r==='stats')bubble(n,pick(['Beers by brother: Tank is up four.','Tally: nine keg stands since lunch.','Women at the party: still zero. Noted.']),3);
   else if(r==='skate')bubble(n,pick(['Kickflip! ...almost.','Campus cops hate this board.','Watch this one, sir!']),2.4);
   else if(r==='burglar')bubble(n,pick(['I was never here.','Nice trophy. Be a shame if it walked off.','Just borrowing it, sir.']),2.4);
   else if(r==='fruit')bubble(n,pick(['It is getting bigger, sir.','Do NOT bruise the fruit.','Day three with this grape. Still fresh.']),2.6);

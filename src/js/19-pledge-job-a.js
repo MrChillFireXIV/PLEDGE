@@ -6,7 +6,7 @@ const PR_DANNY=PR_KEYS.filter(k=>k!=='captain');
 const PR={
  popstar:{n:'Popstar Pledge',d:'He isn\'t allowed to just talk anymore, so every single thing he says comes out sung, whether it\'s a question in class or an apology to a cop.',c:'#b8327e',c2:'#ffc6e6',ab:'Perform',
   perks:['Everything you say comes out sung','T: Perform. Listeners tip you and fights cool off','Charm: better odds when you chat people up']},
- stats:{n:'Stats Pledge',d:'He keeps a running count of everything that happens in the house, from bong hits to how many beers each brother put away to who brought girls to the party.',c:'#23704f',c2:'#bff0d6',ab:'Tally',
+ stats:{n:'Stats Pledge',d:'He keeps a running count of everything that happens in the house, from keg stands to how many beers each brother put away to who brought girls to the party.',c:'#23704f',c2:'#bff0d6',ab:'Tally',
   perks:['A ✎ pops up over anything worth counting','T: Tally what you just saw before you forget it','Hand in your stat sheet at roll call for cash and XP']},
  skate:{n:'Skate Pledge',d:'He has to stay on his skateboard all day, which means outside, inside, and yes, through the dining hall at lunch.',c:'#d0662a',c2:'#ffd9b8',ab:'Trick',
   perks:['Faster everywhere, and sprinting costs less stamina','Hold T to pop a trick: the board spins while you hold it. Let go when it comes back around (the meter turns green) to land it. Chain clean landings for combos','Campus police hate skateboards']},
