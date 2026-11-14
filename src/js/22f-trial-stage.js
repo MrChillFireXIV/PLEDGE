@@ -66,6 +66,7 @@ function trOpen(k,i,type){if(mode==='title'||P.inside)return;const L=TRL[k+i];if
   for(const n of NP){if(n.g&&n.g.visible&&!n.int&&Math.hypot(n.x-P.x,n.z-P.z)<11&&!n.c4tag){n.g.visible=false;TRS.hid.push(n)}}
   const fx=Math.sin(best),fz=Math.cos(best),free=(x,z)=>{const w=trW(x,0,z);return freeAt(w.x,w.z,.35)};
   ({meter:trMeter,beat:trBeat,mem:trMem,sort:trSort,quiz:trQuiz,grid:trGrid})[L.a](L);
+  /* V413 the Pop Star's trials have an audience, and they are not kind */if(k==='popstar')trAudience();
   /* camera: over his right shoulder unless that side is blocked */
   const c=TRS.cam,clr=sd=>(free(c.p[0]*sd,c.p[2])?2:0)+(free(c.p[0]*sd*.6,c.p[2]*.6)?1:0)+(free(c.p[0]*sd*.3,c.p[2]*.3+.3)?1:0);if(clr(-1)>clr(1)){c.p[0]=-c.p[0];c.l[0]=-c.l[0]}
   $('mg').classList.add('stg');trTick(0)}
@@ -260,3 +261,14 @@ function trSnTick(dt){const T=TSN;if(!T)return;if(mode!=='play')return;T.t+=dt;T
   try{stealthVis(T.st,mx)}catch(e){}
   const h=$('evhud');h.hidden=!(mx>.05);if(mx>.05)h.textContent=mx>=1?'SPOTTED':'Suspicion '+'▮'.repeat(Math.ceil(mx*5))+'▯'.repeat(5-Math.ceil(mx*5));
   if(Math.hypot(P.x-T.gx,P.z-T.gz)<1.7){sfx('ok');trSnEnd(true)}}
+
+/* ---------------------------------------------------------------- V413 Pop Star trials: a few people stand by and listen. A bad round gets a boo and a tomato in the face;
+   failing the trial gets a volley. Passing gets applause (trEnd hops everyone on the stage). */
+function trAudience(){const T=TRS,A=[];for(let i=0;i<4;i++){const x=-2.7+i*1.8+(rnd()-.5)*.4,z=4.7+(i%2)*.7,n=trPerson(pick(['athletes','sororities','activists','studentgov','townies']),x,z,PI+Math.atan2(x,z)*-1+0);n.g.rotation.y=T.a+Math.atan2(-x,-z);n.ax=x;n.az=z;A.push(n)}
+  const on0=T.on;T.on=(t,d)=>{on0&&on0(t,d);if(t==='res'&&d.ok===false){trBoo(A[Math.floor(rnd()*A.length)],0);if(rnd()<.5)trBoo(A[Math.floor(rnd()*A.length)],.25)}else if(t==='end'&&!d.pass)A.forEach((n,i)=>trBoo(n,.2+i*.22))}}
+function trBoo(n,delay){trLater(delay||0,()=>{if(!TRS||!n.g)return;const T=TRS;tone(118,.55,'sawtooth',.05);tone(98,.6,'sawtooth',.04,.08);trPop('BOO!','#ff8a7a',n.ax,2.5,n.az);trArms(n,-2.2,.2,-.6);trLater(.5,()=>trArms(n,0,.1,0));
+    const tm=trSph(.085,0xd8261e,n.ax,1.5,n.az);tm.scale.set(1,.85,1);const A=new THREE.Vector3(n.ax+.2,1.55,n.az-.2),hd=TRS.g.worldToLocal(PM.P.head.getWorldPosition(new THREE.Vector3())),B=new THREE.Vector3(hd.x,hd.y+.18,hd.z+.16);
+    trArc(tm,A,B,.9,.5,()=>{if(!TRS)return;TRS.g.remove(tm);noise(.09,.16,500);trBurst(0xd8261e,B.x,B.y,B.z,10,2.6);trGest('shake',.7);
+      /* the splat stays on his face for a few seconds and slides down */const h=PM.P.head,sp=new THREE.Mesh(new THREE.SphereGeometry(.1,10,8),mt(0xc81e1a,.4));sp.scale.set(1+rnd()*.4,.9+rnd()*.3,.22);sp.position.set((rnd()-.5)*.1,.17+rnd()*.06,.172);sp.userData.noMerge=1;h.add(sp);
+      const dr=new THREE.Mesh(new THREE.SphereGeometry(.03,8,6),mt(0xc81e1a,.4));dr.scale.set(1,1.8,.4);dr.position.set(sp.position.x+.03,sp.position.y-.06,.176);h.add(dr);const kill=()=>{h.remove(sp);h.remove(dr)};T.undo=(T.undo||[]).concat(kill);
+      trTw(3.2,u=>{dr.position.y=sp.position.y-.06-u*.09;if(u>.8){const k=1-(u-.8)/.2;sp.scale.z=.22*k;dr.scale.y=1.8*k}},kill)})})}
