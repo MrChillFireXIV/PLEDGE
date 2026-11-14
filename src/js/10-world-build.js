@@ -311,6 +311,8 @@ function campusSpots(){const sp=(k,x,z)=>{SPOT[k][0]=x;SPOT[k][1]=z};{const uu=B
 const stadWest=()=>fromField(0,-STAD.hw-1.5);
 
 
+/* V359 startup timing: BOOTT[stage] = milliseconds, readable from the console (BOOTT) */
+const BOOTT={};function bootT(k,f){const t=performance.now();const r=f();BOOTT[k]=Math.round(performance.now()-t);return r}
 function buildWorld(){
   // V123 Clifton Avenue's last block (map data) ran 4 m under Ruby's Diner and stopped 2 m short of the downtown avenue, so the avenue's
   // sidewalk capped it. Move it 2 m west, narrow it to clear the diner wall, and run it down to the avenue (the mouth is paved below).
@@ -434,7 +436,7 @@ function buildWorld(){
   fdBuild();buildTrees();buildLamps();nightLights();buildSurroundings();buildDressing();
   // shrubs
   {const sg=new THREE.IcosahedronGeometry(.8,0),pts=[];for(const b of B){if(!b.face||b.poly)continue;for(let k=-3;k<=3;k++){if(Math.abs(k)<2)continue;const[x,z]=fpos(b,b.face,b.da+k*2.2,.8);if(!onRoad(x,z))pts.push([x,z])}}const im=new THREE.InstancedMesh(sg,SM({roughness:.9,flatShading:true}),pts.length),m=new THREE.Matrix4(),c=new THREE.Color();pts.forEach(([x,z],i)=>{m.makeScale(1,.75,1);m.setPosition(x,.5,z);im.setMatrixAt(i,m);c.setHSL(.27+rnd()*.06,.45,.22+rnd()*.06);im.setColorAt(i,c)});im.castShadow=true;im.frustumCulled=false;im.userData.chunk=999;sc.add(im)}
-  campusSpots();buildInteriors();buildPW();WORLDC=prerenderMap();
+  campusSpots();bootT('interiors',buildInteriors);bootT('paths',buildPW);bootT('map',()=>{WORLDC=prerenderMap()});
 }
 // V131 Gettler Stadium (the sunken soccer field and track by Varsity Village): a simple steel chain-link fence round the outside of the
 // track, as in the photo; the stand/garage side (the south straight) is left open, and there are gaps at the middle of the north straight

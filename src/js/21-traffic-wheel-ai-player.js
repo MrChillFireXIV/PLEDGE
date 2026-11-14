@@ -110,7 +110,7 @@ function roleTick(n,dt){if(n.aggro||n.follow||n.job||n.down||mode!=='play')retur
   else if(r==='scribe')bubble(n,pick(['*scribbling furiously*','Noted, sir.','Page forty-one...']),2.2);
   else if(r==='cone')bubble(n,pick(['Got my cone for today.','Found it by the road. It is MINE.','Do not ask where I got this.']),2.6);
   else if(r==='popstar')bubble(n,pick(['? Alpha Sigma, baby, ooh! ?','? Roll call tonight, na na na! ?','? I did not choose this lyric! ?']),2.8);
-  else if(r==='stats')bubble(n,pick(['Beers by brother: Tank is up four.','Tally: nine bong hits since lunch.','Women at the party: still zero. Noted.']),3);
+  else if(r==='stats')bubble(n,pick(['Beers by brother: Tank is up four.','Tally: nine keg stands since lunch.','Women at the party: still zero. Noted.']),3);
   else if(r==='skate')bubble(n,pick(['Kickflip! ...almost.','Campus cops hate this board.','Watch this one, sir!']),2.4);
   else if(r==='burglar')bubble(n,pick(['I was never here.','Nice trophy. Be a shame if it walked off.','Just borrowing it, sir.']),2.4);
   else if(r==='fruit')bubble(n,pick(['It is getting bigger, sir.','Do NOT bruise the fruit.','Day three with this grape. Still fresh.']),2.6);
@@ -177,7 +177,7 @@ function wheelRender(){const box=$('wpills');box.innerHTML='';const per=8,pages=
   wheelPos();setTimeout(()=>{const b=box.querySelector('.wp:not(:disabled)');b&&b.focus({preventScroll:true})},40)}
 function wheelPick(f){if(!WH)return;sfx('ui');closeWheel();mode='play';f&&f();if(mode==='play'){endScene();if(cardQ.length)card(cardQ.shift())}}
 function closeWheel(){$('wheel').hidden=true;$('wpills').innerHTML='';WH=null}
-function wheelPos(){if(!WH||$('wheel').classList.contains('dock'))return;const n=WH.n,W=innerWidth,H=innerHeight;_wv.set(n.x,n.isP?P.y+2.1:(n.tall?3.35:(n.prop?2.25:2.05)*(n.g.scale.y||1))+terrH(n.x,n.z),n.z).project(cam);
+function wheelPos(){if(!WH||$('wheel').classList.contains('dock'))return;const n=WH.n,W=innerWidth,H=innerHeight;_wv.set(n.x,n.isP?P.y+2.1:(n.tall?3.35:(n.prop?2.25:2.05)*(n.g.scale.y||1))+(n.g?n.g.position.y:terrH(n.x,n.z)),n.z).project(cam);   /* V368 from where the speaker actually stands (a stage, the Nippert field, a balcony), not the terrain under them */
   const rx=Math.min(250,W*.3),ry=Math.min(130,H*.2);let cx=(_wv.x+1)/2*W,cy=(1-_wv.y)/2*H;if(_wv.z>1){cx=W/2;cy=H/2}const headY=_wv.z>1?H:cy;   /* V311 the speaker's head top on screen */cx=clamp(cx,rx*.6+20,W-rx*.6-20);cy=clamp(Math.max(cy,$('wbal').offsetHeight+ry+40),ry+120,H-ry-70);
   const bs=[...$('wpills').children].filter(b=>b!==WH.lb),N=bs.length,R_=Math.ceil(N/2),L_=N-R_;
   bs.forEach((b,i)=>{const right=i<R_,k=right?i:i-R_,cnt=right?R_:L_,a=cnt>1?(-1+2*k/(cnt-1))*1.05:0;const x=cx+(right?1:-1)*(rx*.38+rx*.62*Math.cos(a)),y=cy+ry*Math.sin(a);const w=b.offsetWidth,h=b.offsetHeight;let left=right?x:x-w;left=clamp(left,8,W-w-8);b.style.transform=`translate(${left}px,${clamp(y-h/2,8,H-h-8)}px)`});
@@ -300,7 +300,7 @@ function roadClearAll(){let k=0;const still=m=>m==='idle'||m==='chat'||m==='play
   try{for(const v of CROWD.V){if(v.slot||!still(v.mode)||!inLane(v.x,v.z))continue;const p=offRoadSpot(v.x,v.z);if(p){v.x=p[0];v.z=p[1];k++}}}catch(e){}return k}
 function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hypot(dx,dz);if(n.rose&&!n.down){if(n.aggro&&(n.int||null)===(P.inside||null))n.calm=0;else if((n.calm=(n.calm||0)+dt)>8||(n.int||null)!==(P.inside||null))throneReseat(n)}if(n.leaveT>0){n.leaveT-=dt;if(n.leaveT<=0){n.int=n.homeInt;n.x=n.hx;n.z=n.hz;n.path=null}}if(n.hidden){n.g.visible=false;return}if((n.int||null)!==(P.inside||null)&&!n.aggro){n.g.visible=false;n.dp=999;return}
   if(n.pclass&&!n.job&&!n.actor&&!n.down&&!n.statue&&(n.fixT=(n.fixT||0)-dt)<=0){n.fixT=2;if(!freeAt(n.x,n.z,.12))npcEject(n)}
-  const near=n.dp<60;n.g.visible=near;if(n.statue){n.aggro=0;n.chase=0;n.sp=0;n.x=n.sx;n.z=n.sz;n.g.position.set(n.sx,n.sy,n.sz);if(n.bub&&n.bubT>0){n.bubT-=dt;if(n.bubT<=0)n.bub.visible=false}try{if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag)n.tag.visible=false}catch(e){}return}if(!near&&!n.aggro&&!n.chase&&!n.def)return;n.t+=dt;n.sp=0;
+  const near=n.dp<60;n.g.visible=near;/* V360 at most 6 bodies are built per frame so walking into a crowd doesn't stutter; the rest wait a frame, hidden */if(near&&n.g.userData.lazy){if(BODYF!==TT){BODYF=TT;BODYQ=0}if(BODYQ++<6)bodyBuild(n.g);else n.g.visible=false}if(n.statue){n.aggro=0;n.chase=0;n.sp=0;n.x=n.sx;n.z=n.sz;n.g.position.set(n.sx,n.sy,n.sz);if(n.bub&&n.bubT>0){n.bubT-=dt;if(n.bubT<=0)n.bub.visible=false}try{if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag)n.tag.visible=false}catch(e){}return}if(!near&&!n.aggro&&!n.chase&&!n.def)return;n.t+=dt;n.sp=0;
   if(n.bub&&n.bubT>0){n.bubT-=dt;if(n.bubT<=0)n.bub.visible=false}
   n.g.TALK=!!(n.bub&&n.bubT>1.1);
   if(SCENE&&SCENE.n===n&&(mode==='wheel'||mode==='card')&&!(n.down>0)){n.sp=0;n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.set(0,n.a,0);return}
@@ -311,6 +311,11 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   else if(n.chase){navTo(n,P.x,P.z,(n.cl==='cops'?5.4:5.0),dt);st='guard';if(n.dp<1.3&&P.roll<=0){n.chase=0;busted()}}
   else if(n.aggro){fightAI(n,dt);st=n.punch>0?'punch':'guard';n.punch-=dt}
   else if(n.rob===1){navTo(n,P.x,P.z,2.9,dt)}
+  else if(n.nag){st=tgNagTick(n,dt)}
+  else if(n.dance){st=hyDanceTick(n,dt)}
+  else if(n.eat){st=snEatTick(n,dt)}
+  else if(n.goIn){st=nightInTick(n,dt)}
+  else if(n.tipC){st=psTipTick(n,dt)}
   else if(n.follow){}
   else if(n.flee>0){n.flee-=dt;moveTo(n,n.x-dx,n.z-dz,3.6,dt)}
   else if(n.job){if(jobTick(n,dt)){animP(n.g,0,n.t,'');return}}
@@ -333,7 +338,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   if((n.ally||n.follow)&&!n.down){n.hostCd-=dt;if(n.hostCd<=0){n.hostCd=.5;const foe=NP.filter(m=>(m.foe||(m.aggro&&m.tgt==='P')||(m===P.lastHit&&TT-P.lastHitT<6))&&!m.down&&!m.ally&&!m.follow&&(m.int||null)===(P.inside||null)&&Math.hypot(m.x-P.x,m.z-P.z)<20).sort((a,b)=>Math.hypot(a.x-n.x,a.z-n.z)-Math.hypot(b.x-n.x,b.z-n.z))[0];if(foe){n.aggro=1;n.tgt=foe}else{n.aggro=0;n.tgt=null}}if(!n.aggro&&n.ally&&allyLead(n,dt)){}else if(!n.aggro&&(n.follow||n.dp>3.2)){const[sx,sz]=folSlot(n),ds=Math.hypot(sx-n.x,sz-n.z);if(ds>.45)navTo(n,sx,sz,n.dp>7?6.4:ds>2.5?4.2:2.8,dt);else if(n.follow)n.a=P.face}}
   // authority
   if(n.auth&&!EV){const rng=(n.cl==='ra'?12:n.cl==='cops'?18:16)*(NIGHT>.6?.75:1)*(K.KeyC||toggles.KeyC?.7:1);if(n.dp<rng&&canSee(n,rng)){n.lastSeen=0;SEEN=1;if(OFFENSE){trouble(26*dt);if(rnd()<dt*.5&&(!n.bub||!n.bub.visible))bubble(n,'Curfew, kid!')}if(S.trouble>=25&&!n.chase){n.chase=1;bubble(n,'Stop right there!',2);sfx('whistle')}}else n.lastSeen+=dt;if(n.chase){CHASED=1;if(n.lastSeen>5||S.trouble<1){n.chase=0}}}
-  n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;animP(n.g,n.sp,n.t,st);if(n.c3wired)c3WiredPose(n);if(n.c3guard)c3kGuardPose(n);if(amb)ambPose(n);else if(n.alPose||n.alProp){n.alPose=null;ambPose(n)}
+  n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;animP(n.g,n.sp,n.t,st);if(n.dance)hyDancePose(n);if(n.eat)snEatPose(n);if(n.c3wired)c3WiredPose(n);if(n.c3guard)c3kGuardPose(n);if(amb)ambPose(n);else if(n.alPose||n.alProp){n.alPose=null;ambPose(n)}
   if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag){n.tag.visible=false;if(n.dp>60)tagDrop(n)}}
 let PRT=0,SEEN=0,CHASED=0,OFFENSE=null,NIGHT=0;
 
@@ -375,6 +380,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   if(K.Space){K.Space=0;if(P.jy<=0&&P.jv===0&&!P.bike&&!carry&&S.sta>=6){P.jv=6.4*(skv('jmp')>=1?1.12:1);S.sta-=6;P.pt=.5}}
   let sp=P.bike?(run?14.5:10):carry?2.1:(cr?1.7*prCrouchMul():run?6.2*(1+skv('spd')):3.3)*prSpeedMul()*(blkWant?.45:1);let tx=wx*sp,tz=wz*sp;
   if(P.roll>0){P.roll-=dt;tx=P.rdx*7.6;tz=P.rdz*7.6}
+  /* V381 Mascot ram: crouched and pawing he can only turn (WASD aims), then the charge shoots him forward */if(P.ramT>0){P.ramT-=dt;/* V406 he can steer left and right mid-charge */if(wx||wz){let a=Math.atan2(P.rdx,P.rdz);a+=((((Math.atan2(wx,wz)-a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*3.2);P.rdx=Math.sin(a);P.rdz=Math.cos(a);P.face=a}tx=P.rdx*9.5;tz=P.rdz*9.5}else if(P.ramHold>0){if(wx||wz)P.face+=((((Math.atan2(wx,wz)-P.face)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);tx=0;tz=0}
   const acc=P.bike?3.2:P.roll>0?30:prAcc(),k=Math.min(1,acc*dt);P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
   const r=P.bike?.5:.34;CIRC_OFF=1;/* V115: grid walls here; round colliders are resolved by circPushP below */
   P.sup=P.sup||0;FH=(P.dk==null&&!P.bike)?P.sup+P.jy:-1;   /* V174 jump onto low objects (see SH in file 01) */
@@ -411,7 +417,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   else{PM.rotation.x=0;PM.scale.y=cr?.82:1;PM.position.set(P.x,P.y+P.jy+(P.bike?.12:0),P.z)}
   dustTick(dt);
   bikeM.visible=!!P.bike;ramC.visible=carry;lanternM.visible=!!(curStep()&&curStep().lantern);
-  animP(PM,prSk()?0:spd,TT,P.bike?'bike':carry?'carry':P.atk?'':P.punch>0?'punch':(NP.some(n=>n.aggro&&n.tgt==='P'&&n.dp<5)?'guard':''));if(P.bike){if(!PM.P.kL)PM.P.lL.position.y=PM.P.lR.position.y=.88}prPose(dt);if(P.atk)atkPose(PM,P.atk.ty,P.atk.t/P.atk.d);else{PM.HPA=null;if(PM.P)fistSet(PM.P,null)}if(P.blk>.001&&!P.atk)blockPose(PM,P.blk,Math.max(0,P.blkHitT||0)/.22);
+  animP(PM,prSk()?0:spd,TT,P.bike?'bike':carry?'carry':P.atk?'':P.punch>0?'punch':(NP.some(n=>n.aggro&&n.tgt==='P'&&n.dp<5)?'guard':''));if(P.bike){if(!PM.P.kL)PM.P.lL.position.y=PM.P.lR.position.y=.88}prPose(dt);if(P.atk)atkPose(PM,P.atk.ty,P.atk.t/P.atk.d);else{PM.HPA=null;if(PM.P)fistSet(PM.P,null)}if(P.blk>.001&&!P.atk)blockPose(PM,P.blk,Math.max(0,P.blkHitT||0)/.22);try{snKnee()}catch(e){}
   if(ru>0){const q=PM.P,t=Math.sin(PI*Math.min(1,ru*1.15));q.lL.rotation.x=q.lR.rotation.x=-1.55*t;q.aL.rotation.x=q.aR.rotation.x=-2.3*t}
   prDribble(dt,spd,ru>0||cr||P.bike||carry||P.punch>0||P.jy>.05);
 }
@@ -421,9 +427,11 @@ function rollDust(x,y,z,n,sc){if(!DUSTG){DUSTG=new THREE.SphereGeometry(1,8,6)}f
 const sc_add=m=>sc.add(m);
 function dustTick(dt){for(let i=DUST.length-1;i>=0;i--){const d=DUST[i];d.t+=dt;d.m.position.x+=d.vx*dt;d.m.position.z+=d.vz*dt;d.m.position.y+=.5*dt;d.m.scale.multiplyScalar(1+dt*3.2);d.m.material.opacity=Math.max(0,.5-d.t*1.1);if(d.t>.45){sc.remove(d.m);d.m.material.dispose();DUST.splice(i,1)}}}
 // basketball pledge: dribble the ball while it's in hand
-function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prole!=='basketball'||!S.pledged)return;const rest=b.userData.rest||(b.userData.rest=b.position.clone());
+function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prole!=='basketball'||!S.pledged)return;if(BBL.on){b.visible=false;return}b.visible=true;const rest=b.userData.rest||(b.userData.rest=b.position.clone());
   if(off||mode!=='play'){b.position.copy(rest);b.rotation.x=0;P.dbU=null;return}
-  const rate=1.9+Math.min(spd,6.2)*.28,u=(TT*rate)%1,q=PM.P;
+  /* V361 the bounce phase is accumulated, not taken from the clock: before, phase = clock × rate, so any change in speed (walk → run → stop) made the ball jump to a
+     new point in its bounce and look like it was spinning fast. The rate also eases toward its target so speed-ups and slow-downs are gradual. */
+  const tgt=2.1+Math.min(spd,6.2)*.12;P.dbR=P.dbR==null?tgt:P.dbR+(tgt-P.dbR)*Math.min(1,dt*2.5);P.dbPh=((P.dbPh||0)+dt*P.dbR)%1;const u=P.dbPh,q=PM.P;
   q.aR.rotation.x=-.3-.62*(1-Math.cos(u*TAU))/2;q.aR.rotation.z=.06;
   PM.updateMatrixWorld(true);const H=q.hR.localToWorld(rest.clone()),fy=P.y+P.jy+.13,A=Math.max(.12,H.y-fy),y=fy+A*(1-(2*u-1)*(2*u-1));
   const lead=Math.min(spd,6)*.045,wx=H.x+Math.sin(P.face)*lead,wz=H.z+Math.cos(P.face)*lead;
@@ -431,8 +439,8 @@ function prDribble(dt,spd,off){const b=PM.userData.ball;if(!b||!b.parent||S.prol
   if(P.dbU!=null&&u<P.dbU){try{maBall(P.x,P.z,1)}catch(e){}}P.dbU=u}
 let punchHint=0;
 // V119 Danny's attack moves: left and right punches, palm strike, elbow strike, front kick and side kick, each a short wind-up/strike/recover
-const ATK={jabL:{d:.3,m:1,r:2.5},jabR:{d:.3,m:1,r:2.5},palm:{d:.36,m:1.05,r:2.4,push:.5},elbow:{d:.36,m:1.2,r:1.9},kickF:{d:.5,m:1.25,r:2.9,push:.6},kickS:{d:.52,m:1.3,r:3,push:1}};
-function atkPick(d){const fin=P.comboT>0&&P.combo===2;if(fin)return rnd()<.5?'kickF':'kickS';const r=rnd();
+const ATK={club:{d:.52,m:1.4,r:2.8,push:.7},jabL:{d:.3,m:1,r:2.5},jabR:{d:.3,m:1,r:2.5},palm:{d:.36,m:1.05,r:2.4,push:.5},elbow:{d:.36,m:1.2,r:1.9},kickF:{d:.5,m:1.25,r:2.9,push:.6},kickS:{d:.52,m:1.3,r:3,push:1}};
+function atkPick(d){const fin=P.comboT>0&&P.combo===2;if(fin)return rnd()<.5?'kickF':'kickS';const r=rnd();/* V389 the Caveman Pledge fights with his club and his feet only */if(isR('caveman')&&PM.userData.club)return r<.62?'club':r<.82?'kickF':'kickS';
   if(r<.12)return'kickF';if(r<.22)return'kickS';if(r<.36)return d<1.6?'elbow':'palm';if(r<.48)return'palm';P.hand=P.hand==='L'?'R':'L';return P.hand==='L'?'jabL':'jabR'}
 function punch(){if(P.pcd>0||S.sta<5||P.blocking)return;let best=null,bd=9;const fx_=Math.sin(P.face),fz=Math.cos(P.face);
   for(const n of NP){if(n.down||n.ally||n.follow||n.actor||n.hidden||n.kid||n.mute||!n.g.visible||(n.int||null)!==(P.inside||null))continue;if(P.dk!=null&&Math.abs(P.y-terrH(n.x,n.z))>1.4)continue;const dx=n.x-P.x,dz=n.z-P.z,d=Math.hypot(dx,dz);if(d>2.5)continue;const sc_=d-(dx*fx_+dz*fz)/(d||1)*.7;if(sc_<bd){bd=sc_;best=n}}
@@ -475,6 +483,8 @@ function atkPose(g,ty,k){const p=g.P;if(!p||!p.chest||!p.kL)return;k=clamp(k,0,1
     guard(o,oe,sg*-.12);a.rotation.x=-.55*w-1.55*st+a.rotation.x*(1-Math.max(w,st));e.rotation.x=-1.9*w-.08*st+e.rotation.x*(1-Math.max(w,st));a.rotation.z=sg*.12*(1-st);
     p.chest.rotation.y+=sg*(.28*w-.5*st);p.spine.rotation.x+=.1*st;p.hips.rotation.y+=sg*-.15*st;
     if(ty==='palm'&&p.hR){p.hR.rotation.x=-1.2*st;p.spine.rotation.x+=.08*st}}
+  else if(ty==='club'){/* V389 club swing: raised back over the shoulder, then chopped down and across */guard(p.aL,p.eL,-.15);const a=p.aR,e=p.eR,up=k<.35?sm(k/.35):1-sm((k-.35)/.2),dn=k<.35?0:k<.55?sm((k-.35)/.2):1-sm((k-.6)/.4);
+    a.rotation.x=-2.7*up-.55*dn+a.rotation.x*(1-Math.max(up,dn));a.rotation.z=.35*up+.05*dn;e.rotation.x=-1.2*up-.15*dn+e.rotation.x*(1-Math.max(up,dn));if(p.hR)p.hR.rotation.x=.4*up-.6*dn;p.chest.rotation.y+=.45*up-.55*dn;p.spine.rotation.x+=-.12*up+.3*dn;p.hips.rotation.y+=-.2*dn}
   else if(ty==='elbow'){guard(p.aL,p.eL,-.12);const a=p.aR,e=p.eR;a.rotation.x=-.5*w-1.15*st+a.rotation.x*(1-Math.max(w,st));a.rotation.z=.25*w+1.0*st;e.rotation.x=-2.3*Math.max(w,st)+e.rotation.x*(1-Math.max(w,st));
     p.chest.rotation.y+=.35*w-.85*st;p.hips.rotation.y+=-.25*st}
   else{const side=ty==='kickS',ch=k<.3?sm(k/.3):k<.7?1:1-sm((k-.7)/.3),ext=k<.3?0:k<.42?sm((k-.3)/.12):k<.6?1:1-sm((k-.6)/.25);

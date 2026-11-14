@@ -9,7 +9,7 @@ const CL={
   brothers:{n:'Alpha Sigma Rho',c:'#c03a4c',shirt:0x7d1f2c,sleeve:0x7d1f2c,pants:0x2a2c33,fem:0,lv:[4,7],say:["Pledge, where's my sandwich?","Initiation's gonna be legendary.","Grant's in a mood.","Your dad was a legend, kid."],taunt:["You hit a brother?","Pledges don't swing at brothers."]},
   oldguard:{n:'Old Guard',c:'#8a8f9b',shirt:0x262a33,sleeve:0x262a33,pants:0x262a33,fem:0,lv:[6,8],say:[],taunt:["You should've kept walking, kid.","Nothing personal.","Ashby says hello."]},
   staff:{n:'Staff',c:'#c9c1ad',shirt:0x5a5e66,sleeve:0x5a5e66,pants:0x2a2c33,fem:.4,lv:[3,5],say:['Can I help you?'],taunt:['Get out of my shop!']},
-  police:{n:'Campus Police',c:'#5aa7e0',auth:1,shirt:0x1d2b4a,sleeve:0x1d2b4a,pants:0x1d2b4a,cap:0x1d2b4a,fem:.2,lv:[6,8],say:["Move along.","Nice day for staying out of trouble."]},
+  police:{n:'Campus Police',c:'#5aa7e0',auth:1,shirt:0x7d9cc6,sleeve:0x7d9cc6,pants:0x1a2236,cap:0x1a2540,fem:.2,lv:[6,8],say:["Move along.","Nice day for staying out of trouble."]},
   ra:{n:'Resident Advisor',c:'#e2b64c',auth:1,shirt:0xe3b83a,sleeve:0xe3b83a,pants:0x3a3d48,fem:.4,lv:[3,5],say:["Quiet hours start at ten.","Don't make me write you up."]},
   hughes:{n:'Hughes Correctional Institute',c:'#c8202e',shirt:0xb3212c,sleeve:0xb3212c,pants:0x2a2f3a,fem:.4,lv:[3,6],say:["Tuition here costs more than my car.","Lights out is at ten. For grown adults.","They take your phone at the door.","I'm thirty-four and I have a hall pass.","Detention is every day here. That's the brand."],taunt:["You want detention too?","Wrong steps, college boy.","Hughes doesn't back down."]},
   cops:{n:'Harrowgate PD',c:'#8ab4e8',auth:1,shirt:0x23272f,sleeve:0x23272f,pants:0x23272f,cap:0x23272f,fem:.15,lv:[7,9],say:["Keep walking, college boy.","This isn't campus, kid."]}};
@@ -43,12 +43,45 @@ function spotIn(r,tries=80){for(let i=0;i<tries;i++){const x=r[0]+rnd()*(r[2]-r[
 /* V274 fraternity members are always men and sorority members always women: true/false for a house id (FRATS or CHAPTERS) or the sororities clique, null when it says nothing */
 function houseFem(id,cl){const F=id?FRATS.find(f=>f.id===id):null;if(F)return !!F.fem;const c=id?CHAPTERS.find(c=>c[0]===id):null;if(c)return c[1]==='sororities';return cl==='sororities'?true:null}
 let UID=0;
-function spawn(cl,zone,o={}){o=presLook(o);const C=CL[cl],sd=o.name?nameSeed(o.name):null,R_=sd!=null?mulberry(sd^0x5bd1e995):rnd,PK_=a=>a[Math.floor(R_()*a.length)],HF=houseFem(o.house,cl),fem=HF!=null?HF:o.fem!=null?o.fem:R_()<C.fem;const Hh=o.house&&HOUSE[o.house];const g=o.stone?mkPerson({shirt:0x6e7075,sleeve:0x6e7075,pants:0x66686d,skin:0x76787d,hair:0x5e6065,stone:1,noMouth:1}):mkPerson(Object.assign({letters:Hh&&!o.pledge&&!o.noLetters?o.house:null,shirt:Hh?Hh.shirt:(o.shirt||C.shirt),sleeve:Hh?Hh.shirt:(o.sleeve||C.sleeve),pants:o.pants||C.pants,skin:o.skin||PK_(SKIN),hair:o.hair||PK_(HAIR),fem,sd,cap:o.prop?null:(o.cap!=null?o.cap:C.cap),pin:o.pin,prop:o.prop,gl:o.glasses,hs:o.hs},o.look||{}));   // V125 o.look: extra mkPerson fields (cl2, hs2, fh, fv, iris, shoe, sole, sacc …)if(o.scale)g.scale.setScalar(o.scale);if(o.build)g.scale.set(o.build[0]*(o.scale||1),o.build[1]*(o.scale||1),o.build[2]*(o.scale||1));
+/* V369 police uniforms: a peaked patrol cap with a black visor and a gold cap badge, a star badge and name bar on the chest, shoulder patches,
+   a shoulder radio and a duty belt with a holster, cuffs and a baton. Campus Police wear light blue shirts; Harrowgate PD wear navy. Attached to the
+   bones, so they move with the body. */
+const UNIM={};function uniMat(c,r=.6,m=0){const k=c+'|'+r+'|'+m;return UNIM[k]||(UNIM[k]=SM({color:c,roughness:r,metalness:m}))}
+function uniAdd(g,kind){const P=g.P;if(!P||!P.head||g.userData.uni)return;g.userData.uni=1;const M=(geo,c,b,x,y,z,r,m)=>{const e=new THREE.Mesh(geo,uniMat(c,r,m));e.position.set(x,y,z);e.castShadow=true;b.add(e);return e};
+  const cap=kind==='cops'?0x14181f:0x1a2540,GOLD=0xd8b24a,SIL=0xc9ccd2,BLK=0x111215,BLT=0x15161a;
+  const hs=(typeof CHR_PROP!=='undefined'&&CHR_PROP.hs)||1;
+  {const h=P.head,s=hs;   /* the cap */
+   const cr=M(GC.uCrown||(GC.uCrown=new THREE.CylinderGeometry(.19,.15,.085,24)),cap,h,0,.268*s,.004,.7);cr.scale.set(s,s,s*1.08);
+   M(GC.uBand||(GC.uBand=new THREE.CylinderGeometry(.152,.152,.04,24,1,true)),BLK,h,0,.215*s,.004,.4).scale.set(s,s,s*1.08);
+   const v=M(GC.uVis||(GC.uVis=new THREE.CylinderGeometry(.13,.13,.012,20,1,false,-PI/2,PI)),BLK,h,0,.198*s,.085*s,.15,.2);v.scale.set(s,s,s*.95);v.rotation.x=.22;
+   const bd=M(GC.uCapB||(GC.uCapB=new THREE.CircleGeometry(.034,6)),GOLD,h,0,.262*s,.178*s,.3,.8);bd.rotation.x=-.18}
+  {const c=P.chest;   /* badge, name bar, patches, radio */
+   const st=M(GC.uStar||(GC.uStar=(()=>{const sh=new THREE.Shape();for(let i=0;i<10;i++){const a=i/10*TAU+PI/2,r=i%2?.025:.055;i?sh.lineTo(Math.cos(a)*r,Math.sin(a)*r):sh.moveTo(Math.cos(a)*r,Math.sin(a)*r)}return new THREE.ExtrudeGeometry(sh,{depth:.006,bevelEnabled:false})})()),GOLD,c,-.085,.085,.172,.25,.9);st.scale.setScalar(1);
+   M(GC.uName||(GC.uName=new THREE.BoxGeometry(.07,.016,.006)),SIL,c,.085,.07,.168,.25,.9);
+   M(GC.uPocket||(GC.uPocket=new THREE.BoxGeometry(.075,.055,.008)),kind==='cops'?0x1d222b:0x6f8bb2,c,-.085,.0,.124,.85);M(GC.uPocket,kind==='cops'?0x1d222b:0x6f8bb2,c,.085,.0,.124,.85);
+   M(GC.uRadio||(GC.uRadio=new THREE.BoxGeometry(.035,.06,.022)),BLK,c,.12,.16,.11,.5);
+   for(const sx of[-1,1]){const pa=M(GC.uPatch||(GC.uPatch=new THREE.CircleGeometry(.032,10)),0x2a4a7a,c,sx*.205,.13,.0,.8);pa.rotation.y=sx*PI/2;const pb=M(GC.uPatchR||(GC.uPatchR=new THREE.RingGeometry(.026,.032,10)),GOLD,c,sx*.2052,.13,.0,.5,.5);pb.rotation.y=sx*PI/2}}
+  {const b=P.hips;   /* duty belt */
+   M(GC.uBelt||(GC.uBelt=new THREE.CylinderGeometry(.168,.168,.055,22,1,true)),BLT,b,0,.0,.005,.45).scale.set(1,1,.82);
+   M(GC.uBuck||(GC.uBuck=new THREE.BoxGeometry(.04,.032,.012)),SIL,b,0,0,.143,.3,.8);
+   M(GC.uHol||(GC.uHol=new THREE.BoxGeometry(.045,.13,.07)),BLT,b,.17,-.06,.02,.5);
+   M(GC.uCuff||(GC.uCuff=new THREE.BoxGeometry(.05,.035,.03)),BLT,b,-.12,-.005,.11,.5);
+   M(GC.uBat||(GC.uBat=new THREE.CylinderGeometry(.012,.012,.32,8)),BLK,b,-.17,-.13,.0,.4)}
+}
+/* V360 bodies on demand. A spawned character starts as an empty group: it has a position and can be hidden or moved, but no body. The body (skeleton,
+   skin, face, fingers) is built the first time anything reads its parts (g.P) or it is about to be drawn, then stays. About a thousand characters are
+   spawned at startup and most are far away or inside buildings, so this takes most of the character stage out of the loading screen. ?eagerbodies=1 turns it off. */
+const LAZYB=!/[?&]eagerbodies/.test(location.search);let LAZYN=0,BODYF=-1,BODYQ=0;
+function bodyBuild(g){const o=g.userData.lazy;if(!o)return;g.userData.lazy=null;delete g.P;delete g.CS;const r=mkPerson(o);while(r.children.length)g.add(r.children[0]);g.P=r.P;if(r.CS)g.CS=r.CS;LAZYN++;if(o.uni)uniAdd(g,o.uni)}
+function lazyPerson(o){if(!LAZYB){const g=mkPerson(o);if(o.uni)uniAdd(g,o.uni);return g}const g=new THREE.Group();g.userData.lazy=o;
+  for(const k of['P','CS'])Object.defineProperty(g,k,{configurable:true,enumerable:true,get(){bodyBuild(g);return g[k]},set(v){Object.defineProperty(g,k,{value:v,writable:true,configurable:true,enumerable:true})}});
+  return g}
+function spawn(cl,zone,o={}){o=presLook(o);const C=CL[cl],sd=o.name?nameSeed(o.name):null,R_=sd!=null?mulberry(sd^0x5bd1e995):rnd,PK_=a=>a[Math.floor(R_()*a.length)],HF=houseFem(o.house,cl),fem=HF!=null?HF:o.fem!=null?o.fem:R_()<C.fem;const Hh=o.house&&HOUSE[o.house];const g=o.stone?lazyPerson({shirt:0x6e7075,sleeve:0x6e7075,pants:0x66686d,skin:0x76787d,hair:0x5e6065,stone:1,noMouth:1}):lazyPerson(Object.assign({letters:Hh&&!o.pledge&&!o.noLetters?o.house:null,shirt:Hh?Hh.shirt:(o.shirt||C.shirt),sleeve:Hh?Hh.shirt:(o.sleeve||C.sleeve),pants:o.pants||C.pants,skin:o.skin||PK_(SKIN),hair:o.hair||PK_(HAIR),fem,sd,cap:o.prop?null:(o.cap!=null?o.cap:C.cap),pin:o.pin,prop:o.prop,gl:o.glasses,hs:o.hs,uni:(cl==='police'||cl==='cops')&&!o.stone?cl:null},o.look||{}));   // V125 o.look: extra mkPerson fields (cl2, hs2, fh, fv, iris, shoe, sole, sacc …)if(o.scale)g.scale.setScalar(o.scale);if(o.build)g.scale.set(o.build[0]*(o.scale||1),o.build[1]*(o.scale||1),o.build[2]*(o.scale||1));
   let x=o.x,z=o.z;if(x==null){[x,z]=spotIn(ZN[zone])}const lv0=Math.round(o.lvl||(C.lv[0]+Math.floor(rnd()*(C.lv[1]-C.lv[0]+1)))),lvl=clamp(o.lvAbs?lv0:lv0-lvShift(),1,12);
   const n={uid:++UID,nick:(!fem&&(['brothers','athletes','legacies'].includes(cl)||o.house==='kan'||o.house==='kto')&&rnd()<.45)?pick(['Browalski','Broski','Brochacho']):null,fem:!!fem,cl,zone,int:(typeof INT!=='undefined'&&INT[zone])?zone:(o.int||null),auth:!!C.auth,name:o.name||((fem?pick(FN):pick(MN))+' '+String.fromCharCode(65+Math.floor(rnd()*26))+'.'),title:o.title,lvl,lv0:o.lvAbs?null:lv0,hp:20+lvl*12,mhp:20+lvl*12,x,z,a:o.a!=null?o.a:rnd()*TAU,hx:x,hz:z,ha:o.a,g,tx:x,tz:z,wait:rnd()*4,t:rnd()*10,mode:o.mode||'wander',aggro:0,tgt:null,cd:0,down:0,stun:0,temp:o.temp||0,named:o.named||0,ally:o.ally||0,sus:0,chase:0,lastSeen:9,bub:null,bubT:0,bubCd:3+rnd()*10,hostCd:rnd()*2,dp:999,sp:0,tag:null,patrol:o.patrol,pi:0,flee:0,shop:o.shop,role:o.role,pledge:o.pledge||0,fb:(!fem&&Hh&&!o.pledge&&!o.prop&&!o.stone&&!o.temp)?1:0,actor:o.actor||0,prop:!!o.prop,greet:o.greet,kid:!!C.kid,lines:o.lines||null};
   g.position.set(x,terrH(x,z),z);g.rotation.y=n.a;sc.add(g);NP.push(n);return n}
 function despawn(n){sc.remove(n.g);const i=NP.indexOf(n);if(i>=0)NP.splice(i,1)}
-function bubble(n,t,d=3.2){try{if(t&&t.indexOf('{')>=0)t=dlgFill(t)}catch(e){}try{t=c1Voc(t)}catch(e){}try{babble(n,t,0)}catch(e){}if(!n.bub){n.bub=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false,depthTest:false,alphaTest:.1,color:PP.hdr?new THREE.Color().setRGB(1.3,1.3,1.34):0xffffff}));n.bub.renderOrder=20;n.bub.scale.set(4.2,.72,1);n.bub.position.y=n.tall?4.2:n.prop?3.45:3.2;n.g.add(n.bub)}n.bub.material.map=bubbleTex(t);n.bub.material.needsUpdate=true;n.bub.visible=true;n.bubT=d}
+function bubble(n,t,d=3.2){try{if(t&&t.indexOf('{')>=0)t=dlgFill(t)}catch(e){}try{t=c1Voc(t)}catch(e){}try{scHear(n,t)}catch(e){}try{babble(n,t,0)}catch(e){}if(!n.bub){n.bub=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false,depthTest:false,alphaTest:.1,color:PP.hdr?new THREE.Color().setRGB(1.3,1.3,1.34):0xffffff}));n.bub.renderOrder=20;n.bub.scale.set(4.2,.72,1);n.bub.position.y=n.tall?4.2:n.prop?3.45:3.2;n.g.add(n.bub)}n.bub.material.map=bubbleTex(t);n.bub.material.needsUpdate=true;n.bub.visible=true;n.bubT=d}
 const NAMED=[
   {id:'grant',house:'asr',name:'Grant Ashby',title:'ΑΣΡ President',cl:'brothers',int:'asr',x:24,z:2.1,a:0,throne:1,lvl:10,shirt:0x7d1f2c,sleeve:0x7d1f2c,pants:0xcbb98f,hair:0xc9a46a,skin:0xf1c9a5},
   {id:'tank',house:'asr',name:'Tank Hale',title:'Big Brother',cl:'brothers',x:87.5,z:81,a:-PI/2,lvl:8,shirt:0x7d1f2c,sleeve:0xeae4d4,scale:1.12,hair:0x151515,skin:0x9b6640},

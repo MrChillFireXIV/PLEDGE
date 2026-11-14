@@ -110,6 +110,9 @@ function talkTo(n,line){if(!n||n.down)return;const id=nid(n),C=CL[n.cl],r=S.rep[
     {const pool=(CHT_[n.cl]||[]).concat(CHT_._),T_=pick(pool);ch.push(['"'+T_[0]+'"',()=>{const b=talkOdds(n);const v=wpick([-1,0,1,2],[1.3-1.1*b,1,.5+b,.2+1.6*b]);relAdd(n,v);const fst=n.talkDay!==S.day;n.talkDay=S.day;
       let t='"'+(v<0?T_[3]:v===0?T_[2]:T_[1])+'"';if(v===2)t+=pick([' Ha! You\'re all right, Danny.',' I like talking to you, honestly.',' We should hang out more.']);
       if(fst&&r!=null&&v>0){rep(n.cl,1+skv('spk'));}if(fst&&n.cl==='brothers'&&v>0)stand(1);reply(t)()},'','chat'])}
+    /* V371 the Basketball Pledge's job: telling people about his basketball. Once per person per day, it counts toward his quota */
+    if(S.pledged&&S.prole==='basketball'&&!n.isP){const told=n.bbTold===S.day,BB=[['"Have I told you about my basketball? Official size, official weight."','"…Why are you telling me this?"','"Oh cool, you play?"','"Dude, that\'s a nice ball."'],['"I haven\'t put this ball down in nine days. Pledge rules."','"Nine DAYS?"','"Respect, honestly."','"Is that… hygienic?"'],['"Feel the grip on this. Feel it. That\'s leather."','"I\'m not touching your ball."','"Okay, that IS nice."','"Why is it warm."'],['"I named it. Her name is Rebound."','"You need help."','"Rebound. Love that."','"Hi, Rebound."']],B=pick(BB);
+      ch.push([B[0],()=>{n.bbTold=S.day;try{pqUse(1)}catch(e){}reply(pick([B[1],B[2],B[3]]))()},told?'You already told '+first+' about it today.':'','chat'])}
     if(!n.auth&&TRADE[n.cl])ch.push([say('trade'),()=>tradeWith(n),'','trade']);
     if(!n.auth&&!n.temp){const rv=relPeek(n),fc=NP.filter(m=>m.follow).length;if(n.follow)ch.push([say('dismiss'),()=>{n.follow=0;if(n.named)n.leaveT=4;n.zone=zoneAt(n.x,n.z);n.path=null;n.wait=1;bubble(n,'Anytime, '+(n.nick||'Danny')+'.',2);toast(n.name+' heads off.')},'','follow']);
       else if(rv>=60)ch.push([say('follow'),()=>{n.follow=1;if(n.homeInt===undefined)n.homeInt=n.int||null;n.path=null;n.aggro=0;bubble(n,pick(['Let\'s do this.','I\'ve got your back.','Lead the way.']),2);toast(n.name+' is following you. They\'ll jump into your fights.',3500)},n.lvl<S.lvl?`They need to be at least Lv ${S.lvl}.`:fc>=FOLMAX?'You already have '+FOLMAX+' people with you.':'','follow'])}
@@ -185,7 +188,7 @@ function spawnLoot(t,o){let m;if(o.item){m=new THREE.Sprite(new THREE.SpriteMate
 function lootTick(dt){for(let i=LOOT.length-1;i>=0;i--){const L=LOOT[i];L.age+=dt;const here=(L.int||null)===(P.inside||null);L.m.visible=here;
   if(L.y>.3||L.vy>0){L.vy-=14*dt;L.y+=L.vy*dt;const nx=L.x+L.vx*dt,nz=L.z+L.vz*dt;if(freeAt(nx,nz,.1)){L.x=nx;L.z=nz}else{L.vx*=-.3;L.vz*=-.3}if(L.y<=.3){L.y=.3;L.vy=Math.abs(L.vy)>1.2?-L.vy*.35:0;L.vx*=.55;L.vz*=.55}}
   const d=Math.hypot(P.x-L.x,P.z-L.z);if(here&&mode==='play'&&L.age>.6&&d<3.2){const k=Math.min(1,dt*(9-d*2));L.x+=(P.x-L.x)*k;L.z+=(P.z-L.z)*k}
-  if(here&&mode==='play'&&L.age>.6&&d<.9){if(L.item){if(invAdd(L.item)){toast('Picked up: '+ITM[L.item].n,1400);sfx('coin')}else{if(lootMsgT<=0){toast('Your pockets are full (3 items).',1500);lootMsgT=3}L.age=.3;continue}}else money(L.v);sc.remove(L.m);LOOT.splice(i,1);continue}
+  if(here&&mode==='play'&&L.age>.6&&d<.9){if(L.item){if(invAdd(L.item)){toast('Picked up: '+ITM[L.item].n,1400);sfx('coin')}else{if(lootMsgT<=0){toast(`Your pockets are full (${invSize()} items).`,1500);lootMsgT=3}L.age=.3;continue}}else money(L.v);sc.remove(L.m);LOOT.splice(i,1);continue}
   if(L.age>120){sc.remove(L.m);LOOT.splice(i,1);continue}
   const bob=L.vy===0&&L.y<=.3?.18+Math.sin(TT*3+L.ph)*.08:0;L.m.position.set(L.x,L.y+bob+terrH(L.x,L.z),L.z);if(!L.item)L.m.rotation.y+=dt*4;const fade=L.age>110?(120-L.age)/10:1;if(L.item)L.m.scale.setScalar(.75*fade);}
   lootMsgT-=dt}

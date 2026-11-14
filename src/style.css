@@ -674,3 +674,76 @@ body.mob #bl{width:200px;padding:7px 10px}
 body.mob #bl .lbl{font-size:10px;letter-spacing:.06em}
 body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.mob #bl #cash{padding-right:34px}
 @media(max-width:900px){#bl{width:200px}}
+
+/* V358 controls display */
+.ctrlsw{display:inline-flex;gap:0;border:2px solid var(--maroon);border-radius:99px;overflow:hidden;margin:2px 0 12px}
+.ctrlsw button{border:0;background:transparent;font:inherit;font-weight:700;font-size:13.5px;padding:6px 16px;cursor:pointer;color:var(--maroon)}
+.ctrlsw button.on{background:var(--maroon);color:#fff3e0}
+.ctrlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.ctrlg{background:#fffdf6;border:1.5px solid #d9cba8;border-top:5px solid var(--maroon);border-radius:12px;padding:10px 14px 8px;box-shadow:0 2px 0 #e7dcc2}
+.ctrlg h4{margin:0 0 6px;font-family:var(--fd);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--maroon)}
+.ctrlr{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:12px;align-items:center;padding:6px 0;border-top:1px dashed rgba(0,0,0,.13)}
+.ctrlg h4+.ctrlr{border-top:0}
+.ctrlk{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.ctrlk i{font-style:normal;font-size:10.5px;color:#6b5d4a}
+.ctrlk kbd{font-family:var(--fd);font-size:12px;line-height:1;white-space:nowrap;color:#2a2028;background:linear-gradient(#fff,#ece4d2);border:1.5px solid #b9a97f;border-bottom-width:3.5px;border-radius:6px;padding:5px 8px}
+.ctrl[data-dev=touch] .ctrlk kbd{color:var(--gold);background:var(--navy);border-color:var(--gold);border-bottom-width:1.5px;border-radius:99px;padding:5px 11px}
+.ctrlt b{display:block;font-size:14.5px;line-height:1.2;color:#2a2028}.ctrlt small{display:block;font-size:12px;line-height:1.3;opacity:.7;color:#2a2028}
+#ctrlov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(10,8,14,.6);padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.ctrlbox{background:#fbf6ea;border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.55);width:min(980px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.ctrlhd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;background:#7a1f2b;color:#fff3e0}
+.ctrlhd b{font-family:var(--fh);font-size:24px}
+.ctrlx{border:2px solid #fff3e0;background:transparent;color:#fff3e0;border-radius:99px;font:inherit;font-weight:700;padding:5px 18px;cursor:pointer}.ctrlx:hover{background:#fff3e0;color:#7a1f2b}
+.ctrlbody{padding:14px 18px 18px;overflow:auto}
+
+/* V368 non-blocking speech balloon (same look as the conversation balloon) */
+#c1bal{position:fixed;z-index:31;width:max-content;max-width:min(440px,84vw);transform:translate(-50%,-100%);background:#fbf7ec;color:#1d1a16;border-radius:16px;padding:8px 16px 10px;box-shadow:0 8px 22px rgba(0,0,0,.4);text-align:center;pointer-events:none}
+#c1bal::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-9px;border:9px solid transparent;border-bottom:0;border-top-color:#fbf7ec}
+#c1bal .c1bn{font-family:var(--fd);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--maroon);margin-bottom:2px}
+#c1bal .c1bt{font-size:16px;line-height:1.35}
+#c1bal.dock{left:max(14px,env(safe-area-inset-left,0px))!important;right:max(14px,env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px))!important;transform:none;max-width:none;width:auto;text-align:left}
+#c1bal.dock::after{display:none}
+/* V378 the Scribe Pledge's minutes, in the pledge job box */
+.scmin{margin-top:8px;border:1px solid #d9cfb6;border-radius:8px;background:#fbf6e8;padding:8px 10px;font-family:Georgia,serif}
+.scmh{font:700 12px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:#2a3a5a;display:flex;justify-content:space-between;border-bottom:1px solid #e3d9bf;padding-bottom:4px;margin-bottom:4px}
+.scmh span{font-weight:400;letter-spacing:0;text-transform:none;color:#7a6f58}
+.scq{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:3px 0;font-size:13px;border-bottom:1px dashed #eadfc4}
+.scq:last-child{border-bottom:0}.scq b{color:#2a3a5a;white-space:nowrap}.scq q{color:#3a3326;font-style:italic}.scq i{color:#9a8f76;font-size:11px;white-space:nowrap}
+/* V393 skateboard trick timing meter */
+#skm{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);z-index:30;pointer-events:none;text-align:center;font:700 12px var(--fb);color:#fff;text-shadow:0 1px 2px #000}
+#skm .skmb{position:relative;width:220px;height:12px;border-radius:6px;background:rgba(20,22,30,.75);border:1px solid rgba(255,255,255,.5);margin:0 auto 4px;overflow:hidden}
+#skm .skz2{position:absolute;top:0;bottom:0;left:45.3%;width:42.7%;background:#c9a046;opacity:.55}
+#skm .skz1{position:absolute;top:0;bottom:0;left:55.3%;width:22.7%;background:#3ab05a;opacity:.9;z-index:1}
+#skm b{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:#fff;border-radius:2px;z-index:2;box-shadow:0 0 4px #000}
+#skm.ok .skmb{border-color:#7ef0a0}
+/* V395 the secret arcade */
+#tsecret{position:fixed;right:14px;bottom:10px;z-index:5;background:none;border:0;color:#f4e6c8;opacity:.16;font-size:18px;cursor:pointer;padding:6px;line-height:1;transition:opacity .2s}
+#tsecret:hover,#tsecret:focus-visible{opacity:.7}
+#arcov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(10,8,14,.6);padding:12px}
+.arcbox{width:min(1000px,100%);height:min(720px,100%)}
+.arctabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 16px;border-bottom:1px solid #e3d8c0;background:#f4ecda}
+.arct{font:700 13px var(--fb);border:1px solid #c9b994;background:#fffaf0;color:#3a2a1a;border-radius:999px;padding:6px 14px;cursor:pointer}
+.arct.on{background:#7a1f2b;color:#fff3e0;border-color:#7a1f2b}
+.arcg{margin-left:auto;font:700 12px var(--fb);color:#6a5a40;display:flex;gap:4px;align-items:center}
+.arcgb{font:700 12px var(--fb);width:28px;height:28px;border-radius:50%;border:1px solid #c9b994;background:#fffaf0;cursor:pointer}.arcgb.on{background:#c9a046;border-color:#a8822c;color:#fff}
+.arcbody{overflow:auto;padding:12px 16px 18px}
+.arcsec h4{margin:12px 0 6px;font:800 13px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:var(--c,#7a1f2b);border-left:4px solid var(--c,#7a1f2b);padding-left:8px}
+.arcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.arci{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#fffdf6;border:1px solid #e0d4b8;border-radius:10px;padding:9px 11px;cursor:pointer;font-family:var(--fb)}
+.arci:hover{border-color:#7a1f2b;box-shadow:0 2px 8px rgba(122,31,43,.18)}.arci b{font-size:14px;color:#2a1e14}.arci span{font-size:11.5px;color:#7a6a50}
+/* V401 Framing: camera flashes and the Herald front page */
+#c3flash{position:fixed;inset:0;z-index:33;background:#fff;opacity:0;pointer-events:none}
+#c3flash.on{animation:c3fl .45s ease-out}
+@keyframes c3fl{0%{opacity:.85}100%{opacity:0}}
+#c3herald{position:fixed;inset:0;z-index:34;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(8,8,12,.45)}
+#c3herald .hp{width:min(560px,88vw);background:#f1ead8;color:#141414;padding:18px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6);font-family:Georgia,'Times New Roman',serif;animation:c3spin .95s cubic-bezier(.2,.8,.25,1) both}
+#c3herald.out .hp{animation:c3away .45s ease-in both}
+@keyframes c3spin{0%{transform:rotate(-720deg) scale(.05);opacity:0}70%{opacity:1}100%{transform:rotate(-2deg) scale(1)}}
+@keyframes c3away{to{transform:rotate(4deg) scale(1.15);opacity:0}}
+#c3herald .hm{font:900 clamp(20px,4.4vw,34px) 'Old English Text MT','UnifrakturMaguntia',Georgia,serif;text-align:center;letter-spacing:.02em;border-bottom:3px double #141414;padding-bottom:4px}
+#c3herald .hd{display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #141414;padding:3px 0;margin-bottom:6px}
+#c3herald h1{font:900 clamp(56px,13vw,104px)/0.95 Georgia,serif;text-align:center;margin:6px 0 4px;letter-spacing:-.02em}
+#c3herald .hs{text-align:center;font-style:italic;font-size:15px;margin-bottom:10px}
+#c3herald .hph{float:left;width:58%;margin:0 14px 6px 0}#c3herald .hph img,#c3herald .hnp{width:100%;aspect-ratio:16/10;object-fit:cover;filter:grayscale(1) contrast(1.15);background:#999;display:block}
+#c3herald .hph p{font-size:11px;font-style:italic;margin:3px 0 0}
+#c3herald .hcol p{font-size:13px;line-height:1.35;margin:0 0 6px;text-align:justify}
+@media (max-height:620px){#c3herald .hp{zoom:.7}}

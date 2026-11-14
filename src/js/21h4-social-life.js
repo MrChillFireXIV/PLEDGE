@@ -17,7 +17,7 @@ const angTo=(n,x,z,dt,k)=>{n.a+=((((Math.atan2(x-n.x,z-n.z)-n.a)%TAU)+TAU*1.5)%T
 const socVis=m=>m&&NP.includes(m)&&m.g&&m.g.visible&&!m.hidden&&!m.down;
 function socFree(m){return socVis(m)&&m.al&&m.al.k==='act'&&!m.al.cv&&ambOK(m)&&!m.aggro}
 // what a person does when standing around (context-weighted): phone most, dancing rarely except on Greek Row at night
-function socAct(n){const night=NIGHT>.55,row=n.zone==='greek'||n.zone==='greekN';const W=[['phone',5],['call',2],['coffee',2],['look',3],['stretch',.8],['dance',night&&row?3:.35],['selfie',.8],['pic',.8],['pose',.6],['tie',.4],['wave',.6],['pray',.15]];
+function socAct(n){const night=NIGHT>.55,row=n.zone==='greek'||n.zone==='greekN';const W=[['phone',5],['call',2],['coffee',2],['look',3],['stretch',.8],['dance',night&&row?3:.35],['selfie',.8],['pic',.8],['pose',.6],['tie',.4],['wave',.6],['pray',.03]];
   let s=0;for(const a of W)s+=a[1];let r=rnd()*s;for(const a of W){r-=a[1];if(r<=0)return a[0]}return'phone'}
 function socSet(n,A,k,o){A.k=k;A.t=0;A.goal=null;n.path=null;Object.assign(A,o||{})}
 function socAt(n,A,act,t){socSet(n,A,'act',{act:act||socAct(n),t:t||4+rnd()*9});ambStart(n,A)}
@@ -136,7 +136,9 @@ function chatTick(n,dt){if(!n.chP||!socVis(n.chP)||n.chP.mode!=='chat'||(n.chT=(
   const seed=((n.x+m.x)*13.7+(n.z+m.z)*7.1)%17,ph=Math.floor((TT+Math.abs(seed))/3.4),me=(n.x+n.z*1.31)<(m.x+m.z*1.31),speak=(ph%2===0)===me;
   /* the pair shares a script: each new turn the speaker says the next line (bubbles only near Danny) */
   const C=n.chC&&n.chC===m.chC?n.chC:(m.chC&&m.chC.p===n?m.chC:null)||(n.chC={p:m,lines:dlgConv(n),i:0,ph:-1});n.chC=C;m.chC=C;
-  if(speak&&C.ph!==ph){C.ph=ph;if(C.i>=C.lines.length){C.lines=dlgConv(n);C.i=0}const line=C.lines[C.i++];if(n.dp<14&&rnd()<.75)bubble(n,line,Math.min(3.2,1.6+line.length*.05))}
+  /* V362 a person says at most one line every 3.4 s. In a big group (five sorority sisters on a lawn) people kept re-pairing, two pairs overwrote each
+     other's shared script every frame, and someone like Hailey Z. fired a new bubble every frame */
+  if(speak&&C.ph!==ph&&TT-(n.saidT||-99)>=3.4){C.ph=ph;n.saidT=TT;if(C.i>=C.lines.length){C.lines=dlgConv(n);C.i=0}const line=C.lines[C.i++];if(n.dp<14&&rnd()<.75)bubble(n,line,Math.min(3.2,1.6+line.length*.05))}
   if(speak){n.alPose='talkS';return'talk'}n.alPose=(ph%5===3)?'laugh':'talkL';return''}
 
 function socStats(){const S_={};let seated=0;for(const n of NP){if(!n.al||!n.g)continue;const k=n.al.k;S_[k]=(S_[k]||0)+1}for(const s of SEATS)if(s.by)seated++;return{states:S_,convs:SOCC.filter(c=>!c.done&&c.m.length>1).length,seats:SEATS.length,seated}}

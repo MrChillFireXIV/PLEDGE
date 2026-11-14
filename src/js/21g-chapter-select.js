@@ -83,7 +83,7 @@ function chapJump(id){
 /* V317 (preview only): pledge job menu shown after a chapter skip. Every job from PR, one tap to choose. */
 function prPickOn(){return!!(window.PLEDGE_PREVIEW||/[?&]pickrole/.test(location.search))}
 function prPick(done){const old=$('prpick');if(old)old.remove();mode='slots';const el=document.createElement('div');el.id='prpick';
-  el.innerHTML=`<div class="prpk" role="dialog" aria-label="Pick a pledge job"><div class="prpkh"><b>Pick Danny's pledge job</b><span>Preview only · chapter skip</span></div><div class="prpkg">${PR_KEYS.map(k=>`<button class="prpkb" type="button" data-k="${k}" style="--rc:${PR[k].c};--rc2:${PR[k].c2}"><img src="${prIconURL(k)}" alt=""><span class="prpkt"><b>${PR[k].n}</b><small>${PR[k].d}</small><i>T: ${PR[k].ab}</i></span></button>`).join('')}</div></div>`;
+  el.innerHTML=`<div class="prpk" role="dialog" aria-label="Pick a pledge job"><div class="prpkh"><b>Pick Danny's pledge job</b><span>Preview only · chapter skip</span></div><div class="prpkg">${PR_DANNY.map(k=>`<button class="prpkb" type="button" data-k="${k}" style="--rc:${PR[k].c};--rc2:${PR[k].c2}"><img src="${prIconURL(k)}" alt=""><span class="prpkt"><b>${PR[k].n}</b><small>${PR[k].d}</small><i>T: ${PR[k].ab}</i></span></button>`).join('')}</div></div>`;
   document.body.appendChild(el);
   const kd=e=>{if(e.code!=='F12')e.stopPropagation()};
   const fin=k=>{removeEventListener('keydown',kd,true);el.remove();S.prole=k;S.prDay=S.day;S.rs={};try{prApply()}catch(e){console.warn(e)}mode='play';toast(`You're the ${PR[k].n}. Press T: ${PR[k].ab}.`,3600);if(done)done()};

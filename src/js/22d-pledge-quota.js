@@ -21,7 +21,7 @@ const PQ={
   mg:[["steger","Run the Numbers","math",{intro:"A stat sheet is only as good as its averages. Four problems.",gen:(g,k)=>{const n=3+(k%2),a=Array.from({length:n},()=>2+Math.floor(rnd()*9)),s=a.reduce((x,y)=>x+y,0);if(k<2){const add=(n-s%n)%n;a[0]+=add;const av=(s+add)/n;return{q:"Brothers drank "+a.join(", ")+" beers. What is the average?",a:av,w:[av+1,av-1,av+2],why:"Add them up and divide by "+n+"."}}return{q:"Tonight's tallies: "+a.join(", ")+". What is the total?",a:s,w:[s+2,s-1,s+3],why:"Just add them up."}}}],
       ["rock","Click the Counter","meter",PQ_METER("People are streaming past. Click the hand counter exactly when one crosses the line. Five clicks.","Click","Head","Counted.","Missed one. The sheet is off.")],
       ["budig","Remember the Scoreboard","memory",{intro:"The scoreboard flashes a sequence. A Stats Pledge never forgets one. Repeat it."}]]},
- skate:{t:30,tv:"Land a trick",tn:"tricks",host:"Skate shop guy",
+ skate:{t:30,tv:"Land a trick",tn:"tricks landed",host:"Skate shop guy",
   sp:[["lions","Ollie past Mick and Mack, the stone lions","Clean! The lions saw nothing."],["uplaza","Grind the University Plaza fountain ledge","Fifty-fifty all the way around!"],["westpav","Kickflip the Nippert West Pavilion stairs","Stuck it! Mostly!"],["tol","Carve a lap around the Tower of Light","Wheeeeee."],["bear","Skate the Bearcat roundabout the wrong way","Sorry! Pledge business!"]],
   mg:[["bcomm","Land the Kickflip","meter",PQ_METER("Pop, flick, catch. Hit the button when the board is flat under your feet. Five tries.","Catch it","Flip","Bolts. Clean landing.","Primo. Ouch.")],
       ["victory","Pump the Half-Pipe","rhythm",PQ_BEAT("Pump at the bottom of every pass to keep your speed.","Pump",92)],
@@ -31,7 +31,7 @@ const PQ={
   mg:[["blegen","Pick the Lock","meter",PQ_METER("Five pins. Set each one the moment the pick sits in the sweet spot.","Set the pin","Pin","Click. It sets.","The pick slips.")],
       ["oldchem","Crack the Safe","memory",{intro:"The safe flashes its combination once. Watch the order, then dial it in."}],
       ["armory","Slip Past the Cameras","grid",{intro:"Plan a route through the hall to the green exit. Brown squares are in camera view. Queue your moves, then go."}]]},
- fruit:{t:15,tv:"Land a fruit slam",tn:"fruit slams",host:"Farmers' market lady",
+ fruit:{t:8,tv:"Bring your fruit to roll call in one piece",tn:"days the fruit made it",host:"Farmers' market lady",
   sp:[["hank","Weigh your fruit at Hank's Market","Hank says it's the biggest one this week."],["mew","Give the fruit some sun in Mew Gardens","Photosynthesize, buddy. You've earned it."],["fount","Rinse the fruit in the Campus Green fountain","Squeaky clean. Do not tell Grant."],["diner","Show the fruit to the cooks at Ruby's","No, it is NOT for the pie."],["statue","Offer the fruit to Herman Schneider","He declined. Politely."]],
   mg:[["slawn","Sort the Harvest","sort",PQ_SORT("A Fruit Pledge knows where everything grows. Sort the crate.",["On a tree","On a vine","In the ground"],[["Apple","On a tree"],["Orange","On a tree"],["Peach","On a tree"],["Cherry","On a tree"],["Grape","On a vine"],["Watermelon","On a vine"],["Pumpkin","On a vine"],["Kiwi","On a vine"],["Carrot","In the ground"],["Potato","In the ground"],["Peanut","In the ground"],["Radish","In the ground"]])],
       ["classen","Slice It Clean","meter",PQ_METER("Fruit salad for forty. Bring the knife down while the fruit is centred on the board. Five cuts.","Chop","Cut","Perfect halves.","Juice everywhere.")],
@@ -56,17 +56,17 @@ const PQ={
   mg:[["spencer","Weather Quiz","quiz",{intro:"A forecast is science, pledge. Four questions.",q:[["Tall, dark cumulonimbus clouds bring…","Thunderstorms","Fog","Clear skies","Light breezes",""],["A barometer measures…","Air pressure","Wind speed","Rainfall","Humidity","Falling pressure means a storm is coming."],["An anemometer measures…","Wind speed","Temperature","Cloud height","Snow depth",""],["Water freezes at…","32°F","0°F","50°F","212°F","That's 0°C."],["Hurricanes are ranked in…","Categories 1 to 5","Levels A to F","Stars","Decibels","The Saffir-Simpson scale."]]}],
       ["budig","Read the Barometer","meter",PQ_METER("The needle is jumpy. Take each reading when it settles in the band. Five readings.","Read it","Reading","Logged.","Bad reading. Do it again tomorrow.")],
       ["sheakley","Radar Pattern","memory",{intro:"The radar lights up cells in order as the storm moves. Watch, then track it."}]]},
- basketball:{t:20,tv:"Throw the ball",tn:"throws",host:"Assistant coach",
+ basketball:{t:15,tv:"Tell someone about your basketball",tn:"people told about the ball",host:"Assistant coach",
   sp:[["bigo","Pay respects at the Big O statue","Mr. Robertson. Sir. I'm trying my best."],["gym","Dribble through the Rec Center doors","No, I can't put it down. Pledge rules."],["armory","Spin the ball outside the Armory Fieldhouse","Three seconds on one finger. New record."],["sheakley","Run a suicide drill at the Sheakley Center","Baseline. Free throw. Baseline. Why."],["victory","Dribble a lap around Victory Plaza","Left hand only. Coach's orders."]],
   mg:[["steger","Free Throws","meter",PQ_METER("Release at the top of your shot. Five free throws.","Shoot","Shot","Nothing but net.","Brick.")],
       ["slawn","Dribble Drill","rhythm",PQ_BEAT("Keep the dribble on the beat. Lose it and you run laps.","Dribble",116)],
       ["classen","Hoops Quiz","quiz",{intro:"Know the game, pledge. Four questions.",q:[["A shot from beyond the arc is worth…","3 points","2 points","4 points","1 point",""],["How many players per team are on the court?","5","6","7","11",""],["Taking steps without dribbling is called…","Traveling","Icing","Offside","A balk",""],["A regulation rim is how high?","10 feet","8 feet","12 feet","9 feet",""],["A free throw is worth…","1 point","2 points","3 points","Nothing",""]]}]]},
- pouch:{t:12,tv:"Dig something out of the pouch",tn:"pouch digs",host:"Housemother",
+ pouch:{t:12,tv:"Hand a brother what he asked for",tn:"brothers served",host:"Housemother",
   sp:[["lib","Deliver chapstick to a brother at Langsam","Cherry or mint? I carry both."],["gym","Run a Gatorade to the Rec Center","Lemon-lime, still cold. Mostly."],["westpav","Bring a phone charger to the West Pavilion","Lightning, USB-C and the old wide one. Covered."],["anchor","Drop off a forgotten wallet at the Rusty Anchor","Found it in the pouch. Don't ask."],["lindner","Hand a brother a pen before his exam at Lindner","Blue or black. And a spare. Good luck."]],
   mg:[["rieveschl","Remember the Orders","memory",{intro:"Four brothers shout orders at once. Watch who asks in what order, then deliver."}],
       ["daap","Pack the Pouch","sort",PQ_SORT("Everything has a pocket. Put it in the right one.",["Drinks","Snacks","Gear"],[["Gatorade","Drinks"],["Coffee","Drinks"],["Water bottle","Drinks"],["Energy drink","Drinks"],["Protein bar","Snacks"],["Beef jerky","Snacks"],["Gummy worms","Snacks"],["Pretzels","Snacks"],["Phone charger","Gear"],["Chapstick","Gear"],["Spare keys","Gear"],["Duct tape","Gear"]])],
       ["oldchem","Quick Zip","meter",PQ_METER("A brother is waiting. Yank the zipper when the pull lines up with the track. Five pockets.","Zip","Pocket","Open. Delivered.","Stuck. He's tapping his foot.")]]},
- grenade:{t:15,tv:"Dive",tn:"dives",host:"ROTC cadet",
+ grenade:{t:15,tv:"Dive on something a brother tossed",tn:"grenades smothered",host:"ROTC cadet",
   sp:[["cgreen","Dive on a dropped frisbee on the Campus Green","GRENADE! …It's a frisbee. Area secure."],["westpav","Dive on a spilled soda at the West Pavilion","GRENADE! I'm sticky. Worth it."],["lib","Dive on a dropped textbook at Langsam","GRENADE! Shhh. Sorry."],["armory","Report for inspection at the Armory Fieldhouse","Grenade Pledge reporting. Belt grenade is a dummy, sir."],["diner","Dive on a dropped fork at Ruby's","GRENADE! Fork neutralized."]],
   mg:[["sheakley","Time the Dive","meter",PQ_METER("Launch when the target is in the zone. Five dives.","DIVE","Dive","Covered it. Textbook.","Belly-flop, two feet short.")],
       ["budig","Low Crawl","grid",{intro:"Plan a crawl under the wire to the green pad. Brown squares are mud pits. Queue your moves, then go."}],
@@ -76,7 +76,7 @@ const PQ={
   mg:[["corbett","Play Reveille","rhythm",PQ_BEAT("Reveille is quick and bright. Tongue every note on the beat.","Note",126,14)],
       ["memorial","Bugle Calls","memory",{intro:"The director plays a call on four notes. Listen, then play it back."}],
       ["teachers","Morning Quiz","quiz",{intro:"A bugler knows his calls. Four questions.",q:[["Reveille is played to…","Wake everyone up","End the day","Call for dinner","Signal a retreat",""],["Which call ends the day?","Taps","Reveille","Charge","First Call","Lights out."],["How many valves does a bugle have?","None","Three","One","Four","Every note is made with the lips."],["A.M. stands for…","Ante meridiem","After midnight","Any morning","Ahead of midday","Latin for 'before midday'."],["The sun rises in the…","East","West","North","South",""]]}]]},
- delinquent:{t:12,tv:"Cause some mayhem",tn:"bits of mayhem",host:"A hooded senior",
+ delinquent:{t:12,tv:"Tag a wall and get in the fight over it",tn:"tags that started a fight",host:"A hooded senior",
   sp:[["statue","Put a traffic vest on Herman Schneider","Safety first, Herman."],["lions","Give Mick and Mack party hats","They look thrilled. Stone-cold thrilled."],["fount","Add bubble bath to the Campus Green fountain","It's biodegradable. I checked. Run."],["taft","Stick googly eyes on the Taft statue","The Chief Justice sees all."],["police","Leave a whoopee cushion at the police station","Do not look back. Do NOT look back."]],
   mg:[["gatehouse","Tag the Wall","meter",PQ_METER("Chalk, not paint. Press the can while the stencil is lined up. Five letters.","Spray","Letter","Crisp line.","Drips. Amateur hour.")],
       ["french","Lose the Campus Cops","grid",{intro:"Plan a getaway to the green exit. Brown squares are patrols. Queue your moves, then run."}],
@@ -91,7 +91,7 @@ const PQ={
   mg:[["victory","Drop the Beat","rhythm",PQ_BEAT("Hit the pad on every beat, then the crowd does the rest.","Hit it",120,14)],
       ["westpav","Call and Response","memory",{intro:"You shout it, they shout it back. Watch the chant, then lead it in the same order."}],
       ["slawn","Peak the Crowd","meter",PQ_METER("Drop the bass when the crowd meter is in the green. Five drops.","DROP IT","Drop","The lawn goes OFF.","Too early. Awkward silence.")]]},
- snack:{t:25,tv:"Serve a snack",tn:"snacks served",host:"Dining hall manager",
+ snack:{t:20,tv:"Serve a snack someone likes",tn:"snacks people liked",host:"Dining hall manager",
   sp:[["lib","Feed the all-nighters at Langsam","Pretzels for the finals crowd. No crumbs on the books."],["westpav","Work the stands at the West Pavilion","Peanuts! Get your free pledge peanuts!"],["mew","Set up a snack table in Mew Gardens","Garden party. Gummy worms are thematic."],["steger","Hand out samples at the Steger Center","One per customer. One. Sir."],["herald","Bribe the Herald newsroom with cookies","Off the record: they're oatmeal raisin."]],
   mg:[["classen","Sweet or Salty","sort",PQ_SORT("Two sides of the tray. Don't mix them.",["Sweet","Salty"],[["Gummy worms","Sweet"],["Brownie","Sweet"],["Donut","Sweet"],["Chocolate bar","Sweet"],["Cookie","Sweet"],["Pretzels","Salty"],["Potato chips","Salty"],["Popcorn","Salty"],["Beef jerky","Salty"],["Peanuts","Salty"]])],
       ["edwards","Balance the Tray","meter",PQ_METER("The tray is wobbling. Steady it when it's level. Five steps across the room.","Steady","Step","Not a crumb spilled.","A cookie hits the floor.")],
@@ -119,7 +119,9 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
   try{saveGame()}catch(e){}}
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
-function pqUse(){const q=pqGet();if(!q||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
+/* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1,fruit:1,skate:1};
+function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
 // ---------------------------------------------------------------- the marked places
@@ -154,14 +156,14 @@ let PQ_IB=0;
 async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_IB=1;const D=PQ[q.k],R_=PR[q.k],g=NN.grant;
   try{if(g&&NP.includes(g)&&!g.hidden){
     await c1Line(g,'One more thing, '+R_.n+'. Every pledge in this house carries a quota. The job is not a costume. It is a debt.');
-    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times. Press T. I will know.');
+    await c1Line(g,'Three ways to pay it. One: do the job. '+D.tv+', '+D.t+' times.'+(q.k==='basketball'?' Different people. I will know.':q.k==='pouch'?' When a brother asks, you deliver. I will know.':' Press T. I will know.'));
     await c1Line(g,'Two: five special cases around campus. Places where a '+R_.n+' is expected to show up. They are marked. Go to each one.');
     await c1Line(g,'Three: three trials that only a '+R_.n+' can run. Also marked. Pass all three.');
     await c1Line(g,'The patch under your job shows the number. Nobody walks into Hell Week under one hundred percent. Nobody.');
     try{await c8Lines([[DANNY,'(A quota. Of course there is a quota.)']])}catch(e){}}
   }catch(e){console.warn(e)}
   S.pqI=1;PQ_IB=0;if(mode==='cine'&&!CINE)mode='play';toast('Pledge quota: '+pqPct()+'%. Details are in the Planner (Tab → Pledge Class). Marked spots show up around campus.',6000);try{saveGame()}catch(e){}}
-function pqTick(){pqMarks();const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;if(S.ch>=9){S.pqI=1;return}pqIntro()}
+function pqTick(){pqMarks();const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;/* V363 Grant explains the quota only once, at the end of chapter 1 when Danny pledges. A save or chapter skip past chapter 1 counts it as heard (the Planner's quota box explains it) */if(S.ch>=2||S.done.c1decide){S.pqI=1;return}pqIntro()}
 // ---------------------------------------------------------------- the Hell Week gate
 let PQ_GT=-99;
 function pqGate(){if(pqOK())return false;if(TT-PQ_GT>40){PQ_GT=TT;const pc=pqPct();setTimeout(()=>{if(mode==='play')toast('Hell Week will not start until your pledge quota is full. You are at '+pc+'%. Check the Planner (Tab → Pledge Class).',7000)},2600)}return true}
@@ -184,3 +186,8 @@ function pqHTML(job){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_
     <div class="pqparts">${part('t','The job',`<div class="pqmini"><i style="width:${Math.round(fr.t*100)}%"></i></div>`,`${p.t} of ${D.t} ${D.tn||'uses'}`)}${part('sp','Special cases',pips(p.sp,5),`${p.sp} of 5 found`)}${part('mg','Trials',pips(p.mg,3),`${p.mg} of 3 passed`)}</div>
     <div class="pqcols"><div><div class="lbl">Trials</div><ul>${D.mg.map((a,i)=>li('mg',i,a[1])).join('')}</ul></div>
     <div><div class="lbl">Special cases</div><ul>${D.sp.map((a,i)=>li('sp',i,a[1])).join('')}</ul></div></div></div>`}
+
+/* V396 pledge job spots on the full map: a star for each special case and a target for each trial still to do, in the job's colour */
+function pqMapDraw(q,X,Z,f,disc,hit){if(!SET.pqm)return;const p=pqGet();if(!p)return;const D=PQ[p.k],col=PR[p.k].c;for(const s of pqSpots()){if(p[s.kind][s.i])continue;const x=X(s.x),y=Z(s.z),r=7.5*f;disc(x,y,r,col,'#fff8e6',2);q.shadowBlur=0;q.fillStyle='#fff8e6';
+    if(s.kind==='sp'){q.beginPath();for(let i=0;i<10;i++){const a=-PI/2+i*PI/5,rr=i%2?r*.28:r*.66;q.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}q.closePath();q.fill()}else{q.lineWidth=1.6*f;q.strokeStyle='#fff8e6';q.beginPath();q.arc(x,y,r*.55,0,TAU);q.stroke();q.beginPath();q.arc(x,y,r*.2,0,TAU);q.fill()}
+    hit(x,y,r,s.kind==='sp'?'Pledge job · special case':'Pledge job · trial',s.kind==='sp'?D.sp[s.i][1]:D.mg[s.i][1]+' ('+s.place+')',s.x,s.z,null)}}

@@ -9,11 +9,11 @@ function robTick(dt){if(ROB.n){const n=ROB.n;ROB.t+=dt;
     else if(n.rob===4){if(n.down>0){if(!n.won){n.won=1;ROB.t=0;const c=10+Math.floor(rnd()*16);money(c);toast(`You fought off the mugger and found ${money$(c)} on him.`)}else if(ROB.t>15)robEnd()}else if(n.dp>45||P.inside){bubble(n,'Not worth it.',2);robEnd()}}
     return}
   if(mode!=='play'||AM||EV||CINE||P.inside||P.kart)return;ROB.cd-=dt;if(ROB.cd>0)return;
-  const night=S.gt>=21||S.gt<5,key=S.day-(S.gt<5?1:0);if(!night||ROB.night===key||!offCampus(P.x,P.z))return;
-  if((ROB.roll-=dt)>0)return;ROB.roll=4;if(rnd()>.06&&!ROB.force)return;
+  /* V383 after curfew (11 PM to 6 AM) muggers work anywhere off Greek Row, more often, up to three times a night */const cur=S.gt>=23||S.gt<6,night=S.gt>=21||S.gt<5||cur,key=S.day-(S.gt<6?1:0);if(!night)return;if(ROB.night!==key){ROB.night=key;ROB.cnt=0}if(ROB.cnt>=(cur?3:1))return;if(cur?(P.x<134&&P.z<160):!offCampus(P.x,P.z))return;
+  if((ROB.roll-=dt)>0)return;ROB.roll=4;if(rnd()>(cur?.15:.06)&&!ROB.force)return;
   // come up from behind, out of sight
   const bx=-Math.sin(P.face),bz=-Math.cos(P.face);let sp=null;for(const d of[13,10,16,8])for(const s of[0,.5,-.5,1,-1]){const a=Math.atan2(bx,bz)+s,x=P.x+Math.sin(a)*d,z=P.z+Math.cos(a)*d;if(!sp&&freeAt(x,z,.5)&&!inLake(x,z))sp=[x,z]}
-  if(!sp)return;ROB.night=key;ROB.t=0;
+  if(!sp)return;ROB.cnt=(ROB.cnt||0)+1;ROB.t=0;
   const n=spawn('townies','heights',{x:sp[0],z:sp[1],temp:1,name:'Stranger',title:'Armed mugger',lvl:clamp(S.lvl+1,3,12),lvAbs:1,shirt:0x1b1c20,sleeve:0x1b1c20,pants:0x23262c,mode:'idle'});
   n.rob=1;n.robber=1;n.mhp=n.hp=Math.round(n.mhp*1.3);n.mode='idle';ROB.n=n;bubble(n,'Hey. Hold up a sec.',2.5)}
 function robConfront(n){n.rob=2;n.sp=0;n.a=Math.atan2(P.x-n.x,P.z-n.z);P.bike=0;sfx('bad');
@@ -388,7 +388,7 @@ function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[],_s=new THRE
   for(const b of buckets.values()){let n=0;for(const g of b.list)n+=g.attributes.position.count;const pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2);let o=0;for(const g of b.list){const c=g.attributes.position.count;pos.set(g.attributes.position.array.subarray(0,c*3),o*3);if(g.attributes.normal)nor.set(g.attributes.normal.array.subarray(0,c*3),o*3);if(g.attributes.uv&&g.attributes.uv.itemSize===2)uv.set(g.attributes.uv.array.subarray(0,c*2),o*2);o+=c;g.dispose()}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));G.setAttribute('uv',new THREE.BufferAttribute(uv,2));G.computeBoundingSphere();const M=new THREE.Mesh(G,b.mat);M.castShadow=b.cast;M.receiveShadow=b.rec;M.matrixAutoUpdate=false;parent.add(M);
     if(b.det){const S_=G.boundingSphere;WCH.push({m:M,x:S_.center.x,z:S_.center.z,r:S_.radius,cd:DET_D})}}}
-function optimizeScene(){try{chunkStatic()}catch(e){console.warn('chunkStatic',e)}const keep=new Set([ram,gateMesh,radioBlink,sky,sunDisc,moonDisc,stars,fountainPts,sun,sun.target,hemi,plamp,...kartGates]);for(const id in INT)keep.add(INT[id].g);
+function optimizeScene(){try{chunkStatic()}catch(e){console.warn('chunkStatic',e)}const keep=new Set([ram,gateMesh,radioBlink,sky,sunDisc,moonDisc,stars,fountainPts,sun,sun.target,hemi,plamp,...kartGates]);for(const id in INT)keep.add(INT[id].g);/* V382 the road cones stay separate so a grabbed one can disappear */for(const c of CONES)keep.add(c.m);
   const out=new THREE.Group();mergeStatic(sc.children.filter(o=>!keep.has(o)&&!o.isLight),out,128);sc.add(out);
   for(const id in INT){const g=INT[id].g;const kids=g.children.slice();const m=new THREE.Group();mergeStatic(kids,m);g.add(m)}
   sc.children.filter(o=>o.isGroup&&o!==out&&!keep.has(o)&&o.children.length===0).forEach(o=>sc.remove(o));

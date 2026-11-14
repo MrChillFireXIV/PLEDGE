@@ -41,8 +41,17 @@ function c1CineOff(){c1Sub(null);CINE=null;EAVES=0;mode='play';endScene();docume
 function c1Lines(n,L){if(!L||!L.length||(S.pledged&&!(n&&n.pclass)))return L;const f=L.filter(x=>!/^"?Pledge,|, pledge[.!?…]/.test(x));return f.length?f:L}
 function c1Voc(t){if(S.pledged||typeof t!=='string')return t;return t.replace(/, pledge([.!?…])/g,', freshman$1').replace(/(^|["“] ?)Pledge, /g,'$1Freshman, ')}
 const c1Esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
-function c1Sub(nm,t){let e=$('c1sub');if(!e){e=document.createElement('div');e.id='c1sub';e.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:31;max-width:min(760px,88vw);padding:8px 16px;border-radius:10px;background:rgba(10,12,18,.72);color:#f6efe0;font:600 18px Archivo,Arial,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 2px #000';document.body.appendChild(e)}e.hidden=!t;if(t)e.innerHTML=(nm?'<b style="color:#e2b64c">'+c1Esc(nm)+':</b> ':'')+c1Esc(t)}
-function c1Say(n,t,d=9){for(const a of C1.act){a.c1talk=0;if(a.bub)a.bub.visible=false}if(!n||!NP.includes(n))return;n.c1talk=1;bubble(n,t,d);c1Sub(n.name,t)}
+function c1Sub(nm,t){if(!t&&C1B)c1Bal(null);let e=$('c1sub');if(!e){e=document.createElement('div');e.id='c1sub';e.style.cssText='position:fixed;left:50%;bottom:9%;transform:translateX(-50%);z-index:31;max-width:min(760px,88vw);padding:8px 16px;border-radius:10px;background:rgba(10,12,18,.72);color:#f6efe0;font:600 18px Archivo,Arial,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 2px #000';document.body.appendChild(e)}e.hidden=!t;if(t)e.innerHTML=(nm?'<b style="color:#e2b64c">'+c1Esc(nm)+':</b> ':'')+c1Esc(t)}
+/* V368 lines said during scenes without stopping (the Greek Games' relay, tug-of-war and egg toss, cutscene asides) use the same cream speech balloon
+   as conversations, over the speaker's head, instead of a small sprite bubble plus a dark subtitle bar. Narration (no speaker) keeps the subtitle bar. */
+let C1B=null;
+function c1Bal(n,t,d){let e=$('c1bal');if(!e){e=document.createElement('div');e.id='c1bal';e.innerHTML='<div class="c1bn"></div><div class="c1bt"></div>';document.body.appendChild(e)}
+  if(!n||!t){e.hidden=true;C1B=null;return}e.querySelector('.c1bn').textContent=n.name+(n.title?' · '+n.title:'');e.querySelector('.c1bt').textContent=t;e.hidden=false;C1B={n,until:TT+Math.max(1.6,d||0)};c1BalPos()}
+function c1BalPos(){const e=$('c1bal');if(!e||e.hidden||!C1B)return;const n=C1B.n;if(TT>C1B.until||(!NP.includes(n)&&n!==DANNY)||mode==='wheel'||mode==='card'){e.hidden=true;C1B=null;return}
+  if(innerWidth<1000||matchMedia('(pointer:coarse)').matches){e.classList.add('dock');return}e.classList.remove('dock');
+  const v=new THREE.Vector3(n.x,(n.g?n.g.position.y:terrH(n.x,n.z))+(n.tall?3.35:(n.prop?2.25:2.05)*((n.g&&n.g.scale.y)||1))+.25,n.z).project(cam);if(v.z>1){e.style.opacity=0;return}e.style.opacity=1;
+  const W=innerWidth,H=innerHeight,bw=e.offsetWidth,bh=e.offsetHeight;e.style.left=clamp((v.x+1)/2*W,bw/2+12,W-bw/2-12)+'px';e.style.top=clamp((1-v.y)/2*H,bh+12,H-40)+'px'}
+function c1Say(n,t,d=9){for(const a of C1.act){a.c1talk=0;if(a.bub)a.bub.visible=false}if(!n||!NP.includes(n))return;n.c1talk=1;bubble(n,t,d);if(n.bub)n.bub.visible=false;c1Sub(null);c1Bal(n,t,Math.min(d,1.2+t.length*.06))}
 function c1Card(n,title,sp,text,ch){return new Promise(res=>card({title,sp,text,focus:n,ch:(ch||[['▸ Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';res(f?f():0)}])}))}
 // V141 cinematic speech uses the normal conversation box (speaker framed by sceneCam); '▸ Continue' moves on without Danny butting in, ack = Danny's reply
 function c1Line(n,text,ack){if(!n||!NP.includes(n))return Promise.resolve();for(const a of C1.act)a.c1talk=0;return c1Card(n,n.name,n.title||'','"'+text+'"',[[ack||'▸ Continue',null]])}
@@ -410,7 +419,7 @@ const T1={
  decide:'Grant leans forward on the throne.\n\n"Kowalski. You fought for this house. You fixed my lights. And the Dean had you in her office today." He lets that hang. "So. Are you in, or are you out?"',
  hat:'\"One more thing.\" Grant reaches under the throne and tosses you a maroon beanie with a plastic propeller on top.\n\n\"That\'s your propeller hat. Every pledge wears the propeller hat. Every day. Until the Lantern Walk. Take it off and I will hear about it.\"',
  gather:'The throne room goes quiet. Grant stands, and the propeller on your head hums when you turn.\n\n\"Good. Pledge class, living room, now. I have something to tell all of you, and I\'m only saying it once.\"',
- orient:'You are now an Alpha Sigma Rho pledge.\n\nClasses: every weekday at 9:00 AM and 1:00 PM.\n\nRoll call: every night at 6:00 PM on the ΑΣΡ front lawn. Miss it and the Pledgemaster comes looking for you.\n\nCurfew: 11:00 PM. Stay on Greek Row after that. At 2 AM you pass out wherever you are standing.\n\nYour pledge job, your pledge class and your Class Spirit are in the Planner (Tab › Pledge Class). Every pledge also gets a Big Brother: ask Tank, Reese or Owen on the porch.\n\nSleep in your bunk to save. Welcome to the bottom of the totem pole.'};
+ orient:'You are now an Alpha Sigma Rho pledge.\n\nClasses: every weekday at 9:00 AM and 1:00 PM.\n\nRoll call: every night at 6:00 PM on the ΑΣΡ front lawn. Miss it and the Pledgemaster comes looking for you.\n\nCurfew: 11:00 PM. Campus empties out after that and muggers work the dark streets, so Greek Row is the safe place to be. At 2 AM you pass out wherever you are standing.\n\nYour pledge job, your pledge class and your Class Spirit are in the Planner (Tab › Pledge Class). Every pledge also gets a Big Brother: ask Tank, Reese or Owen on the porch.\n\nSleep in your bunk to save. Welcome to the bottom of the totem pole.'};
 const C1M=[
  {id:'c1arrive',ch:1,main:1,name:'Arrive on Campus',who:'marcus',steps:()=>{const L=[];if(!S.c1intro)L.push({t:'cine',run:c1IntroCine});
    L.push(go(npcSpot('marcus'),'Ask around campus how to get to Alpha Sigma Rho on Greek Row. No map: press E to ask people for directions.',{press:1,act:'Talk to Marcus Bell',nogoal:1,find:1,r:2.8,tick:function(){const n=NN.marcus;if(n&&!n.hidden){this.x=n.x;this.z=n.z}}}));
@@ -480,7 +489,7 @@ const C1M=[
 // swap the old chapter 1 out: the old intro/cater/dean go, the Big Brother errand moves to chapter 2
 for(const id of['arrive','cater','dean']){const i=M.findIndex(m=>m.id===id);if(i>=0)M.splice(i,1)}
 {for(const m of M)if(m.bbm){m.main=0;m.side=1}   // V199 the Big Brother story is a side mission: optional, and the chapter moves on without it
- const b=M.find(m=>m.id==='bb1');if(b)b.ch=2;const b2=M.find(m=>m.id==='bb2');if(b2&&!(b2.pre||[]).includes('bb1'))b2.pre=(b2.pre||[]).concat('bb1')}
+ const b=M.find(m=>m.id==='bb1');if(b){b.ch=2;/* V397 the Big Brother side quest opens only once King of the Hill is over */if(!(b.pre||[]).includes('c2koth'))b.pre=(b.pre||[]).concat('c2koth')}const b2=M.find(m=>m.id==='bb2');if(b2&&!(b2.pre||[]).includes('bb1'))b2.pre=(b2.pre||[]).concat('bb1')}
 M.unshift(...C1M);
 
 /* slap: Grant smacks Danny when he says "I'm not my dad" */

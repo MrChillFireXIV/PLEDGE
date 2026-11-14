@@ -40,7 +40,8 @@ function crowdTick(dt){const C=CROWD;if(!C.on||P.inside||CINE||mode!=='play')ret
   cand.sort((a,b)=>a.d-b.d);
   // wanted = nearest people inside R, limited by the pool (per class+gender) and by the overall cap
   const cnt={},cap={},want=new Set();for(const n of C.slots)cap[crowdKey(n)]=(cap[crowdKey(n)]||0)+1;
-  let tot=0;for(const v of cand){if(v.d>=R||tot>=C.cap)break;const k=crowdKey(v);if((cnt[k]||0)>=cap[k])continue;cnt[k]=(cnt[k]||0)+1;tot++;want.add(v)}
+  /* V383 at night most people go home: only a share of the crowd is out (nightFrac), and anyone bound who should be in walks to a door first */const nf=nightFrac();for(const n of C.slots){const v=n.vp;if(v&&nf<1&&crowdHash(v)>=nf&&!crowdBusy(n)&&!n.goIn&&!n.hidden&&n.dp<45)nightIn(n)}
+  let tot=0;for(const v of cand){if(v.d>=R||tot>=C.cap)break;if(nf<1&&crowdHash(v)>=nf)continue;const k=crowdKey(v);if((cnt[k]||0)>=cap[k])continue;cnt[k]=(cnt[k]||0)+1;tot++;want.add(v)}
   let sw=C.swaps;
   // 1) hand back rigs of people who are no longer wanted (only when nobody can watch it happen)
   for(let i=cand.length-1;i>=0&&sw>0;i--){const v=cand[i],n=v.slot;if(!n||want.has(v)||crowdBusy(n))continue;if(v.d>R+4||(v.d>14&&!crowdInView(n.x,n.z))){crowdRelease(n);sw--}}
@@ -50,3 +51,8 @@ function crowdTick(dt){const C=CROWD;if(!C.on||P.inside||CINE||mode!=='play')ret
 // V156 the extra crowd people are background only (no name tag, no talk, can't be hit, never hostile) but solid: Danny can't walk through them
 function crowdSolid(){if(!CROWD.on||P.inside||mode!=='play')return;const r=.62;for(const n of CROWD.slots){if(n.hidden||n.down||n.aggro||n.chase||!n.g.visible)continue;const dx=P.x-n.x,dz=P.z-n.z,d=Math.hypot(dx,dz);if(d>=r||d<1e-4)continue;const k=(r-d)/d,nx=P.x+dx*k,nz=P.z+dz*k;if(mvOK(nx,nz,.34)){P.x=nx;P.z=nz}else{n.x-=dx*k;n.z-=dz*k}}}
 function crowdStats(){const C=CROWD;let bound=0,vis=0;for(const n of C.slots){if(n.vp)bound++;if(n.g&&n.g.visible)vis++}return{people:C.V.length,rigs:C.slots.length,bound,visible:vis}}
+// V383 night: the share of the crowd that stays out (1 by day, 15% from 11:30 PM to 5:30 AM, easing in and out); each person's own number decides if they're one of them
+function nightFrac(){const h=S.gt;if(h>=21&&h<23.5)return 1-(h-21)/2.5*.85;if(h>=23.5||h<5.5)return .15;if(h<7.5)return .15+(h-5.5)/2*.85;return 1}
+function crowdHash(v){if(v.hh==null){const s=Math.sin((v.x*12.9898+v.z*78.233+(v.lvl||1)*3.1)*1.7)*43758.5453;v.hh=s-Math.floor(s)}return v.hh}
+function nightIn(n){let best=null,bd=70;for(const b of B){if(b.ex==null)continue;const d=Math.hypot(b.ex-n.x,b.ez-n.z);if(d<bd){bd=d;best=b}}n.goIn={x:best?best.ex:n.x+(rnd()-.5)*60,z:best?best.ez:n.z+(rnd()-.5)*60,t:0};n.path=null;n.wait=0;if(rnd()<.15)bubble(n,pick(['Getting late.','I\'m heading in.','Night, man.','Curfew. I\'m out.']),2)}
+function nightInTick(n,dt){const g=n.goIn;g.t+=dt;const d=Math.hypot(g.x-n.x,g.z-n.z);if(d>1.3&&g.t<45){navTo(n,g.x,g.z,1.7,dt);return''}n.goIn=null;if(n.vp)crowdRelease(n);else{n.hidden=true;n.g.visible=false}return''}

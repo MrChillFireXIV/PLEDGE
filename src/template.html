@@ -18,7 +18,7 @@
     <div class="bar thin xp"><b id="xpb" style="background:linear-gradient(90deg,#b08a3a,#f2d06a)"></b></div>
     <div class="bar"><b id="hpb" style="background:linear-gradient(90deg,#a3232a,#e2584a)"></b></div><div class="bar thin"><b id="stb" style="background:linear-gradient(90deg,#3c8a52,#7fd07a)"></b></div>
     <div id="tips">Tab: Planner · F: Punch · R: Block · B: Bike · E: Interact</div></div>
-  <div id="slots"><button class="slot" id="s0"><i>1</i><span></span><small></small></button><button class="slot" id="s1"><i>2</i><span></span><small></small></button><button class="slot" id="s2"><i>3</i><span></span><small></small></button></div>
+  <div id="slots"><button class="slot" id="s0"><i>1</i><span></span><small></small></button><button class="slot" id="s1"><i>2</i><span></span><small></small></button><button class="slot" id="s2"><i>3</i><span></span><small></small></button><button class="slot" id="s3" hidden><i>4</i><span></span><small></small></button><button class="slot" id="s4" hidden><i>5</i><span></span><small></small></button><button class="slot" id="s5" hidden><i>6</i><span></span><small></small></button></div>
   <div id="prompt" class="patch" hidden></div>
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="big"></div>
@@ -32,8 +32,9 @@
 <div id="title" class="overlay" hidden><div class="tbox">
   <div id="slotsel" hidden></div>
   <div class="pennant"><h1>PLEDGE</h1></div>
-  <p class="tsub">Harrowgate University, fall semester. Go to class, run with the cliques, stay ahead of campus police, and earn your Alpha Sigma Rho letters, if you still want them by the end.</p>
+  <p class="tsub">Danny Kowalski has one semester at Harrowgate to earn his Alpha Sigma Rho letters: survive the hazing, pass his classes, win over the cliques and stay a step ahead of campus police. The deeper he gets into the house, the more he learns about what the brothers are hiding.</p>
   <div class="tbtns"><button class="btn" id="bnew">Start</button><button class="btn ghost" id="bhow">Controls</button></div>
+  <button id="tsecret" type="button" aria-label="Arcade" title="">✦</button>
 </div></div>
 <div id="touch" hidden><div id="stick"><div id="knob"></div></div>
   <div id="tbtns"><button id="bact" data-k="KeyE">ACT</button><button id="bhit" data-k="KeyF">Hit</button><button id="bjump" data-k="Space">Jump</button><button id="broll" data-k="KeyQ">Roll</button><button id="bblk" aria-label="Block (hold)">Block</button><button id="bmore" aria-label="More actions">⋯</button><div id="ttray" hidden><button data-k="ShiftLeft" data-toggle="1">Run</button><button data-k="KeyC" data-toggle="1">Sneak</button><button data-k="KeyB">Bike</button><button data-k="KeyV">Cam</button><button data-k="KeyZ" id="bmed">Meditate</button></div></div></div>

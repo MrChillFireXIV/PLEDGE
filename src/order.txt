@@ -28,6 +28,7 @@ js/17c-dungeon.js
 js/18-dialogue-scenes-intro.js
 js/19-pledge-job-a.js
 js/20-pledge-job-b.js
+js/20c-job-moves.js
 js/21-traffic-wheel-ai-player.js
 js/21b-motion-audio.js
 js/21c-rollcall-grab.js
@@ -36,6 +37,7 @@ js/21e-chapter2.js
 js/21i-chapter3.js
 js/21i2-kto-party.js
 js/21i4-kto-raid.js
+js/21i5-framing.js
 js/21i3-asr-exterior.js
 js/21j-chapter4.js
 js/21k-chapter4-game.js
@@ -73,4 +75,6 @@ js/24b-testmode.js
 js/23z-save-slots.js
 js/24a-bug-report.js
 js/24d-tasks-page.js
+js/24e-controls.js
+js/24f-arcade.js
 js/24-planner-save-lighting-main-boot.js

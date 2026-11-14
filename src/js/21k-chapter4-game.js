@@ -120,7 +120,10 @@ function c4PlayCard(k){const p=C4PLAYS[k],c=document.createElement('canvas');c.w
 
 // ================================================================ scenes
 // ---- the new chapters on Greek Row (chapter 4 opening)
-CHSCENE[4]=async function(){c4Apply(1);const fade=$('fade');fade.style.opacity=1;await c4Sl(500);endScene();C1.act=[];if(P.inside)goOut(81,76);c4CamOn();
+/* V366 Homecoming week runs Thursday to Saturday, as the plan board and everyone in the story says (kickoff Thursday 6 PM, the Games Friday 2 PM,
+   the party Friday 10 PM, the game Saturday 3 PM). Chapter 4 opens on the next Thursday morning so the calendar matches. */
+function c4ToThursday(){const dw=(S.day-1)%7;if(dw===4&&S.gt<15)return;let k=(4-dw+7)%7;if(k===0)k=7;for(let i=0;i<k;i++){S.day++;try{newDay()}catch(e){}}S.gt=9}
+CHSCENE[4]=async function(){c4ToThursday();c4Apply(1);const fade=$('fade');fade.style.opacity=1;await c4Sl(500);endScene();C1.act=[];if(P.inside)goOut(81,76);c4CamOn();
   const g=c4Dup('grant',...c3Free(84.6,74.6),-PI/2,{pup:1,tag:'intro'}),tk=c4Dup('tank',...c3Free(84.4,77.4),-PI/2,{pup:1,tag:'intro'});c4DanAt(...c3Free(80.8,76.2),PI/2);
   c4Shot([66,7,24],[50,5,31],0);fade.style.opacity=0;big('CHAPTER 4',2400);await c4Wt(1.4);
   const lines=[['kto','Delta Tau Omega! Now rushing!'],['opd','ΒΛΕ. We\'re new. We\'re legit.'],['kan','Sigma Delta Rho! Free wings Thursday!'],['gwz','Gamma Gamma Eta. Yes. Two gammas.']];
@@ -137,13 +140,19 @@ CHSCENE[4]=async function(){c4Apply(1);const fade=$('fade');fade.style.opacity=1
 function c4SoroSpot(out=5.5,da=0){const so=c4Soro(),b=so.b;return b?c3Free(...fpos(b,b.face,b.da+da,out)):[SPOT.DLP[0],SPOT.DLP[1]]}
 function c4SoroCast(on){if(!on){c4Off('soro');return}if(C4.cast[c4Soro().pres]&&c4Live(C4.cast[c4Soro().pres]))return;const so=c4Soro(),b=so.b;if(!b)return;const[fx,fz]=fpos(b,b.face,b.da,30);
   const[px,pz]=c4SoroSpot(5.5);c4Person('sororities',px,pz,Math.atan2(fx-px,fz-pz),{tag:'soro',name:so.pres,title:so.L+' President',house:so.id,fem:true,lvl:9,int:null});
-  C4MEM.forEach(([nm],i)=>{const[x,z]=c4SoroSpot(7.2+(i%2)*1.4,[-4.2,-2.4,2.6,4.4][i]);c4Person('sororities',x,z,Math.atan2(px-x,pz-z),{tag:'soro',name:nm,title:so.L,house:so.id,fem:true,lvl:5,int:null})})}
-const c4MeetN=()=>C4MEM.filter((_,i)=>c4S().met[i]).length;
-const c4MeetLab=()=>'\nIntroduce yourself to the sisters on the lawn ('+c4MeetN()+'/4)\n'+C4MEM.map(([n],i)=>(c4S().met[i]?'✓ ':'○ ')+n).join('\n');
+  C4LAWN().forEach((nm,i)=>{const[x,z]=i<4?c4SoroSpot(7.2+(i%2)*1.4,[-4.2,-2.4,2.6,4.4][i]):c4SoroSpot(9.8,[-3.3,.2,3.5][i-4]);c4Person('sororities',x,z,Math.atan2(px-x,pz-z),{tag:'soro',name:nm,title:so.L,house:so.id,fem:true,lvl:5,int:null})})}
+const c4MeetN=()=>C4LAWN().filter((_,i)=>c4S().met[i]===1).length;
+const c4MeetLab=()=>'\nCharm four of the sisters on the lawn ('+c4MeetN()+'/4)\n'+C4LAWN().map((n,i)=>(c4S().met[i]===1?'✓ ':c4S().met[i]===-1?'✗ ':'○ ')+n).join('\n');
 const c4MeetOk=()=>c4MeetN()>=4;
-function c4MeetGoal(){const s=c4S();for(let i=0;i<4;i++){if(s.met[i])continue;const n=C4.cast[C4MEM[i][0]];if(c4Live(n))return[n.x,n.z]}return null}
-function c4Intro(i){const s=c4S(),so=c4Soro(),[nm,line,rep]=C4MEM[i],n=C4.cast[nm];if(!c4Live(n))return;
-  card({title:'Welcome to Homecoming',sp:nm+' · '+so.L,text:line,focus:n,ch:[['"Danny Kowalski. ΑΣΡ pledge. Nice to meet you."',()=>{s.met[i]=1;bubble(n,pick(['Cute.','Nice to meet you too, Danny.','Polite! Okay!']),2.4);updObj()}],[rep,()=>{s.met[i]=1;bubble(n,pick(['Ha!','Okay, I like him.','He\'s funny. Is he funny?']),2.4);stand(1);updObj()}]]})}
+function c4MeetGoal(){const s=c4S(),L=C4LAWN();let best=null,bd=1e9;for(let i=0;i<L.length;i++){if(s.met[i])continue;const n=C4.cast[L[i]];if(c4Live(n)){const d=Math.hypot(n.x-P.x,n.z-P.z);if(d<bd){bd=d;best=[n.x,n.z]}}}return best}
+function c4Intro(i){const s=c4S(),so=c4Soro(),ex=i>=4,M_=ex?C4MEX[i-4]:C4MEM[i],[nm,line,rep]=M_,n=C4.cast[nm];if(!c4Live(n))return;
+  const bad=ex?M_[3]:C4BAD[i],good=ex?M_[4]:'"Danny Kowalski. ΑΣΡ pledge. Nice to meet you."';
+  const win=()=>{c4MeetCheck();updObj()},ch=[[good,()=>{s.met[i]=1;bubble(n,pick(['Cute.','Nice to meet you too, Danny.','Polite! Okay!']),2.4);win()}],[rep,()=>{s.met[i]=1;bubble(n,pick(['Ha!','Okay, I like him.','He\'s funny. Is he funny?']),2.4);stand(1);win()}],
+    [bad[0],()=>{s.met[i]=-1;bubble(n,bad[1].replace(/^"|"$/g,'').replace(/" She.*$/,''),3);n.a+=PI*.8;sfx('bad');stand(-1);toast(nm.split(' ')[0]+' is done talking to you. Try another sister.',2600);win()}]];
+  for(let k=ch.length-1;k>0;k--){const r=(i*7+k*3+S.day)%(k+1),t=ch[k];ch[k]=ch[r];ch[r]=t}
+  card({title:'Welcome to Homecoming',sp:nm+' · '+so.L,text:line,focus:n,ch})}
+/* if Danny has put off so many sisters that four can't be charmed any more, they forget and he can try again */
+function c4MeetCheck(){const s=c4S(),L=C4LAWN();let ok=0,open=0;L.forEach((_,i)=>{if(s.met[i]===1)ok++;else if(!s.met[i])open++});if(ok<4&&ok+open<4){L.forEach((_,i)=>{if(s.met[i]===-1)s.met[i]=0});setTimeout(()=>toast('The sisters huddle, roll their eyes, and decide to give you one more chance.',3600),1200)}}
 // follow Grant wherever he is (in the house, on the field)
 function c4ToGrant(label,act,extra={}){return go([0,0],label,Object.assign({press:1,act,r:3.6,goal:()=>{const g=C4.cast['Grant Ashby']&&c4Live(C4.cast['Grant Ashby'])?C4.cast['Grant Ashby']:NN.grant;return g?(g.int||null)===(P.inside||null)?[g.x,g.z]:c3Route({int:g.int||null,x:g.x,z:g.z}):null},
   tick:()=>{const st=curStep(),g=C4.cast['Grant Ashby']&&c4Live(C4.cast['Grant Ashby'])?C4.cast['Grant Ashby']:NN.grant;if(st&&g&&(g.int||null)===(P.inside||null)){st.x=g.x;st.z=g.z}else if(st){st.x=1e5;st.z=1e5}}},extra))}
@@ -188,7 +197,7 @@ function c4GamesScene(){if(c4Live(C4.cast['Derek Vance'])&&C4.cast['Derek Vance'
   [0,2,3].forEach((l,i)=>{const n=C4.gm.leg[i],[x,z]=c4F(C4RU0,C4LANE[l]);n.x=x;n.z=z;c4To(n,x,z);c4Face(n,c4A(1,0));const a=C4.gm.anc[i],[ax,az]=c4F(C4RU1+.8,C4LANE[l]);a.x=ax;a.z=az;c4To(a,ax,az);c4Face(a,c4A(-1,0))});
   const m=C4.gm.mem[0],[mx,mz]=c4F(C4RU1+.8,C4LANE[1]);m.x=mx;m.z=mz;c4To(m,mx,mz);c4Face(m,c4A(-1,0))}
 async function c4GamesDay(done){const so=c4Soro();try{
-  await c4Fade(async()=>{c4Band(0);c4KickCast(0);c4At(14);c4Hype(.15);c4GamesSet(1);c4GamesScene();if(!C4.cam)c4CamOn();c4DanAt(...c4F(-2.5,-7.6),c4A(0,-1));c4ShotF(-30,-18,9,0,0,0,0)});
+  await c4Fade(async()=>{c4Band(0);c4KickCast(0);if(S.gt<14)S.gt=14;c4Hype(.15);c4GamesSet(1);c4GamesScene();if(!C4.cam)c4CamOn();c4DanAt(...c4F(-2.5,-7.6),c4A(0,-1));c4ShotF(-30,-18,9,0,0,0,0)});
   big('FRIDAY · THE GREEK GAMES',2600);c4ShotF(-14,-16,6,-2,-6,1,.5);await c4Wt(2.6);const em=C4.gm.em,g=C4.gm.grant;
   c4ShotF(1,-5.5,2.3,-1,-12.4,2.4,1.6);await c4Wt(.8);$('cineskip').hidden=true;
   await c1Line(em,'Event one: the relay! Fifty yards out, fifty yards back! Runners, find your lanes!');
@@ -436,7 +445,9 @@ async function c4AfterParty(done){const I=INT.asr;try{await c4Fade(async()=>{c4J
 // ================================================================ the quests
 const C4M=[
  {id:'c4welcome',ch:4,main:1,name:'Welcome to Homecoming',who:'grant',steps:()=>{const so=c4Soro(),sp=c4SoroSpot(5.5);return[
-   C_('Welcome to Homecoming','Grant Ashby · Chapter president',`"Homecoming week, Danny. Four new houses on the Row, every chapter paired with a sorority, and the whole school at Nippert on Saturday."\n\nHe flicks an index card at you. It says ${so.L} in purple marker.\n\n"${so.name}. Go meet their president. Be the most charming pledge she has ever met."`,[['"I can be charming."',null],['"Define charming."',()=>[C_('Welcome to Homecoming','Grant Ashby · Chapter president','"Don\'t talk about the pizza place. Don\'t talk about the business upstairs. Compliment the house. Smile with your eyes."',[['"With my eyes. Got it."',null]])]]]),
+   /* V384 Grant and Danny talk it through instead of one speech that explains everything */{t:'cine',run:done=>{const g=NN.grant;c8Lines([[g,'Homecoming week, Danny. You feel that? The whole Row is buzzing.'],[DANNY,'I thought that was the speakers next door.'],[g,'Four new houses opened this year. And every chapter gets paired with a sorority for the week.'],[DANNY,'Paired how?'],
+     [g,'Games on Friday together. The party together. Then the whole school sits at Nippert on Saturday, and we sit with them.'],[DANNY,'So who did we get?'],[null,`He flicks an index card at you. It says ${so.L} in purple marker.`,2.6],[g,`${so.name}. Go meet their president.`],[DANNY,'And say what?'],[g,'Anything you want. Just be the most charming pledge she has ever met.']]).then(done,done)}},
+   C_('Welcome to Homecoming','Grant Ashby · Chapter president','"Can you do that?"',[['"I can be charming."',null],['"Define charming."',()=>[C_('Welcome to Homecoming','Grant Ashby · Chapter president','"Don\'t talk about the pizza place. Don\'t talk about the business upstairs. Compliment the house. Smile with your eyes."',[['"With my eyes. Got it."',null]])]]]),
    go(sp,`Meet the ${so.L} president outside the ${so.name} house`,{press:1,act:'Introduce yourself to '+so.pres,r:3.4,start:()=>c4SoroCast(1)}),
    C_('Welcome to Homecoming',c4Pres(),`"${so.pres}. You must be Alpha Sigma Rho's pledge." She looks at the hat for a long time. "We drew your house out of a hat. Half my girls wanted Delta Tau Omega."\n\n"Here's how this works. My sisters show up, my sisters win the Games, and your party is the best party of the year. If one of my girls has a bad night, I end your house."`,[
      ['"Your house is beautiful. Did you pick the shutters?"',()=>[C_('Welcome to Homecoming',c4Pres(),'"…I did, actually." She almost smiles. "Okay. Go meet the girls."',[['"Thank you."',()=>stand(2)]])]],
@@ -451,8 +462,11 @@ const C4M=[
   fin:()=>{c4Off('soro');c4Next('c4games')}},
 
  {id:'c4games',ch:4,main:1,name:'Greek Games',who:'grant',pre:['c4welcome'],steps:()=>[
-   go(c4F(-27,-3),'Go to Nippert Stadium for the Homecoming Kickoff',{r:9}),
-   {t:'cine',run:c4Kickoff},
+   go(c4F(-27,-3),'Go to Nippert Stadium for the Homecoming Kickoff at 6 PM',{r:9,when:[17,23.9]}),
+   {t:'cine',run:d=>{C4.kickDay=S.day;c4Kickoff(d)}},
+   /* V366 the Games are the next afternoon at 2:00 PM, as the kickoff and the plan board say: Danny has to come back to Nippert then, and waits there if he is early */
+   {t:'cond',lab:()=>{const tm=S.day<=(C4.kickDay||S.day);return tm?'The Greek Games start tomorrow at 2:00 PM at Nippert. Rest up (sleep, or Z to meditate).':S.gt<14?`Be at Nippert for the Greek Games. They start at 2:00 PM (${fmtT(S.gt)} now). Wait on the field or press Z to meditate.`:'Get to Nippert for the Greek Games. They started at 2:00 PM!'},
+    ok:()=>S.day>(C4.kickDay||S.day-1)&&S.gt>=14&&!P.inside&&Math.hypot(P.x-c4F(-27,-3)[0],P.z-c4F(-27,-3)[1])<14,goal:()=>c4F(-27,-3)},
    {t:'cine',run:c4GamesDay},
    c4RelayStep(),
    {t:'cine',run:c4TugCine},
@@ -509,7 +523,7 @@ function c4FunGoal(){const s=c4S(),sp=c4FunSpots();for(const[k,,who]of C4FUN){if
 
 // ================================================================ hooks: prompts, tick, saves
 function c4Prompts(add){if(!AM||!C4IDS.includes(AM.m.id))return;const st=curStep(),s=c4S();if(!st)return;
-  if(st.ok===c4MeetOk){C4MEM.forEach(([nm],i)=>{const n=C4.cast[nm];if(!s.met[i]&&c4Live(n)&&!P.inside)add(n.x,n.z,2.3,'Introduce yourself to '+nm,()=>c4Intro(i),0)})}
+  if(st.ok===c4MeetOk){C4LAWN().forEach((nm,i)=>{const n=C4.cast[nm];if(!s.met[i]&&c4Live(n)&&!P.inside)add(n.x,n.z,2.3,'Introduce yourself to '+nm,()=>c4Intro(i),0)})}
   const R=C4.relay;if(R&&R.state==='wait'&&!P.inside){const[x,z]=c4F(C4RU0,C4LANE[1]);add(x,z,3,'Take your mark',()=>c4RelayGo(),0)}
   if(AM.m.id==='c4stars'&&!P.inside){s.stars=s.stars||{};C4STAR.forEach(([nm],i)=>{const n=C4.cast[nm];if(!s.stars[i]&&c4Live(n)&&st.t==='cond'&&/Meet the three/.test(st.lab()))add(n.x,n.z,2.4,'Talk to '+nm,()=>c4Star(i),0)});
     if(st.t==='cond'&&/organized/.test(st.lab())){const sp=c4OrgSpots();for(const[k,l]of C4ORG){if(s.org[k])continue;const p=sp[k],x=Array.isArray(p)?p[0]:p.x,z=Array.isArray(p)?p[1]:p.z;add(x,z,2.4,{rope:'Take the rope back',cones:'Reset the cones',eggs:'Take the egg crate back'}[k],()=>{s.org[k]=1;sfx('ok');if(!Array.isArray(p))bubble(p,{rope:'Fine! FINE. Take your rope.',eggs:'We were using that…'}[k]||'Okay okay.',2.2);else toast('Cones back on the line.',2000);updObj()},0)}}

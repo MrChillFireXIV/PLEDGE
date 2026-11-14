@@ -15,7 +15,7 @@ for(const id of['ram','phone','football']){const i=M.findIndex(m=>m.id===id);if(
 const c2B=(lx,lz)=>c1W('asr',lx,lz);
 const c2OnStair=(lx,lz)=>lx>STX0-1&&lx<STX1+1&&lz>STZT-1.2&&lz<STZB+1.4;   // V157 the staircase isn't solid in the grid: never stand people on it
 function c2Free(id,lx,lz,r=.45){const I=INT[id];for(let d=0;d<6;d+=.5)for(let a=0;a<12;a++){const x=I.x0+lx+Math.cos(a/12*TAU)*d,z=I.z0+lz+Math.sin(a/12*TAU)*d;if(freeAt(x,z,r)&&!c2OnStair(x-I.x0,z-I.z0))return[x-I.x0,z-I.z0];if(!d)break}return[lx,lz]}
-function c2Obj(id,lx,lz,label,f,r=1.6){const I=INT[id],o={x:I.x0+lx,z:I.z0+lz,r,label,f,c2:1};I.objs.push(o);return o}
+function c2Obj(id,lx,lz,label,f,r=2.3){/* V402 a wider reach for the prep chores */const I=INT[id],o={x:I.x0+lx,z:I.z0+lz,r,label,f,c2:1};I.objs.push(o);return o}
 function c2ObjDel(o){for(const id of['asr','asr_bsmt'])if(INT[id])INT[id].objs=INT[id].objs.filter(q=>q!==o)}
 function c2ObjClear(){for(const id of['asr','asr_bsmt'])if(INT[id])INT[id].objs=INT[id].objs.filter(o=>!o.c2)}
 const c2M=(geo,col,x,y,z,par)=>{const m=new THREE.Mesh(geo,typeof col==='number'?mt(col,.6):col);m.position.set(x,y,z);m.userData.noMerge=1;(par||INT.asr.g).add(m);return m};
@@ -62,7 +62,7 @@ function c2Suit(on){if(!PM)return;tuxFront(on);const mats=[];PM.traverse(o=>{con
 const C2PAL={k:'gala',SH:[0x18181d,0x1d2440,0x2a2a30,0x3a2a22,0x5a1a24,0x1d3a5a,0x4a2a5a,0x0f0f12],PA:[0x141418,0x1a1a22,0x22222a],HA:[0x8a8a8a,0xa8a8a8,0x6a5a4a,0x2a1a10,0xc8c8c8,0x151515],fem:.3};
 
 // ================================================================ a) PLEDGE LABOR
-const C2DECO=[['table','Clear out the long dinner table',38.5,27],['banner','Hang the WELCOME HOME banner',24,33],['lights','String up the twinkle lights',8,24],['tables','Set the round tables',42,28],['tower','Build the champagne tower',50,31],['runner','Roll out the gold runner',30,16.5]];
+const C2DECO=[['table','Clear out the long dinner table',38.5,27],['banner','Hang the WELCOME HOME banner',24,33],['lights','String up the twinkle lights',8,24],['tables','Set the round tables',42,28],['tower','Build the champagne tower',50,31],['runner','Roll out the gold runner',36,14]];/* V402 the runner spot moved off the foot of the stairs (it barely registered there) */
 const C2SORE=[['cans','Bag up the mountain of empty Genesee cans',12,30],['stain','Cover the mystery stain on the carpet',22,26.5],['board','Take down the PLEDGE PUNISHMENT BOARD',20.5,21.5],['junk','Hide the pile of broken furniture',46,20]];
 function c2DecoBuild(k,lx,lz){const I=INT.asr,X=x=>I.x0+x,Z=z=>I.z0+z,G=[];const push=m=>{G.push(m);return m};
   if(k==='table'){c2ClearDine()}
@@ -133,7 +133,10 @@ const C2ALPOS=[['pell',20,30],['whitford',8,22],['fisk',38,24],['brandt',44,32],
 function c2Alum(k,id,lx,lz,a){const d=C2AL[k],[x,z]=c2Free(id,lx,lz),I=INT[id],n=spawn('oldguard',id,{x:I.x0+x,z:I.z0+z,a:a!=null?a:rnd()*TAU,temp:1,mode:'idle',lvl:6,fem:0,name:d[0],title:d[1],shirt:0x18181d,sleeve:0x18181d,pants:0x141418,hair:k==='pell'?0xeeeeea:[0x9a9a9a,0xb8b8b8,0xd2d2d0,0x8a8680][nameSeed(d[0])%4],greet:'"Ah. One of the pledges."',
     // V125 old money in black tie: long-sleeved jacket with white shirt cuffs, the tux front, grey/white swept-back hair, dress shoes, a flute of champagne
     look:{cl2:'flannel',sacc:0xf4f2ec,shoe:0x121214,sole:0x0a0a0a,hs2:k==='pell'?'swept':['swept','short','swept','buzz'][nameSeed(d[0])%4],fh:k==='pell'?'beard':['goatee',0,0,'stubble'][nameSeed(d[0])%4],fv:nameSeed(d[0])%3,iris:0x4a3a2a,gl:k==='pell'||k==='fisk'||k==='whitford'?1:0}});
-  tuxOn(n.g,1);n.hx=n.x;n.hz=n.z;n.c2a=k;n.actor=0;C2.alums.push(n);if(C2.served&&C2.served.has(k))c2GiveFlute(n);return n}
+  tuxOn(n.g,1);n.hx=n.x;n.hz=n.z;n.c2a=k;n.actor=0;C2.alums.push(n);if(C2.served&&C2.served.has(k))c2GiveFlute(n);
+  /* V394 Pell is old money and looks it: black tie, a champagne flute in his hand from the moment he arrives (it doesn't count as served), a white silk pocket square, a gold watch chain and gold cufflinks */if(k==='pell')c2PellRich(n);return n}
+function c2PellRich(n){const g=n.g,P_=g&&g.P;if(!P_||!P_.chest)return;if(!g.HOLD){g.HOLD=mkFlute();g.add(g.HOLD)}const G=SM({color:0xd8b048,roughness:.3,metalness:.85}),W=SM({color:0xf6f4ee,roughness:.5});const A=(geo,m,par,x,y,z,rx=0,ry=0,rz=0)=>{const e=new THREE.Mesh(geo,m);e.position.set(x,y,z);e.rotation.set(rx,ry,rz);e.userData.noMerge=1;par.add(e);return e};
+  A(new THREE.ConeGeometry(.035,.05,3),W,P_.chest,.105,.13,.2,0,0,PI);A(new THREE.TorusGeometry(.06,.006,5,14,PI),G,P_.chest,.04,-.13,.19,0,0,PI);A(new THREE.CylinderGeometry(.018,.018,.008,10),G,P_.chest,-.02,-.15,.195,PI/2,0,0);for(const h of[P_.hL,P_.hR])if(h)A(new THREE.SphereGeometry(.012,6,5),G,h,0,.02,.04)}
 function c2ToSat(){const n=(13-(S.day-1)%7)%7;if(!n)return false;S.day+=n;S.gt=20;/* skipped days are not played, so no newDay(): it would fire the pledge-job "yesterday" penalties during the gala. Only its stink-item refresh and the cone prop are repeated */if(skv('stkD')>=1&&!invHas('stink'))invAdd('stink');try{if(S.pledged&&S.prole)prApply()}catch(e){}setTimeout(()=>big('SATURDAY NIGHT',2400),400);return true}
 function c2GalaOn(){if(C2.gala)return;C2.gala=1;TSMUL=.1;c2ToSat();S.rcDone=S.day;if(!(S.gt>=19.5&&S.gt<23.5))S.gt=20;
   for(const k in C2.deco)if(!C2.deco[k].done){C2.deco[k].done=1;C2.deco[k].G=c2DecoBuild(k,C2.deco[k].lx,C2.deco[k].lz);c2ObjDel(C2.deco[k].o)}   // a loaded save: the brothers finished it

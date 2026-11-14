@@ -40,6 +40,13 @@ Object.assign(ACT,{
   'Hollis Grady':['brothers',{name:'Hollis Grady',title:'ΑΣΡ Senior Brother',house:'asr'}]});
 function c4Soro(){const s=c4S();if(!s.soro||!FRATS.find(f=>f.id===s.soro))s.soro=pick(C4SORO);const F=FRATS.find(f=>f.id===s.soro),b=B.find(b=>b.id===s.soro);return{id:s.soro,L:F.L,name:(b&&b.name)||F.L,pres:F.pres,b}}
 const c4Pres=()=>{const so=c4Soro();return so.pres+' · '+so.L+' President'};
+/* V385 the lawn: each sister has a good answer, a funny one and a bad one ([text, her reaction]); a bad one puts her off for good, so Danny has to charm 4 of the 7.
+   C4MEX are three more sisters who are only on the lawn */
+const C4BAD=[['"Egg toss? Is that a real sport?"','"It is to me. Bye."'],['"We only have the one playlist. It slaps, though."','"Then I\'m leaving early. Noted."'],['"So you\'re the designated mom."','"Wow. Okay. Good talk."'],['"Nobody touches the hat."','"Rude! Fine. Keep your hat."']];
+const C4MEX=[['Avery Quinn','"Avery. Philanthropy chair. We\'re raising money for the children\'s hospital this week. Will your house donate?"','"I\'ll personally donate the hat."',['"What\'s in it for us?"','"Seriously? Never mind."'],'"Put us down for whatever Grant can afford."'],
+ ['Taylor Nguyen','"Taylor. I\'m building the Homecoming float. It\'s a giant papier-mâché hawk and it is so behind schedule."','"I can make the wings flap."',['"Papier-mâché? What is this, third grade?"','"Okay, you can leave now."'],'"Need a pledge with two free hands?"'],
+ ['Lena Ortiz','"Lena. I heard Alpha Sig almost lost its charter last year. Is that true?"','"Only the fun parts are true."',['"You mean the stuff upstairs? I\'m not supposed to talk about that."','"...What stuff upstairs?" She takes a step back.'],'"We\'re a lot better behaved now. Mostly."']];
+const C4LAWN=()=>[...C4MEM.map(([n])=>n),...C4MEX.map(([n])=>n)];
 const c4Mate=()=>C4MEM[0][0];   // Madison is Danny's partner for the Games
 
 // ---------------------------------------------------------------- field coordinates on Nippert (u along the field toward the far end zone, v across)
@@ -234,7 +241,7 @@ async function c4Egg(cfg){C4.noskip=1;const thrower=cfg.thrower,rounds=cfg.round
   const ring=c4Ui('');ring.innerHTML=`<div style="margin-bottom:6px">${cfg.title||'PARTNER EGG TOSS'} · press <b>Space</b> when the rings meet</div><div style="position:relative;width:110px;height:110px;margin:0 auto"><div id="c4rt" style="position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;border:3px solid #e2b64c"></div><div id="c4ro" style="position:absolute;border-radius:50%;border:3px solid #f6efe0"></div></div><div id="c4rs" style="margin-top:4px;font-size:13px;color:#cfc6b0"></div>`;
   let pressed=null;const press=()=>{if(pressed===null)pressed=TT};ring.appendChild(c4Btn('CATCH',press));C4.keys=(code,dn,ev)=>{if(dn&&!ev.repeat&&(code==='Space'||code==='KeyE'||code==='Enter'))press()};
   const ro=$('c4ro'),rs=$('c4rs');
-  for(let r=0;r<rounds;r++){const d=(cfg.d0||3)+r*(cfg.dd||1.5),[dx,dz]=c4F(ue,ve),[tx,tz]=c4F(ue+d,ve);if(!r){c4DanAt(dx,dz,c4A(1,0));thrower.x=tx;thrower.z=tz}else if(!C4.dan)c4DanAt(P.x,P.z,P.face);c4DanTo(dx,dz,3);C4.dan.look=[tx,tz];c4To(thrower,tx,tz,3);c4Look(thrower,dx,dz);
+  for(let r=0;r<rounds;r++){const d=(cfg.d0||3)+r*(cfg.dd||1.5),[dx,dz]=c4F(ue,ve),[tx,tz]=c4F(ue+d,ve);if(!r){c4DanAt(dx,dz,c4A(1,0));thrower.x=tx;thrower.z=tz}else if(!C4.dan)c4DanAt(P.x,P.z,P.face);c4DanTo(dx,dz,3);C4.dan.look=[tx,tz];c4To(thrower,tx,tz,3);c4Look(thrower,dx,dz);thrower.a=Math.atan2(dx-tx,dz-tz);   /* V367 she faces Danny even while the last conversation still holds her (SCENE uses n.a) */
     c4ShotF(ue+d/2,ve+6+d*.55,2.6+d*.12,ue+d/2,ve,1,r?2:0);rs.textContent=`Toss ${r+1} of ${rounds}`+(cfg.need?` · catch all ${rounds}`:'');await c1Wait(r?1.1:.6);
     // the throw
     thrower.pup.st='throw';setTimeout(()=>{if(thrower.pup)thrower.pup.st=''},450);const fl=.75+d*.07,win=Math.max(.09,(cfg.w0||.24)-r*.03);pressed=null;const t0=TT+.3;let caught=null;
