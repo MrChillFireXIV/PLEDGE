@@ -109,3 +109,18 @@ function mascotPoncho(p){const pts=[[.115,.3],[.2,.285],[.33,.24],[.42,.15],[.45
   /* feather fringe along the hem: white feathers with purple and gold tips */const FG=GC.mfeather||(GC.mfeather=(()=>{const g=new THREE.SphereGeometry(1,8,6);g.scale(.022,.075,.006);g.translate(0,-.07,0);return g})());
   for(let i=0;i<26;i++){const a=i/26*TAU,f=prMesh(FG,mt([0xf4f1e8,0x7a3ab0,0xd8b048][i%3],.8),po,Math.sin(a)*.472,-.22,Math.cos(a)*.472,0,a,0);f.rotation.x=.18}
   for(const s of[-1,1]){const f=prMesh(FG,mt(0xf4f1e8,.8),p.head,s*.06,.3,-.17,-.9,0,s*.25);f.scale.setScalar(1.2)}}
+
+// ---------------------------------------------------------------- V381 Mascot Pledge ram charge: hold T to drop to all fours and paw the ground like a bull (dust kicks up),
+// let go and he rams forward about eight feet (2.4 m at a full wind-up), knocking back and stunning everyone in his path.
+function maDust(x,z){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tgDot(),color:0xa08860,transparent:true,depthWrite:false,opacity:.6}));s.position.set(x,PM.position.y+.12,z);s.scale.setScalar(.25);sc.add(s);TGP.push({s,t:0,vx:(rnd()-.5)*.8,vz:(rnd()-.5)*.8,vy:.6})}
+function ramTick(dt,r){if(!isR('mascot')||mode!=='play'||CINE||EV||P.dead||P.bike){P.ramHold=0;P.ramT=0;return}
+  if(P.ramHold>0){if(THELD){P.ramHold+=dt;const fx=Math.sin(P.face),fz=Math.cos(P.face);if((ramTick.d=(ramTick.d||0)-dt)<=0){ramTick.d=.32;maDust(P.x-fx*.55+fz*.12,P.z-fz*.55-fx*.12);maDust(P.x-fx*.65+fz*.1,P.z-fz*.65-fx*.1);noise(.1,.05,700)}if((ramTick.s=(ramTick.s||0)-dt)<=0){ramTick.s=1.1;tone(150,.25,'sawtooth',.05)}}
+    else{const w=P.ramHold;P.ramHold=0;if(w<.18)return;const k=clamp((w-.18)/.8,0,1),dist=1.4+k*1.04;P.ramT=dist/9.5;P.rdx=Math.sin(P.face);P.rdz=Math.cos(P.face);P.ramHit={};r.cd=TT+3;S.sta=Math.max(0,S.sta-8);
+      prSay(pick(['ALPHA SIG HOORAH!','BAAAAAH!','GO RAMS!']),1.8);tone(220,.25,'sawtooth',.08);noise(.25,.15,400);try{pqUse()}catch(e){}if(r.maD!==S.day){r.maD=S.day;classSpirit(1)}}}
+  if(P.ramT>0){for(const n of prFront(1.75,.2)){if(P.ramHit&&P.ramHit[n.uid])continue;(P.ramHit||(P.ramHit={}))[n.uid]=1;prHitN(n,clamp(18*LVM(S.lvl,n.lvl),3,55),1.4,2.2);dmgNum(n.x,2.6,n.z,'BAAAM!','#e8dcc0');sfx('hit')}}}
+/* the pose: on hands and feet, head up, one back foot scraping; during the charge, head down and body low */
+function maPose(p){if(!p.hips)return;if(P.ramHold>0){const e=Math.min(1,P.ramHold*6),pw=Math.sin(TT*9);
+    p.hips.position.y+=(.62-p.hips.position.y)*e;p.spine.rotation.x=1.25*e;if(p.chest)p.chest.rotation.x=.2*e;if(p.neck)p.neck.rotation.x=-.95*e;if(p.head)p.head.rotation.x=-.35*e;
+    p.aL.rotation.set(-1.25*e,0,-.12*e);p.aR.rotation.set(-1.25*e,0,.12*e);p.eL.rotation.set(-.1*e,0,0);p.eR.rotation.set(-.1*e,0,0);
+    p.lL.rotation.set(-.55*e,0,-.06*e);p.kL.rotation.set(1.2*e,0,0);p.lR.rotation.set((-.2+pw*.45)*e,0,.06*e);p.kR.rotation.set((1.0+Math.max(0,-pw)*.5)*e,0,0);if(p.fR)p.fR.rotation.x=-.3*e}
+  else if(P.ramT>0){p.hips.position.y=.8;p.spine.rotation.x=.75;if(p.neck)p.neck.rotation.x=.15;if(p.head)p.head.rotation.x=.35;p.aL.rotation.set(.5,0,-.3);p.aR.rotation.set(.5,0,.3);p.eL.rotation.set(-.3,0,0);p.eR.rotation.set(-.3,0,0)}}

@@ -42,7 +42,7 @@ Object.assign(PR,{
  scribe:{n:'Scribe Pledge',d:'He writes down everything the brothers say, and his notebook turns out to be pretty useful when exams roll around.',c:'#2a3a5a',c2:'#d0dcf2',ab:'Note',
   perks:['A white toga, a notebook in one hand and a pen in the other','When someone near you says something (a ✎ pops up over them), press T to write it down','Every quote goes in the minutes, and every fifth one Grant pays you for']},
  mascot:{n:'Mascot Pledge',d:'He wears the ram horns, bleats whenever someone tells him to, and starts dancing the moment the mood in the house drops.',c:'#a89a78',c2:'#f4ecd8',ab:'Ram charge',
-  perks:['Wears the ram horns','T: Ram charge. Knocks back and stuns everyone in front of you','Bleating lifts Class Spirit once a day']}});
+  perks:['Ram horns through the pledge hat and a purple feathered poncho','Hold T: drop to all fours and paw the ground. Let go: ram charge, about eight feet, knocking down everyone in the way (WASD aims while you paw)','Bleating lifts Class Spirit once a day, and he shouts the house cheers']}});
 for(const k of PR_KEYS)if(!PROLE[k])PROLE[k]=[PR[k].n,PR[k].d];
 const FRUITS=[['grape','Grape'],['orange','Orange'],['pineapple','Pineapple'],['watermelon','Watermelon']];
 const BURG={kto:['silver rowing trophy','Kappa Theta Omega'],opd:['ceremonial gavel','Omega Psi Delta'],kan:['game ball','Kappa Alpha Nu'],lxa:['purple paddle','Lambda Chi Alpha'],dlp:['pink flamingo','Delta Lambda Phi'],tz:['crest pillow','Theta Zeta']};
@@ -218,5 +218,6 @@ function prPose(dt){const p=PM&&PM.P;if(!p||!PM.userData)return;const B=PM.userD
       /* and its mouthpiece sits just in front of his mouth */const hp=new THREE.Vector3();p.head.getWorldPosition(hp);const fw=new THREE.Vector3(0,0,1).applyQuaternion(qc);const mp=hp.add(fw.multiplyScalar(.2)).add(new THREE.Vector3(0,.05,0));const lp=u.parent.worldToLocal(mp.clone()).sub(new THREE.Vector3(0,-.02,.07-.085).applyQuaternion(u.quaternion));u.position.lerp(lp,k)}else{u.quaternion.set(0,0,0,1);u.position.set(0,-.07,.05)}}}
   /* V374 spraying: arm straight out at the wall, can upright in the fist, a little shake */if(P.spray&&PM.userData.can){p.aR.rotation.set(-1.32+Math.sin(TT*31)*.02,0,-.18);p.eR.rotation.set(-.12,0,0);p.hR.rotation.set(0,0,0);p.spine.rotation.y-=.08}
   /* V376 hype dance: he bounces to the beat with his free arm pumping (stops bouncing while he walks) */if(P.hype>0&&PM.userData.box&&P.punch<=0){const sp=Math.hypot(P.vx,P.vz),b=Math.abs(Math.sin(TT*PI*2));if(sp<1.2&&P.jy<=0)PM.position.y+=b*.2;p.aL.rotation.set(-2.75+b*.35,0,-.3);p.eL.rotation.set(-.35-b*.3,0,0);p.head.rotation.x+=(b-.5)*.15}
+  try{maPose(p)}catch(e){}
   const mic=PM.userData.mic;if(mic&&P.sing>0&&P.punch<=0){p.aR.rotation.set(-.55,0,.42);p.eR.rotation.set(-2.25,0,0);p.head.rotation.x-=.12}}
 

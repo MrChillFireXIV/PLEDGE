@@ -378,6 +378,7 @@ if(P.pose>0){P.pose-=dt;const tf=Math.atan2(cam.position.x-P.x,cam.position.z-P.
   if(K.Space){K.Space=0;if(P.jy<=0&&P.jv===0&&!P.bike&&!carry&&S.sta>=6){P.jv=6.4*(skv('jmp')>=1?1.12:1);S.sta-=6;P.pt=.5}}
   let sp=P.bike?(run?14.5:10):carry?2.1:(cr?1.7*prCrouchMul():run?6.2*(1+skv('spd')):3.3)*prSpeedMul()*(blkWant?.45:1);let tx=wx*sp,tz=wz*sp;
   if(P.roll>0){P.roll-=dt;tx=P.rdx*7.6;tz=P.rdz*7.6}
+  /* V381 Mascot ram: crouched and pawing he can only turn (WASD aims), then the charge shoots him forward */if(P.ramT>0){P.ramT-=dt;tx=P.rdx*9.5;tz=P.rdz*9.5}else if(P.ramHold>0){if(wx||wz)P.face+=((((Math.atan2(wx,wz)-P.face)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);tx=0;tz=0}
   const acc=P.bike?3.2:P.roll>0?30:prAcc(),k=Math.min(1,acc*dt);P.vx+=(tx-P.vx)*k;P.vz+=(tz-P.vz)*k;
   const r=P.bike?.5:.34;CIRC_OFF=1;/* V115: grid walls here; round colliders are resolved by circPushP below */
   P.sup=P.sup||0;FH=(P.dk==null&&!P.bike)?P.sup+P.jy:-1;   /* V174 jump onto low objects (see SH in file 01) */
