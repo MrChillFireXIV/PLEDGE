@@ -40,6 +40,13 @@ Object.assign(ACT,{
   'Hollis Grady':['brothers',{name:'Hollis Grady',title:'ΑΣΡ Senior Brother',house:'asr'}]});
 function c4Soro(){const s=c4S();if(!s.soro||!FRATS.find(f=>f.id===s.soro))s.soro=pick(C4SORO);const F=FRATS.find(f=>f.id===s.soro),b=B.find(b=>b.id===s.soro);return{id:s.soro,L:F.L,name:(b&&b.name)||F.L,pres:F.pres,b}}
 const c4Pres=()=>{const so=c4Soro();return so.pres+' · '+so.L+' President'};
+/* V385 the lawn: each sister has a good answer, a funny one and a bad one ([text, her reaction]); a bad one puts her off for good, so Danny has to charm 4 of the 7.
+   C4MEX are three more sisters who are only on the lawn */
+const C4BAD=[['"Egg toss? Is that a real sport?"','"It is to me. Bye."'],['"We only have the one playlist. It slaps, though."','"Then I\'m leaving early. Noted."'],['"So you\'re the designated mom."','"Wow. Okay. Good talk."'],['"Nobody touches the hat."','"Rude! Fine. Keep your hat."']];
+const C4MEX=[['Avery Quinn','"Avery. Philanthropy chair. We\'re raising money for the children\'s hospital this week. Will your house donate?"','"I\'ll personally donate the hat."',['"What\'s in it for us?"','"Seriously? Never mind."'],'"Put us down for whatever Grant can afford."'],
+ ['Taylor Nguyen','"Taylor. I\'m building the Homecoming float. It\'s a giant papier-mâché hawk and it is so behind schedule."','"I can make the wings flap."',['"Papier-mâché? What is this, third grade?"','"Okay, you can leave now."'],'"Need a pledge with two free hands?"'],
+ ['Lena Ortiz','"Lena. I heard Alpha Sig almost lost its charter last year. Is that true?"','"Only the fun parts are true."',['"You mean the stuff upstairs? I\'m not supposed to talk about that."','"...What stuff upstairs?" She takes a step back.'],'"We\'re a lot better behaved now. Mostly."']];
+const C4LAWN=()=>[...C4MEM.map(([n])=>n),...C4MEX.map(([n])=>n)];
 const c4Mate=()=>C4MEM[0][0];   // Madison is Danny's partner for the Games
 
 // ---------------------------------------------------------------- field coordinates on Nippert (u along the field toward the far end zone, v across)
