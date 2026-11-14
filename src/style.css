@@ -708,3 +708,10 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 .scmh span{font-weight:400;letter-spacing:0;text-transform:none;color:#7a6f58}
 .scq{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:baseline;padding:3px 0;font-size:13px;border-bottom:1px dashed #eadfc4}
 .scq:last-child{border-bottom:0}.scq b{color:#2a3a5a;white-space:nowrap}.scq q{color:#3a3326;font-style:italic}.scq i{color:#9a8f76;font-size:11px;white-space:nowrap}
+/* V393 skateboard trick timing meter */
+#skm{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);z-index:30;pointer-events:none;text-align:center;font:700 12px var(--fb);color:#fff;text-shadow:0 1px 2px #000}
+#skm .skmb{position:relative;width:220px;height:12px;border-radius:6px;background:rgba(20,22,30,.75);border:1px solid rgba(255,255,255,.5);margin:0 auto 4px;overflow:hidden}
+#skm .skz2{position:absolute;top:0;bottom:0;left:45.3%;width:42.7%;background:#c9a046;opacity:.55}
+#skm .skz1{position:absolute;top:0;bottom:0;left:55.3%;width:22.7%;background:#3ab05a;opacity:.9;z-index:1}
+#skm b{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:#fff;border-radius:2px;z-index:2;box-shadow:0 0 4px #000}
+#skm.ok .skmb{border-color:#7ef0a0}

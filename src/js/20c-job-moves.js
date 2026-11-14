@@ -176,3 +176,9 @@ function cvTick(dt){for(let i=CVR.length-1;i>=0;i--){const o=CVR[i];o.t+=dt;o.m.
   if(S_.land&&S_.t-S_.lt>.45)P.smash=null}
 function cvPose(p){const S_=P.smash;if(!S_||!p.aR)return;if(!S_.land){const u=Math.min(1,S_.t/.15);p.aR.rotation.set(-3.0*u,0,.15*u);p.eR.rotation.set(-.5*u,0,0);p.aL.rotation.set(-2.6*u,0,-.35*u);p.eL.rotation.set(-.7*u,0,0);p.spine.rotation.x-=.18*u;if(p.hR)p.hR.rotation.x=.3*u}
   else{const u=1-Math.max(0,(S_.t-S_.lt-.15)/.3);p.aR.rotation.set(-.55*u,0,.1*u);p.eR.rotation.set(-.1*u,0,0);p.aL.rotation.set(-.6*u,0,-.2*u);p.spine.rotation.x+=.55*u;p.hips.position.y-=.12*u;if(p.kL){p.kL.rotation.x+=.5*u;p.kR.rotation.x+=.5*u}if(p.hR)p.hR.rotation.x=-.9*u}}
+
+// ---------------------------------------------------------------- V393 Skate Pledge trick timing: T pops the board and it flips while T is held; letting go catches it.
+// Caught within 17% of a full rotation = clean landing (combo), within 32% = sketchy (lands, no combo), otherwise or still held at touchdown = bail.
+function skCatch(T){if(T.held)return'held';const d=T.cu-1;return Math.abs(d)<.17?'clean':Math.abs(d)<.32?'sketchy':d<0?'early':'late'}
+function skMeter(on){let e=$('skm');if(!on){if(e)e.hidden=true;return}if(!e){e=document.createElement('div');e.id='skm';e.innerHTML='<div class="skmb"><i class="skz1"></i><i class="skz2"></i><b></b></div><span>Let go of T to catch it</span>';document.body.appendChild(e)}
+  const T=P.trick;if(!T){e.hidden=true;return}e.hidden=false;const u=T.held?T.t/T.dur:T.cu;e.querySelector('b').style.left=clamp(u/1.5*100,0,100)+'%';e.classList.toggle('ok',!T.held&&Math.abs(T.cu-1)<.17);e.querySelector('span').textContent=T.held?'Let go of T to catch it':skCatch(T)==='clean'?'Clean!':skCatch(T)==='sketchy'?'Sketchy...':'Missed it'}

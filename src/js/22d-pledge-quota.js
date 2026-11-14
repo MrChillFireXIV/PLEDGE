@@ -21,7 +21,7 @@ const PQ={
   mg:[["steger","Run the Numbers","math",{intro:"A stat sheet is only as good as its averages. Four problems.",gen:(g,k)=>{const n=3+(k%2),a=Array.from({length:n},()=>2+Math.floor(rnd()*9)),s=a.reduce((x,y)=>x+y,0);if(k<2){const add=(n-s%n)%n;a[0]+=add;const av=(s+add)/n;return{q:"Brothers drank "+a.join(", ")+" beers. What is the average?",a:av,w:[av+1,av-1,av+2],why:"Add them up and divide by "+n+"."}}return{q:"Tonight's tallies: "+a.join(", ")+". What is the total?",a:s,w:[s+2,s-1,s+3],why:"Just add them up."}}}],
       ["rock","Click the Counter","meter",PQ_METER("People are streaming past. Click the hand counter exactly when one crosses the line. Five clicks.","Click","Head","Counted.","Missed one. The sheet is off.")],
       ["budig","Remember the Scoreboard","memory",{intro:"The scoreboard flashes a sequence. A Stats Pledge never forgets one. Repeat it."}]]},
- skate:{t:30,tv:"Land a trick",tn:"tricks",host:"Skate shop guy",
+ skate:{t:30,tv:"Land a trick",tn:"tricks landed",host:"Skate shop guy",
   sp:[["lions","Ollie past Mick and Mack, the stone lions","Clean! The lions saw nothing."],["uplaza","Grind the University Plaza fountain ledge","Fifty-fifty all the way around!"],["westpav","Kickflip the Nippert West Pavilion stairs","Stuck it! Mostly!"],["tol","Carve a lap around the Tower of Light","Wheeeeee."],["bear","Skate the Bearcat roundabout the wrong way","Sorry! Pledge business!"]],
   mg:[["bcomm","Land the Kickflip","meter",PQ_METER("Pop, flick, catch. Hit the button when the board is flat under your feet. Five tries.","Catch it","Flip","Bolts. Clean landing.","Primo. Ouch.")],
       ["victory","Pump the Half-Pipe","rhythm",PQ_BEAT("Pump at the bottom of every pass to keep your speed.","Pump",92)],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1,fruit:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1,fruit:1,skate:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}
