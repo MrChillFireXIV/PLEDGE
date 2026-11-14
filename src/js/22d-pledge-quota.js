@@ -31,7 +31,7 @@ const PQ={
   mg:[["blegen","Pick the Lock","meter",PQ_METER("Five pins. Set each one the moment the pick sits in the sweet spot.","Set the pin","Pin","Click. It sets.","The pick slips.")],
       ["oldchem","Crack the Safe","memory",{intro:"The safe flashes its combination once. Watch the order, then dial it in."}],
       ["armory","Slip Past the Cameras","grid",{intro:"Plan a route through the hall to the green exit. Brown squares are in camera view. Queue your moves, then go."}]]},
- fruit:{t:15,tv:"Land a fruit slam",tn:"fruit slams",host:"Farmers' market lady",
+ fruit:{t:8,tv:"Bring your fruit to roll call in one piece",tn:"days the fruit made it",host:"Farmers' market lady",
   sp:[["hank","Weigh your fruit at Hank's Market","Hank says it's the biggest one this week."],["mew","Give the fruit some sun in Mew Gardens","Photosynthesize, buddy. You've earned it."],["fount","Rinse the fruit in the Campus Green fountain","Squeaky clean. Do not tell Grant."],["diner","Show the fruit to the cooks at Ruby's","No, it is NOT for the pie."],["statue","Offer the fruit to Herman Schneider","He declined. Politely."]],
   mg:[["slawn","Sort the Harvest","sort",PQ_SORT("A Fruit Pledge knows where everything grows. Sort the crate.",["On a tree","On a vine","In the ground"],[["Apple","On a tree"],["Orange","On a tree"],["Peach","On a tree"],["Cherry","On a tree"],["Grape","On a vine"],["Watermelon","On a vine"],["Pumpkin","On a vine"],["Kiwi","On a vine"],["Carrot","In the ground"],["Potato","In the ground"],["Peanut","In the ground"],["Radish","In the ground"]])],
       ["classen","Slice It Clean","meter",PQ_METER("Fruit salad for forty. Bring the knife down while the fruit is centred on the board. Five cuts.","Chop","Cut","Perfect halves.","Juice everywhere.")],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1,fruit:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}

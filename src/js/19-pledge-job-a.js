@@ -13,7 +13,7 @@ const PR={
  burglar:{n:'Burglar Pledge',d:'Every day he has to sneak into another house on Greek Row and walk out with something that isn\'t his.',c:'#343a4f',c2:'#c9d2ea',ab:'Pickpocket',
   perks:['Every other house keeps a treasure in its lounge. Lift one a day','Sneaking (C) is faster and much harder to spot','T: Pickpocket people from behind']},
  fruit:{n:'Fruit Pledge',d:'He carries a piece of fruit with him wherever he goes, and every time he gets used to it, the brothers hand him a bigger one.',c:'#4f8f25',c2:'#dff3c4',ab:'Fruit slam',
-  perks:['Grape, then orange, then pineapple, then watermelon','Get it to roll call in one piece. Hits bruise it','T: Fruit slam. The bigger the fruit, the bigger the hit','Health regenerates faster while it\'s fresh']},
+  perks:['Grape, then orange, then pineapple, then watermelon','Get it to roll call in one piece. Hits bruise it, and only days it arrives at least half fresh count for your quota','T: Fruit slam. The bigger the fruit, the bigger the hit','Health regenerates faster while it\'s fresh']},
  ouija:{n:'Ouija Pledge',d:'He lugs a Ouija board around campus, and whatever he woke up with it hasn\'t stopped following him since.',c:'#4f3784',c2:'#ddd0ff',ab:'Spook',
   perks:['A ghost follows you everywhere','T: Send the ghost to spook someone. They freeze, then run','The ghost blocks some punches meant for you','Ask the board what anyone really thinks of you']},
  caveman:{n:'Caveman Pledge',d:'He dresses like a caveman, talks like a caveman, and will answer most questions with a confident "ooga booga."',c:'#8a5426',c2:'#f3d6a8',ab:'Club smash',
