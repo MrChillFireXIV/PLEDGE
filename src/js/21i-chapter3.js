@@ -410,9 +410,13 @@ function c3CctvTick(dt){
   const b=C3CC.bag,ch=C3CC.chip;
   if(b&&ch&&C3CC.carry&&ch.g){const a=ch.g.rotation.y,ca=Math.cos(a),sa=Math.sin(a);b.position.set(ch.x-.38*ca+.05*sa,.5,ch.z+.38*sa+.05*ca);b.rotation.y=a}}
 /* the raised-fist pose and the finger, applied after the walk animation every frame (see c4PupUpd) */
-function c3FlipPose(g,k,left){const p=g&&g.P;if(!p||k<=0)return;const a=left?p.aL:p.aR,e=left?p.eL:p.eR,s=left?-1:1;if(!a)return;
-  a.rotation.set(-1.25*k,0,s*.12*k);if(e)e.rotation.set(-1.7*k,0,0)}
-function c3FingerAdd(n){const g=n&&n.g,p=g&&g.P;if(!p)return;const hand=p.hR||p.aR;if(!hand)return;
+function c3FlipPose(g,k,left){const p=g&&g.P;if(!p)return;const a=left?p.aL:p.aR,e=left?p.eL:p.eR,h=left?p.hL:p.hR,s=left?-1:1;if(!a)return;
+  /* V420 the hand is turned so its back faces the camera (it used to sit sideways) and the real fingers do the work: three curled, the middle one straight, thumb tucked */
+  if(h)h.rotation.y=s*PI/2*Math.max(0,k);if(k<=0)return;
+  a.rotation.set(-1.25*k,0,s*.12*k);if(e)e.rotation.set(-1.7*k,0,0);
+  const F=p.fing&&p.fing[left?'L':'R'];if(F){for(let i=0;i<4;i++){const c=i===1?0:1.3*k;F.a[i].rotation.set(0,0,-s*c);F.b[i].rotation.set(0,0,-s*Math.min(1.7,c*1.25))}F.ta.rotation.set(.1+.75*k,0,-s*(.12+.42*k));F.tb.rotation.set(0,0,-s*(.12+.82*k))}}
+/* only for a body without finger bones: a plain block finger on the hand */
+function c3FingerAdd(n){const g=n&&n.g,p=g&&g.P;if(!p||p.fing)return;const hand=p.hR||p.aR;if(!hand)return;
   const o=p._o||{},m=new THREE.Mesh(bgeo(.04,.2,.04),mt(o.skin||0xf0c8a8,.8));m.position.set(0,-.17,.03);m.visible=false;m.userData.noMerge=1;hand.add(m);n.c3fin=m}
 async function c3CctvCine(done){
   const U=INT.asr_up;if(!U){if(done)done();return}
@@ -443,7 +447,7 @@ async function c3CctvCine(done){
     C3CC.carry=1;chip.pup.arms=null;chip.pup.lean=0;chip.pup.dy=0;pre.pup.arms=null;pre.pup.lean=0;pre.pup.dy=0;await c4Wt(.7);
     /* Preston looks up and finds the camera */
     c4Look(pre,cx,cz);await c4Wt(.9);c4Look(chip,cx,cz);await c4Wt(.6);
-    pre.pup.post=g=>c3FlipPose(g,pre.c3flip||0,false);chip.pup.post=g=>c3FlipPose(g,chip.c3flip||0,true);
+    pre.pup.post=g=>c3FlipPose(g,pre.c3flip||0,false);chip.pup.post=g=>c3FlipPose(g,chip.c3flip||0,false);/* V420 his free hand: the other one is carrying the bag */
     await Promise.all([c3cTw(.35,k=>{pre.c3flip=k;if(pre.c3fin)pre.c3fin.visible=k>.5}),c4Wt(.25).then(()=>c3cTw(.35,k=>{chip.c3flip=k;if(chip.c3fin)chip.c3fin.visible=k>.5}))]);
     await c4Wt(3.6);
     /* and out, backwards, still looking into the lens */
