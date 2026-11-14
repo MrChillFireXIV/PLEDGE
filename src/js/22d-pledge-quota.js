@@ -66,7 +66,7 @@ const PQ={
   mg:[["rieveschl","Remember the Orders","memory",{intro:"Four brothers shout orders at once. Watch who asks in what order, then deliver."}],
       ["daap","Pack the Pouch","sort",PQ_SORT("Everything has a pocket. Put it in the right one.",["Drinks","Snacks","Gear"],[["Gatorade","Drinks"],["Coffee","Drinks"],["Water bottle","Drinks"],["Energy drink","Drinks"],["Protein bar","Snacks"],["Beef jerky","Snacks"],["Gummy worms","Snacks"],["Pretzels","Snacks"],["Phone charger","Gear"],["Chapstick","Gear"],["Spare keys","Gear"],["Duct tape","Gear"]])],
       ["oldchem","Quick Zip","meter",PQ_METER("A brother is waiting. Yank the zipper when the pull lines up with the track. Five pockets.","Zip","Pocket","Open. Delivered.","Stuck. He's tapping his foot.")]]},
- grenade:{t:15,tv:"Dive",tn:"dives",host:"ROTC cadet",
+ grenade:{t:15,tv:"Dive on something a brother tossed",tn:"grenades smothered",host:"ROTC cadet",
   sp:[["cgreen","Dive on a dropped frisbee on the Campus Green","GRENADE! …It's a frisbee. Area secure."],["westpav","Dive on a spilled soda at the West Pavilion","GRENADE! I'm sticky. Worth it."],["lib","Dive on a dropped textbook at Langsam","GRENADE! Shhh. Sorry."],["armory","Report for inspection at the Armory Fieldhouse","Grenade Pledge reporting. Belt grenade is a dummy, sir."],["diner","Dive on a dropped fork at Ruby's","GRENADE! Fork neutralized."]],
   mg:[["sheakley","Time the Dive","meter",PQ_METER("Launch when the target is in the zone. Five dives.","DIVE","Dive","Covered it. Textbook.","Belly-flop, two feet short.")],
       ["budig","Low Crawl","grid",{intro:"Plan a crawl under the wire to the green pad. Brown squares are mud pits. Queue your moves, then go."}],
@@ -120,7 +120,7 @@ function pqBump(msg){const q=pqGet();if(!q)return;const pc=pqPct();if(msg)toast(
 // ---------------------------------------------------------------- part 1: the T key
 let PQ_UT=-9;
 /* V371 jobs whose quota counts something other than pressing T (the Basketball Pledge tells people about his ball in conversation) */
-const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1};
+const PQ_JOBTALK={basketball:1,pouch:1,delinquent:1,snack:1,scribe:1,grenade:1};
 function pqUse(talk){const q=pqGet();if(!q||(!talk&&PQ_JOBTALK[q.k])||TT-PQ_UT<1.5)return;PQ_UT=TT;const D=PQ[q.k];if(q.t>=D.t)return;q.t++;
   if(q.t>=D.t)pqBump('Job quota met: '+D.tv.toLowerCase()+' ×'+D.t+'.');else if(q.t%5===0||q.t===1)pqBump(D.tv+': '+q.t+' of '+D.t+'.');else if(pqPct()>=100)pqBump('')}
 function pqT(){const r=RS(),c0=r.cd||0,s0=r.since||0;prAbility();const r2=RS();if((r2.cd||0)>c0&&(r2.cd||0)>TT&&(S.prole!=='stats'||(r2.since||0)>s0))pqUse()}

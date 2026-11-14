@@ -124,3 +124,23 @@ function maPose(p){if(!p.hips)return;if(P.ramHold>0){const e=Math.min(1,P.ramHol
     p.aL.rotation.set(-1.25*e,0,-.12*e);p.aR.rotation.set(-1.25*e,0,.12*e);p.eL.rotation.set(-.1*e,0,0);p.eR.rotation.set(-.1*e,0,0);
     p.lL.rotation.set(-.55*e,0,-.06*e);p.kL.rotation.set(1.2*e,0,0);p.lR.rotation.set((-.2+pw*.45)*e,0,.06*e);p.kR.rotation.set((1.0+Math.max(0,-pw)*.5)*e,0,0);if(p.fR)p.fR.rotation.x=-.3*e}
   else if(P.ramT>0){p.hips.position.y=.8;p.spine.rotation.x=.75;if(p.neck)p.neck.rotation.x=.15;if(p.head)p.head.rotation.x=.35;p.aL.rotation.set(.5,0,-.3);p.aR.rotation.set(.5,0,.3);p.eL.rotation.set(-.3,0,0);p.eR.rotation.set(-.3,0,0)}}
+
+// ---------------------------------------------------------------- V386 Grenade Pledge: every 25-40 s a brother near him tosses something at his feet and yells "GRENADE!".
+// It lands with a gold ring under it; he has 4 s to press T, and the dive aims itself at it. Landing on it counts for the quota.
+const GN={it:null,next:0},GNIT=[['a red cup',0xc0302a,'cup'],['his phone',0x1d1d22,'box'],['a shoe',0xeae8e2,'shoe'],['his keys',0xc4ad6c,'keys'],['an empty can',0x8a8f98,'can'],['a sock',0xf2f0ea,'sock'],['a TV remote',0x2a2a30,'box'],['a mini football',0x7a4a24,'ball']];
+function gnMesh(k,c){const g=new THREE.Group(),m=mt(c,.6);const A=(geo,x=0,y=0,z=0,s)=>{const e=new THREE.Mesh(geo,m);e.position.set(x,y,z);if(s)e.scale.set(...s);e.castShadow=true;g.add(e);return e};
+  if(k==='cup')A(new THREE.CylinderGeometry(.05,.035,.12,10),0,.06);else if(k==='can')A(new THREE.CylinderGeometry(.033,.033,.12,10),0,.06);else if(k==='shoe')A(new THREE.SphereGeometry(.07,10,8),0,.04,0,[1,.6,1.9]);else if(k==='ball')A(new THREE.SphereGeometry(.06,10,8),0,.06,0,[1,1,1.6]);
+  else if(k==='keys'){A(new THREE.TorusGeometry(.03,.007,5,10),0,.01);A(bgeo(.015,.005,.06),.03,.01,.02)}else if(k==='sock')A(new THREE.SphereGeometry(.05,8,6),0,.03,0,[.8,.5,2.2]);else A(bgeo(.08,.02,.15),0,.01);return g}
+function gnTick(dt){const I=GN.it;if(I){I.t+=dt;const u=Math.min(1,I.t/.7);I.g.position.set(I.x0+(I.x-I.x0)*u,I.y0+(I.y-I.y0)*u+Math.sin(u*PI)*1.6,I.z0+(I.z-I.z0)*u);I.g.rotation.x+=dt*(u<1?14:0);if(u>=1&&!I.land){I.land=1;I.g.rotation.x=0;noise(.05,.08,1800)}
+    I.ring.position.set(I.x,I.y+.03,I.z);I.ring.visible=I.land;I.ring.scale.setScalar(1+Math.sin(TT*10)*.12);
+    if(I.land&&!I.done&&P.roll<=0&&Math.hypot(P.x-I.x,P.z-I.z)<1.15&&TT-(I.dv||-9)<1.3){gnWin()}
+    else if(I.t>4.7&&!I.done){I.done=1;try{bubble(I.n,pick(['BOOM. You\'re dead, pledge.','Too slow. Everybody\'s dead.','That was a live one, Kowalski.']),2.6)}catch(e){}sfx('bad');gnClear(2)}return}
+  if(!isR('grenade')||mode!=='play'||CINE||EV||AM&&AM.m&&/fight/.test(curStep()&&curStep().t||'')||TT<GN.next)return;GN.next=TT+3;
+  const c=NP.filter(n=>n.cl==='brothers'&&!n.pledge&&!n.prop&&!n.pclass&&!n.down&&!n.aggro&&n.g&&n.g.visible&&(n.int||null)===(P.inside||null)&&Math.hypot(n.x-P.x,n.z-P.z)<12&&Math.hypot(n.x-P.x,n.z-P.z)>2.5);if(!c.length||rnd()<.4)return;
+  const n=pick(c),it=pick(GNIT),a=rnd()*TAU;let[x,z]=[P.x+Math.cos(a)*(2.2+rnd()*1.6),P.z+Math.sin(a)*(2.2+rnd()*1.6)];if(!freeAt(x,z,.2))[x,z]=[P.x+Math.cos(a)*1.4,P.z+Math.sin(a)*1.4];
+  const g=gnMesh(it[2],it[1]);sc.add(g);const ring=new THREE.Mesh(GC.gnRing||(GC.gnRing=new THREE.RingGeometry(.32,.42,24).rotateX(-PI/2)),new THREE.MeshBasicMaterial({color:0xffd34a,transparent:true,opacity:.85,depthWrite:false}));ring.visible=false;sc.add(ring);
+  const y0=n.g.position.y+1.4,y=P.inside?(INT[P.inside]?PM.position.y:terrH(x,z)):terrH(x,z);GN.it={n,it,g,ring,x,z,y:P.inside?PM.position.y:y,x0:n.x,y0,z0:n.z,t:0};n.a=Math.atan2(P.x-n.x,P.z-n.z);
+  bubble(n,pick(['GRENADE!','GRENADE!!','PLEDGE! GRENADE!']),2.2);tone(1400,.08,'square',.05);toast(n.name.split(' ')[0]+' threw '+it[0]+'. Press T to dive on it!',2200)}
+function gnAim(){const I=GN.it;if(!I||I.done||!I.land&&I.t<.45)return;I.dv=TT;const dx=I.x-P.x,dz=I.z-P.z,d=Math.hypot(dx,dz);if(d>5)return;P.face=Math.atan2(dx,dz);P.rdx=dx/(d||1);P.rdz=dz/(d||1);P.roll=clamp(d/7.6,.12,.62)}
+function gnWin(){const I=GN.it;I.done=1;const r=RS();r.gnN=(r.gnN||0)+1;dmgNum(I.x,1.6,I.z,'SMOTHERED!','#9ac84a');sfx('ok');gainXP(3);try{pqUse(1)}catch(e){}try{relAdd(I.n,2);bubble(I.n,pick(['GOOD PLEDGE!','He actually did it!','Hero. Absolute hero.','Okay, that was committed.']),2.4)}catch(e){}toast('You threw yourself on '+I.it[0]+'. The house is safe.',2400);gnClear(.6)}
+function gnClear(s){const I=GN.it;GN.next=TT+25+rnd()*15;setTimeout(()=>{if(GN.it===I){sc.remove(I.g);sc.remove(I.ring);I.ring.material.dispose();GN.it=null}},s*1000)}

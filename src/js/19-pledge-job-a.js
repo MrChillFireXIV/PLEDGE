@@ -28,7 +28,7 @@ Object.assign(PR,{
  pouch:{n:'Pouch Pledge',d:'He wears a fanny pack stuffed with whatever a brother might ask for, whether that\'s a Gatorade, chapstick, or a phone charger.',c:'#7a4a24',c2:'#f0dcc0',ab:'Dig',
   perks:['A fanny pack that holds everything','T: Dig in the pouch. Gatorade, protein bars, coffee, chargers','Short cooldown, always something useful']},
  grenade:{n:'Grenade Pledge',d:'If a brother drops something and yells "GRENADE!", he has to throw himself on top of it, no matter where they are.',c:'#4a6a2a',c2:'#d8eab8',ab:'Dive',
-  perks:['Wears a dummy grenade on the belt','T: Dive forward. You are untouchable for a moment','Land it and everyone around you gets knocked flat']},
+  perks:['Every so often a brother tosses something on the ground and yells "GRENADE!" (a gold ring marks it)','T: Dive. If something just got tossed, you dive right onto it. Smother it before it "goes off" and it counts for the job','A dive also knocks flat everyone around where you land']},
  morning:{n:'Morning Pledge',d:'His job is to get the whole house out of bed every morning between 6 and 9, and nobody has ever accused him of being quiet about it.',c:'#c9a046',c2:'#fff0c4',ab:'Reveille',
   perks:['Carries a brass bugle','T: Reveille. Everyone nearby is stunned and fights stop','Do it between 6 and 9 AM for a daily bonus']},
  delinquent:{n:'Delinquent Pledge',d:'He has to pull off at least one harmless bit of chaos somewhere on campus every day, and the brothers expect to hear about it.',c:'#c0302a',c2:'#ffd0cc',ab:'Mayhem',
@@ -149,7 +149,7 @@ function prApply(){if(!PM)return;prClear();const k=S.pledged?S.prole:null,p=PM.P
   else if(k==='weather'){PM.HOLD='up';const u=prGroup(p.hR,-.012,-.1,.035,1.7,0,0);prMesh(new THREE.CylinderGeometry(.012,.012,1.1,6),mt(0x222222,.5),u,0,.45,0);const c=prMesh(new THREE.ConeGeometry(.6,.28,12,1,true),SM({color:0x2a6aa8,roughness:.8,side:THREE.DoubleSide}),u,0,1.02,0);prMesh(new THREE.SphereGeometry(.02,6,4),mt(0x222222,.5),u,0,1.16,0)}
   else if(k==='basketball'){const b=prMesh(new THREE.SphereGeometry(.13,18,14),bbMat(),p.hR,0,-.16,.1);PM.userData.ball=b}
   else if(k==='pouch'){const f=prMesh(bgeo(.3,.15,.1),mt(0x5a3a1e,.6),p.hips,0,.06,.15);prMesh(bgeo(.12,.04,.02),mt(0x3a2412,.5),f,0,.02,.055)}
-  else if(k==='grenade'){const gm=prMesh(new THREE.SphereGeometry(.07,12,10),mt(0x4a6a2a,.6),p.hips,.17,.02,.1);gm.scale.set(1,1.2,1);prMesh(new THREE.CylinderGeometry(.02,.02,.04,6),mt(0x8a8f98,.4,.5),gm,0,.075,0)}
+  /* V386 no dummy grenade any more: the brothers throw real junk at his feet (gnTick) */
   else if(k==='morning'){/* V373 a real megaphone: white flared horn with a red rim, a grey mouthpiece and a pistol grip with a trigger, held by the grip */
     const u=prGroup(p.hR,0,-.07,.05,0,0,0);PM.userData.mega=u;const W=SM({color:0xf2f0ea,roughness:.45,side:THREE.DoubleSide}),RD=mt(0xc0302a,.5),GR=mt(0x3a3d44,.6);
     const hz=new THREE.Group();hz.position.set(0,-.02,.07);hz.rotation.x=PI/2;u.add(hz);
