@@ -747,3 +747,19 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 #c3herald .hph p{font-size:11px;font-style:italic;margin:3px 0 0}
 #c3herald .hcol p{font-size:13px;line-height:1.35;margin:0 0 6px;text-align:justify}
 @media (max-height:620px){#c3herald .hp{zoom:.7}}
+/* V411 pledge trials on a stage: the game panel docks at the bottom so the scene shows above it */
+#mg.stg{align-items:flex-end;background:none;padding-bottom:max(10px,env(safe-area-inset-bottom,0px));pointer-events:none}
+#mg.stg .board{pointer-events:auto;width:min(680px,100%);max-height:46vh;padding:8px 14px 10px;border-width:5px;background:linear-gradient(180deg,rgba(27,42,36,.93),rgba(20,32,27,.95));box-shadow:0 10px 30px rgba(0,0,0,.55)}
+#mg.stg .mgtitle{font-size:20px;margin:0}
+#mg.stg .mgintro{font-size:13.5px;margin:0 0 6px;line-height:1.3}
+#mg.stg #mgb{margin-top:4px}
+#mg.stg .deal{padding:8px 10px;gap:5px}
+#mg.stg .deal .item{font-size:17px!important;line-height:1.25!important}
+#mg.stg .mgopts .btn{font-size:14px;padding:7px 10px;flex-basis:150px}
+#mg.stg #mmg{grid-template-columns:repeat(4,64px)!important;gap:8px!important;margin:2px 0!important}
+#mg.stg #mmg button{height:54px!important}
+#mg.stg #rhc{width:64px!important;height:64px!important;font-size:18px!important}
+#mg.stg #gdc{width:170px;height:170px}
+#trsn{position:fixed;left:50%;top:max(54px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:28;display:flex;gap:12px;align-items:center;background:rgba(18,26,40,.88);border:1px solid #e2b64c;border-radius:10px;padding:7px 12px;color:#f4e6c8;font:600 13px var(--fb);white-space:nowrap}
+#trsn b{font:700 15px var(--fd);color:#e2b64c}#trsn .c{color:#ff9a8a}#trsn button{font:700 12px var(--fb);background:#2a3550;color:#f4e6c8;border:1px solid #6a7aa0;border-radius:6px;padding:4px 9px;cursor:pointer}
+@media (max-width:640px){#trsn{flex-wrap:wrap;justify-content:center;white-space:normal;max-width:92vw;gap:4px 10px}}

@@ -130,17 +130,18 @@ function pqPlace(id){const p=PHOTOS.find(a=>a[0]===id);return p||PHOTOS[0]}
 function pqSpots(){const q=pqGet();if(!q)return[];if(PQC&&PQC.k===q.k)return PQC.s;const D=PQ[q.k],s=[];
   const put=(kind,i,id)=>{const p=pqPlace(id);let x=p[2]+3.2,z=p[3]+2.6,ok=0;for(const[dx,dz]of[[6,4.5],[-6,4.5],[6,-4.5],[-6,-4.5],[0,6.5],[0,-6.5],[3.2,2.6],[-3.2,2.6],[9,0],[-9,0],[0,9],[0,-9],[10,8],[-10,-8]]){if(freeAt(p[2]+dx,p[3]+dz,.5)){x=p[2]+dx;z=p[3]+dz;ok=1;break}}if(!ok){try{[x,z]=nearFree(x,z,.5)}catch(e){}}s.push({kind,i,x,z,place:p[1]})};
   D.sp.forEach((a,i)=>put('sp',i,a[0]));D.mg.forEach((a,i)=>put('mg',i,a[0]));PQC={k:q.k,s};return s}
-function pqPrompts(add){if(P.inside)return;const q=pqGet();if(!q)return;const D=PQ[q.k];
+function pqPrompts(add){if(P.inside||TSN)return;const q=pqGet();if(!q)return;const D=PQ[q.k];
   for(const s of pqSpots()){if(q[s.kind][s.i])continue;if(s.kind==='sp')add(s.x,s.z,2.9,'Special case: '+D.sp[s.i][1],()=>pqSpecial(s.i),1);else add(s.x,s.z,2.9,'Pledge trial: '+D.mg[s.i][1],()=>pqPlay(s.i),1)}}
 function pqSpecial(i){const q=pqGet();if(!q||q.sp[i])return;const D=PQ[q.k],a=D.sp[i];q.sp[i]=1;prSay(a[2],3.2);sfx('ok');tone(660,.1,'triangle',.07);tone(880,.14,'triangle',.07,.12);gainXP(6);
   try{for(const n of prNearN(10,m=>!m.auth&&!m.temp).slice(0,3)){bubble(n,pick(['Is that… a pledge?','Classic ΑΣΡ.','Should we tell someone?','Ha! Do it again.','I respect the commitment.']),2.2)}}catch(e){}
   pqBump('Special case '+Object.keys(q.sp).length+' of 5 done.')}
 function pqPlay(i){const q=pqGet();if(!q||q.mg[i])return;const D=PQ[q.k],a=D.mg[i],id='pq_'+q.k+i,fn=MGF[a[2]];if(!fn)return;MGD[id]=Object.assign({prof:D.host},a[3]);
-  const g=S.ch>=5?1:0;
-  openMG(a[1],PR[q.k].n+' trial '+(i+1)+' of 3 · '+pqSpots().find(s=>s.kind==='mg'&&s.i===i).place,(el,close)=>fn(el,g,(pass,sum)=>close(()=>{
-    if(pass){q.mg[i]=1;gainXP(15);money(5);sfx('lvl');big('TRIAL PASSED',1400);pqBump(a[1]+' passed: '+sum+' +$5.')}
-    else{sfx('bad');toast(a[1]+': '+sum+' Not this time. The trial stays here, so try again whenever you like.',4600)}}),id),
-    close=>close(()=>toast('You walk away from the trial. It will still be here.',2800)))}
+  const g=S.ch>=5?1:0,sp=pqSpots().find(s=>s.kind==='mg'&&s.i===i);
+  const win=(sum)=>{q.mg[i]=1;gainXP(15);money(5);sfx('lvl');big('TRIAL PASSED',1400);pqBump(a[1]+' passed: '+sum+' +$5.')},lose=sum=>{sfx('bad');toast(a[1]+': '+sum+' Not this time. The trial stays here, so try again whenever you like.',4600)};
+  /* V411 the sneaking trials are played for real in the world (trSneak); every other trial runs its game over an animated scene at the spot (trOpen) */
+  if(TRSNEAK[q.k+i]){trSneak(q.k,i,sp,pass=>pass?win('You made it through unseen.'):lose('You were spotted three times.'));return}
+  openMG(a[1],PR[q.k].n+' trial '+(i+1)+' of 3 · '+sp.place,(el,close)=>{try{trOpen(q.k,i,a[2])}catch(e){console.warn('trOpen',e);trClose()}fn(el,g,(pass,sum)=>{mgEv('end',{pass});setTimeout(()=>close(()=>{trClose();if(pass)win(sum);else lose(sum)}),TRS?1700:0)},id)},
+    close=>close(()=>{trClose();toast('You walk away from the trial. It will still be here.',2800)}))}
 // ---------------------------------------------------------------- floating markers over the open spots
 let PQM=null;
 function pqMarkTex(k,kind){const c=document.createElement('canvas');c.width=128;c.height=160;const x=c.getContext('2d'),R_=PR[k];
@@ -150,7 +151,7 @@ function pqMarkTex(k,kind){const c=document.createElement('canvas');c.width=128;
 function pqMarks(){const q=pqGet(),k=q?q.k:null;if(!PQM)PQM={k:null,sp:[]};
   if(PQM.k!==k){for(const s of PQM.sp){sc.remove(s);if(s.material.map)s.material.map.dispose();s.material.dispose()}PQM.sp=[];PQM.k=k;
     if(k){const tx={sp:pqMarkTex(k,'sp'),mg:pqMarkTex(k,'mg')};for(const s of pqSpots()){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tx[s.kind],transparent:true,depthWrite:false}));m.scale.set(1.5,1.875,1);m.userData.s=s;m.userData.y=terrH(s.x,s.z)+2.9;m.position.set(s.x,m.userData.y,s.z);m.visible=false;sc.add(m);PQM.sp.push(m)}}}
-  for(const m of PQM.sp){const s=m.userData.s,on=!!q&&!P.inside&&!q[s.kind][s.i]&&mode!=='title';m.visible=on;if(on)m.position.y=m.userData.y+Math.sin(TT*2+s.i)*.12}}
+  for(const m of PQM.sp){const s=m.userData.s,on=!!q&&!P.inside&&!q[s.kind][s.i]&&mode!=='title'&&!TRS&&!(TSN&&s.kind==='mg'&&s.i===TSN.i);m.visible=on;if(on)m.position.y=m.userData.y+Math.sin(TT*2+s.i)*.12}}
 // ---------------------------------------------------------------- Grant's speech
 let PQ_IB=0;
 async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_IB=1;const D=PQ[q.k],R_=PR[q.k],g=NN.grant;
