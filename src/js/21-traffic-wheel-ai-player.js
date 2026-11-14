@@ -315,6 +315,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   else if(n.dance){st=hyDanceTick(n,dt)}
   else if(n.eat){st=snEatTick(n,dt)}
   else if(n.goIn){st=nightInTick(n,dt)}
+  else if(n.tipC){st=psTipTick(n,dt)}
   else if(n.follow){}
   else if(n.flee>0){n.flee-=dt;moveTo(n,n.x-dx,n.z-dz,3.6,dt)}
   else if(n.job){if(jobTick(n,dt)){animP(n.g,0,n.t,'');return}}

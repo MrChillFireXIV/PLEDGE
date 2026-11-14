@@ -182,3 +182,14 @@ function cvPose(p){const S_=P.smash;if(!S_||!p.aR)return;if(!S_.land){const u=Ma
 function skCatch(T){if(T.held)return'held';const d=T.cu-1;return Math.abs(d)<.17?'clean':Math.abs(d)<.32?'sketchy':d<0?'early':'late'}
 function skMeter(on){let e=$('skm');if(!on){if(e)e.hidden=true;return}if(!e){e=document.createElement('div');e.id='skm';e.innerHTML='<div class="skmb"><i class="skz1"></i><i class="skz2"></i><b></b></div><span>Let go of T to catch it</span>';document.body.appendChild(e)}
   const T=P.trick;if(!T){e.hidden=true;return}e.hidden=false;const u=T.held?T.t/T.dur:T.cu;e.querySelector('b').style.left=clamp(u/1.5*100,0,100)+'%';e.classList.toggle('ok',!T.held&&Math.abs(T.cu-1)<.17);e.querySelector('span').textContent=T.held?'Let go of T to catch it':skCatch(T)==='clean'?'Clean!':skCatch(T)==='sketchy'?'Sketchy...':'Missed it'}
+
+// ---------------------------------------------------------------- V397 Pop Star Pledge: after the song, the people who liked it walk up and toss coins at his feet.
+// Each coin arcs from their hand to the ground in front of Danny, lands with a clink and pays out; a few coins stay there glinting for a moment.
+const PSC=[];
+function psTipTick(n,dt){const T=n.tipC;T.t+=dt;if(T.t>9||P.dead||(n.int||null)!==(P.inside||null)){n.tipC=null;return''}
+  const d=n.dp;if(!T.thr&&d>1.6&&!(T.t>5&&d<9)){navTo(n,P.x,P.z,2.6,dt);return''}/* stuck behind something: toss it from there */n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);
+  if(!T.thr){T.thr=TT;const m=new THREE.Mesh(GC.psCoin||(GC.psCoin=new THREE.CylinderGeometry(.045,.045,.01,12)),SM({color:0xe8c040,roughness:.25,metalness:.9}));const fx=Math.sin(P.face),fz=Math.cos(P.face),tx=P.x+fx*.55+(rnd()-.5)*.4,tz=P.z+fz*.55+(rnd()-.5)*.4;
+    m.position.set(n.x,n.g.position.y+1.3,n.z);sc.add(m);PSC.push({m,x0:n.x,y0:n.g.position.y+1.3,z0:n.z,x:tx,z:tz,y:PM.position.y+.01,t:0,a:T.a,land:0});bubble(n,pick(['Here, man.','For the next song.','Keep singing!','Earned it.']),1.8);return'talk'}
+  if(TT-T.thr>1.2)n.tipC=null;return''}
+function psCoinTick(dt){for(let i=PSC.length-1;i>=0;i--){const c=PSC[i];c.t+=dt;const u=Math.min(1,c.t/.55);c.m.position.set(c.x0+(c.x-c.x0)*u,c.y0+(c.y-c.y0)*u+Math.sin(u*PI)*.7,c.z0+(c.z-c.z0)*u);c.m.rotation.x+=dt*18*(1-u);
+  if(u>=1&&!c.land){c.land=1;c.m.rotation.set(0,rnd()*TAU,0);money(c.a);sfx('coin');dmgNum(c.x,1.2,c.z,'+'+money$(c.a),'#ffd34a')}if(c.land&&c.t>4){sc.remove(c.m);c.m.material.dispose();PSC.splice(i,1)}}}

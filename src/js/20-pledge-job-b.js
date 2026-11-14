@@ -8,8 +8,8 @@ function prAbility(){if(mode!=='play'||!S.pledged||!S.prole||EV||P.kart||P.med||
   if(k==='popstar'){if(P.inside&&!NP.some(n=>n.int===P.inside&&n.dp<12)){}r.cd=TT+22;P.sing=4.2;prMelody(10,587);big('♪ ENCORE ♪',900);
     setTimeout(()=>{if(mode!=='play')return;let tip=0,calm=0,fans=0;const day=S.day;r.tip=r.tip&&r.tipD===day?r.tip:{};r.tipD=day;r.tipSum=r.tipD===day?(r.tipSum||0):0;
       for(const n of NP){if(n.down||n.hidden||!n.g.visible||(n.int||null)!==(P.inside||null)||n.dp>12)continue;if(n.aggro&&n.tgt==='P'){if(rnd()<.6){n.aggro=0;n.tgt=null;n.stun=1;bubble(n,pick(['...okay. That was beautiful.','I can\'t hit a man mid-chorus.','Is that... a key change?']),2.4);calm++}continue}
-        if(n.auth||n.temp||n.actor)continue;if(r.tip[n.uid]){bubble(n,pick(['Heard it already.','Again? Really?']),1.8);continue}r.tip[n.uid]=1;fans++;const a=Math.round((n.cl==='legacies'?1.4:n.cl==='townies'?.3:n.cl==='sororities'?.9:.6)*(.6+rnd()*.9)*4)/4;if(r.tipSum+tip+a<=15)tip+=a;bubble(n,pick(['ENCORE!','Sing it, pledge!','Okay, he can SING.','♪♪♪','Bravo!','Is this a flash mob?']),2.2);relAdd(n,1);if(n.cl==='sororities')rep('sororities',1)}
-      if(tip>0){r.tipSum+=tip;money(tip)}toast(fans||calm?`${fans} listener${fans===1?'':'s'}${tip>0?' tipped '+money$(tip):''}${calm?`, ${calm} fight${calm===1?'':'s'} called off`:''}.${r.tipSum>=15?' (Tip jar is full for today.)':''}`:'You sing to nobody. It still sounds great.',3200);if(fans>=3)gainXP(4)},1600)}
+        if(n.auth||n.temp||n.actor)continue;if(r.tip[n.uid]){bubble(n,pick(['Heard it already.','Again? Really?']),1.8);continue}r.tip[n.uid]=1;fans++;const a=Math.round((n.cl==='legacies'?1.4:n.cl==='townies'?.3:n.cl==='sororities'?.9:.6)*(.6+rnd()*.9)*4)/4;if(r.tipSum+tip+a<=15){tip+=a;n.tipC={a,t:0,thr:0};n.path=null;n.wait=0}bubble(n,pick(['ENCORE!','Sing it, pledge!','Okay, he can SING.','♪♪♪','Bravo!','Is this a flash mob?']),2.2);relAdd(n,1);if(n.cl==='sororities')rep('sororities',1)}
+      if(tip>0){r.tipSum+=tip}/* V397 the money now comes as coins people walk over and toss at his feet (psTipTick) */toast(fans||calm?`${fans} listener${fans===1?'':'s'}${tip>0?', and '+money$(tip)+' in coins coming your way':''}${calm?`, ${calm} fight${calm===1?'':'s'} called off`:''}.${r.tipSum>=15?' (Tip jar is full for today.)':''}`:'You sing to nobody. It still sounds great.',3200);if(fans>=3)gainXP(4)},1600)}
   else if(k==='stats'){r.cd=TT+.4;const now=(r.pend||[]).filter(e=>TT-e.t<8);r.pend=[];prMarkClear();if(!now.length){toast('Nothing to count. Yet. Watch for the ✎.',1600);return}
     const L=r.led||(r.led={bong:0,women:0,beers:{}});let b=0,h=0,w=0;const who={};for(const e of now){if(e.k==='beer'){b++;L.beers[e.who]=(L.beers[e.who]||0)+1;who[e.who]=(who[e.who]||0)+1}else if(e.k==='bong'){h++;L.bong++}else{w++;L.women++}}
     r.since=(r.since||0)+now.length;tone(1200,.05,'square',.04);tone(1500,.07,'square',.04,.06);gainXP(now.length);
@@ -145,7 +145,7 @@ function prTick(dt){try{pouchTick()}catch(e){}try{tgWorld(dt)}catch(e){}if(!PM||
   if(mode!=='play'||!k)return;
   if(K.KeyT){K.KeyT=0;pqT()}   // V172: R is Block now, the job move moved to T
   if(k==='delinquent')tgTick(dt,r);else P.spray=0;
-  hyTick(dt);ramTick(dt,r);gnTick(dt);bbTick(dt);cvTick(dt);if(k==='scribe')scTick();
+  hyTick(dt);ramTick(dt,r);gnTick(dt);bbTick(dt);cvTick(dt);psCoinTick(dt);if(k==='scribe')scTick();
   // ambient chatter
   if((prAmb-=dt)<=0){prAmb=26+rnd()*24;if(!P.inside||rnd()<.5){if(k==='popstar'){prSay(pick(['♪ la la laaa~ ♪','♪ Alpha Sig, oh oh ohhh~ ♪','♪ Hmm hmm hmmm~ ♪','♪ Do re mi fa SOOOL~ ♪']),2.4);prMelody(4,659);P.sing=1.5}
       else if(k==='mascot'){prSay(pick(['ALPHA SIG HOORAH!','Who\'s got spirit? ALPHA SIG!','BAAAH! Go Rams!','Hoo-rah, hoo-rah, ΑΣΡ!','Gimme an A! Gimme a SIG!','Rams don\'t lose. BAAAH!']),2.4);tone(280,.2,'sawtooth',.05)}

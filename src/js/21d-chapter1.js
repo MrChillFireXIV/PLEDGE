@@ -489,7 +489,7 @@ const C1M=[
 // swap the old chapter 1 out: the old intro/cater/dean go, the Big Brother errand moves to chapter 2
 for(const id of['arrive','cater','dean']){const i=M.findIndex(m=>m.id===id);if(i>=0)M.splice(i,1)}
 {for(const m of M)if(m.bbm){m.main=0;m.side=1}   // V199 the Big Brother story is a side mission: optional, and the chapter moves on without it
- const b=M.find(m=>m.id==='bb1');if(b)b.ch=2;const b2=M.find(m=>m.id==='bb2');if(b2&&!(b2.pre||[]).includes('bb1'))b2.pre=(b2.pre||[]).concat('bb1')}
+ const b=M.find(m=>m.id==='bb1');if(b){b.ch=2;/* V397 the Big Brother side quest opens only once King of the Hill is over */if(!(b.pre||[]).includes('c2koth'))b.pre=(b.pre||[]).concat('c2koth')}const b2=M.find(m=>m.id==='bb2');if(b2&&!(b2.pre||[]).includes('bb1'))b2.pre=(b2.pre||[]).concat('bb1')}
 M.unshift(...C1M);
 
 /* slap: Grant smacks Danny when he says "I'm not my dad" */
