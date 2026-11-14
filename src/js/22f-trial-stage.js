@@ -63,9 +63,10 @@ function trOpen(k,i,type){if(mode==='title'||P.inside)return;const L=TRL[k+i];if
   TRS={k,i,L,type,g,a:best,gy,tw:[],ppl:[],t:0,gs:null,dan:{x:0,y:0,z:0,ry:0},on:null,base:null,hid:[],face0:P.face,sk:null,cam:{p:[2.5,2.5,-3.4],l:[.2,.9,2.2]},beat:0,nb:0};
   P.face=best;P.vx=P.vz=0;
   /* clear bystanders off the stage */
-  for(const n of NP){if(n.g&&n.g.visible&&!n.int&&Math.hypot(n.x-P.x,n.z-P.z)<11&&!n.c4tag){n.g.visible=false;TRS.hid.push(n)}}
+  for(const n of NP){if(n.pqk||!(n.g&&n.g.visible&&!n.int&&Math.hypot(n.x-P.x,n.z-P.z)<11&&!n.c4tag))continue;n.g.visible=false;TRS.hid.push(n)}
   const fx=Math.sin(best),fz=Math.cos(best),free=(x,z)=>{const w=trW(x,0,z);return freeAt(w.x,w.z,.35)};
   ({meter:trMeter,beat:trBeat,mem:trMem,sort:trSort,quiz:trQuiz,grid:trGrid})[L.a](L);
+  /* V414 the brother keeping this trial stands off to the side with his arms folded and watches */{const b=pqKeeper(i);if(b&&b.g){const sd=free(-2.6,-.4)?-1:1,w=trW(2.6*sd,0,-.4),ox=b.x,oz=b.z;b.x=w.x;b.z=w.z;try{bodyBuild(b.g)}catch(e){}b.g.visible=true;b.g.position.set(w.x,gy,w.z);b.g.rotation.y=best+sd*-.9;try{animP(b.g,0,1,'')}catch(e){}const p=b.g.P;if(p&&p.aL){p.aL.rotation.set(-.75,0,.55);p.aR.rotation.set(-.75,0,-.55);p.eL.rotation.set(-1.75,0,0);p.eR.rotation.set(-1.75,0,0)}TRS.undo=(TRS.undo||[]).concat(()=>{b.x=ox;b.z=oz})}}
   /* V413 the Pop Star's trials have an audience, and they are not kind */if(k==='popstar')trAudience();
   /* camera: over his right shoulder unless that side is blocked */
   const c=TRS.cam,clr=sd=>(free(c.p[0]*sd,c.p[2])?2:0)+(free(c.p[0]*sd*.6,c.p[2]*.6)?1:0)+(free(c.p[0]*sd*.3,c.p[2]*.3+.3)?1:0);if(clr(-1)>clr(1)){c.p[0]=-c.p[0];c.l[0]=-c.l[0]}

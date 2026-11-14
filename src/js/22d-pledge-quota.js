@@ -131,7 +131,7 @@ function pqSpots(){const q=pqGet();if(!q)return[];if(PQC&&PQC.k===q.k)return PQC
   const put=(kind,i,id)=>{const p=pqPlace(id);let x=p[2]+3.2,z=p[3]+2.6,ok=0;for(const[dx,dz]of[[6,4.5],[-6,4.5],[6,-4.5],[-6,-4.5],[0,6.5],[0,-6.5],[3.2,2.6],[-3.2,2.6],[9,0],[-9,0],[0,9],[0,-9],[10,8],[-10,-8]]){if(freeAt(p[2]+dx,p[3]+dz,.5)){x=p[2]+dx;z=p[3]+dz;ok=1;break}}if(!ok){try{[x,z]=nearFree(x,z,.5)}catch(e){}}s.push({kind,i,x,z,place:p[1]})};
   D.sp.forEach((a,i)=>put('sp',i,a[0]));D.mg.forEach((a,i)=>put('mg',i,a[0]));PQC={k:q.k,s};return s}
 function pqPrompts(add){if(P.inside||TSN)return;const q=pqGet();if(!q)return;const D=PQ[q.k];
-  for(const s of pqSpots()){if(q[s.kind][s.i])continue;if(s.kind==='sp')add(s.x,s.z,2.9,'Special case: '+D.sp[s.i][1],()=>pqSpecial(s.i),1);else add(s.x,s.z,2.9,'Pledge trial: '+D.mg[s.i][1],()=>pqPlay(s.i),1)}}
+  for(const s of pqSpots()){if(q[s.kind][s.i])continue;if(s.kind==='sp')add(s.x,s.z,2.9,'Special case: '+D.sp[s.i][1],()=>pqSpecial(s.i),1);else{const b=pqKeeper(s.i);add(s.x,s.z,2.9,(b?'Ask '+b.name.split(' ')[0]+' about the trial: ':'Pledge trial: ')+D.mg[s.i][1],()=>pqBrief(s.i),1)}}}
 function pqSpecial(i){const q=pqGet();if(!q||q.sp[i])return;const D=PQ[q.k],a=D.sp[i];q.sp[i]=1;prSay(a[2],3.2);sfx('ok');tone(660,.1,'triangle',.07);tone(880,.14,'triangle',.07,.12);gainXP(6);
   try{for(const n of prNearN(10,m=>!m.auth&&!m.temp).slice(0,3)){bubble(n,pick(['Is that… a pledge?','Classic ΑΣΡ.','Should we tell someone?','Ha! Do it again.','I respect the commitment.']),2.2)}}catch(e){}
   pqBump('Special case '+Object.keys(q.sp).length+' of 5 done.')}
@@ -164,7 +164,7 @@ async function pqIntro(){if(S.pqI||PQ_IB)return;const q=pqGet();if(!q)return;PQ_
     try{await c8Lines([[DANNY,'(A quota. Of course there is a quota.)']])}catch(e){}}
   }catch(e){console.warn(e)}
   S.pqI=1;PQ_IB=0;if(mode==='cine'&&!CINE)mode='play';toast('Pledge quota: '+pqPct()+'%. Details are in the Planner (Tab → Pledge Class). Marked spots show up around campus.',6000);try{saveGame()}catch(e){}}
-function pqTick(){pqMarks();const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;/* V363 Grant explains the quota only once, at the end of chapter 1 when Danny pledges. A save or chapter skip past chapter 1 counts it as heard (the Planner's quota box explains it) */if(S.ch>=2||S.done.c1decide){S.pqI=1;return}pqIntro()}
+function pqTick(){pqMarks();try{pqKeepers()}catch(e){}const q=pqGet();if(!q||S.pqI||PQ_IB||mode!=='play'||AM||CINE||EV||prSpinOn||P.inside!=='asr'||P.dead)return;/* V363 Grant explains the quota only once, at the end of chapter 1 when Danny pledges. A save or chapter skip past chapter 1 counts it as heard (the Planner's quota box explains it) */if(S.ch>=2||S.done.c1decide){S.pqI=1;return}pqIntro()}
 // ---------------------------------------------------------------- the Hell Week gate
 let PQ_GT=-99;
 function pqGate(){if(pqOK())return false;if(TT-PQ_GT>40){PQ_GT=TT;const pc=pqPct();setTimeout(()=>{if(mode==='play')toast('Hell Week will not start until your pledge quota is full. You are at '+pc+'%. Check the Planner (Tab → Pledge Class).',7000)},2600)}return true}
@@ -192,3 +192,19 @@ function pqHTML(job){const p=pqParts();if(!p)return'';const{q,D}=p,pc=pqPct(),R_
 function pqMapDraw(q,X,Z,f,disc,hit){if(!SET.pqm)return;const p=pqGet();if(!p)return;const D=PQ[p.k],col=PR[p.k].c;for(const s of pqSpots()){if(p[s.kind][s.i])continue;const x=X(s.x),y=Z(s.z),r=7.5*f;disc(x,y,r,col,'#fff8e6',2);q.shadowBlur=0;q.fillStyle='#fff8e6';
     if(s.kind==='sp'){q.beginPath();for(let i=0;i<10;i++){const a=-PI/2+i*PI/5,rr=i%2?r*.28:r*.66;q.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}q.closePath();q.fill()}else{q.lineWidth=1.6*f;q.strokeStyle='#fff8e6';q.beginPath();q.arc(x,y,r*.55,0,TAU);q.stroke();q.beginPath();q.arc(x,y,r*.2,0,TAU);q.fill()}
     hit(x,y,r,s.kind==='sp'?'Pledge job · special case':'Pledge job · trial',s.kind==='sp'?D.sp[s.i][1]:D.mg[s.i][1]+' ('+s.place+')',s.x,s.z,null)}}
+
+/* V414 a brother stands guard at every open trial and explains it before Danny starts. PQK = {k, n:[npc per trial]} */
+let PQK=null;
+const PQKN=[['Dale Whitlock','Reggie Stroud','Colt Marrow'],['Hugh Pennant','Mason Doyle','Tripp Hollis'],['Wes Calder','Boone Akers','Jonah Speight']];
+function pqKeeper(i){const n=PQK&&PQK.n[i];return n&&NP.includes(n)?n:null}
+function pqKeepers(){const q=pqGet(),k=q&&mode!=='title'?q.k:null;if(!PQK)PQK={k:null,n:[]};
+  if(PQK.k!==k){for(const n of PQK.n)if(n&&NP.includes(n))despawn(n);PQK={k,n:[]}}if(!k)return;
+  const ki=PR_KEYS.indexOf(k);for(const s of pqSpots()){if(s.kind!=='mg')continue;const n=PQK.n[s.i];
+    if(q.mg[s.i]){if(n&&NP.includes(n)&&!(TRS||TSN)&&n.dp>30){despawn(n);PQK.n[s.i]=null}continue}
+    if(n&&NP.includes(n))continue;let x=s.x+1.5,z=s.z+.6;for(const[dx,dz]of[[1.5,.6],[-1.5,.6],[1.2,-1.2],[-1.2,-1.2],[0,1.8],[0,-1.8]])if(freeAt(s.x+dx,s.z+dz,.4)){x=s.x+dx;z=s.z+dz;break}
+    const m=spawn('brothers','greek',{x,z,a:Math.atan2(s.x-x,s.z-z),mode:'idle',named:1,fem:false,lvl:6,name:PQKN[s.i][ki%3],title:'ΑΣΡ Brother · '+PQ[k].mg[s.i][1]+' trial'});m.pqk=1;m.noTalk=1;m.hx=x;m.hz=z;m.int=null;PQK.n[s.i]=m}}
+/* the keeper explains the trial in a conversation box, then it starts */
+function pqBrief(i){const q=pqGet();if(!q||q.mg[i])return;const D=PQ[q.k],a=D.mg[i],b=pqKeeper(i),C=TRSNEAK[q.k+i];if(!b||b.down){pqPlay(i);return}
+  b.a=Math.atan2(P.x-b.x,P.z-b.z);const how={meter:'Stop the needle in the green. Five tries.',rhythm:'Tap on every beat. Keep it steady.',memory:'Watch the order the colours light up, then play it back. Three rounds.',sort:'Put each one where it belongs.',quiz:'Four questions. Multiple choice.',math:'Four problems. Multiple choice.',grid:'Queue up your moves to the green square, then run them.'}[a[2]];
+  const txt=C?`${a[1]}. ${C.line} See those green cones in front of the ${C.who.toLowerCase()}s? Step into one for too long and you start over. Three strikes and you\'re done for today.`:`${a[1]}. ${a[3].intro} ${how||''} Pass it and it goes on your ${PR[q.k].n} quota.`;
+  card({title:a[1],sp:b.name+' · ΑΣΡ Brother',text:'"'+txt+'"',focus:b,ch:[['"Let\'s do it."',()=>setTimeout(()=>{if(mode==='play')pqPlay(i)},80)],['"Not right now."',null]]})}
