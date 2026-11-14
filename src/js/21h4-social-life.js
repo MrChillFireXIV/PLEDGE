@@ -17,7 +17,7 @@ const angTo=(n,x,z,dt,k)=>{n.a+=((((Math.atan2(x-n.x,z-n.z)-n.a)%TAU)+TAU*1.5)%T
 const socVis=m=>m&&NP.includes(m)&&m.g&&m.g.visible&&!m.hidden&&!m.down;
 function socFree(m){return socVis(m)&&m.al&&m.al.k==='act'&&!m.al.cv&&ambOK(m)&&!m.aggro}
 // what a person does when standing around (context-weighted): phone most, dancing rarely except on Greek Row at night
-function socAct(n){const night=NIGHT>.55,row=n.zone==='greek'||n.zone==='greekN';const W=[['phone',5],['call',2],['coffee',2],['look',3],['stretch',.8],['dance',night&&row?3:.35],['selfie',.8],['pic',.8],['pose',.6],['tie',.4],['wave',.6],['pray',.15]];
+function socAct(n){const night=NIGHT>.55,row=n.zone==='greek'||n.zone==='greekN';const W=[['phone',5],['call',2],['coffee',2],['look',3],['stretch',.8],['dance',night&&row?3:.35],['selfie',.8],['pic',.8],['pose',.6],['tie',.4],['wave',.6],['pray',.03]];
   let s=0;for(const a of W)s+=a[1];let r=rnd()*s;for(const a of W){r-=a[1];if(r<=0)return a[0]}return'phone'}
 function socSet(n,A,k,o){A.k=k;A.t=0;A.goal=null;n.path=null;Object.assign(A,o||{})}
 function socAt(n,A,act,t){socSet(n,A,'act',{act:act||socAct(n),t:t||4+rnd()*9});ambStart(n,A)}

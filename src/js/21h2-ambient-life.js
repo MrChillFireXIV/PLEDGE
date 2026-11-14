@@ -3,7 +3,7 @@
 // walk somewhere (sometimes jogging), stop and do something for a while (check a phone, take a call, stretch, dance, look around,
 // wave to a friend), then move on. Home-anchored loungers (porch/lawn people) wander a few metres from their spot and come back.
 // They only glance at Danny when he is right next to them. Hooks: npcUpd (21) calls ambOK/ambLife and ambPose.
-const AMBACTS=[['phone',3],['call',2],['stretch',1],['dance',1],['look',2],['wave',1],['coffee',2],['tie',1],['pray',1],['pic',2],['selfie',1],['pose',2]];
+const AMBACTS=[['phone',3],['call',2],['stretch',1],['dance',1],['look',2],['wave',1],['coffee',2],['tie',1],['pray',.12],['pic',2],['selfie',1],['pose',2]];
 function ambOK(n){return!!(!n.named&&!n.temp&&!n.actor&&!n.int&&!n.auth&&!n.pclass&&!n.pledge&&!n.statue&&!n.fb&&!n.shop&&!n.role&&!n.roam&&!n.def&&!n.rob&&!n.kid&&n.mode!=='chat'&&n.mode!=='play'&&n.mode!=='guard'&&!EV)}
 function ambPick(){let s=0;for(const a of AMBACTS)s+=a[1];let r=rnd()*s;for(const a of AMBACTS){r-=a[1];if(r<=0)return a[0]}return'look'}
 function ambReset(n){const A=n.al;if(A){try{if(A.cv)convLeave(n,A.cv);if(A.seat&&A.seat.by===n)A.seat.by=null}catch(e){}}n.al=null;n.alPose=null;n.alSub=null;if(n.alProp)for(const k in n.alProp)n.alProp[k].visible=false}
