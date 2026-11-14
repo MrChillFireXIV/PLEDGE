@@ -37,6 +37,7 @@ js/21e-chapter2.js
 js/21i-chapter3.js
 js/21i2-kto-party.js
 js/21i4-kto-raid.js
+js/21i5-framing.js
 js/21i3-asr-exterior.js
 js/21j-chapter4.js
 js/21k-chapter4-game.js
