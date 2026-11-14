@@ -50,3 +50,18 @@ function tgWorld(dt){for(let i=TGP.length-1;i>=0;i--){const o=TGP[i];o.t+=dt;o.s
 function tgNagTick(n,dt){const g=n.nag;if(!g||mode!=='play'){n.nag=null;return''}if(n.dp>26||(n.int||null)!==(P.inside||null)||P.dead){if(n.dp<40)bubble(n,pick(['Yeah, keep walking!','Coward.']),2);n.nag=null;return''}
   if(n.dp>1.8)navTo(n,P.x,P.z,2.8,dt);else n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,dt*6);
   if(TT>=g.nx&&n.dp<9){g.nx=TT+2.6;if(g.c>=TGNAG.length){tgFight(n,g.t);return'guard'}bubble(n,TGNAG[g.c++],2.4)}return n.dp<=1.8?'talk':''}
+
+// ---------------------------------------------------------------- V376 Hype Pledge: T drops the beat for 5 s. He jumps with the boombox, notes fly out of it,
+// and people nearby put their hands up, come in close and jump with him. He can walk off whenever he wants; the dancers stop when it ends or he leaves.
+const HYN=[];
+function hyStart(){P.hype=5;const B=[98,98,131,110],M=[523,659,784,659,587,698,880,698];for(let i=0;i<10;i++){const t=i*.5;tone(B[i%4],.16,'sine',.16,t);tone(B[i%4]*2,.08,'square',.03,t);noise(.05,.05,i%2?5200:900);if(i%2)tone(M[(i/2|0)%8],.22,'triangle',.05,t+.25)}
+  for(let i=1;i<10;i++)setTimeout(()=>{if(P.hype>0&&mode==='play')noise(.05,.05,i%2?5200:900)},i*500);
+  const L=NP.filter(n=>!n.down&&!n.kid&&!n.hidden&&n.g&&n.g.visible&&!n.actor&&!n.statue&&!n.auth&&!n.aggro&&!n.chase&&!n.job&&!n.nag&&!n.follow&&!n.ally&&!n.mute&&!n.named&&!n.dance&&(n.int||null)===(P.inside||null)&&n.dp<13).sort((a,b)=>a.dp-b.dp).slice(0,7);
+  L.forEach((n,i)=>{n.dance={t:5,a:Math.atan2(n.z-P.z,n.x-P.x)+(rnd()-.5)*.6,r:1.7+(i%3)*.55,ph:rnd()};n.path=null;n.wait=0;if(i<3)setTimeout(()=>{if(n.dance)bubble(n,pick(['AYYY!','This is my SONG!','Hands up!','LET\'S GO!','Okay, okay, I see you!']),1.8)},300+i*400)})}
+function hyEnd(n,ok){n.dance=null;n.path=null;if(n.g)n.g.HPF=null;if(ok&&rnd()<.4)bubble(n,pick(['That was fire.','Again tomorrow?','My legs, man.']),1.8)}
+function hyDanceTick(n,d_){const D=n.dance;D.t-=d_;if(D.t<=0||P.hype<=0||n.dp>16||(n.int||null)!==(P.inside||null)){hyEnd(n,D.t<=0||P.hype<=0);return''}
+  const tx=P.x+Math.cos(D.a)*D.r,tz=P.z+Math.sin(D.a)*D.r,ds=Math.hypot(tx-n.x,tz-n.z);if(ds>.35){navTo(n,tx,tz,ds>2.5?3.4:1.8,d_);D.at=0;return''}D.at=1;n.a+=((((Math.atan2(P.x-n.x,P.z-n.z)-n.a)%TAU)+TAU*1.5)%TAU-PI)*Math.min(1,d_*5);return''}
+function hyDancePose(n){const D=n.dance,p=n.g.P;if(!D||!p||!p.aL)return;n.g.HPF='open';const k=D.at?1:.5,b=Math.abs(Math.sin((TT+D.ph*.5)*PI*2));if(D.at)n.g.position.y+=b*.22;
+  p.aL.rotation.set((-2.65+b*.3)*k,0,-.4*k);p.aR.rotation.set((-2.65+(1-b)*.3)*k,0,.4*k);p.eL.rotation.set(-.3,0,0);p.eR.rotation.set(-.3,0,0);if(p.head)p.head.rotation.x+=(b-.5)*.18;if(p.kL&&D.at){p.kL.rotation.x=.35*b;p.kR.rotation.x=.35*b}}
+function hyTick(dt){if(!(P.hype>0))return;P.hype-=dt;if(!isR('hype')||mode!=='play'){P.hype=0;return}const bx=PM.userData.box;if(bx&&(hyTick.n=(hyTick.n||0)-dt)<=0){hyTick.n=.22;const v=new THREE.Vector3();bx.getWorldPosition(v);
+    const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texNote(),transparent:true,depthWrite:false}));s.scale.setScalar(.34);s.position.set(v.x+(rnd()-.5)*.3,v.y+.15,v.z+(rnd()-.5)*.3);sc.add(s);prNotes.push({s,t:0,vx:(rnd()-.5)*1.2})}}

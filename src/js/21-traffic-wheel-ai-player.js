@@ -312,6 +312,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   else if(n.aggro){fightAI(n,dt);st=n.punch>0?'punch':'guard';n.punch-=dt}
   else if(n.rob===1){navTo(n,P.x,P.z,2.9,dt)}
   else if(n.nag){st=tgNagTick(n,dt)}
+  else if(n.dance){st=hyDanceTick(n,dt)}
   else if(n.follow){}
   else if(n.flee>0){n.flee-=dt;moveTo(n,n.x-dx,n.z-dz,3.6,dt)}
   else if(n.job){if(jobTick(n,dt)){animP(n.g,0,n.t,'');return}}
@@ -334,7 +335,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   if((n.ally||n.follow)&&!n.down){n.hostCd-=dt;if(n.hostCd<=0){n.hostCd=.5;const foe=NP.filter(m=>(m.foe||(m.aggro&&m.tgt==='P')||(m===P.lastHit&&TT-P.lastHitT<6))&&!m.down&&!m.ally&&!m.follow&&(m.int||null)===(P.inside||null)&&Math.hypot(m.x-P.x,m.z-P.z)<20).sort((a,b)=>Math.hypot(a.x-n.x,a.z-n.z)-Math.hypot(b.x-n.x,b.z-n.z))[0];if(foe){n.aggro=1;n.tgt=foe}else{n.aggro=0;n.tgt=null}}if(!n.aggro&&n.ally&&allyLead(n,dt)){}else if(!n.aggro&&(n.follow||n.dp>3.2)){const[sx,sz]=folSlot(n),ds=Math.hypot(sx-n.x,sz-n.z);if(ds>.45)navTo(n,sx,sz,n.dp>7?6.4:ds>2.5?4.2:2.8,dt);else if(n.follow)n.a=P.face}}
   // authority
   if(n.auth&&!EV){const rng=(n.cl==='ra'?12:n.cl==='cops'?18:16)*(NIGHT>.6?.75:1)*(K.KeyC||toggles.KeyC?.7:1);if(n.dp<rng&&canSee(n,rng)){n.lastSeen=0;SEEN=1;if(OFFENSE){trouble(26*dt);if(rnd()<dt*.5&&(!n.bub||!n.bub.visible))bubble(n,'Curfew, kid!')}if(S.trouble>=25&&!n.chase){n.chase=1;bubble(n,'Stop right there!',2);sfx('whistle')}}else n.lastSeen+=dt;if(n.chase){CHASED=1;if(n.lastSeen>5||S.trouble<1){n.chase=0}}}
-  n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;animP(n.g,n.sp,n.t,st);if(n.c3wired)c3WiredPose(n);if(n.c3guard)c3kGuardPose(n);if(amb)ambPose(n);else if(n.alPose||n.alProp){n.alPose=null;ambPose(n)}
+  n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;animP(n.g,n.sp,n.t,st);if(n.dance)hyDancePose(n);if(n.c3wired)c3WiredPose(n);if(n.c3guard)c3kGuardPose(n);if(amb)ambPose(n);else if(n.alPose||n.alProp){n.alPose=null;ambPose(n)}
   if(n.dp<30&&!n.mute){if(!n.tag)mkTag(n);else if(n.tagHp!==n.hp||n.tagLv!==S.lvl)drawTag(n);n.tag.visible=true}else if(n.tag){n.tag.visible=false;if(n.dp>60)tagDrop(n)}}
 let PRT=0,SEEN=0,CHASED=0,OFFENSE=null,NIGHT=0;
 
