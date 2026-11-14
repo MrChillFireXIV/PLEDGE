@@ -182,7 +182,7 @@ function nearest(){let best=null,bd=1e9;const add=(x,z,r,label,f,pri=1)=>{const 
   if(!P.inside)for(const m of av){if(C1PEND.has(m.id))continue;const w=mWho(m);if(w&&NN[w])continue;const[x,z]=mAt(m);add(x,z,2.6,'Start task: '+m.name,()=>tryStart(m),0)}
   if(EV)return best;
   try{lootPrompts(add)}catch(e){}
-  for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?0:2)}
+  for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?-100:2)}/* V417 a task giver in reach wins over a bystander who happens to stand closer */
   try{pqPrompts(add)}catch(e){}try{c2Prompts(add)}catch(e){}try{c3Prompts(add)}catch(e){}try{c4Prompts(add)}catch(e){}try{c5Prompts(add)}catch(e){}try{c6Prompts(add)}catch(e){}try{c7Prompts(add)}catch(e){}try{c8Prompts(add)}catch(e){}try{c9Prompts(add)}catch(e){}try{c10Prompts(add)}catch(e){}
   if(P.inside){const I=INT[P.inside];if(I)for(const o of I.objs)add(o.x,o.z,o.r,o.label,o.f,1);return best}
   if(!P.inside){if(S.ch>=3&&P.z<OD)add(70,699,3.2,'Enter the Lake District',()=>lakeGo(1),2);else if(P.z>OD&&P.z<INTZ)add(70,LZ+546.5,3.2,'Leave the Lake District',()=>lakeGo(0),2)}

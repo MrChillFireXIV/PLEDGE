@@ -206,7 +206,7 @@ function throneRise(n){if(!n.throne||!n.statue)return;const g=n.g,P_=g.P;n.seat=
   let x=n.seat[0],z=n.seat[1]+3.3;if(!freeAt(x,z,.34)){let ok=0;for(let r=.5;r<4&&!ok;r+=.5)for(let k=0;k<12&&!ok;k++){const a=k/12*TAU,xx=x+Math.cos(a)*r,zz=z+Math.sin(a)*r;if(freeAt(xx,zz,.34)){x=xx;z=zz;ok=1}}}
   n.x=x;n.z=z;n.path=null;n.job=null;n.a=Math.atan2(P.x-x,P.z-z);g.position.set(x,terrH(x,z),z);g.rotation.set(0,n.a,0);
   bubble(n,pick(['Oh, you did NOT just do that.','Get off my dais, pledge.','You just made the biggest mistake of your pledgeship.','I was hoping you would try that.']),2.6);tone(110,.25,'sawtooth',.06)}
-function throneReseat(n){if(!n.seat)return;n.rose=0;n.aggro=0;n.tgt=null;n.chase=0;n.path=null;n.job=null;n.x=n.seat[0];n.z=n.seat[1];n.a=n.seat[2];n.g.rotation.set(0,n.a,0);throneSit(n)}
+function throneReseat(n){if(!n.seat)return;n.rose=0;n.roseT=0;n.rhp=null;n.hp=n.mhp;n.stun=0;n.aggro=0;n.tgt=null;n.chase=0;n.path=null;n.job=null;n.x=n.seat[0];n.z=n.seat[1];n.a=n.seat[2];n.g.rotation.set(0,n.a,0);throneSit(n)}
 function throneSit(n){const g=n.g,P_=g.P;n.statue=1;n.throne=1;n.sx=n.x;n.sz=n.z;n.sy=.35;g.position.set(n.sx,n.sy,n.sz);g.rotation.set(0,n.a,0);
   if(P_.kL){g.RAG=1;for(const[l,k_,s_]of[[P_.lL,P_.kL,-1],[P_.lR,P_.kR,1]]){l.rotation.set(-1.55,0,s_*.07);k_.rotation.set(1.55,0,0)}P_.spine.rotation.x=-.04;for(const[ar,e_,s_]of[[P_.aL,P_.eL,-1],[P_.aR,P_.eR,1]]){ar.rotation.set(-.3,0,s_*.14);e_.rotation.set(-1,0,0)}}
   else{for(const[l,s_]of[[P_.lL,-1],[P_.lR,1]])l.rotation.set(-1.45,0,s_*.07);for(const[ar,s_]of[[P_.aL,-1],[P_.aR,1]])ar.rotation.set(-.5,0,s_*.1)}
