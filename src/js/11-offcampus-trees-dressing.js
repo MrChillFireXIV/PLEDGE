@@ -9,11 +9,11 @@ function robTick(dt){if(ROB.n){const n=ROB.n;ROB.t+=dt;
     else if(n.rob===4){if(n.down>0){if(!n.won){n.won=1;ROB.t=0;const c=10+Math.floor(rnd()*16);money(c);toast(`You fought off the mugger and found ${money$(c)} on him.`)}else if(ROB.t>15)robEnd()}else if(n.dp>45||P.inside){bubble(n,'Not worth it.',2);robEnd()}}
     return}
   if(mode!=='play'||AM||EV||CINE||P.inside||P.kart)return;ROB.cd-=dt;if(ROB.cd>0)return;
-  const night=S.gt>=21||S.gt<5,key=S.day-(S.gt<5?1:0);if(!night||ROB.night===key||!offCampus(P.x,P.z))return;
-  if((ROB.roll-=dt)>0)return;ROB.roll=4;if(rnd()>.06&&!ROB.force)return;
+  /* V383 after curfew (11 PM to 6 AM) muggers work anywhere off Greek Row, more often, up to three times a night */const cur=S.gt>=23||S.gt<6,night=S.gt>=21||S.gt<5||cur,key=S.day-(S.gt<6?1:0);if(!night)return;if(ROB.night!==key){ROB.night=key;ROB.cnt=0}if(ROB.cnt>=(cur?3:1))return;if(cur?(P.x<134&&P.z<160):!offCampus(P.x,P.z))return;
+  if((ROB.roll-=dt)>0)return;ROB.roll=4;if(rnd()>(cur?.15:.06)&&!ROB.force)return;
   // come up from behind, out of sight
   const bx=-Math.sin(P.face),bz=-Math.cos(P.face);let sp=null;for(const d of[13,10,16,8])for(const s of[0,.5,-.5,1,-1]){const a=Math.atan2(bx,bz)+s,x=P.x+Math.sin(a)*d,z=P.z+Math.cos(a)*d;if(!sp&&freeAt(x,z,.5)&&!inLake(x,z))sp=[x,z]}
-  if(!sp)return;ROB.night=key;ROB.t=0;
+  if(!sp)return;ROB.cnt=(ROB.cnt||0)+1;ROB.t=0;
   const n=spawn('townies','heights',{x:sp[0],z:sp[1],temp:1,name:'Stranger',title:'Armed mugger',lvl:clamp(S.lvl+1,3,12),lvAbs:1,shirt:0x1b1c20,sleeve:0x1b1c20,pants:0x23262c,mode:'idle'});
   n.rob=1;n.robber=1;n.mhp=n.hp=Math.round(n.mhp*1.3);n.mode='idle';ROB.n=n;bubble(n,'Hey. Hold up a sec.',2.5)}
 function robConfront(n){n.rob=2;n.sp=0;n.a=Math.atan2(P.x-n.x,P.z-n.z);P.bike=0;sfx('bad');
