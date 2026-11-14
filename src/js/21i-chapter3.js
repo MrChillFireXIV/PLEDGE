@@ -260,9 +260,39 @@ function c3UcCuffs(){const s=c3S();s.busted=1;S.stats.busts++;money(-Math.min(S.
   if(S.pledged)classSpirit(-5,'Grant makes the whole pledge class do push-ups because you got arrested. Class Spirit −5.');
   S.trouble=0;NP.forEach(n=>{n.chase=0});goOut(SPOT.ASR[0]-1,SPOT.ASR[1]);advance(3);
   failMission('You were arrested selling to an undercover cop.')}
-function c3UcPass(n){const s=c3S();s.ucDone=1;
-  card({title:'The Executive Secret',sp:'',text:`You put your hands in your pockets and keep your mouth shut. He waits. You wait longer.\n\nFinally the act drops, and so do his shoulders. A silver badge swings out on its chain. "Narcotics. Smart kid. Next time I won't be this patient."\n\nHe walks away without looking back. You wait until he's gone, then drop the last 8 ball down a storm drain.`,
-    ch:[['Breathe out',()=>{n.c3sold=1;s.sold++;sfx('ok');toast('Close call. Four sold, one gone.',2800);setTimeout(()=>{if(NP.includes(n))despawn(n)},3200);updObj()}]]})}
+/* V419 the stand-off with the undercover is played out as a scene (it used to be one text card): Danny waits him out with his hands in his pockets, the badge comes out, the cop talks in the normal conversation box and walks off, and Danny drops the last bag down a storm drain */
+function c3UcPass(n){const s=c3S();s.ucDone=1;const M_=[];let fin=0;
+  const end=()=>{if(fin)return;fin=1;for(const m of M_)m.parent&&m.parent.remove(m);n.c3sold=1;s.sold++;sfx('ok');toast('Close call. Four sold, one gone.',2800);if(NP.includes(n)){C4.pups=C4.pups.filter(q=>q!==n);despawn(n)}updObj()};
+  if(!n||!NP.includes(n)||!n.g){end();return}
+  c6Cine(async()=>{let dx=n.x-P.x,dz=n.z-P.z,L=Math.hypot(dx,dz)||1;dx/=L;dz/=L;if(L<1.5||L>2.6){const[x,z]=c3Free(n.x-dx*1.9,n.z-dz*1.9);P.x=x;P.z=z;dx=n.x-P.x;dz=n.z-P.z;L=Math.hypot(dx,dz)||1;dx/=L;dz/=L}
+    const y=terrH(P.x,P.z),mx=(P.x+n.x)/2,mz=(P.z+n.z)/2,fa=Math.atan2(dx,dz);/* the camera works from whichever side of the pair is open ground */const open=k=>freeAt(mx+dz*3.6*k,mz-dx*3.6*k,.7)&&freeAt(mx+dz*2*k,mz-dx*2*k,.5),sk=open(1)?1:open(-1)?-1:1,sx=dz*sk,sz=-dx*sk;
+    c4DanAt(P.x,P.z,fa);C4.dan.arms=.16;
+    n.grab=1;n.noTalk=1;n.a=fa+PI;n.pup={tx:n.x,tz:n.z,v:1.7,st:'',y:null,t:0,face:fa+PI,lean:0,lie:0};n.g.rotation.order='YXZ';if(!C4.pups.includes(n))C4.pups.push(n);c4PupPlace(n,0);
+    c4Shot([mx+sx*3.6,y+1.7,mz+sz*3.6],[mx,y+1.2,mz]);c4Shot([mx+sx*3.1,y+1.6,mz+sz*3.1],[mx,y+1.2,mz],.25);
+    c1Sub('','Danny puts his hands in his pockets and keeps his mouth shut.');await c4Wt(2.6);c1Sub(null);
+    c4Shot([P.x-dx*.9+sx*.75,y+1.75,P.z-dz*.9+sz*.75],[n.x,y+1.45,n.z]);
+    await c1Line(n,'A hundred, kid. One bag. Nobody\'s looking. …Well?');SCENE=null;
+    c4Shot([n.x+dx*.6-sx*.7,y+1.7,n.z+dz*.6-sz*.7],[P.x,y+1.5,P.z]);c1Sub('','He waits. Danny waits longer.');await c4Wt(2.8);c1Sub(null);
+    /* the act drops: head down, shoulders down, and the badge swings out on its chain */
+    const bd=new THREE.Group(),sil=mt(0xdfe4ee,.22,.9);const ch1=new THREE.Mesh(bgeo(.012,.2,.012),sil);ch1.position.y=-.1;const pl=new THREE.Mesh(new THREE.CylinderGeometry(.095,.075,.025,6),new THREE.MeshStandardMaterial({color:0xe8ecf4,metalness:.9,roughness:.2,emissive:0x8a94a8,emissiveIntensity:.5}));pl.rotation.x=PI/2;pl.position.y=-.24;bd.add(ch1,pl);bd.position.set(0,1.46,.235);n.g.add(bd);M_.push(bd);let bt=0;
+    n.pup.post=g=>{bt+=1/30;bd.rotation.z=Math.sin(bt*6)*.3*Math.exp(-bt*.7);const q=g.P;if(q&&q.head)q.head.rotation.x=.3*Math.min(1,bt*2);if(q&&q.aL&&q.aR){q.aL.rotation.set(.05,0,.1);q.aR.rotation.set(.05,0,-.1)}};
+    c4Shot([n.x-dx*1.05+sx*.62,y+1.42,n.z-dz*1.05+sz*.62],[n.x,y+1.28,n.z]);c4Shot([n.x-dx*.9+sx*.5,y+1.4,n.z-dz*.9+sz*.5],[n.x,y+1.26,n.z],.3);sfx('ui');
+    c1Sub('','His shoulders drop. A silver badge swings out on its chain.');await c4Wt(2.4);c1Sub(null);
+    n.title='Harrowgate PD · Narcotics';c4Shot([P.x-dx*.9+sx*.75,y+1.75,P.z-dz*.9+sz*.75],[n.x,y+1.45,n.z]);
+    await c1Line(n,'Narcotics. Smart kid. Next time I won\'t be this patient.');SCENE=null;/* the conversation box holds Danny's facing until it is let go */
+    /* he walks off without looking back: pick the clearest way that leads away from Danny */
+    let wa=fa;for(const o of[0,.8,-.8,1.5,-1.5]){const a=fa+o;if(freeAt(n.x+Math.sin(a)*4,n.z+Math.cos(a)*4,.4)&&freeAt(n.x+Math.sin(a)*8,n.z+Math.cos(a)*8,.4)){wa=a;break}}
+    n.pup.post=null;c4To(n,n.x+Math.sin(wa)*15,n.z+Math.cos(wa)*15,1.9);
+    c4Shot([P.x-dx*2.3+sx*1.3,y+1.9,P.z-dz*2.3+sz*1.3],[n.x+Math.sin(wa)*5,y+1.2,n.z+Math.cos(wa)*5]);c1Sub('','He walks away without looking back.');await c4Wt(3.6);c1Sub(null);
+    n.hidden=1;n.g.visible=false;
+    /* the storm drain */
+    const[gx,gz]=c3Free(P.x+sx*2.1-dx*.3,P.z+sz*2.1-dz*.3),gy=terrH(gx,gz);const dr=new THREE.Group();dr.add(new THREE.Mesh(bgeo(.9,.04,.55),mt(0x121316,.9)));for(let i=0;i<5;i++){const b=new THREE.Mesh(bgeo(.05,.05,.55),mt(0x5a5e66,.5,.7));b.position.set(-.34+i*.17,.02,0);dr.add(b)}dr.position.set(gx,gy+.03,gz);dr.rotation.y=fa;sc.add(dr);M_.push(dr);
+    const da=Math.atan2(gx-P.x,gz-P.z);c4DanTo(gx-Math.sin(da)*.55,gz-Math.cos(da)*.55,1.8);C4.dan.arms=null;
+    c4Shot([gx+sx*2.3+dx*.6,gy+1.7,gz+sz*2.3+dz*.6],[gx-sx*.2,gy+.6,gz-sz*.2]);await c4Wt(1.9);
+    C4.dan.look=[gx,gz];C4.dan.lean=-.42;C4.dan.arms=-.55;await c4Wt(.6);
+    const bag=new THREE.Mesh(new THREE.SphereGeometry(.06,10,8),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfffff0,emissiveIntensity:.5,roughness:.5}));sc.add(bag);M_.push(bag);
+    const bx=P.x+Math.sin(da)*.5,bz=P.z+Math.cos(da)*.5;for(let t=0;t<1;t+=.05){bag.position.set(bx+(gx-bx)*t,gy+.85-(.95*t*t),bz+(gz-bz)*t);await c4Wt(.035)}bag.visible=false;sfx('coin');
+    c1Sub('','The last 8 ball goes down a storm drain.');await c4Wt(1.2);C4.dan.lean=0;C4.dan.arms=null;await c4Wt(1.3);c1Sub(null)},end)}
 /* after an arrest the quest restarts at the bag hand-off: the board meeting is not replayed */
 const c3SecretRedo=L=>{if(!c3S().redo)return L;const i=L.findIndex(x=>x.t==='cond');
   return[C_('The Executive Secret','Grant Ashby · Chapter president','\"The lawyer\'s bill is on me this time. Five fresh bags, same street. And Danny: that undercover is burned. He won\'t be back on this beat. Just sell.\"',[['Take the bag',()=>{c3S().bags=5}]]),...L.slice(i)]};
