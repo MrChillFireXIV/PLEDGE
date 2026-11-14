@@ -182,7 +182,10 @@ async function c4Kickoff(done){const so=c4Soro();try{
   c4ShotF(0,14,9,0,-10,6,1.2);c4Hype(1);for(let i=0;i<7;i++){const[x,z]=c4F(-24+i*8,-30+(i%2)*60);c4Firework(x,c4FY()+28+rnd()*8,z);await c4Wt(.38)}c4Roar(.12,2.2);await c4Wt(1.2);c4Hype(.3);
   c4ShotF(1.4,-10.5,2.2,1.4,-7.4,1.6,2);await c4Wt(.8);
   await c1Line(gr,'See that Cup? It goes on our mantel, right where the Old Guard\'s portrait used to hang. Tomorrow you run, you pull, and you do not drop anything.');
-  }catch(e){console.warn('c4Kickoff',e)}done()}
+  }catch(e){console.warn('c4Kickoff',e)}
+  /* V412 the kickoff used to hand straight over to the Games scene; since V366 there is a night in between, so it has to end its own cutscene and give Danny back (it froze on Grant's last line) */
+  try{await c4Fade(async()=>{c4Band(0);c4KickCast(0);c4Hype(0);c4CamOff();const[x,z]=c4F(-27,-3);P.x=x;P.z=z;P.vx=P.vz=0})}catch(e){try{c4CamOff()}catch(_){}}
+  toast('The Greek Games are tomorrow at 2:00 PM, here at Nippert.',4200);done()}
 // ---- Friday afternoon: the Games
 function c4GamesScene(){if(c4Live(C4.cast['Derek Vance'])&&C4.cast['Derek Vance'].c4tag==='games')return;c4Off('games');const so=c4Soro(),F0=c4A(0,-1),side=-9;C4.gm={};
   C4.gm.grant=c4Dup('grant',...c4F(-1.5,side),F0,{pup:1,tag:'games'});C4.gm.tank=c4Dup('tank',...c4F(-.2,side-.6),F0,{pup:1,tag:'games'});
