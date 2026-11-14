@@ -166,7 +166,7 @@ function prApply(){if(!PM)return;prClear();const k=S.pledged?S.prole:null,p=PM.P
     for(let i=0;i<3;i++)prMesh(new THREE.CylinderGeometry(.012,.012,.36,5),TF,p.chest,.06-i*.07,-.03-i*.04,.215,0,0,.62);
     prMesh(new THREE.TorusGeometry(.225,.012,6,24),SM({color:0xd8b048,roughness:.4,metalness:.6}),p.hips,0,.07,0,PI/2,0,0);
     prMesh(bgeo(.04,.26,.19),mt(0x2a3a5a,.7),p.hL,.012,-.17,.03);prMesh(new THREE.CylinderGeometry(.007,.007,.17,6),mt(0xf2c230,.6),p.hR,-.004,-.1,.04,1.2,0,0)}
-  else if(k==='mascot'){for(const sg of[-1,1])prMesh(new THREE.TorusGeometry(.1,.035,6,12,PI*1.4),mt(0xe8dcc0,.8),p.head,sg*.17,.26,0,0,sg*PI/2,0)}
+  else if(k==='mascot'){/* V380 ram horns pushed up through holes cut in the pledge hat, curling back and round so the tips point forward; a purple poncho with feather fringe */mascotHorns(p);mascotPoncho(p)}
   else if(k==='cone'){if(RS().cnD===S.day){const u=prGroup(p.hR,0,-.14,.05,-.2,0,0);prMesh(new THREE.ConeGeometry(.12,.4,12),SM({color:0xff6a1a,roughness:.6}),u,0,.2,0);prMesh(new THREE.CylinderGeometry(.075,.092,.07,12),mt(0xf6f2e8,.6),u,0,.15,0);prMesh(bgeo(.26,.03,.26),mt(0x2a2a30,.7),u,0,.01,0)}}
   prGhost(k==='ouija');$('tips')&&($('tips').textContent='Tab: Planner · F: Punch · B: Bike · E: Interact · R: Block · T: '+PR[k].ab)}
 
