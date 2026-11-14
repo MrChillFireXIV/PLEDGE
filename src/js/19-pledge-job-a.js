@@ -119,7 +119,7 @@ const texMark=()=>prTex('mark',128,64,(q,w,h)=>{q.fillStyle='#fffdf6';q.strokeSt
 function prMesh(geo,mat,par,x,y,z,rx=0,ry=0,rz=0){const m=new THREE.Mesh(geo,typeof mat==='number'?mt(mat,.6):mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;par.add(m);(PM.userData.rp||(PM.userData.rp=[])).push(m);return m}
 function prGroup(par,x,y,z,rx=0,ry=0,rz=0){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.set(rx,ry,rz);par.add(g);(PM.userData.rp||(PM.userData.rp=[])).push(g);return g}
 function prClear(){for(const m of PM.userData.rp||[])if(m.parent)m.parent.remove(m);{const b=PM.userData.palBak,pal=PM.P&&PM.P.pal;if(b&&pal)for(const[i,v]of b)pal[i].copy(v);PM.userData.palBak=null}PM.userData.rp=[];PM.HOLD=null;PM.userData.board=null;PM.userData.fruit=null;PM.userData.mic=null;PM.userData.can=null;PM.userData.box=null;PM.userData.tray=null;PM.userData.cone=null;PM.userData.club=null;PM.userData.melon=0;PM.HPF=null}
-let MELA=[-.45,-.08,-.8,.3,.6],MASKS=[.88,.93,0];
+let MELA=[-.45,-.08,-.8,.3,.6],MASKS=[.88,.93,0],MICG=[-.035,-.085,0,PI/2,0,0],MICS=[-1.15,0,-1,-.75,-.3];
 function burgPack(p){const BK=SM({color:0x1b1c20,roughness:.85}),BK2=SM({color:0x2a2c32,roughness:.8}),ZP=SM({color:0x9a9ca4,roughness:.35,metalness:.7});
   const b=prMesh(roundBox(.34,.42,.17,.05,3),BK,p.chest,0,-.03,-.235);prMesh(roundBox(.26,.17,.07,.03,2),BK2,b,0,-.1,-.1);prMesh(bgeo(.2,.008,.01),ZP,b,0,-.03,-.137);prMesh(bgeo(.3,.008,.01),ZP,b,0,.17,-.06,.6,0,0);
   prMesh(new THREE.TorusGeometry(.04,.012,6,10,PI),BK2,b,0,.215,0);for(const s of[-1,1]){const st=prMesh(new THREE.TorusGeometry(.15,.022,6,14,PI*.9),BK2,p.chest,s*.12,.08,-.03,0,PI/2,0);st.rotation.z=-PI*.45;st.scale.set(1,1.35,.9)}}
@@ -131,7 +131,7 @@ function prFruitMesh(par,st){const T=prGroup(par,0,0,0);
   else{const b=prMesh(new THREE.SphereGeometry(.2,24,16),SM({map:texMelon(),roughness:.35}),T,0,0,0);b.scale.set(1.3,.85,.85)}
   return T}
 function prApply(){if(!PM)return;prClear();const k=S.pledged?S.prole:null,p=PM.P;PM.userData.prk=k?k+prStage():'';if(!k){prGhost(0);return}
-  if(k==='popstar'){const u=prGroup(p.hR,0,-.1,.05,-.25,0,0);PM.userData.mic=u;prMesh(new THREE.CylinderGeometry(.026,.018,.2,12),SM({color:0x2a2a32,roughness:.35,metalness:.5}),u,0,-.01,0);
+  if(k==='popstar'){/* V399 the handle runs through his closed fist (the way the spray can does), head up out of the thumb side */const u=prGroup(p.hR,...MICG);PM.userData.mic=u;prMesh(new THREE.CylinderGeometry(.026,.018,.2,12),SM({color:0x2a2a32,roughness:.35,metalness:.5}),u,0,-.01,0);
     prMesh(new THREE.SphereGeometry(.058,16,12),SM({color:0xd8dce4,roughness:.25,metalness:.85}),u,0,.12,0);prMesh(new THREE.CylinderGeometry(.04,.034,.03,14),SM({color:0xd8b048,roughness:.3,metalness:.8}),u,0,.08,0);
     {const sh=new THREE.Shape();for(let i=0;i<10;i++){const a=PI/2+i*PI/5,rr=i%2?.024:.055;i?sh.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):sh.moveTo(Math.cos(a)*rr,Math.sin(a)*rr)}const SG=new THREE.ShapeGeometry(sh),PK=SM({color:0xff4fa0,roughness:.4,side:THREE.DoubleSide}),DK=SM({color:0x1a1420,roughness:.2,metalness:.3,side:THREE.DoubleSide});
       for(const x of[-.068,.068]){const st=prMesh(SG,PK,p.head,x,.132,.198,0,x*1.1,0);const ln=prMesh(new THREE.CircleGeometry(.026,14),DK,st,0,0,.002)}prMesh(bgeo(.05,.012,.012),PK,p.head,0,.14,.205)}
@@ -229,5 +229,5 @@ function prPose(dt){const p=PM&&PM.P;if(!p||!PM.userData)return;const B=PM.userD
   /* V382 Cone Pledge: T puts the cone's tip to his mouth and shouts through it, wide end out front */{const u=PM.userData.cone;if(u){if(P.cmega>0&&P.punch<=0){const k=Math.min(1,P.cmega*3,(2.4-P.cmega+.3)*4);P.cmega=Math.max(0,P.cmega-dt);p.aR.rotation.set(-1.5*k,0,-.42*k);p.eR.rotation.set(-1.5*k,0,0);p.hR.rotation.set(0,0,0);p.head.rotation.x-=.1*k;
       PM.updateMatrixWorld(true);const qp=new THREE.Quaternion();u.parent.getWorldQuaternion(qp);const qc=new THREE.Quaternion();p.chest.getWorldQuaternion(qc);const qt=qp.invert().multiply(qc).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-PI/2));u.quaternion.slerp(qt,k);
       const hp=new THREE.Vector3();p.head.getWorldPosition(hp);const fw=new THREE.Vector3(0,0,1).applyQuaternion(qc);const mp=hp.add(fw.multiplyScalar(.17)).add(new THREE.Vector3(0,.04,0));u.position.lerp(u.parent.worldToLocal(mp),k)}else{u.quaternion.set(0,0,0,1);u.position.set(-.03,-.06,0)}}}
-  const mic=PM.userData.mic;if(mic&&P.sing>0&&P.punch<=0){p.aR.rotation.set(-.55,0,.42);p.eR.rotation.set(-2.25,0,0);p.head.rotation.x-=.12}}
+  const mic=PM.userData.mic;if(mic&&P.sing>0&&P.punch<=0){p.aR.rotation.set(MICS[0],MICS[1],MICS[2]);p.eR.rotation.set(MICS[3],0,0);if(p.hR)p.hR.rotation.set(MICS[4],0,0);p.head.rotation.x-=.12}}
 
