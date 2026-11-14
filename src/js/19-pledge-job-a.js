@@ -118,7 +118,7 @@ const texMark=()=>prTex('mark',128,64,(q,w,h)=>{q.fillStyle='#fffdf6';q.strokeSt
 // ---------------------------------------------------------------- the props on Danny
 function prMesh(geo,mat,par,x,y,z,rx=0,ry=0,rz=0){const m=new THREE.Mesh(geo,typeof mat==='number'?mt(mat,.6):mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;par.add(m);(PM.userData.rp||(PM.userData.rp=[])).push(m);return m}
 function prGroup(par,x,y,z,rx=0,ry=0,rz=0){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.set(rx,ry,rz);par.add(g);(PM.userData.rp||(PM.userData.rp=[])).push(g);return g}
-function prClear(){for(const m of PM.userData.rp||[])if(m.parent)m.parent.remove(m);{const b=PM.userData.palBak,pal=PM.P&&PM.P.pal;if(b&&pal)for(const[i,v]of b)pal[i].copy(v);PM.userData.palBak=null}PM.userData.rp=[];PM.HOLD=null;PM.userData.board=null;PM.userData.fruit=null;PM.userData.mic=null;PM.userData.can=null;PM.userData.box=null;PM.userData.tray=null}
+function prClear(){for(const m of PM.userData.rp||[])if(m.parent)m.parent.remove(m);{const b=PM.userData.palBak,pal=PM.P&&PM.P.pal;if(b&&pal)for(const[i,v]of b)pal[i].copy(v);PM.userData.palBak=null}PM.userData.rp=[];PM.HOLD=null;PM.userData.board=null;PM.userData.fruit=null;PM.userData.mic=null;PM.userData.can=null;PM.userData.box=null;PM.userData.tray=null;PM.userData.cone=null}
 function prFruitMesh(par,st){const T=prGroup(par,0,0,0);
   if(st===0){const G=GC.grape||(GC.grape=new THREE.SphereGeometry(.024,10,8)),M=SM({color:0x6a2a8a,roughness:.25});for(const[x,y,z]of[[0,0,0],[.03,.01,.01],[-.028,.012,.012],[.012,.04,0],[-.014,.038,.018],[.02,-.03,.012],[-.016,-.028,.008],[0,-.056,.01],[.03,.042,.02]])prMesh(G,M,T,x,y,z);prMesh(new THREE.CylinderGeometry(.004,.004,.05,5),0x5a3d26,T,0,.08,0)}
   else if(st===1){prMesh(new THREE.SphereGeometry(.065,18,14),SM({color:0xf08a1c,roughness:.6}),T,0,0,0);prMesh(new THREE.SphereGeometry(.018,8,6),0x4f8f25,T,.01,.066,0).scale.set(1.4,.4,.8)}
@@ -167,7 +167,8 @@ function prApply(){if(!PM)return;prClear();const k=S.pledged?S.prole:null,p=PM.P
     prMesh(new THREE.TorusGeometry(.225,.012,6,24),SM({color:0xd8b048,roughness:.4,metalness:.6}),p.hips,0,.07,0,PI/2,0,0);
     prMesh(bgeo(.04,.26,.19),mt(0x2a3a5a,.7),p.hL,.012,-.17,.03);prMesh(new THREE.CylinderGeometry(.007,.007,.17,6),mt(0xf2c230,.6),p.hR,-.004,-.1,.04,1.2,0,0)}
   else if(k==='mascot'){/* V380 ram horns pushed up through holes cut in the pledge hat, curling back and round so the tips point forward; a purple poncho with feather fringe */mascotHorns(p);mascotPoncho(p)}
-  else if(k==='cone'){if(RS().cnD===S.day){const u=prGroup(p.hR,0,-.14,.05,-.2,0,0);prMesh(new THREE.ConeGeometry(.12,.4,12),SM({color:0xff6a1a,roughness:.6}),u,0,.2,0);prMesh(new THREE.CylinderGeometry(.075,.092,.07,12),mt(0xf6f2e8,.6),u,0,.15,0);prMesh(bgeo(.26,.03,.26),mt(0x2a2a30,.7),u,0,.01,0)}}
+  else if(k==='cone'){if(RS().cnD===S.day){/* V382 carried by its tip: the curled fingers close round the narrow top and the cone hangs below the fist, base down. The group's origin is the tip, so T can put it to his mouth like a megaphone */const u=prGroup(p.hR,-.03,-.06,0,0,0,0);PM.userData.cone=u;const OR=SM({color:0xff6a1a,roughness:.6});
+    prMesh(new THREE.ConeGeometry(.14,.46,14,1,true),OR,u,0,-.23,0);prMesh(new THREE.CylinderGeometry(.088,.112,.08,14,1,true),mt(0xf6f2e8,.6),u,0,-.25,0);prMesh(bgeo(.3,.03,.3),mt(0x2a2a30,.7),u,0,-.47,0)}}
   prGhost(k==='ouija');$('tips')&&($('tips').textContent='Tab: Planner · F: Punch · B: Bike · E: Interact · R: Block · T: '+PR[k].ab)}
 
 // ---------------------------------------------------------------- the ghost that follows the Ouija pledge
@@ -219,5 +220,8 @@ function prPose(dt){const p=PM&&PM.P;if(!p||!PM.userData)return;const B=PM.userD
   /* V374 spraying: arm straight out at the wall, can upright in the fist, a little shake */if(P.spray&&PM.userData.can){p.aR.rotation.set(-1.32+Math.sin(TT*31)*.02,0,-.18);p.eR.rotation.set(-.12,0,0);p.hR.rotation.set(0,0,0);p.spine.rotation.y-=.08}
   /* V376 hype dance: he bounces to the beat with his free arm pumping (stops bouncing while he walks) */if(P.hype>0&&PM.userData.box&&P.punch<=0){const sp=Math.hypot(P.vx,P.vz),b=Math.abs(Math.sin(TT*PI*2));if(sp<1.2&&P.jy<=0)PM.position.y+=b*.2;p.aL.rotation.set(-2.75+b*.35,0,-.3);p.eL.rotation.set(-.35-b*.3,0,0);p.head.rotation.x+=(b-.5)*.15}
   try{maPose(p)}catch(e){}
+  /* V382 Cone Pledge: T puts the cone's tip to his mouth and shouts through it, wide end out front */{const u=PM.userData.cone;if(u){if(P.cmega>0&&P.punch<=0){const k=Math.min(1,P.cmega*3,(2.4-P.cmega+.3)*4);P.cmega=Math.max(0,P.cmega-dt);p.aR.rotation.set(-1.5*k,0,-.42*k);p.eR.rotation.set(-1.5*k,0,0);p.hR.rotation.set(0,0,0);p.head.rotation.x-=.1*k;
+      PM.updateMatrixWorld(true);const qp=new THREE.Quaternion();u.parent.getWorldQuaternion(qp);const qc=new THREE.Quaternion();p.chest.getWorldQuaternion(qc);const qt=qp.invert().multiply(qc).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-PI/2));u.quaternion.slerp(qt,k);
+      const hp=new THREE.Vector3();p.head.getWorldPosition(hp);const fw=new THREE.Vector3(0,0,1).applyQuaternion(qc);const mp=hp.add(fw.multiplyScalar(.17)).add(new THREE.Vector3(0,.04,0));u.position.lerp(u.parent.worldToLocal(mp),k)}else{u.quaternion.set(0,0,0,1);u.position.set(-.03,-.06,0)}}}
   const mic=PM.userData.mic;if(mic&&P.sing>0&&P.punch<=0){p.aR.rotation.set(-.55,0,.42);p.eR.rotation.set(-2.25,0,0);p.head.rotation.x-=.12}}
 
