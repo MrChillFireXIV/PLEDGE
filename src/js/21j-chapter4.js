@@ -90,7 +90,7 @@ function c4DanAt(x,z,a){P.x=x;P.z=z;P.y=terrH(x,z);P.jy=0;P.vx=P.vz=0;P.face=a;P
 function c4DanTo(x,z,v){if(!C4.dan)c4DanAt(P.x,P.z,P.face);C4.dan.tx=x;C4.dan.tz=z;if(v)C4.dan.v=v}
 function c4DanUpd(dt){const D=C4.dan;if(!D||mode==='play')return;const dx=D.tx-P.x,dz=D.tz-P.z,d=Math.hypot(dx,dz);let sp=0;if(d>.04&&dt>0){const s=Math.min(d,D.v*dt);P.x+=dx/d*s;P.z+=dz/d*s;sp=s/dt;if(!D.back)D.face=Math.atan2(dx,dz)}
   if(D.look)D.face=Math.atan2(D.look[0]-P.x,D.look[1]-P.z);if(!(SCENE&&SCENE.n))P.face=c4LA(P.face,D.face,Math.min(1,dt*9));P.y=D.y!=null?D.y:terrH(P.x,P.z);
-  PM.position.set(P.x,P.y+(D.dy||0),P.z);PM.rotation.set(-(D.lean||0),P.face,0);try{animP(PM,D.sp!=null?D.sp:sp,TT,D.st||'');if(D.arms!=null)c4Arms(PM,D.arms)}catch(e){}}
+  PM.position.set(P.x,P.y+(D.dy||0),P.z);PM.rotation.set(-(D.lean||0),P.face,0);try{animP(PM,D.sp!=null?D.sp:sp,TT,D.st||'');if(D.arms!=null)c4Arms(PM,D.arms);if(D.post)D.post(PM)/* V423 a pose hook for Danny in a cutscene, like a puppet's */}catch(e){}}
 // both arms reaching forward (a rope, an egg, a chest to push on); a is the shoulder swing, -PI/2 is straight out in front
 function c4Arms(g,a){const p=g&&g.P;if(!p||!p.aL||!p.aR)return;p.aL.rotation.set(a,0,.14);p.aR.rotation.set(a,0,-.14);if(p.eL)p.eL.rotation.set(-.3,0,0);if(p.eR)p.eR.rotation.set(-.3,0,0)}
 async function c4DanSay(t,s=2.6){bubble(DANNY,t,s);c1Sub('Danny',t);await c1Wait(s);if(DANNY.bub)DANNY.bub.visible=false;c1Sub(null)}

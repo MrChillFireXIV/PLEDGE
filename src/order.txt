@@ -52,6 +52,7 @@ js/21t-chapter8.js
 js/21u-chapter8-quests.js
 js/21v-chapter9.js
 js/21w-chapter9-quests.js
+js/21x-dojo.js
 js/21x-chapter10.js
 js/21y-chapter10-quests.js
 js/21f-gigs.js
