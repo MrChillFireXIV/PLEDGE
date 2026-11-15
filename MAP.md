@@ -55,6 +55,7 @@ One-line purpose per file, in load order (`src/order.txt`). Sizes are in KB, and
 | 24a-bug-report | 8 | Report-a-Bug tab (`BUG_URL` = Discord webhook), save export/import. V302 developer mode: 3 fast clicks on the tab (`bugDevTap`), password checked by hash (`DEVH`), dark form `devOpen`, details `devMeta`, error ring `DEV.errs`; Submit copies a prompt and opens `DEVCHAT` (override: localStorage `pledge.devChat`) |
 | 24b-testmode | 2 | `?test` mode helpers |
 | 24-planner-save-lighting-main-boot | 45 | planner tabs `TABS`/`renderPlanner`, Settings `setPage`, `saveGame`/`loadGame` (`SAVEK`), lighting, `update()` main loop, keys, `boot`, `begin` |
+| 24g-gamepad | 14 | V421 controller support (Xbox / PlayStation, standard Gamepad API): `padFrame` polling loop, `PAD_PLAY` button→key map (sends real key events via `padKey`), `joy` for the left stick, highlight ring `padMove`/`padClick` over on-top buttons in every non-play screen, canvas pointer, `padHints` button names |
 
 ## Story chapters (each chapter is usually two files: a builder file and a quest file)
 | ch | files | title | quest ids |
