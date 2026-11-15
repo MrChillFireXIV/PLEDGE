@@ -29,7 +29,7 @@ Testing runs in headless Chromium.
   - It loads the story drivers, runs your JavaScript, prints the result, and saves `OUT/name.png`.
   - Set `window.__cam=[x,y,z,lookX,lookY,lookZ]` in the eval before `pcam:js`. `pcam` screenshots include the HTML UI.
 - Each `q.sh`/`run.js` load takes ~25 s. Put all checks in one command, and never run two browsers at once (stop the live server first).
-- Jump to a quest with `chapJump('c3house')`, which already starts it. Then:
+- Jump to a quest with `chapJump('c3house')`. Since V415 a task with a giver or a talk-first gold star is NOT started by the jump (Danny is set down nearby): start it with `startMission(M.find(m=>m.id==='c3house'))` if `!AM`. Then:
   - click through cards with `for(…){if(mode==='card'||mode==='wheel')T3.click(0);RT.step(4);await W(8)}` and `C4.auto=1`
   - step the game with `RT.step(n)`.
 - The software renderer sometimes crashes ("Target crashed") on busy gameplay frames. Screenshot inside a held cutscene instead: `c6Cine(async()=>{await c4Wt(999)},()=>{})`, then retry.
