@@ -2,7 +2,7 @@
 // The gala money renovates the ΑΣΡ house, and the brothers get greedy. ΑΣΡ, ΚΘΩ, ΩΨΔ, ΚΑΝ and ΓΩΖ run a cocaine ring together; ΚΘΩ betrays it.
 //  c3house   New Lavish House      build the new third floor (5 jobs), carry the furniture up from the moving truck (5 loads)
 //  c3secret  The Executive Secret  the ring meets in the throne room, sell to the homeless downtown (5), an officer stops you
-//  c3missing Disappearance         the treasurer is missing, 3 clues across campus, a cutscene shows Wes taped to a chair in the KTHO backyard, fight KTHO there, bring him home, cops question Grant (V274: every KTHO brother is hostile on sight for the whole quest)
+//  c3missing Disappearance         the treasurer is missing, 3 clues across campus, Danny takes them to Grant, who sends only Danny and Tank (V422); a cutscene shows Wes taped to a chair by the Tangeman loading dock guarded by hooded figures, fight them there, bring him home, cops question Grant (V274: every KTHO brother is hostile on sight for the whole quest)
 //  c3accuse  Accusations           brothers accuse each other, the brawl, the safe shows ΚΘΩ took the money, recruit 5 pledges
 //  c3empire  Cocaine Empire        storm ΚΘΩ with the pledges, throw coke in 10 faces, the cops shut ΚΘΩ down
 //  c3frame   Framing               plant stashes in ΩΨΔ, ΚΑΝ and ΓΩΖ, the cops shut them down, ΑΣΡ's victory party
@@ -298,10 +298,10 @@ const c3SecretRedo=L=>{if(!c3S().redo)return L;const i=L.findIndex(x=>x.t==='con
   return[C_('The Executive Secret','Grant Ashby · Chapter president','\"The lawyer\'s bill is on me this time. Five fresh bags, same street. And Danny: that undercover is burned. He won\'t be back on this beat. Just sell.\"',[['Take the bag',()=>{c3S().bags=5}]]),...L.slice(i)]};
 
 // ================================================================ quest c · Disappearance
-const C3CLUES=[['phone','His phone, face-down in the hedge outside the library. Forty missed calls from Grant.',[166,140.5]],['button','A brass blazer button with ΚΘΩ stamped on it, in the grass by the campus fountain.',[214,212]],['note','A note taped to his bike outside the Union: "WANT HIM BACK? ΚΘΩ BACKYARD. COME ALONE. BRING THE BOOKS."',[203,127]]];
+const C3CLUES=[['phone','His phone, face-down in the hedge outside the library. Forty missed calls from Grant.',[166,140.5]],['button','A torn strip of black hood, snagged on the rail of the campus fountain. No letters on it. No name.',[214,212]],['note','A note taped to his bike outside the Union, in block capitals, unsigned: "WANT HIM BACK? LOADING DOCK BEHIND TANGEMAN. COME ALONE. BRING THE BOOKS."',[203,127]]];/* V422 the kidnappers are anonymous: no ΚΘΩ button, no ΚΘΩ backyard */
 function c3ClueP(k){C3.clueP=C3.clueP||{};if(C3.clueP[k])return C3.clueP[k];const c=C3CLUES.find(c=>c[0]===k);let p=c[2];if(k==='button'&&typeof FOUNT!=='undefined')p=[FOUNT[0]+3.2,FOUNT[1]];else if(k==='note')p=[SPOT.UNION[0]+2.4,SPOT.UNION[1]-.6];else if(k==='phone')p=[SPOT.LIB[0]-2.4,SPOT.LIB[1]+.6];/* beside the entrances, at street level */return C3.clueP[k]=c3Free(p[0],p[1],.5)}
 function c3ClueProps(on){for(const m of C3.clueM||[])m.parent&&m.parent.remove(m);C3.clueM=[];if(!on)return;const s=c3S();
-  for(const[k]of C3CLUES){const p=c3ClueP(k);if(s.clue[k])continue;const y=terrH(p[0],p[1]);let m;if(k==='phone')m=c3M(bgeo(.09,.015,.17),0x101014,p[0],y+.02,p[1]);else if(k==='button')m=c3M(new THREE.CylinderGeometry(.05,.05,.02,12),mt(0xd8b048,.3,.8),p[0],y+.02,p[1]);else{m=new THREE.Group();m.position.set(p[0],y,p[1]);const fr=new THREE.Mesh(new THREE.TorusGeometry(.33,.03,6,16),mt(0x2a5a9a,.5));fr.position.y=.35;m.add(fr);const n=new THREE.Mesh(new THREE.PlaneGeometry(.22,.16),new THREE.MeshBasicMaterial({color:0xf4f0e0,side:THREE.DoubleSide}));n.position.set(0,.75,0);m.add(n);sc.add(m)}
+  for(const[k]of C3CLUES){const p=c3ClueP(k);if(s.clue[k])continue;const y=terrH(p[0],p[1]);let m;if(k==='phone')m=c3M(bgeo(.09,.015,.17),0x101014,p[0],y+.02,p[1]);else if(k==='button')m=c3M(bgeo(.3,.012,.11),mt(0x111114,.95),p[0],y+.02,p[1]);else{m=new THREE.Group();m.position.set(p[0],y,p[1]);const fr=new THREE.Mesh(new THREE.TorusGeometry(.33,.03,6,16),mt(0x2a5a9a,.5));fr.position.y=.35;m.add(fr);const n=new THREE.Mesh(new THREE.PlaneGeometry(.22,.16),new THREE.MeshBasicMaterial({color:0xf4f0e0,side:THREE.DoubleSide}));n.position.set(0,.75,0);m.add(n);sc.add(m)}
     const glint=c3M(GC.c3gl||(GC.c3gl=new THREE.OctahedronGeometry(.12,0)),new THREE.MeshBasicMaterial({color:0xffe27a}),p[0],y+1.1,p[1]);glint.userData.spin=1;C3.clueM.push(m,glint)}}
 function c3ClueLab(){const s=c3S();return'\nFind what happened to Wes ('+C3CLUES.filter(([k])=>s.clue[k]).length+'/3)\n'+C3CLUES.map(([k,t])=>(s.clue[k]?'✓ ':'○ ')+(s.clue[k]?t.split('.')[0]:'A clue somewhere on campus')).join('\n')}
 function c3ClueGoal(){const s=c3S(),c=C3CLUES.find(([k])=>!s.clue[k]);return c?c3ClueP(c[0]):null}
@@ -309,9 +309,17 @@ function c3CluePrompts(add){const st=curStep();if(!st||st.ok!==c3ClueOk||P.insid
   for(const[k,t]of C3CLUES){if(s.clue[k])continue;const p=c3ClueP(k);add(p[0],p[1],2.2,'Look closer',()=>{s.clue[k]=1;sfx('ok');c3ClueProps(1);card({title:'A Clue',sp:'',text:t});updObj()},3)}}
 const c3ClueOk=()=>C3CLUES.every(([k])=>c3S().clue[k]);
 // V269 Wes, duct-taped to a lawn chair in the KTHO BACKYARD (the note says "KTHO BACKYARD"). A seated puppet, so a cutscene can show him with no marker to press.
-const C3WESB=[17.6,35.2],C3WESA=-.75;
-function c3WesChair(on){return c4Group('c3weschair',on,g=>{const[x,z]=C3WESB,W=mt(0x4a3626,.8),h=new THREE.Group();h.position.set(x,0,z);h.rotation.y=C3WESA;h.userData.noMerge=1;g.add(h);c4M(bgeo(.5,.06,.5),W,0,.46,0,h);c4M(bgeo(.5,.6,.06),W,0,.8,-.25,h);for(const sx of[-.22,.22])for(const sz of[-.22,.22])c4M(bgeo(.05,.46,.05),W,sx,.23,sz,h)})}
-function c3WesSpawn(){if(C3.wes&&NP.includes(C3.wes))return C3.wes;const[x,z]=C3WESB;c3WesChair(1);
+const C3WESB=[17.6,35.2],C3WESA=-PI/2;
+/* V422 Wes is held by the loading dock behind the Tangeman Center (it used to be the ΚΘΩ backyard). SPOT.DOCK is only known once the world is built, so the spot is worked out on first use */
+function c3WesB(){if(!C3WESB.set&&typeof SPOT!=='undefined'&&SPOT.DOCK&&typeof freeAt==='function'){C3WESB.set=1;const[x,z]=c3Free(SPOT.DOCK[0]-2,SPOT.DOCK[1]+5,.6);C3WESB[0]=x;C3WESB[1]=z}return C3WESB}
+/* the kidnappers: black hoodie, hood up, a black mask over the mouth. Nothing on them says which house they are from */
+const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0x18181c,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
+function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}const h=n.g.P&&n.g.P.head;if(!h)return n;n.c3hood=1;const M_=new THREE.MeshStandardMaterial({color:0x121216,roughness:.95,side:THREE.DoubleSide});
+  const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,18,12,PI/2+.95,TAU-1.9),M_);hd.scale.set(1,1.14,1.12);hd.position.set(0,.13,.0);hd.userData.noMerge=1;h.add(hd);
+  /* nothing but shadow where the face should be */const vd=new THREE.Mesh(new THREE.SphereGeometry(.262,16,12),new THREE.MeshBasicMaterial({color:0x060608}));vd.scale.set(1,1.08,1);vd.position.set(0,.12,0);vd.userData.noMerge=1;h.add(vd);
+  n.title='Unknown';n.taunt=['Wrong place, pledge.','He said come ALONE.','Where are the books?','Put him down. Both of them.'];return n}
+function c3WesChair(on){return c4Group('c3weschair',on,g=>{const[x,z]=c3WesB(),W=mt(0x4a3626,.8),h=new THREE.Group();h.position.set(x,terrH(x,z),z);h.rotation.y=C3WESA;h.userData.noMerge=1;g.add(h);c4M(bgeo(.5,.06,.5),W,0,.46,0,h);c4M(bgeo(.5,.6,.06),W,0,.8,-.25,h);for(const sx of[-.22,.22])for(const sz of[-.22,.22])c4M(bgeo(.05,.46,.05),W,sx,.23,sz,h)})}
+function c3WesSpawn(){if(C3.wes&&NP.includes(C3.wes))return C3.wes;const[x,z]=c3WesB();c3WesChair(1);
   const n=c4Pup('brothers',x,z,C3WESA,{tag:'c3wes',int:null,name:'Wes Morrow',title:'ASR Treasurer',house:'asr',lvl:5,st:'sit',look:{gl:1,hs2:'short',cl2:'tee',fh:0,fv:1,iris:0x4a3a2a}});
   if(!n)return null;n.pup.arms=.55;n.c3bound=1;C3.wes=n;if(AM)AM.temps.push(n);const P_=n.g&&n.g.P;n.c3tape=[];
   if(P_){const tm=mt(0x9a9aa0,.5,.2);for(const[b,y,r]of[[P_.chest,0,.27],[P_.chest,-.18,.26],[P_.hips,-.12,.22]]){if(!b)continue;const t=new THREE.Mesh(new THREE.TorusGeometry(r,.035,6,18),tm);t.rotation.x=PI/2;t.position.y=y;b.add(t);n.c3tape.push(t)}
@@ -331,18 +339,21 @@ const c3IsKto=n=>typeof n.title==='string'&&n.title.indexOf('ΚΘΩ')===0;
 function c3KtoTick(){if(mode!=='play'||CINE||EV)return;for(const n of NP){if(!c3IsKto(n)||n.down||n.hidden||n.kid||n.auth||n.actor||n.pledge||n.prop||n.mute||n.statue||n.grab||n.ally||n.follow||n.aggro)continue;if((n.int||null)!==(P.inside||null)||n.dp>C3KTOR)continue;n.aggro=1;n.tgt='P';n.job=null;n.path=null;n.c3k=1;if(TT>(n.c3kT||0)){n.c3kT=TT+6;bubble(n,pick(['That\'s Kowalski! Get him!','You\'ve got a lot of nerve showing up here, ΑΣΡ!','Where\'s your treasurer, pledge? Oh, right.','Jump him!']),2.2)}}}
 function c3KtoCalm(){for(const n of NP){if(!n.c3k)continue;n.c3k=0;if(n.aggro&&n.tgt==='P'&&!n.temp){n.aggro=0;n.tgt=null}}}
 /* shown automatically when the last clue is found: no marker, no button */
-async function c3WesBackCine(done){const[wx,wz]=C3WESB;
+async function c3WesBackCine(done){const[wx,wz]=c3WesB(),gy=terrH(wx,wz);
+  /* the dock is a sunken service lane with a building on each side: every shot looks along the lane from the west */
   await c6Cine(async()=>{const w=C3.wes,g1=C3.g1,g2=C3.g2;
-    c4Shot([wx-4.6,1.9,wz+5],[wx,1,wz],1.1);bubble(w,'MMPH! MMMPH!',2.4);await c4Wt(2.2);
-    c1Sub('','Behind the Kappa Theta Omega house: a lawn chair, a roll of duct tape, and one very annoyed treasurer.');await c4Wt(3.6);c1Sub(null);
-    c4Shot([wx+.6,1.7,wz+4.6],[wx-1.4,1.2,wz+1.6],1.4);
-    if(c4Live(g1)){c1Say(g1,'Preston says nobody touches him until he tells us where the books are.',4.6);await c4Wt(4.8)}
+    c4Shot([wx-6.2,gy+2,wz+1.2],[wx,gy+1,wz],1.1);bubble(w,'MMPH! MMMPH!',2.4);await c4Wt(2.2);
+    c1Sub('','Behind the Tangeman Center, down by the loading dock: a lawn chair, a roll of duct tape, and one very annoyed treasurer.');await c4Wt(3.6);c1Sub(null);
+    c4Shot([wx-3.4,gy+1.7,wz+2.4],[wx+1.2,gy+1.25,wz+.4],1.4);
+    if(c4Live(g1)){c1Say(g1,'Nobody touches him until he tells us where the books are.',4.4);await c4Wt(4.6)}
     if(c4Live(g2)){c1Say(g2,'He keeps saying \'mmph.\' I think that means no.',4);await c4Wt(4.2)}c1Sub(null);
-    c4Shot([wx-2.4,1.45,wz+2.9],[wx,1.15,wz],1.6);bubble(w,'MMMPH!!',2.2);await c4Wt(1.8);
-    await c4Fade(async()=>{c4Off('c3g')})},done,{fade:async()=>{c3WesSpawn();const o={tag:'c3g',int:null,house:'kto',lvl:6};
-      C3.g1=c4Pup('legacies',wx+2,wz+1.1,PI,Object.assign({name:'Chip Van Dorn',title:'Kappa Theta Omega'},o));C3.g2=c4Pup('legacies',wx-.3,wz-1.9,-PI/2,Object.assign({name:'Biff Ashcroft',title:'Kappa Theta Omega'},o));
-      c4Look(C3.g1,wx,wz);c4Look(C3.g2,wx,wz);c4Shot([wx-6.4,2.3,wz+7],[wx,1,wz],0)},after:()=>{c4Off('c3g');C3.g1=C3.g2=null}})}
-
+    c4Shot([wx-2.5,gy+1.45,wz+.9],[wx,gy+1.15,wz],1.6);bubble(w,'MMMPH!!',2.2);await c4Wt(1.8);
+    c1Sub('','Black hoods. No letters. No names.');await c4Wt(2.4);c1Sub(null);
+    await c4Fade(async()=>{c4Off('c3g')})},done,{fade:async()=>{c3WesSpawn();const o=Object.assign({tag:'c3g',int:null,lvl:6,name:'Hooded Figure',title:'Unknown'},C3HOODOPT);
+      C3.g1=c3Hood(c4Pup('legacies',wx+1.9,wz+1.3,PI,Object.assign({},o)));C3.g2=c3Hood(c4Pup('legacies',wx+.9,wz-1.8,-PI/2,Object.assign({},o)));
+      c4Look(C3.g1,wx-4,wz+1);c4Look(C3.g2,wx-4,wz);c4Shot([wx-9,gy+2.7,wz+1.6],[wx,gy+1,wz],0)},after:()=>{c4Off('c3g');C3.g1=C3.g2=null}})}
+/* V422 Tank comes along on the rescue (Grant sends only the two of them): one Tank, made again after a load */
+function c3TankAlly(){if(!AM)return;if(AM.temps.some(n=>n.ally&&NP.includes(n)))return;spawnAlly('tank')}
 function c3CopsAtHouse(on){for(const n of C3.cops||[])if(NP.includes(n))despawn(n);C3.cops=[];if(C3.copCar){sc.remove(C3.copCar);C3.copCar=null}if(!on)return;
   const car=mkCarMesh();car.position.set(80,terrH(80,82),82);car.rotation.y=PI;const bar=new THREE.Group();for(const[s,c]of[[-.4,0xff2a2a],[.4,0x2a6aff]]){const l=new THREE.Mesh(bgeo(.7,.16,.3),new THREE.MeshBasicMaterial({color:c}));l.position.x=s;bar.add(l)}bar.position.y=1.72;car.add(bar);sc.add(car);C3.copCar=car;
   for(const[nm,x,z,fem]of[['Detective Alana Ruiz',86.5,79,1],['Officer Dale Kerrigan',87.6,74.8,0]]){const n=spawn('cops','greek',{x,z,a:Math.atan2(89.2-x,76.6-z),temp:1,mode:'idle',actor:1,name:nm,title:'Harrowgate PD',fem:!!fem,lvl:9});n.hx=x;n.hz=z;C3.cops.push(n);if(AM){AM.temps.push(n);AM.actors=AM.actors||{};AM.actors[nm]=n}}
@@ -553,11 +564,17 @@ const C3M=[
    {t:'fx',f:()=>c3ToFri()},   /* V305 Wes went missing Thursday night: this quest happens on Friday */
    C_('Disappearance','Grant Ashby · Chapter president','"Wes didn\'t come home Thursday. Phone\'s off, bed\'s untouched. That guy has never missed a night in his life."\n\n"Start where he hides: the library, the fountain, the Union. And Danny? Wes doesn\'t go anywhere without the books. If you find them first, they come straight to me."',[['"On it."',null]]),
    {t:'cond',lab:c3ClueLab,ok:c3ClueOk,goal:c3ClueGoal,start:()=>{c3ClueProps(1);C3.wesFreed=0},done:()=>{c3ClueProps(0)}},
+   /* V422 Danny takes what he found to Grant first. Grant will not send the house: that would be a war between fraternities. Danny and Tank go */
+   go(SPOT.ASR,'Take the note to Grant at the ΑΣΡ house',{r:4,act:'Show Grant the note',start:()=>{const st=curStep();st.x=SPOT.ASR[0];st.z=SPOT.ASR[1]},done:()=>{if(P.inside!=='asr')goIn('asr');const g=NN.grant;if(g&&g.int==='asr'){const[x,z]=c3Free(g.x,g.z+2.4,.4);P.x=x;P.z=z;P.face=PI;yaw=0}}}),
+   C_('Disappearance','Grant Ashby · Chapter president','He reads the note twice. Then he turns it over, like the back might have a signature on it.\n\n"No name. No letters. \'Bring the books.\'" He folds it into his pocket. "Somebody on this campus knows exactly what my treasurer carries around."',[['"So who has him?"',null]]),
+   C_('Disappearance','Reese Whitford · Brother','"Who cares who? There are fourteen of us. We walk over to that loading dock right now and we take him back."\n\nHalf the room is already standing up.',[['Continue',null]]),
+   C_('Disappearance','Grant Ashby · Chapter president','"Sit. Down."\n\n"Whoever did this wears letters too. I send this whole house across campus in daylight and by tonight it\'s a war between fraternities, with every brother on the Row picking a side and the police taking pictures from the curb. That is exactly what somebody wants."\n\n"So nobody goes. Nobody but two." He points. "Danny. They asked for you alone, so they get you. And Tank, because \'alone\' is a suggestion."',[['"Just the two of us."',null],['"Two against how many?"',()=>[C_('Disappearance','Tank Hale · Big Brother','Tank is already cracking his neck. "Doesn\'t matter, little bro. I counted myself twice."',[['▸ Continue',null]])]]]),
+   C_('Disappearance','Tank Hale · Big Brother','"Loading dock behind Tangeman. I know it." He grabs his keys off the hook and heads for the door. "Stay behind me until it starts. Then stay next to me."',[['"Let\'s go get Wes."',()=>{if(P.inside)goOut(SPOT.ASR[0],SPOT.ASR[1]);c3TankAlly()}]]),
    {t:'cine',run:c3WesBackCine},
-   go([13.4,36],'Go around the back of the ΚΘΩ house. Wes is behind it',{r:7,c3wb:1}),
-   {t:'fight',x:13.2,z:35.4,c3wb:1,label:'ΚΘΩ is guarding Wes in their backyard. Take them down',foes:[['legacies',6,'Chip Van Dorn'],['legacies',5,'Biff Ashcroft'],['legacies',6,'Thurston Lowell'],['legacies',5,'Graham Pierce'],['legacies',7,'Spencer Hale']],ally:'bb',start:()=>{c3WesSpawn()}},
-   go(C3WESB,'Untie Wes from the lawn chair',{press:1,act:'Cut the duct tape',r:2.6,c3wb:1,done:()=>{const w=c3WesSpawn();c3WesFree(w);bubble(w,'They wanted the BOOKS, Danny.',2.4)}}),
-   C_('Disappearance','Wes Morrow · ΑΣΡ Treasurer','"They grabbed me after the Thursday drop. Preston wanted the ledgers. Every sale, every house, every name." He rubs his wrists. "I didn\'t give them anything. I think. They had a lot of questions and a lot of tequila."\n\n"The books are fine. They\'re where I always hide them. Tell Grant."',[['"Let\'s get you home."',null]]),
+   go(c3WesB(),'Go to the loading dock behind the Tangeman Center with Tank',{r:8,c3wb:1,start:()=>{const st=curStep(),[x,z]=c3WesB();st.x=x;st.z=z+1.5;c3TankAlly()}}),
+   {t:'fight',x:c3WesB()[0]-.4,z:c3WesB()[1]+3.6,c3wb:1,label:'Hooded figures are guarding Wes. Take them down with Tank',foes:[['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',7,'Hooded Figure']],fo:C3HOODOPT,mk:n=>c3Hood(n),ally:'tank',start:()=>{c3WesSpawn()}},
+   go(c3WesB(),'Untie Wes from the lawn chair',{press:1,act:'Cut the duct tape',r:2.6,c3wb:1,done:()=>{const w=c3WesSpawn();c3WesFree(w);bubble(w,'They wanted the BOOKS, Danny.',2.4)}}),
+   C_('Disappearance','Wes Morrow · ΑΣΡ Treasurer','"They grabbed me after the Thursday drop. Bag over my head, then hoods the whole time. Nobody used a name. All they wanted was the ledgers. Every sale, every house, every name." He rubs his wrists. "I didn\'t give them anything. I think. They had a lot of questions and a lot of tequila."\n\n"Who were they?" Tank asks. Wes just shakes his head. "One of them did all the talking. That\'s everything I\'ve got."\n\n"The books are fine. They\'re where I always hide them. Tell Grant."',[['"Let\'s get you home."',null]]),
    go(SPOT.ASR,'Walk Wes home to the ΑΣΡ house',{r:4,act:'Bring Wes home',done:()=>{const w=C3.wes;if(w&&NP.includes(w)&&Math.hypot(w.x-P.x,w.z-P.z)>9){w.x=P.x+1.2;w.z=P.z+1.2}c3CopsAtHouse(1)}}),
    C_('Disappearance','Detective Alana Ruiz · Harrowgate PD','A police cruiser is parked on the ΑΣΡ lawn, lights turning slowly. A detective in a grey coat is standing very close to Grant.\n\n"A bag of cocaine was found at a Gamma Omega Zeta party this week, Mr. Ashby. The kid who had it says he got it downtown, and the man who sold it to him got it from \'a guy in a propeller hat\'. You have a lot of those over here."'+(c3S().busted?'\n\nHer eyes find you over Grant\'s shoulder. "We\'ve met, Mr. Kowalski."':''),[['Continue',null]]),
    C_('Disappearance','Grant Ashby · Chapter president','"Detective, our pledges wear those hats so the whole campus can see them doing community service. It\'s a tradition. It builds character."\n\nHe smiles. She doesn\'t.',[['Continue',null]]),
@@ -565,7 +582,10 @@ const C3M=[
   fin:()=>{c3ClueProps(0);c3CopsAtHouse(0);c3WesChair(0);c3KtoCalm();c1Next('c3accuse',900)}},
 
  {id:'c3accuse',ch:3,main:1,name:'Accusations',who:'grant',pre:['c3missing'],steps:()=>[
-   C_('Accusations','Owen Park · Big Brother','Inside the house, the brothers are already shouting. Owen has a torn ledger page balled in his fist.\n\n"Four thousand dollars. That\'s what\'s missing from the ring fund. Wes counted it twice."',[['Continue',null]]),
+   /* V422 Accusations picks up in the same room, straight after the detective leaves: nobody knows who took Wes, then the money turns up missing too */
+   C_('Accusations','Grant Ashby · Chapter president','The front door shuts on the cruiser\'s lights. Grant doesn\'t sit down.\n\n"My treasurer gets taken off the street on Thursday. On Friday there is a detective on my lawn. That is not two problems. That is one problem." He looks at Wes. "Who was under the hoods?"',[['Continue',null]]),
+   C_('Accusations','Wes Morrow · ΑΣΡ Treasurer','"I never saw a face. I told Danny. One of them did the talking, the rest just stood there." He swallows. "But it gets worse. I checked the safe the second I got upstairs."',[['Continue',null]]),
+   C_('Accusations','Owen Park · Big Brother','Owen has a torn ledger page balled in his fist.\n\n"Four thousand dollars. That\'s what\'s missing from the ring fund. Wes counted it twice. And nobody broke that lock." He looks around the room. "Somebody used a key."',[['Continue',null]]),
    C_('Accusations','Brett Calloway · Brother','"Funny how YOU got a new truck last week, Tank."',[['Continue',null]]),
    C_('Accusations','Tank Hale · Big Brother','"It was a gift, Brett. Back off. You want to talk about money? Funny how Reese pulled up in a brand-new Range Rover on Monday."',[['Continue',null]]),
    C_('Accusations','Reese Whitford · Brother','"Don\'t look at me, Tank. My dad paid for the Range Rover. My dad paid for this FLOOR. If anyone\'s stealing, it\'s the pledge." Everyone looks at you.',[['"I gave Grant what I owed him. Ask him."',()=>[C_('Accusations','Grant Ashby · Chapter president','"He did. I counted it myself. Sit down, Reese."',[['▸ Continue',null]])]],['"Wow. Okay."',()=>[C_('Accusations','Tank Hale · Big Brother','"Leave the kid alone, Reese. He has done more for this house this week than your dad\'s check."',[['▸ Continue',null]])]]]),
@@ -574,8 +594,9 @@ const C3M=[
    C_('Accusations','Wes Morrow · ΑΣΡ Treasurer','Wes is standing in the doorway with a laptop. "Can everybody stop hitting each other? The safe upstairs has a camera. Nobody ever checks the camera."',[['"Show me."',()=>c3SafeProp(1)]]),
    go([0,0],'Check the safe and the security camera in the upstairs bedroom',{press:1,act:'Check the camera footage',r:2.2,goal:()=>{const U=INT.asr_up;return P.inside==='asr_up'?[U.x0+C3SAFE[0],U.z0+C3SAFE[1]+1]:c3Route({int:'asr_up',x:U.x0+C3SAFE[0],z:U.z0+C3SAFE[1]+1})},start:()=>{const st=curStep(),U=INT.asr_up;st.x=U.x0+C3SAFE[0];st.z=U.z0+C3SAFE[1]+1}}),
    {t:'cine',run:c3CctvCine},
-   C_('Accusations','','On the laptop, timestamped 3:12 AM Thursday: two guys in navy blazers walk into the bedroom with a key, open the safe, and fill a gym bag. One of them looks straight into the camera and gives it the finger.\n\nThe ring on his finger has three Greek letters on it. ΚΘΩ.',[['"Preston."',null]]),
-   C_('Accusations','Grant Ashby · Chapter president','"Kappa Theta Omega took our money, took our treasurer, and sent the cops to our lawn." He cracks his knuckles. "The brothers can\'t be seen anywhere near that house. The pledges can."\n\n"Get the pledge class together. Five of them. Tonight you storm ΚΘΩ."',[['"Five pledges. Tonight."',()=>c3SafeProp(0)]]),
+   C_('Accusations','','On the laptop, timestamped 3:12 AM Thursday: two guys in navy blazers walk into the bedroom with a key, open the safe, and fill a gym bag. One of them looks straight into the camera and gives it the finger.\n\nThe ring on his finger has three Greek letters on it. ΚΘΩ.',[['"Kappa Theta Omega."',null]]),
+   C_('Accusations','Wes Morrow · ΑΣΡ Treasurer','Wes has gone white. He leans in until his nose is almost on the screen.\n\n"That ring. Pause it. That RING." He points with a hand that still has tape glue on the wrist. "The one under the hood who did all the talking. He kept tapping it on the arm of my chair. All night. Tap, tap, tap."\n\n"It was them. The money and me. The same guys."',[['"Preston."',null]]),
+   C_('Accusations','Grant Ashby · Chapter president','"Kappa Theta Omega. They robbed my safe, they taped my treasurer to a lawn chair, and the same week there\'s a detective on my lawn asking about hats." He cracks his knuckles. "They wanted the books so they could hand us to the police and keep the Row for themselves. Fine. Now I know whose house to burn down."\n\n"I told you this morning: fourteen brothers on their lawn is a war. So the brothers will be nowhere near that house. The pledges will."\n\n"Get the pledge class together. Five of them. Tonight you storm ΚΘΩ."',[['"Five pledges. Tonight."',()=>c3SafeProp(0)]]),
    {t:'cond',lab:c3RecruitLab,ok:c3RecruitOk,goal:c3RecruitGoal},
    go(SPOT.ASR,'Grab ten bags from Grant\'s stash at the house',{press:1,act:'Grab 10 bags',r:3,start:()=>{const st=curStep();st.x=SPOT.ASR[0];st.z=SPOT.ASR[1]},done:()=>{c3S().kbags=10;toast('You stuff ten bags into your jacket.',3000)}})],
   fin:()=>{toast('Your pledges and ten bags are with you. Take them to the ΚΘΩ house.',4200)}},
@@ -601,7 +622,7 @@ const C3M=[
 M.push(...C3M);
 
 // ================================================================ hooks: prompts, tick, saves
-function c3Prompts(add){if(!AM)return;const id=AM.m.id;if(id==='c3house')c3HousePrompts(add);else if(id==='c3secret')c3SecretPrompts(add);else if(id==='c3missing'){c3CluePrompts(add);c3WesTick();c3KtoTick()}else if(id==='c3accuse')c3RecruitPrompts(add);else if(id==='c3empire')c3EmpirePrompts(add);else if(id==='c3frame')c3PlantPrompts(add)}
+function c3Prompts(add){if(!AM)return;const id=AM.m.id;if(id==='c3house')c3HousePrompts(add);else if(id==='c3secret')c3SecretPrompts(add);else if(id==='c3missing'){c3CluePrompts(add);c3WesTick()/* V422 ΚΘΩ is not hostile here any more: nobody knows it was them yet */}else if(id==='c3accuse')c3RecruitPrompts(add);else if(id==='c3empire')c3EmpirePrompts(add);else if(id==='c3frame')c3PlantPrompts(add)}
 let C3T=0;
 // V200 a gold marker over every set-up job still to do (and every furniture drop spot while carrying), on the third floor
 function c3JobMarks(){const st=AM&&AM.m.id==='c3house'&&curStep(),s=c3S(),I=INT.asr_top,L=[];
