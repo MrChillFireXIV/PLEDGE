@@ -80,4 +80,5 @@ js/24d-tasks-page.js
 js/24e-controls.js
 js/24f-arcade.js
 js/24g-gamepad.js
+js/24h-bisect.js
 js/24-planner-save-lighting-main-boot.js
