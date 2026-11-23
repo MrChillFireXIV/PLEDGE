@@ -81,7 +81,7 @@ function sceneSync(){try{for(const n of NP){const g=n.g;if(!g)continue;if(g.visi
    textures are set up a few at a time instead of all on the first frame (the Xbox dropped the 3D on the first frames of the title screen). Full distance is the normal 320 m (the stars, sun and moon sit 250-290 m out) */
 const LRAMP={f:0,n:300,far0:14,far1:320};
 function liteRamp(){try{bisTick()}catch(e){}if(LITE)try{lptsSync()}catch(e){}if(!LITE||LRAMP.f>LRAMP.n||BISS.on)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
-function renderFrame(){if(GLLOST)return;liteRamp();sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
+function renderFrame(){if(GLLOST)return;if(PRBCFG&&PRBCFG.norender)return;liteRamp();sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
 const HAL=[[.5,.3333],[.25,.6667],[.75,.1111],[.125,.4444],[.625,.7778],[.375,.2222],[.875,.5556],[.0625,.8889]];
 function renderPost(){ppResize();
   if(!PP.vp){PP.vp=new THREE.Matrix4();PP.ivp=new THREE.Matrix4();PP.pvp=new THREE.Matrix4();PP.pcam=new THREE.Vector3()}

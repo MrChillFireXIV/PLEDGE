@@ -2,7 +2,7 @@
 // Every drawable thing in the scene is moved to camera layer 3 (the camera sees layer 0), so nothing is drawn. Then a few are put back on layer 0 each frame,
 // frustum culling off so each one really is drawn, and a description of the batch is written to localStorage BEFORE that frame renders.
 // If the 3D context is lost, the error screen (ctxGuard, file 24) shows the last batch: that is the culprit (or, if it dies late, the amount).
-const BISS={on:(()=>{try{return/[?&#]bisect\b/.test(location.search+location.hash)}catch(e){return false}})(),list:null,i:0,k:3,t:0};
+var BISS={on:(()=>{try{return/[?&#]bisect\b/.test(location.search+location.hash)}catch(e){return false}})(),list:null,i:0,k:3,t:0};
 function bisDesc(o){const m=Array.isArray(o.material)?o.material[0]:o.material,g=o.geometry,mp=m&&(m.map||m.alphaMap||m.emissiveMap);let nm=[];for(let p=o;p&&p!==sc&&nm.length<3;p=p.parent)if(p.name)nm.push(p.name);
   return o.type+' · '+(m?m.type+(m.onBeforeCompile&&String(m.onBeforeCompile).length>20?'+custom':'')+(m.transparent?' transp':'')+(m.vertexColors?' vcol':'')+(m.side===2?' 2side':''):'')+(mp&&mp.image?' · tex '+(mp.image.width||'?')+'x'+(mp.image.height||'?')+(mp.isDataTexture?' data':'')+' f'+mp.format+' t'+mp.type+(mp.anisotropy>1?' an'+mp.anisotropy:''):'')+
     (g&&g.attributes&&g.attributes.position?' · '+g.attributes.position.count+' pts'+(g.index?' '+g.index.array.constructor.name.replace('Array',''):''):'')+(o.isInstancedMesh?' ×'+o.count:'')+(nm.length?' · '+nm.join('<'):'')}
@@ -16,3 +16,19 @@ function bisTick(){if(!BISS.on||typeof mode==='undefined'||mode==='loading')retu
   const add=[],K=BISS.i<300?1:BISS.i<900?4:12;for(let k=0;k<K&&BISS.i<L.length;k++){const o=L[BISS.i++];o.layers.set(0);o.frustumCulled=false;add.push(o)}
   try{localStorage.setItem('pledge.bisect',BISS.i+'/'+L.length+' · '+add.map(bisDesc).join(' | '))}catch(e){}
   const d=$('bisbar');if(d)d.textContent='Testing: '+BISS.i+' of '+L.length+' things drawn'}
+// ---- V435 ?probe: the Xbox kept losing the 3D about 2 frames into the title screen whatever was drawn (even only the sky). This runs the title screen four times,
+// reloading in between, each time with something switched off, and shows which runs keep working for 20 s: A no 3D drawing and no interface,
+// B no 3D drawing, C no interface (3D only), D everything. One photo of the table says whether the 3D, the page interface, or both together cause it.
+const PRB={on:(()=>{try{return/[?&#]probe\b/.test(location.search+location.hash)}catch(e){return false}})(),K:'pledge.probe',steps:[['A','no 3D drawing, no interface',1,1],['B','no 3D drawing, interface on',1,0],['C','3D drawing, no interface',0,1],['D','everything on',0,0]]};
+function prbSt(){try{return JSON.parse(localStorage.getItem(PRB.K)||'null')||{i:0,res:[]}}catch(e){return{i:0,res:[]}}}
+function prbSave(s){try{localStorage.setItem(PRB.K,JSON.stringify(s))}catch(e){}}
+function prbBox(html){let d=$('prbbox');if(!d){d=document.createElement('div');d.id='prbbox';d.style.cssText='position:fixed;left:50%;top:60px;transform:translateX(-50%);z-index:2147483647;background:#14182c;color:#f2ead8;font:600 19px/1.5 Arial;padding:14px 22px;border-radius:10px;border:2px solid #ffd24a;min-width:520px;visibility:visible!important';document.body.appendChild(d)}d.innerHTML=html;d.style.setProperty('visibility','visible','important')}
+function prbTable(s){return PRB.steps.map((t,i)=>'<div>'+(s.res[i]?(s.res[i].ok?'<b style="color:#6fe08a">OK</b>':'<b style="color:#ff6b6b">FAIL</b>'):(i===s.i?'<b style="color:#ffd24a">…</b>':'&nbsp;&nbsp;&nbsp;'))+' '+t[0]+' · '+t[1]+(s.res[i]&&s.res[i].note?' <small style="opacity:.7">('+s.res[i].note+')</small>':'')+'</div>').join('')}
+var PRBCFG=(()=>{if(!PRB.on)return null;const s=prbSt();if(s.i>=PRB.steps.length)return null;const t=PRB.steps[s.i];
+  if(t[3]){const st=document.createElement('style');st.textContent='body *{visibility:hidden!important;animation:none!important;transition:none!important}';document.head.appendChild(st);R.domElement.style.setProperty('visibility','visible','important')}
+  return{s,norender:!!t[2]}})();
+/* a lost context during a probe run: note it and go on to the next run (ctxGuard calls this first) */
+function prbLost(fr){if(!PRBCFG)return false;const s=PRBCFG.s;s.res[s.i]={ok:false,note:'stopped at frame '+fr};s.i++;prbSave(s);prbBox('<b>Probe</b><br>'+prbTable(s)+'<br>Reloading for the next run…');setTimeout(()=>location.reload(),1800);return true}
+if(PRB.on){const s0=prbSt();if(!PRBCFG){prbBox('<b style="color:#ffd24a">Probe finished.</b> Take a photo of this and send it.<br>'+prbTable(s0)+'<br><small>Add ?probe again after pressing Start over to repeat.</small><br><button id="prbre" style="font:700 17px Arial;padding:8px 18px;margin-top:8px;border-radius:8px;border:0;background:#ffd24a">Start over</button>');$('prbre').onclick=()=>{prbSave({i:0,res:[]});location.reload()}}
+  else{let t0=0;const tick=()=>{const s=PRBCFG.s;if(typeof mode!=='undefined'&&mode!=='loading'){if(!t0)t0=performance.now();const left=Math.max(0,20-(performance.now()-t0)/1000);prbBox('<b>Probe run '+(s.i+1)+' of '+PRB.steps.length+'</b> · '+Math.ceil(left)+' s<br>'+prbTable(s));
+      if(left<=0){s.res[s.i]={ok:true,note:'frames drawn '+R.info.render.frame};s.i++;prbSave(s);prbBox('<b>Probe</b><br>'+prbTable(s)+'<br>Reloading…');setTimeout(()=>location.reload(),1200);return}}setTimeout(tick,500)};tick()}}
