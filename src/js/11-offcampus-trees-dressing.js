@@ -400,7 +400,7 @@ function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[];
     if(b.det){const S_=G.boundingSphere;WCH.push({m:M,x:S_.center.x,z:S_.center.z,r:S_.radius,cd:DET_D})}}}
 function optimizeScene(){const preG=LITE?new Set():null;if(preG)sc.traverse(o=>{if(o.geometry)preG.add(o.geometry)});const mg=[];try{chunkStatic()}catch(e){console.warn('chunkStatic',e)}const keep=new Set([ram,gateMesh,radioBlink,sky,sunDisc,moonDisc,stars,fountainPts,sun,sun.target,hemi,plamp,...kartGates]);for(const id in INT)keep.add(INT[id].g);/* V382 the road cones stay separate so a grabbed one can disappear */for(const c of CONES)keep.add(c.m);
   const out=new THREE.Group();mergeStatic(sc.children.filter(o=>!keep.has(o)&&!o.isLight),out,128);sc.add(out);
-  for(const id in INT){const g=INT[id].g;const kids=g.children.slice();const m=new THREE.Group();mergeStatic(kids,m);g.add(m);mg.push(m)}if(preG)try{liteFreeMark([out,...mg],preG)}catch(e){console.warn('liteFree',e)}
+  for(const id in INT){const g=INT[id].g;const kids=g.children.slice();if(LITE)INT[id].rec=intRecipe(kids);const m=new THREE.Group();mergeStatic(kids,m);g.add(m);mg.push(m);INT[id].mg=m}if(preG)try{liteFreeMark([out,...mg],preG)}catch(e){console.warn('liteFree',e)}/* V441 console: interiors keep only a recipe until entered */if(LITE)for(const id in INT)if(INT[id].rec)intEvict(INT[id])
   sc.children.filter(o=>o.isGroup&&o!==out&&!keep.has(o)&&o.children.length===0).forEach(o=>sc.remove(o));
   OUTSIDE=sc.children.filter(o=>!keep.has(o)&&!o.isLight)}
 

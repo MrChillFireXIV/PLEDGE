@@ -241,7 +241,17 @@ function buildInteriors(){const grp=f=>{const n0=sc.children.length;const I=f();
 function deanOffOut(){sfx('ui');try{maDoor()}catch(e){}fadeTo(()=>{goIn('main',32.2,3.2);P.face=0;yaw=P.face+PI;camT=3})}
 function pairOf(id){if(!id)return null;const b=id.replace(/_up$/,'');if(!INT[b+'_up'])return null;return id.endsWith('_up')?b:b+'_up'}
 function setCast(g,on){g.traverse(o=>{if(o.isMesh){if(o.userData.cs==null)o.userData.cs=o.castShadow;o.castShadow=on?o.userData.cs:false}})}
-function showInt(id){for(const k in INT){const g=INT[k].g;g.visible=k===id;if(g.position.lengthSq()){g.position.set(0,0,0);setCast(g,1)}}const pr=pairOf(id);if(pr){const A=INT[id],B_=INT[pr],g=B_.g;g.visible=true;g.position.set(A.x0-B_.x0,pr.endsWith('_up')?STH:-STH,A.z0-B_.z0);setCast(g,0)}
+/* V441 console (LITE): interiors are built when you enter them. At load every interior is built as usual (walls, prompts, staff), but instead of
+   keeping its big merged shapes, only a recipe is kept: each static piece's shape (mostly shared), material and world matrix, in the same order
+   mergeStatic visits them. intVis merges the recipe again on entry, through the same mergeStatic, so the room comes out exactly as at load;
+   leaving drops it. Only the room you are in (and the floor joined by stairs) holds its merged shapes */
+function intRecipe(kids){const R_=[];for(const o of kids){o.updateMatrixWorld(true);o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.userData.noMerge||!m.geometry||!m.geometry.attributes.position)return;R_.push([m.geometry,m.material,m.matrixWorld.clone(),m.castShadow,m.receiveShadow])})}return R_}
+function intEvict(I){if(!I||!I.mg||!I.rec)return;if(I.h0==null)try{I.h0=intVh(I.mg)}catch(e){}I.g.remove(I.mg);I.mg.traverse(o=>{if(o.geometry)o.geometry.dispose()});I.mg=null;I.lazy=true}
+function intVis(I){if(!I||!I.lazy||!I.rec)return;const T=new THREE.Group();for(const[g,mat,mw,c,r]of I.rec){const m=new THREE.Mesh(g,mat);m.matrixAutoUpdate=false;m.matrix.copy(mw);m.castShadow=c;m.receiveShadow=r;T.add(m)}
+  const m=new THREE.Group();mergeStatic([T],m);I.g.add(m);I.mg=m;I.lazy=false;try{liteFreeMark([m],new Set())}catch(e){}}
+function intVh(m){let n=0,sum=0;m.traverse(o=>{const a=o.geometry&&o.geometry.attributes.position;if(!a||a.array.length<a.count*3)return;n+=a.count;for(let i=0;i<a.array.length;i+=7)sum+=a.array[i]});return n+':'+sum.toFixed(3)}
+function intLazyShow(id){if(!LITE)return;const keep=new Set([id,id&&pairOf(id)].filter(Boolean));for(const k in INT){const I=INT[k];if(!I.rec)continue;if(keep.has(k))intVis(I);else if(I.mg&&!I.lazy)intEvict(I)}}
+function showInt(id){intLazyShow(id);for(const k in INT){const g=INT[k].g;g.visible=k===id;if(g.position.lengthSq()){g.position.set(0,0,0);setCast(g,1)}}const pr=pairOf(id);if(pr){const A=INT[id],B_=INT[pr],g=B_.g;g.visible=true;g.position.set(A.x0-B_.x0,pr.endsWith('_up')?STH:-STH,A.z0-B_.z0);setCast(g,0)}
   // V196 the ΑΣΡ third floor is open to the second: each shows the other through the stairwell
   if(typeof c3StairOK==='function'&&c3StairOK()&&INT.asr_top&&INT.asr_up&&(id==='asr_up'||id==='asr_top')){const A=INT[id],O=INT[id==='asr_up'?'asr_top':'asr_up'];O.g.visible=true;O.g.position.set(A.x0-O.x0,id==='asr_up'?C3SH:-C3SH,A.z0-O.z0);setCast(O.g,0)}}
 function bringFollowers(){for(const n of NP){if(!n.follow||n.down)continue;n.int=P.inside||null}FOLT=-1;for(const n of NP){if(!n.follow||n.down)continue;const[x,z]=folSlot(n);n.x=x;n.z=z;n.path=null;n.aggro=0;n.tgt=null}}
