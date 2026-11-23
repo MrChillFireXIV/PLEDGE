@@ -81,7 +81,7 @@ function steelStair(P,ys,w,openSeg){const d=deckMk(P,ys,w,'st');const ST=mt(0x5c
     // a solid flank down to the ground under a high flight
     for(const s of[-1,1])for(let t=.5;t<L;t+=Math.max(2.4,(L-1)/Math.ceil((L-1)/3))){const[px,pz]=pt(t,s*(hw-.15)),y=ya+dy*t/L-.4,g=terrH(px,pz);if(y-g>.6)put(bgeo(.14,y-g,.14),ST,px,(y+g)/2,pz,yaw)}}
   // nobody on the ground walks through the stair
-  const[bx0,bz0,bx1,bz1]=d.bb;cells(bx0,bz0,bx1,bz1,(k,x,z)=>{const q=deckQ(d,x,z);if(q.out!==0||q.off>d.hw+.1)return;const g=terrH(x,z);if(q.y-g>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(q.y-g))))}});
+  const[bx0,bz0,bx1,bz1]=d.bb;cells(bx0,bz0,bx1,bz1,(k,x,z)=>{const q=deckQ(d,x,z);if(q.out!==0||q.off>d.hw+.1)return;const g=terrH(x,z);if(q.y-g>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(q.y-g)))}});
   return d}
 
 // ================================================================ V79 the promenade to the Lindner Center (south of the building, between the tennis courts and the soccer lawn):
@@ -136,14 +136,14 @@ function ccmDecks(){const lv=.53,Y=4.2+lv,BRK=SM({map:brickPave(),roughness:.9})
   const areaDeck=(poly,y)=>{const bb=bbox(poly),n=poly.length,cx=poly.reduce((s,p)=>s+p[0],0)/n,cz=poly.reduce((s,p)=>s+p[1],0)/n;const d={area:{poly,holes:[]},P:[[cx,cz],[cx+.1,cz]],ys:[y,y],s:[0,2],L:2,hw:99,w:198,k:'area',cov:0,bb:[bb[0]-.5,bb[1]-.5,bb[2]+.5,bb[3]+.5],t0:0,t1:2,y};DECKS.push(d);return d};
   const RL=mt(0x22252a,.5,.4),rail=(x0,z0,x1,z1,y)=>{const L=Math.hypot(x1-x0,z1-z0);if(L<.2)return;const cx=(x0+x1)/2,cz=(z0+z1)/2,ry=Math.atan2(x1-x0,z1-z0);const t=new THREE.Mesh(bgeo(.06,.06,L),RL);t.position.set(cx,y+1.05,cz);t.rotation.y=ry;t.userData.ts=1;sc.add(t);
     const m=new THREE.Mesh(bgeo(.04,.04,L),RL);m.position.set(cx,y+.12,cz);m.rotation.y=ry;m.userData.ts=1;sc.add(m);for(let s=0;s<=L+1e-3;s+=.14){const x=x0+(x1-x0)*s/L,z=z0+(z1-z0)*s/L,b=new THREE.Mesh(GC.rbal||(GC.rbal=new THREE.BoxGeometry(.025,.95,.025)),RL);b.position.set(x,y+.58,z);b.userData.ts=1;sc.add(b)}
-    cells(Math.min(x0,x1)-.2,Math.min(z0,z1)-.2,Math.max(x0,x1)+.2,Math.max(z0,z1)+.2,(k,x,z)=>{const vx=x1-x0,vz=z1-z0,t=clamp(((x-x0)*vx+(z-z0)*vz)/(L*L),0,1);if(Math.hypot(x-x0-vx*t,z-z0-vz*t)<.3){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(y+1.1-terrH(x,z)))))}})};
+    cells(Math.min(x0,x1)-.2,Math.min(z0,z1)-.2,Math.max(x0,x1)+.2,Math.max(z0,z1)+.2,(k,x,z)=>{const vx=x1-x0,vz=z1-z0,t=clamp(((x-x0)*vx+(z-z0)*vz)/(L*L),0,1);if(Math.hypot(x-x0-vx*t,z-z0-vz*t)<.3){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(y+1.1-terrH(x,z))))}})};
   // 1) the TUC bridge head: fill the hollow between the plaza and the bridge with a paved platform
   {const p=[[299.8,362.4],[305.7,362.4],[305.7,377.6],[299.8,377.6]],y=3.18;areaDeck(p,y);{const tm=sc.children.find(o=>o.userData&&o.userData.terrain),m=flatPoly(p,y+.02,TM.concrete,4);if(tm){const G=tm.geometry,ps=G.attributes.position,uv=G.attributes.uv,n=ps.count-1;tm.updateMatrixWorld();const v0=new THREE.Vector3().fromBufferAttribute(ps,0).applyMatrix4(tm.matrixWorld),v1=new THREE.Vector3().fromBufferAttribute(ps,n).applyMatrix4(tm.matrixWorld);
       const ku=(uv.getX(n)-uv.getX(0))/((v1.x-v0.x)||1),kv=(uv.getY(n)-uv.getY(0))/((v1.z-v0.z)||1),U=m.geometry.attributes.uv,Pp=m.geometry.attributes.position;m.updateMatrixWorld();const w=new THREE.Vector3();for(let i=0;i<U.count;i++){w.fromBufferAttribute(Pp,i);U.setXY(i,uv.getX(0)+(w.x-v0.x)*ku,uv.getY(0)+(w.z-v0.z)*kv)}U.needsUpdate=true;m.material=tm.material}}
     const C=mt(0xb8b2a6,.9);for(const[x0,z0,x1,z1]of[[299.8,377.4,305.7,377.65],[305.45,362.4,305.7,377.65]]){const xm=(x0+x1)/2,zm=(z0+z1)/2;let g=y;for(let t=0;t<=1;t+=.1)g=Math.min(g,terrH(x0+(x1-x0)*t,z0+(z1-z0)*t));const w=new THREE.Mesh(bgeo(x1-x0,y-g+.6,z1-z0),C);w.position.set(xm,(y+g-.6)/2,zm);w.castShadow=w.receiveShadow=true;w.userData.ts=1;sc.add(w)}
     {const dx=-.378,dz=.926,ex=.926*1.5,ez=.378*1.5,c0=[302.5,375.4],tz=(377.6-c0[1])/dz,R0=[c0[0]+dx*tz+ex,377.6],L0=[c0[0]+dx*tz-ex,377.6];
       rail(R0[0],377.6,305.6,377.6,y);rail(305.6,377.6,305.6,375.4,y);rail(R0[0],377.6,R0[0]+dx*1.6,377.6+dz*1.6,y);rail(L0[0],377.6,L0[0]+dx*1.6,377.6+dz*1.6,y);if(L0[0]>299.85)rail(299.8,377.6,L0[0],377.6,y)}
-    cells(299.8,362.4,305.7,377.6,(k,x,z)=>{if(y-terrH(x,z)>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(y-terrH(x,z)))))}})}
+    cells(299.8,362.4,305.7,377.6,(k,x,z)=>{if(y-terrH(x,z)>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(y-terrH(x,z))))}})}
   // 2) Mary Emery's podium roof: brick, walkable, open to the bridge walk; railings only where it drops to the ground
   const A=CCMG.area,inUp=(x,z)=>CCMG.ups.some(u=>inPoly(x,z,u)),inMain=(x,z)=>inPoly(x,z,CCMG.main);areaDeck(A,Y);flatPoly(A,Y+.03,BRK,3.2);
   const SX0=327.4,SX1=331.6,SZ=420.55;  // the stair opening on the plaza edge
@@ -161,7 +161,7 @@ function ccmDecks(){const lv=.53,Y=4.2+lv,BRK=SM({map:brickPave(),roughness:.9})
       {const p0=new THREE.Vector3(x+sx*(W/2-.08),Y+.95,z0+.15),p1=new THREE.Vector3(x+sx*(W/2-.08),g+.95,z0+L-.15),Lr=p0.distanceTo(p1),hr=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,Lr,8),mt(0xb8bcc2,.35,.7));hr.position.copy(p0).add(p1).multiplyScalar(.5);hr.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),p1.clone().sub(p0).normalize());hr.userData.ts=1;sc.add(hr);
         for(let t=.4;t<L;t+=1.8){const pz=z0+t,py=Y-(t/L)*(Y-g),pp=new THREE.Mesh(GC.hrp||(GC.hrp=new THREE.CylinderGeometry(.025,.025,.95,6)),mt(0xb8bcc2,.35,.7));pp.position.set(x+sx*(W/2-.08),py+.47,pz);pp.userData.ts=1;sc.add(pp)}}
       markR(wx-.3,z0,wx+.3,z0+L,2)}
-    cells(x-W/2,z0,x+W/2,z0+L,(k,xx,zz)=>{const t=zz-z0,yy=Y-(t/L)*(Y-g),h=yy-terrH(xx,zz);if(h>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(h))))}})}
+    cells(x-W/2,z0,x+W/2,z0+L,(k,xx,zz)=>{const t=zz-z0,yy=Y-(t/L)*(Y-g),h=yy-terrH(xx,zz);if(h>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(h)))}})}
   // the bridge walk along the podium gets the same brick
   {const P=[[292.8,401],[301.6,404.6],[305.3,396.6],[306.7,395.1],[308.9,394.3]],w=1.42,Pa=[],Ua=[];for(let i=0;i<P.length-1;i++){const[a,b]=P[i],[c,d]=P[i+1],L=Math.hypot(c-a,d-b),nx=-(d-b)/L*w,nz=(c-a)/L*w,q=[[a+nx,b+nz],[a-nx,b-nz],[c-nx,d-nz],[c+nx,d+nz]];for(const j of[0,1,2,0,2,3]){Pa.push(q[j][0],4.57+.045,q[j][1]);Ua.push(q[j][0]/3.2,-q[j][1]/3.2)}}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pa,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(Ua,2));g.computeVertexNormals();const mm=new THREE.Mesh(g,new THREE.MeshStandardMaterial?BRK:BRK);mm.material.side=THREE.DoubleSide;mm.receiveShadow=true;mm.userData.ts=1;sc.add(mm)}}
@@ -191,7 +191,7 @@ function ccmVillage(){const GLS=SM({color:0xa9cbe0,roughness:.05,metalness:.25,t
   {const bb=bbox(TP),cx=TP.reduce((s,p)=>s+p[0],0)/TP.length,cz=TP.reduce((s,p)=>s+p[1],0)/TP.length;DECKS.push({area:{poly:TP,holes:[]},P:[[cx,cz],[cx+.1,cz]],ys:[TY,TY],s:[0,2],L:2,hw:99,w:198,k:'area',cov:0,bb:[bb[0]-.5,bb[1]-.5,bb[2]+.5,bb[3]+.5],t0:0,t1:2,y:TY})}
   const rail=(a,b,y)=>{const L2=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L2<.2)return;const cx=(a[0]+b[0])/2,cz=(a[1]+b[1])/2,ry=Math.atan2(b[0]-a[0],b[1]-a[1]);const t=new THREE.Mesh(bgeo(.06,.06,L2),RLM);t.position.set(cx,y+1.05,cz);t.rotation.y=ry;t.userData.ts=1;sc.add(t);
     const m=new THREE.Mesh(bgeo(.04,.04,L2),RLM);m.position.set(cx,y+.12,cz);m.rotation.y=ry;m.userData.ts=1;sc.add(m);for(let s=0;s<=L2+1e-3;s+=.14){const x=a[0]+(b[0]-a[0])*s/L2,z=a[1]+(b[1]-a[1])*s/L2,p=new THREE.Mesh(GC.rbal||(GC.rbal=new THREE.BoxGeometry(.025,.95,.025)),RLM);p.position.set(x,y+.58,z);p.userData.ts=1;sc.add(p)}
-    cells(Math.min(a[0],b[0])-.2,Math.min(a[1],b[1])-.2,Math.max(a[0],b[0])+.2,Math.max(a[1],b[1])+.2,(k,x,z)=>{const vx=b[0]-a[0],vz=b[1]-a[1],t2=clamp(((x-a[0])*vx+(z-a[1])*vz)/(L2*L2),0,1);if(Math.hypot(x-a[0]-vx*t2,z-a[1]-vz*t2)<.3){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(y+1.1-terrH(x,z)))))}})};
+    cells(Math.min(a[0],b[0])-.2,Math.min(a[1],b[1])-.2,Math.max(a[0],b[0])+.2,Math.max(a[1],b[1])+.2,(k,x,z)=>{const vx=b[0]-a[0],vz=b[1]-a[1],t2=clamp(((x-a[0])*vx+(z-a[1])*vz)/(L2*L2),0,1);if(Math.hypot(x-a[0]-vx*t2,z-a[1]-vz*t2)<.3){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(y+1.1-terrH(x,z))))}})};
   rail(bzP(.15,2.0),bzP(26.3,2.0),TY);rail(bzP(.15,2.0),bzP(.15,oS),TY);
   {let st=null;for(let t=.15;t<=L+.01;t+=.5){const drop=terrH(...bzP(t,oS-.5))<TY-.7&&!(t>22.3&&t<25.7);if(drop&&!st)st=t;if((!drop||t+.5>L)&&st!=null){rail(bzP(st,oS),bzP(t,oS),TY);st=null}}}
   // ---- the grand stair from the plaza: stone treads, two landings, brick cheek walls with limestone coping, steel handrails
@@ -204,7 +204,7 @@ function ccmVillage(){const GLS=SM({color:0xa9cbe0,roughness:.05,metalness:.25,t
         const hr=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,Lr,8),mt(0xb8bcc2,.35,.7));hr.position.copy(p0).add(p1).multiplyScalar(.5);hr.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),p1.clone().sub(p0).normalize());hr.userData.ts=1;sc.add(hr);
         for(const f of[.1,.9]){const pp=new THREE.Mesh(GC.hrp||(GC.hrp=new THREE.CylinderGeometry(.025,.025,.95,6)),mt(0xb8bcc2,.35,.7));pp.position.set(a0+(a1-a0)*f,Y[i]+(Y[i+1]-Y[i])*f+.47,b0+(b1-b0)*f);pp.userData.ts=1;sc.add(pp)}}}
     {const q=[bzP(T[0],oC+SW/2+.5),bzP(T[T.length-1],oC+SW/2+.5),bzP(T[T.length-1],oC+SW/2),bzP(T[0],oC+SW/2)];markPoly(q,2)}
-    cells(...bbox(P.map(p=>p)).map((v,i)=>v+(i<2?-3:3)),(k,x,z)=>{const q=deckQ(d,x,z);if(q.out!==0||q.off>d.hw)return;const h=q.y-terrH(x,z);if(h>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(h))))}})}
+    cells(...bbox(P.map(p=>p)).map((v,i)=>v+(i<2?-3:3)),(k,x,z)=>{const q=deckQ(d,x,z);if(q.out!==0||q.off>d.hw)return;const h=q.y-terrH(x,z);if(h>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(h)))}})}
   // ---- steps down from the terrace's south edge onto the hill
   let oB=oS-2;{for(let it=0;it<4;it++){const g=terrH(...bzP(24,oB)),m=Math.max(3,Math.round((TY-g)/.16));oB=oS-m*.32}const g=terrH(...bzP(24,oB));const d=deckMk([bzP(24,oS+.6),bzP(24,oS),bzP(24,oB)],[TY,TY,g],3.0,'st');d.t0=0;d.t1=d.L}
   // ---- a paved walk from the terrace across the hill to the steps down to Calhoun Street beside Siddall Hall

@@ -36,7 +36,6 @@ Testing runs in headless Chromium.
 - `S.pledged=1` with no job opens the Pledge Machine. Also set `S.prole='pouch'`.
 - DOM minigames need a stepped clock in headless mode. Do this before starting one:
   `let T=0;Object.defineProperty(performance,'now',{value:()=>T,configurable:true});requestAnimationFrame=f=>setTimeout(()=>{T+=20;f(T)},5)`
-- **Xbox memory test:** `tools/xbox/cage.sh 900` runs the game in a 900 MB memory cage with an Edge-on-Xbox identity (LITE turns on by itself); `PLAY=1 tools/xbox/cage.sh 900` also plays a bit. Since V439 the title screen fits in about 850 MB with the test driver; play still needs about 1,000 MB.
 - More test options are in the header of `tools/run.js`: `--compare` baseline diffs, `perf`, `views`, `room:ID`.
 
 ## Game API cheat sheet
@@ -61,7 +60,6 @@ Testing runs in headless Chromium.
   - `INT[id]` gives `{x0,z0,w,d,g,objs}`
   - `iobj(I,lx,lz,label,fn,r)` adds an E-prompt object inside an interior
   - `freeAt(x,z,r)`, `nearFree`, `markR(x0,z0,x1,z1,h)` (collision)
-  - The world grids `WG` (walls), `HG` (heights), `SH` (step heights), `RG` (roads), `DIST` (route distances) and the car-lane grid are block grids since V438: read with `grGet(WG,k)`, write with `grSet(WG,k,v)`, never `WG[k]` (that silently reads nothing). `PW`/`WT` are still plain arrays.
 - **NPCs:**
   - `spawn(clique,zone,opts)`; `NN.grant` and similar are the named characters; `NP` is all NPCs.
   - Flags: `n.temp`, `n.actor`, `n.foe`, `n.ally`, `n.follow`.

@@ -58,7 +58,7 @@ function wpavConcourse(D){const S=D.stands.find(s=>s.nip&&s.sl.length>20);if(!S)
   // the south edge of the floor: a picket rail either side of the stair
   {const a=[351.8,394.7],b=[342.8,397.8],L=Math.hypot(b[0]-a[0],b[1]-a[1]),s=Math.hypot(WPSS[0][0]-a[0],WPSS[0][1]-a[1]);railRun(a[0],a[1],b[0],b[1],Y,[[s-1.8,s+1.8]])}
   // the floor is solid ground for people below it wherever it stands high over the slope
-  const[bx0,bz0,bx1,bz1]=bbox(WPDECK);cells(bx0,bz0,bx1,bz1,(k,x,z)=>{if(inPoly(x,z,WPDECK)){const h=Y-terrH(x,z);if(h>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(h))))}}});
+  const[bx0,bz0,bx1,bz1]=bbox(WPDECK);cells(bx0,bz0,bx1,bz1,(k,x,z)=>{if(inPoly(x,z,WPDECK)){const h=Y-terrH(x,z);if(h>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(h)))}}});
   DECKS.push({area:{poly:WPDECK,holes},P:[[(bx0+bx1)/2,(bz0+bz1)/2],[(bx0+bx1)/2+.1,(bz0+bz1)/2]],ys:[Y,Y],s:[0,2],L:2,hw:99,w:198,k:'area',cov:0,bb:[bx0-.5,bz0-.5,bx1+.5,bz1+.5],t0:0,t1:2,y:Y});
   // aisle stairs down through the west stand to the field: each tread follows the top of its row of seats
   const top=(x,z)=>{let h=-1;for(const q of S.sl){if(q.h<=h)continue;const r=q.r;if(inPoly(x,z,r[0])&&!r.slice(1).some(hh=>inPoly(x,z,hh)))h=q.h}return h<0?null:lv+h};
@@ -312,12 +312,12 @@ const stadWest=()=>fromField(0,-STAD.hw-1.5);
 
 
 /* V359 startup timing: BOOTT[stage] = milliseconds, readable from the console (BOOTT) */
-const BOOTT={},BOOTM={};let BOOTK='start';function bootT(k,f){const t=performance.now();BOOTK=k;/* V428 the step being built, shown if the 3D context is lost */const r=f();BOOTT[k]=Math.round(performance.now()-t);/* V439 script memory after each loading step, for finding the loading peak */try{BOOTM[k]=Math.round(performance.memory.usedJSHeapSize/1e6)}catch(e){}return r}
+const BOOTT={};function bootT(k,f){const t=performance.now();const r=f();BOOTT[k]=Math.round(performance.now()-t);return r}
 function buildWorld(){
   // V123 Clifton Avenue's last block (map data) ran 4 m under Ruby's Diner and stopped 2 m short of the downtown avenue, so the avenue's
   // sidewalk capped it. Move it 2 m west, narrow it to clear the diner wall, and run it down to the avenue (the mouth is paved below).
   {const r=(UCD.roads||[]).find(r=>r.n==='Clifton Avenue'&&r.pts.some(p=>p[1]>570));if(r){r.pts=[[147,576.2],[147,559],[149,553]];r.w=9.6}}
-  bootT('w:makeTextures',makeTextures);FD.on=true;FD.built=GFX==='enhanced';
+  makeTextures();FD.on=true;FD.built=GFX==='enhanced';
   flat(0,0,141,OD,0,TM.grass,6);flat(141,576,WW,OD,0,TM.grass,6);
   flat(0,530+LZ,701,1332,0,TM.grass,6);flat(-500,OD+500,WW+500,1345,-.05,TM.grass2,8);flat(-500,-500,WW+500,0,-.05,TM.grass2,8);flat(-500,OD,WW+500,OD+500,-.05,TM.grass2,8);flat(-500,0,0,OD,-.05,TM.grass2,8);flat(WW,0,WW+500,OD,-.05,TM.grass2,8);
   // ---------- roads
@@ -343,8 +343,8 @@ function buildWorld(){
   // ASR backyard: pong table, grill, string lights
   {const g=new THREE.Group();const t=new THREE.Mesh(bgeo(2.6,.08,1.2),mt(0x2b4a7a,.6));t.position.y=.95;t.castShadow=true;g.add(t);for(const[a,b]of[[-1.2,-.5],[1.2,-.5],[-1.2,.5],[1.2,.5]]){const l=new THREE.Mesh(bgeo(.08,.95,.08),mt(0x333));l.position.set(a,.47,b);g.add(l)}pongCups=[];const cg=new THREE.CylinderGeometry(.06,.045,.14,10);for(const s of[-1,1])for(let r=0;r<3;r++)for(let c=0;c<3-r;c++){const m=new THREE.Mesh(cg,mt(0xc0302a,.5));m.position.set(s*(1.05-r*.12),1.06,(c-(2-r)/2)*.13);g.add(m)}g.position.set(127,0,70);sc.add(g);markR(125.6,69.2,128.4,70.8,1.1);
     box(130,.5,84,1.4,1,.9,0x2a2a2e);for(let i=0;i<9;i++){const b=new THREE.Mesh(GC.bulb||(GC.bulb=new THREE.SphereGeometry(.09,8,6)),bm(0xffe39a));b.position.set(120+i*2.2,3.4-Math.sin(i/8*PI)*.6,66);sc.add(b)}}
-  bootT('w:buildFratYards',buildFratYards);
-  bootT('w:buildCampus',buildCampus);
+  buildFratYards();
+  buildCampus();
   // ---------- DOWNTOWN
   bld('diner',152,558,178,592,8,'stucco',{door:[165,'s'],sign:"RUBY'S DINER",sbg:'#b3262e',sfg:'#fff3d6',awning:0xb3262e,name:"Ruby's Diner",menu:'diner'});
   bld('pawn',182,562,200,592,8,'brick2',{door:[191,'s'],sign:'LUCKY PAWN',sbg:'#1b2a1a',sfg:'#8fe07a',awning:0x2a6a3a,name:'Lucky Pawn',menu:'pawn'});
@@ -370,11 +370,11 @@ function buildWorld(){
   bld('boat',63,577+LZ,77,585+LZ,5,'wood',{roof:'hip',rc:0x3a2a1c,door:[70,'n'],name:'Boathouse',menu:'boat'});
   {const sand=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sand.scale.set(LK.rx+3,LK.rz+3,1);sand.rotation.x=-PI/2;sand.position.set(LK.x,.02,LK.z);sand.receiveShadow=true;sc.add(sand);
    const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(LK.rx,LK.rz,1);w.rotation.x=-PI/2;w.position.set(LK.x,.08,LK.z);sc.add(w)}
-  cells(LK.x-LK.rx,LK.z-LK.rz,LK.x+LK.rx,LK.z+LK.rz,(k,x,z)=>{if(inLake(x,z)&&!onDock(x,z))grSet(WG,k,1)});
+  cells(LK.x-LK.rx,LK.z-LK.rz,LK.x+LK.rx,LK.z+LK.rz,(k,x,z)=>{if(inLake(x,z)&&!onDock(x,z))WG[k]=1});
   {const d=new THREE.Mesh(boxUV(new THREE.BoxGeometry(4.6,.3,22.5),4.6,.3,22.5,3),TM.plank);d.position.set(70,.35,591.2+LZ);d.castShadow=d.receiveShadow=true;sc.add(d);for(let z=582+LZ;z<=602+LZ;z+=4){cyl(67.8,.3,z,.14,1.2,0x4a3420);cyl(72.2,.3,z,.14,1.2,0x4a3420)}}
   {// kart track strip
     const N=128,pos=[],uv=[],idx=[];for(let i=0;i<=N;i++){const th=i/N*TAU;for(const s of[-1,1]){const rx=TK.rx+s*TK.w,rz=TK.rz+s*TK.w;pos.push(TK.x+rx*Math.cos(th),.04,TK.z+rz*Math.sin(th));uv.push(i/N*45,s>0?1:0)}}for(let i=0;i<N;i++){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,SM({map:TX.asphalt,roughness:.95,side:THREE.DoubleSide}));m.receiveShadow=true;sc.add(m);
-    cells(TK.x-TK.rx-5,TK.z-TK.rz-5,TK.x+TK.rx+5,TK.z+TK.rz+5,(k,x,z)=>{if(Math.abs(trackR(x,z)-1)<.11)grSet(RG,k,1)});
+    cells(TK.x-TK.rx-5,TK.z-TK.rz-5,TK.x+TK.rx+5,TK.z+TK.rz+5,(k,x,z)=>{if(Math.abs(trackR(x,z)-1)<.11)RG[k]=1});
     const sl=new THREE.Mesh(new THREE.PlaneGeometry(1.2,TK.w*2),new THREE.MeshBasicMaterial({color:0xf2efe6}));sl.rotation.x=-PI/2;sl.position.set(70,.06,572+LZ);sc.add(sl);
     const gm=new THREE.MeshBasicMaterial({color:0xe2b64c,transparent:true,opacity:.85});for(let k=0;k<12;k++){const th=-PI/2+k*TAU/12,[x,z]=trackPos(th);const t=new THREE.Mesh(new THREE.TorusGeometry(4.2,.18,6,24,PI),gm.clone());t.position.set(x,0,z);t.rotation.y=Math.atan2(-TK.rx*Math.sin(th),TK.rz*Math.cos(th));t.visible=false;sc.add(t);kartGates.push(t)}}
   // ---------- CAMP HOLLOW: one big forest campground around Hollow Lake (cabins, lakeside docks, campsites, trails)
@@ -389,7 +389,7 @@ function buildWorld(){
    for(const[x,z,f]of[[290,1078,'s'],[322,1078,'s'],[452,1078,'s'],[484,1078,'s'],[250,1150,'e'],[250,1196,'e'],[548,1150,'w'],[548,1196,'w']])cabin('cab'+(cn++),x,z,f,cn);
    bld('rng',150,1034,166,1050,5,'wood',{roof:'hip',rc:0x2e4030,rh:2.6,trim:0x5a3d22,door:[158,'n'],name:'Ranger Station'});
    bld('pavil',360,1062,420,1088,5,'wood',{roof:'hip',rc:0x3a2a1c,rh:3,trim:0x5a3d22,door:[390,'s'],name:'Camp Pavilion'});
-   const lake=(cx,cz,rx,rz)=>{const sd=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sd.scale.set(rx+2.5,rz+2.5,1);sd.rotation.x=-PI/2;sd.position.set(cx,.02,cz);sd.receiveShadow=true;sc.add(sd);const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(rx,rz,1);w.rotation.x=-PI/2;w.position.set(cx,.08,cz);sc.add(w);cells(cx-rx,cz-rz,cx+rx,cz+rz,(k,x,z)=>{if(((x-cx)/rx)**2+((z-cz)/rz)**2<1&&!onDock(x,z))grSet(WG,k,1)})};
+   const lake=(cx,cz,rx,rz)=>{const sd=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sd.scale.set(rx+2.5,rz+2.5,1);sd.rotation.x=-PI/2;sd.position.set(cx,.02,cz);sd.receiveShadow=true;sc.add(sd);const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(rx,rz,1);w.rotation.x=-PI/2;w.position.set(cx,.08,cz);sc.add(w);cells(cx-rx,cz-rz,cx+rx,cz+rz,(k,x,z)=>{if(((x-cx)/rx)**2+((z-cz)/rz)**2<1&&!onDock(x,z))WG[k]=1})};
    for(const w of HOLLOW_W)lake(...w);
    for(const d of HOLLOW_D){const L=d[3]-d[1];box((d[0]+d[2])/2,.35,(d[1]+d[3])/2,3.4,.25,L,0x6a4a2a);for(let z=d[1]+2;z<=d[3];z+=5){cyl(d[0]-.1,.3,z,.14,1.2,0x4a3420);cyl(d[2]+.1,.3,z,.14,1.2,0x4a3420)}}
    for(const[x,z,r,c]of[[398.5,1119,.2,0x9a5a2a],[410,1125,-.15,0xb8a02a],[375,1222,.1,0x2a6a8a],[386,1226,-.2,0xa83232],[440,1170,1.2,0x6a8a2a],[360,1190,.5,0xc8602a],[470,1150,-.6,0x2a6a8a]]){const bt=box(x,.14,z,1.4,.3,3.6,c);bt.rotation.y=r}
@@ -421,10 +421,10 @@ function buildWorld(){
    let i=0;for(let z=212;z<560;z+=44){for(const[x0,x1,f]of[[24,52,'e'],[88,116,'w']]){if(i<FR.length){const[id,lt,nm,kd,lb,rc]=FR[i];bld(id,x0,z,x1,z+26,10,kd,{roof:'hip',rc,door:[z+13,f],portico:1,letters:lt,lb,name:nm});i++;continue}const k=HC[i%HC.length];bld('ch'+i,x0,z,x1,z+26,7+(i%3),k,{roof:'hip',rc:[0x3a3a3a,0x4a3a3a,0x30343c][i%3],door:[z+13,f]});i++}}}
   bld('psr',88,182,116,208,10,'sidingP',{roof:'hip',rc:0x4a3a3a,door:[195,'w'],portico:1,letters:'ΦΣΡ',lb:'#7a2a5a',name:'Phi Sigma Rho'});
   // ---------- yard paths (after every house exists, before trees so trees keep off them)
-  try{bootT('w:buildYardPaths',buildYardPaths)}catch(e){console.warn('yard paths',e)}
-  try{bootT('w:buildTunnel',buildTunnel)}catch(e){console.warn('tunnel',e)}
+  try{buildYardPaths()}catch(e){console.warn('yard paths',e)}
+  try{buildTunnel()}catch(e){console.warn('tunnel',e)}
   try{braunEntry()}catch(e){console.warn('braunstein',e)}
-  try{bootT('w:buildHughes',buildHughes)}catch(e){console.warn('hughes',e)}
+  try{buildHughes()}catch(e){console.warn('hughes',e)}
   // ---------- trees
   for(let z=14;z<572;z+=11){tryTree(60.5+rnd(),z+rnd()*2);tryTree(79.5-rnd(),z+rnd()*2)}
   for(let x=4;x<WW;x+=13){tryTree(x+rnd()*3,571.5+rnd()*1.2);tryTree(x+rnd()*3,591.2+rnd()*1.5)}
@@ -433,10 +433,10 @@ function buildWorld(){
   for(let i=0;i<500;i++){const x=rnd()*WW,z=rnd()*OD;if(x<16||x>714||z<4||z>712)tryTree(x,z,1.1)}
   for(let i=0;i<160;i++)tryTree(120+rnd()*18,10+rnd()*560);
   for(let i=0;i<90;i++)tryTree(140+rnd()*560,694+rnd()*18);
-  fdBuild();bootT('w:buildTrees',buildTrees);bootT('w:buildLamps',buildLamps);nightLights();bootT('w:buildSurroundings',buildSurroundings);bootT('w:buildDressing',buildDressing);
+  fdBuild();buildTrees();buildLamps();nightLights();buildSurroundings();buildDressing();
   // shrubs
   {const sg=new THREE.IcosahedronGeometry(.8,0),pts=[];for(const b of B){if(!b.face||b.poly)continue;for(let k=-3;k<=3;k++){if(Math.abs(k)<2)continue;const[x,z]=fpos(b,b.face,b.da+k*2.2,.8);if(!onRoad(x,z))pts.push([x,z])}}const im=new THREE.InstancedMesh(sg,SM({roughness:.9,flatShading:true}),pts.length),m=new THREE.Matrix4(),c=new THREE.Color();pts.forEach(([x,z],i)=>{m.makeScale(1,.75,1);m.setPosition(x,.5,z);im.setMatrixAt(i,m);c.setHSL(.27+rnd()*.06,.45,.22+rnd()*.06);im.setColorAt(i,c)});im.castShadow=true;im.frustumCulled=false;im.userData.chunk=999;sc.add(im)}
-  campusSpots();bootT('interiors',buildInteriors);bootT('paths',buildPW);bootT('map',()=>{WORLDC=bootT('w:prerenderMap',prerenderMap)});
+  campusSpots();bootT('interiors',buildInteriors);bootT('paths',buildPW);bootT('map',()=>{WORLDC=prerenderMap()});
 }
 // V131 Gettler Stadium (the sunken soccer field and track by Varsity Village): a simple steel chain-link fence round the outside of the
 // track, as in the photo; the stand/garage side (the south straight) is left open, and there are gaps at the middle of the north straight

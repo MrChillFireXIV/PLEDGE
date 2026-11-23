@@ -64,7 +64,6 @@ def main():
     json.dump({'version': v, 'built': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')},
               open(os.path.join(SITE, 'version.json'), 'w'))
     open(os.path.join(SITE, '.nojekyll'), 'w').close()
-    shutil.copy(os.path.join(ROOT, 'pages', 'gltest.html'), os.path.join(SITE, 'gltest.html'))   # V431 graphics test page for consoles (Xbox Edge)
     print('site ready: %s/index.html (%s, %s bytes)' % (os.path.relpath(SITE, ROOT), v, format(len(html), ',')))
 
 

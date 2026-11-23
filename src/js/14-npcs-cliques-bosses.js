@@ -233,7 +233,7 @@ function tmBuild(){const I=INT.asr,HX=28.3,HZ=8.2,wx=I.x0+HX,wz=I.z0+HZ,dk=mt(0x
   const sl=new THREE.Group();sl.position.set(.9,1.7,0);mg.add(sl);mk(new THREE.CylinderGeometry(.03,.03,.8,8),mt(0xb8bcc2,.3,.8),0,.4,0,sl);mk(new THREE.SphereGeometry(.1,12,10),R,0,.85,0,sl);sl.rotation.z=-.3;
   const bulbs=[],B1=bm(0xffe08a),B2=bm(0x6a4a20);for(let i=0;i<14;i++){const a=i<7?-.78+i*.26:-.78+(i-7)*.26,b=mk(new THREE.SphereGeometry(.05,8,6),B2,a,i<7?3.34:2.56,.58,mg);bulbs.push(b)}
   T.mg=mg;T.bulbs=bulbs;T.B1=B1;T.B2=B2;T.sl=sl;T.lt=new THREE.PointLight(0xffd070,0,9);T.lt.position.set(wx,2.6,wz);sc.add(T.lt);return T}
-function tmSolid(on){if(!THM)return;const x0=THM.wx-1.2,z0=THM.wz-1.2;cells(x0,z0,x0+2.4,z0+2.4,(k)=>{if(on){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),3))}else{grSet(WG,k,0);grSet(HG,k,0)}})}
+function tmSolid(on){if(!THM)return;const x0=THM.wx-1.2,z0=THM.wz-1.2;cells(x0,z0,x0+2.4,z0+2.4,(k)=>{if(on){WG[k]=1;HG[k]=Math.max(HG[k],3)}else{WG[k]=0;HG[k]=0}})}
 function throneMachine(){const g=NN.grant;if(!INT.asr||!g||!g.throne||prSpinOn){prSpin();return}
   if(!THM)THM=tmBuild();THM.t=0;THM.state='cine';THM.skip=0;THM.said=0;THM.chime=0;THM.rum=0;THM.mg.visible=false;THM.mg.position.y=-3.4;THM.pA.position.x=THM.wx-.6;THM.pB.position.x=THM.wx+.6;THM.lever.rotation.x=-.7;
   endScene();THM.ox=P.x;THM.oz=P.z;THM.of=P.face;P.x=THM.I.x0+TMDX;P.z=THM.I.z0+TMDZ;P.vx=P.vz=0;P.face=Math.atan2(THM.wx-P.x,THM.wz-P.z);THM.dsaid=0;
@@ -268,7 +268,7 @@ function spawnFrats(){for(const F of FRATS){const id=F.id,L=F.L,cl=F.cl,fm=!!F.f
       for(const[dx,dz]of D.p+D.d>=4?[[3.4,-.6],[-3.8,.5]]:[[3.4,-.6]]){const x=Y.cx+dx,z=Y.cz+dz;{const n=sp(id,cl,Y.zone,{x,z,a:Math.atan2(Y.cx-x,Y.cz-z),mode:'idle',house:id,title:L+BR,fem:fm||undefined,lvl:lv()});if(n&&id==='asr')n.roam=1}}}
     if(!fm&&id!=='lxa')gargoyle(F,b);if(typeof housePledges==='function')housePledges(F,b)}}
 /* V229 campus population x4: AMBX = real character rigs (x2, each one costs memory and draw time); CROWD.EXTRA (21h) fills the rest with cheap virtual people so the total is x4 */
-const AMBX=(()=>{try{return/[?&]fast\b/.test(location.search)||LITE?.5:2}catch(e){return 2}})();   /* V295 ?fast (test server): a quarter of the ambient crowd */
+const AMBX=(()=>{try{return/[?&]fast\b/.test(location.search)?.5:2}catch(e){return 2}})();   /* V295 ?fast (test server): a quarter of the ambient crowd */
 function spawnAll(){
   const SP=[['legacies','greekN',4],['legacies','lake',8],['townies','lake',10],['activists','lake',6],['athletes','ath',10],['athletes','quad',4],['studentgov','quad',9],['activists','quad',6],['legacies','quad',4],['townies','heights',5],['activists','down',2],['townies','down',9],['sororities','greek',5],['sororities','quad',6],['brothers','greek',4],['police','quad',2],['police','greek',1],['police','ave',1],['ra','greek',2],['ra','quad',1],['cops','down',2],['studentgov','quad',8],['activists','quad',6],['athletes','quad',5],['sororities','quad',7],['legacies','quad',5],['townies','quad',4],['athletes','ath',6],['studentgov','ath',3],
     /* V184 more townies off campus: Clifton Heights, the Calhoun/U-Square strip, downtown and the Lake District */['townies','heights',9],['townies','ave',5],['townies','down',9],['townies','lake',12]];

@@ -23,7 +23,7 @@ const c10P=(dx,dz)=>({int:null,x:C10C.x+dx,z:C10C.z+dz});
 const c10W=(dx,y,dz)=>{const x=C10C.x+dx,z=C10C.z+dz;return[x,terrH(x,z)+y,z]};
 {const _fd=fdBuild;fdBuild=function(){try{c10Clearing()}catch(e){console.warn('c10Clearing',e)}return _fd.apply(this,arguments)}}
 function c10Clearing(){const{x:cx,z:cz,r}=C10C;for(const t of TREES){const d=Math.hypot(t[0]-cx,t[1]-cz);if(d>=r)continue;
-  const k=Math.floor(t[0]/4)*65536+Math.floor(t[1]/4),a=CCOL.get(k);if(a){const j=a.findIndex(c=>c[0]===t[0]&&c[1]===t[1]);if(j>=0)a.splice(j,1)}cells(t[0]-.9,t[1]-.9,t[0]+.9,t[1]+.9,q=>{grSet(HG,q,0)});
+  const k=Math.floor(t[0]/4)*65536+Math.floor(t[1]/4),a=CCOL.get(k);if(a){const j=a.findIndex(c=>c[0]===t[0]&&c[1]===t[1]);if(j>=0)a.splice(j,1)}cells(t[0]-.9,t[1]-.9,t[0]+.9,t[1]+.9,q=>{HG[q]=0});
   const ang=Math.atan2(t[1]-cz,t[0]-cx);let ok=0;for(let s=0;s<30&&!ok;s++){const aa=ang+(s%2?1:-1)*Math.ceil(s/2)*.22,rr=r+2.4+(s%3)*.8,X=cx+Math.cos(aa)*rr,Z=cz+Math.sin(aa)*rr;if(Z>1051&&freeAt(X,Z,1.7)&&!onRoad(X,Z)){t[0]=X;t[1]=Z;ok=1}}
   if(!ok){t[0]=cx+Math.cos(ang)*(r+3);t[1]=cz+Math.sin(ang)*(r+3)}markC(t[0],t[1],.5,9)}}
 

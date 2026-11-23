@@ -154,7 +154,7 @@ function c3Truck(on){if(on&&!C3.truck){const g=new THREE.Group(),x=C3TRUCK[0],z=
     const lab2=lab.clone();lab2.position.x=-1.27;lab2.rotation.y=-PI/2;g.add(lab2);const ramp=new THREE.Mesh(bgeo(1.4,.06,2.2),mt(0x8a8a8a,.4,.5));ramp.position.set(0,.45,4.1);ramp.rotation.x=.34;g.add(ramp);
     for(const[a,b]of[[-1.15,-3],[1.15,-3],[-1.15,1.6],[1.15,1.6]]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.3,14).rotateZ(PI/2),mt(0x18181a,.8));w.position.set(a,.42,b);g.add(w)}
     g.rotation.y=PI;g.traverse(m=>{if(m.isMesh){m.castShadow=true;m.userData.noMerge=1}});sc.add(g);C3.truck=g;markR(x-1.3,z-4.2,x+1.3,z+3.8,3)}
-  else if(!on&&C3.truck){sc.remove(C3.truck);C3.truck=null;const x=C3TRUCK[0],z=C3TRUCK[1];cells(x-1.3,z-4.2,x+1.3,z+3.8,k=>{grSet(WG,k,0);grSet(HG,k,0);grSet(SH,k,0)})}}
+  else if(!on&&C3.truck){sc.remove(C3.truck);C3.truck=null;const x=C3TRUCK[0],z=C3TRUCK[1];cells(x-1.3,z-4.2,x+1.3,z+3.8,k=>{WG[k]=0;HG[k]=0;SH[k]=0})}}
 function c3CarryStart(){c3Truck(1);const s=c3S();if(s.carry)c3CarryMesh(s.carry)}
 function c3HousePrompts(add){const st=curStep();if(!st||st.t!=='cond'||st.ok!==c3CarryOk)return;const s=c3S(),I=INT.asr_top;
   if(!s.carry&&!P.inside){const nx=C3F.find(([k])=>!s.f[k]);if(nx)add(C3TRUCK[0],C3TRUCK[1]-4.6,2.6,'Grab the '+nx[1].replace(/^Painting: /,'painting ')+' from the truck',()=>{s.carry=nx[0];c3CarryMesh(nx[0]);sfx('ui');toast('Up three flights. Don\'t scratch anything.',2200);updObj()},3)}

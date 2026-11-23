@@ -128,4 +128,4 @@ function dungDoor(I){const g=wallGrp(I,.16,16,'e',0),W=mt(0x2a1a10,.7),IR=mt(0x2
     sfx('ui');try{maDoor()}catch(e){}fadeTo(()=>{goIn(DUNG.id,DUNG.sx,DUNG.D-8.6);P.face=PI;yaw=0;pitch=.32;camT=4;toast('The Dungeon',1800);if(!S.dungSeen){S.dungSeen=1;setTimeout(()=>big('THE DUNGEON',1800),300)}})},1.7)}
 function dungUp(){sfx('ui');try{maDoor()}catch(e){}fadeTo(()=>{goIn('asr',1.6,16);P.face=PI/2;yaw=P.face+PI;camT=3})}
 // open/close the fuse room door (the keypad unlocks it in chapter 1; it stays open after that)
-function dungDoorOpen(on){const g=DUNG.door;if(!g)return;const I=INT.asr_bsmt;g.rotation.y=on?-1.25:0;cells(I.x0+9.9,I.z0+4,I.x0+10.15,I.z0+6.6,k=>{if(on){grSet(WG,k,0);grSet(HG,k,0)}else{grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),3))}});if(DUNG.kled)DUNG.kled.material=bm(on?0x3ad85a:0xd8302a)}
+function dungDoorOpen(on){const g=DUNG.door;if(!g)return;const I=INT.asr_bsmt;g.rotation.y=on?-1.25:0;cells(I.x0+9.9,I.z0+4,I.x0+10.15,I.z0+6.6,k=>{if(on){WG[k]=0;HG[k]=0}else{WG[k]=1;HG[k]=Math.max(HG[k],3)}});if(DUNG.kled)DUNG.kled.material=bm(on?0x3ad85a:0xd8302a)}
