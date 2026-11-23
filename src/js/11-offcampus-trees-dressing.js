@@ -378,14 +378,24 @@ function buildTreesClassic(){const n=TREES.length,tr=new THREE.InstancedMesh(new
 // and small props (bounding radius < DET_R) go into 64 m tiles that are hidden beyond DET_D metres (via WCH, see treeLod). Objects bigger than a
 // tile stay in one map-wide bucket per material. Without CS (interiors) it merges per material as before.
 const DET_R=1.25,DET_D=100;
-function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[],_s=new THREE.Sphere();
-  const put=(mat,cast,rec,g)=>{let cell='',det=0;if(CS){g.computeBoundingSphere();const b=g.boundingSphere;if(b.radius<DET_R){det=1;cell='d'+Math.floor(b.center.x/64)+','+Math.floor(b.center.z/64)}else if(b.radius<CS*.75)cell=Math.floor(b.center.x/CS)+','+Math.floor(b.center.z/CS);else cell='G'}
-    const key=mat.uuid+(cast?'c':'')+(rec?'r':'')+'|'+cell;let b=buckets.get(key);if(!b){b={mat,cast,rec,det,list:[]};buckets.set(key,b)}b.list.push(g)};
-  for(const o of objs){o.updateMatrixWorld(true);o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.userData.noMerge||!m.geometry||!m.geometry.attributes.position)return;const g=m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone();g.applyMatrix4(m.matrixWorld);
-    if(Array.isArray(m.material)){const gs=m.geometry.groups&&m.geometry.groups.length?m.geometry.groups:[{start:0,count:g.attributes.position.count,materialIndex:0}];for(const gr of gs){const mat=m.material[gr.materialIndex];if(!mat)continue;const sub=new THREE.BufferGeometry();for(const nm of['position','normal','uv']){const at=g.attributes[nm];if(!at)continue;sub.setAttribute(nm,new THREE.BufferAttribute(at.array.slice(gr.start*at.itemSize,(gr.start+gr.count)*at.itemSize),at.itemSize))}put(mat,m.castShadow,m.receiveShadow,sub)}g.dispose()}
-    else put(m.material,m.castShadow,m.receiveShadow,g);kill.push(m)})}
+function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[];
+  /* V439 two passes and no copies: pass 1 sorts every piece (mesh, or one material group of it) into its bucket with its exact world-space bounding sphere,
+     pass 2 writes each piece's transformed points, normals and uvs straight into its bucket's merged arrays. The old way kept a transformed copy of every
+     piece until all buckets were built, so the whole world sat in memory twice at the loading peak (+281 MB on the Xbox-sized test). Same output */
+  const V=new THREE.Vector3(),VN=new THREE.Vector3(),NM=new THREE.Matrix3(),BX=new THREE.Box3();
+  const vid=(g,i)=>g.index?g.index.getX(i):i;
+  const sphere=(g,mw,s0,c)=>{const P_=g.attributes.position;BX.makeEmpty();for(let i=s0;i<s0+c;i++){V.fromBufferAttribute(P_,vid(g,i)).applyMatrix4(mw);BX.expandByPoint(V)}const ctr=BX.getCenter(new THREE.Vector3());let r2=0;for(let i=s0;i<s0+c;i++){V.fromBufferAttribute(P_,vid(g,i)).applyMatrix4(mw);r2=Math.max(r2,ctr.distanceToSquared(V))}return{c:ctr,r:Math.sqrt(r2)}};
+  const put=(mat,cast,rec,src)=>{let cell='',det=0;if(CS){const b=sphere(src.g,src.mw,src.s,src.c);if(b.r<DET_R){det=1;cell='d'+Math.floor(b.c.x/64)+','+Math.floor(b.c.z/64)}else if(b.r<CS*.75)cell=Math.floor(b.c.x/CS)+','+Math.floor(b.c.z/CS);else cell='G'}
+    const key=mat.uuid+(cast?'c':'')+(rec?'r':'')+'|'+cell;let b=buckets.get(key);if(!b){b={mat,cast,rec,det,list:[],n:0};buckets.set(key,b)}b.list.push(src);b.n+=src.c};
+  for(const o of objs){o.updateMatrixWorld(true);o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.userData.noMerge||!m.geometry||!m.geometry.attributes.position)return;const g=m.geometry,mw=m.matrixWorld.clone(),nv=g.index?g.index.count:g.attributes.position.count;
+    if(Array.isArray(m.material)){const gs=g.groups&&g.groups.length?g.groups:[{start:0,count:nv,materialIndex:0}];for(const gr of gs){const mat=m.material[gr.materialIndex];if(!mat)continue;const s0=Math.min(gr.start,nv),c=Math.max(0,Math.min(gr.count,nv-s0));put(mat,m.castShadow,m.receiveShadow,{g,mw,s:s0,c,multi:1})}}
+    else put(m.material,m.castShadow,m.receiveShadow,{g,mw,s:0,c:nv});kill.push(m)})}
   for(const m of kill)m.parent&&m.parent.remove(m);
-  for(const b of buckets.values()){let n=0;for(const g of b.list)n+=g.attributes.position.count;const pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2);let o=0;for(const g of b.list){const c=g.attributes.position.count;pos.set(g.attributes.position.array.subarray(0,c*3),o*3);if(g.attributes.normal)nor.set(g.attributes.normal.array.subarray(0,c*3),o*3);if(g.attributes.uv&&g.attributes.uv.itemSize===2)uv.set(g.attributes.uv.array.subarray(0,c*2),o*2);o+=c;g.dispose()}
+  for(const b of buckets.values()){const n=b.n,pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2);let o=0;
+    for(const sr of b.list){const g=sr.g,P_=g.attributes.position,N_=g.attributes.normal,U_=g.attributes.uv&&g.attributes.uv.itemSize===2?g.attributes.uv:null;NM.getNormalMatrix(sr.mw);
+      for(let i=sr.s;i<sr.s+sr.c;i++,o++){const v=vid(g,i);V.fromBufferAttribute(P_,v).applyMatrix4(sr.mw);pos[o*3]=V.x;pos[o*3+1]=V.y;pos[o*3+2]=V.z;
+        if(N_){VN.fromBufferAttribute(N_,v).applyMatrix3(NM).normalize();nor[o*3]=VN.x;nor[o*3+1]=VN.y;nor[o*3+2]=VN.z}if(U_){uv[o*2]=U_.getX(v);uv[o*2+1]=U_.getY(v)}}}
+    b.list=null;
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));G.setAttribute('uv',new THREE.BufferAttribute(uv,2));G.computeBoundingSphere();const M=new THREE.Mesh(G,b.mat);M.castShadow=b.cast;M.receiveShadow=b.rec;M.matrixAutoUpdate=false;parent.add(M);
     if(b.det){const S_=G.boundingSphere;WCH.push({m:M,x:S_.center.x,z:S_.center.z,r:S_.radius,cd:DET_D})}}}
 function optimizeScene(){const preG=LITE?new Set():null;if(preG)sc.traverse(o=>{if(o.geometry)preG.add(o.geometry)});const mg=[];try{chunkStatic()}catch(e){console.warn('chunkStatic',e)}const keep=new Set([ram,gateMesh,radioBlink,sky,sunDisc,moonDisc,stars,fountainPts,sun,sun.target,hemi,plamp,...kartGates]);for(const id in INT)keep.add(INT[id].g);/* V382 the road cones stay separate so a grabbed one can disappear */for(const c of CONES)keep.add(c.m);

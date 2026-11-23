@@ -312,12 +312,12 @@ const stadWest=()=>fromField(0,-STAD.hw-1.5);
 
 
 /* V359 startup timing: BOOTT[stage] = milliseconds, readable from the console (BOOTT) */
-const BOOTT={};let BOOTK='start';function bootT(k,f){const t=performance.now();BOOTK=k;/* V428 the step being built, shown if the 3D context is lost */const r=f();BOOTT[k]=Math.round(performance.now()-t);return r}
+const BOOTT={},BOOTM={};let BOOTK='start';function bootT(k,f){const t=performance.now();BOOTK=k;/* V428 the step being built, shown if the 3D context is lost */const r=f();BOOTT[k]=Math.round(performance.now()-t);/* V439 script memory after each loading step, for finding the loading peak */try{BOOTM[k]=Math.round(performance.memory.usedJSHeapSize/1e6)}catch(e){}return r}
 function buildWorld(){
   // V123 Clifton Avenue's last block (map data) ran 4 m under Ruby's Diner and stopped 2 m short of the downtown avenue, so the avenue's
   // sidewalk capped it. Move it 2 m west, narrow it to clear the diner wall, and run it down to the avenue (the mouth is paved below).
   {const r=(UCD.roads||[]).find(r=>r.n==='Clifton Avenue'&&r.pts.some(p=>p[1]>570));if(r){r.pts=[[147,576.2],[147,559],[149,553]];r.w=9.6}}
-  makeTextures();FD.on=true;FD.built=GFX==='enhanced';
+  bootT('w:makeTextures',makeTextures);FD.on=true;FD.built=GFX==='enhanced';
   flat(0,0,141,OD,0,TM.grass,6);flat(141,576,WW,OD,0,TM.grass,6);
   flat(0,530+LZ,701,1332,0,TM.grass,6);flat(-500,OD+500,WW+500,1345,-.05,TM.grass2,8);flat(-500,-500,WW+500,0,-.05,TM.grass2,8);flat(-500,OD,WW+500,OD+500,-.05,TM.grass2,8);flat(-500,0,0,OD,-.05,TM.grass2,8);flat(WW,0,WW+500,OD,-.05,TM.grass2,8);
   // ---------- roads
@@ -343,8 +343,8 @@ function buildWorld(){
   // ASR backyard: pong table, grill, string lights
   {const g=new THREE.Group();const t=new THREE.Mesh(bgeo(2.6,.08,1.2),mt(0x2b4a7a,.6));t.position.y=.95;t.castShadow=true;g.add(t);for(const[a,b]of[[-1.2,-.5],[1.2,-.5],[-1.2,.5],[1.2,.5]]){const l=new THREE.Mesh(bgeo(.08,.95,.08),mt(0x333));l.position.set(a,.47,b);g.add(l)}pongCups=[];const cg=new THREE.CylinderGeometry(.06,.045,.14,10);for(const s of[-1,1])for(let r=0;r<3;r++)for(let c=0;c<3-r;c++){const m=new THREE.Mesh(cg,mt(0xc0302a,.5));m.position.set(s*(1.05-r*.12),1.06,(c-(2-r)/2)*.13);g.add(m)}g.position.set(127,0,70);sc.add(g);markR(125.6,69.2,128.4,70.8,1.1);
     box(130,.5,84,1.4,1,.9,0x2a2a2e);for(let i=0;i<9;i++){const b=new THREE.Mesh(GC.bulb||(GC.bulb=new THREE.SphereGeometry(.09,8,6)),bm(0xffe39a));b.position.set(120+i*2.2,3.4-Math.sin(i/8*PI)*.6,66);sc.add(b)}}
-  buildFratYards();
-  buildCampus();
+  bootT('w:buildFratYards',buildFratYards);
+  bootT('w:buildCampus',buildCampus);
   // ---------- DOWNTOWN
   bld('diner',152,558,178,592,8,'stucco',{door:[165,'s'],sign:"RUBY'S DINER",sbg:'#b3262e',sfg:'#fff3d6',awning:0xb3262e,name:"Ruby's Diner",menu:'diner'});
   bld('pawn',182,562,200,592,8,'brick2',{door:[191,'s'],sign:'LUCKY PAWN',sbg:'#1b2a1a',sfg:'#8fe07a',awning:0x2a6a3a,name:'Lucky Pawn',menu:'pawn'});
@@ -421,10 +421,10 @@ function buildWorld(){
    let i=0;for(let z=212;z<560;z+=44){for(const[x0,x1,f]of[[24,52,'e'],[88,116,'w']]){if(i<FR.length){const[id,lt,nm,kd,lb,rc]=FR[i];bld(id,x0,z,x1,z+26,10,kd,{roof:'hip',rc,door:[z+13,f],portico:1,letters:lt,lb,name:nm});i++;continue}const k=HC[i%HC.length];bld('ch'+i,x0,z,x1,z+26,7+(i%3),k,{roof:'hip',rc:[0x3a3a3a,0x4a3a3a,0x30343c][i%3],door:[z+13,f]});i++}}}
   bld('psr',88,182,116,208,10,'sidingP',{roof:'hip',rc:0x4a3a3a,door:[195,'w'],portico:1,letters:'ΦΣΡ',lb:'#7a2a5a',name:'Phi Sigma Rho'});
   // ---------- yard paths (after every house exists, before trees so trees keep off them)
-  try{buildYardPaths()}catch(e){console.warn('yard paths',e)}
-  try{buildTunnel()}catch(e){console.warn('tunnel',e)}
+  try{bootT('w:buildYardPaths',buildYardPaths)}catch(e){console.warn('yard paths',e)}
+  try{bootT('w:buildTunnel',buildTunnel)}catch(e){console.warn('tunnel',e)}
   try{braunEntry()}catch(e){console.warn('braunstein',e)}
-  try{buildHughes()}catch(e){console.warn('hughes',e)}
+  try{bootT('w:buildHughes',buildHughes)}catch(e){console.warn('hughes',e)}
   // ---------- trees
   for(let z=14;z<572;z+=11){tryTree(60.5+rnd(),z+rnd()*2);tryTree(79.5-rnd(),z+rnd()*2)}
   for(let x=4;x<WW;x+=13){tryTree(x+rnd()*3,571.5+rnd()*1.2);tryTree(x+rnd()*3,591.2+rnd()*1.5)}
@@ -433,10 +433,10 @@ function buildWorld(){
   for(let i=0;i<500;i++){const x=rnd()*WW,z=rnd()*OD;if(x<16||x>714||z<4||z>712)tryTree(x,z,1.1)}
   for(let i=0;i<160;i++)tryTree(120+rnd()*18,10+rnd()*560);
   for(let i=0;i<90;i++)tryTree(140+rnd()*560,694+rnd()*18);
-  fdBuild();buildTrees();buildLamps();nightLights();buildSurroundings();buildDressing();
+  fdBuild();bootT('w:buildTrees',buildTrees);bootT('w:buildLamps',buildLamps);nightLights();bootT('w:buildSurroundings',buildSurroundings);bootT('w:buildDressing',buildDressing);
   // shrubs
   {const sg=new THREE.IcosahedronGeometry(.8,0),pts=[];for(const b of B){if(!b.face||b.poly)continue;for(let k=-3;k<=3;k++){if(Math.abs(k)<2)continue;const[x,z]=fpos(b,b.face,b.da+k*2.2,.8);if(!onRoad(x,z))pts.push([x,z])}}const im=new THREE.InstancedMesh(sg,SM({roughness:.9,flatShading:true}),pts.length),m=new THREE.Matrix4(),c=new THREE.Color();pts.forEach(([x,z],i)=>{m.makeScale(1,.75,1);m.setPosition(x,.5,z);im.setMatrixAt(i,m);c.setHSL(.27+rnd()*.06,.45,.22+rnd()*.06);im.setColorAt(i,c)});im.castShadow=true;im.frustumCulled=false;im.userData.chunk=999;sc.add(im)}
-  campusSpots();bootT('interiors',buildInteriors);bootT('paths',buildPW);bootT('map',()=>{WORLDC=prerenderMap()});
+  campusSpots();bootT('interiors',buildInteriors);bootT('paths',buildPW);bootT('map',()=>{WORLDC=bootT('w:prerenderMap',prerenderMap)});
 }
 // V131 Gettler Stadium (the sunken soccer field and track by Varsity Village): a simple steel chain-link fence round the outside of the
 // track, as in the photo; the stand/garage side (the south straight) is left open, and there are gaps at the middle of the north straight
