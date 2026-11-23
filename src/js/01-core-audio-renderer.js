@@ -103,5 +103,10 @@ function lptsSync(){for(let j=LITEPTS.length-1;j>=0;j--){const G=LITEPTS[j],lp=G
   const A=lp.eg.attributes.position.array,C=ca&&lp.eg.attributes.color?lp.eg.attributes.color.array:null;let k=0;
   for(let i=0;i<n;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i);for(let f=0;f<24;f++){const d=LPDV[LPF[f]];if(C){C[k]=ca.getX(i);C[k+1]=ca.getY(i);C[k+2]=ca.getZ(i)}A[k++]=x+d[0]*r;A[k++]=y+d[1]*r;A[k++]=z+d[2]*r}}
   lp.eg.attributes.position.needsUpdate=true;if(C)lp.eg.attributes.color.needsUpdate=true;lp.eg.computeBoundingSphere()}}
+/* V437 LITE: the merged world shapes made at load are new geometries nobody else holds. Once one is on the graphics card its arrays in normal memory are
+   swapped for tiny ones (bounds are worked out first, for culling). About 50 MB on the Xbox, where Edge's memory runs out */
+function liteFreeMark(groups,pre){let n=0;const fr=function(){this.array=new this.array.constructor(this.itemSize)};const seen=new Set();
+  for(const G of groups)G.traverse(o=>{const g=o.geometry;if(!o.isMesh||o.isInstancedMesh||!g||pre.has(g)||seen.has(g))return;seen.add(g);if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingBox)g.computeBoundingBox();g.userData.lfree=1;for(const k in g.attributes)g.attributes[k].onUpload(fr);if(g.index)g.index.onUpload(fr);n++});LITEFREEN=n}
+let LITEFREEN=0;
 function mkPoints(geo,o){return new THREE.Points(geo,new THREE.PointsMaterial(o))}
 let stars;{const p=[];for(let i=0;i<700;i++){const a=rnd()*TAU,e=rnd()*1.35+.08,r=290;p.push(Math.cos(a)*Math.cos(e)*r,Math.sin(e)*r,Math.sin(a)*Math.cos(e)*r)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));stars=mkPoints(g,{color:0xffffff,size:1.6,fog:false,transparent:true,opacity:0,sizeAttenuation:false});stars.frustumCulled=false;sc.add(stars)}

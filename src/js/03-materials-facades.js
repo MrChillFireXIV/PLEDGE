@@ -1,12 +1,12 @@
 // ================================================================ MATERIALS & TEXTURES
-const MC={},BMC={},GC={};
+const MC={},BMC={},GC={};const LITEIMG=(()=>{const c=document.createElement('canvas');c.width=c.height=1;return c})();
 const mt=(c,r=.85,m=0)=>{const k=c+'|'+r+'|'+m;return MC[k]||(MC[k]=SM({color:c,roughness:r,metalness:m}))};
 const bm=c=>BMC[c]||(BMC[c]=new THREE.MeshBasicMaterial({color:c}));
 const bgeo=(w,h,d)=>{const k=w+','+h+','+d;return GC[k]||(GC[k]=new THREE.BoxGeometry(w,h,d))};
 function box(x,y,z,w,h,d,mat,cast=1){const e=new THREE.Mesh(bgeo(w,h,d),typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
 function cyl(x,y,z,r,h,mat,seg=12,cast=1){const k='c'+r+','+h+','+seg;const g=GC[k]||(GC[k]=new THREE.CylinderGeometry(r,r,h,seg));const e=new THREE.Mesh(g,typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
 function ctex(w,h,f){const c=document.createElement('canvas'),lk=!LITE?1:w*h>=262144?.25:w*h>=65536?.5:1;/* V426/V427 LITE: smaller canvas (512 → 128, 256 → 128), same drawing code */c.width=Math.round(w*lk);c.height=Math.round(h*lk);const q=c.getContext('2d');if(lk<1)q.scale(lk,lk);f(q,w,h);const t=new THREE.CanvasTexture(c);
-  /* V427 LITE: once the picture is on the graphics card, the canvas behind it is shrunk to 1 px so it stops holding memory twice. A texture that is drawn on again later sets t.onUpdate=null to opt out */if(LITE&&!window.__noShrink)t.onUpdate=()=>{t.onUpdate=null;setTimeout(()=>{if(t.onUpdate===null&&t.image===c){c.width=c.height=1}},0)};t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
+  /* V427 LITE: once the picture is on the graphics card, the canvas behind it is shrunk to 1 px so it stops holding memory twice. A texture that is drawn on again later sets t.onUpdate=null to opt out */if(LITE)t.onUpdate=()=>{t.onUpdate=null;setTimeout(()=>{if(t.onUpdate===null&&t.image===c){c.width=c.height=1;t.image=LITEIMG}},0)};/* V437 and the texture lets go of its canvas, so the canvas and its drawing state can be freed */t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
 function speck(q,w,h,n,hue,sat,l0,l1,s=2){for(let i=0;i<n;i++){q.fillStyle=`hsl(${hue+rnd()*16-8},${sat}%,${l0+rnd()*(l1-l0)}%)`;q.fillRect(rnd()*w,rnd()*h,1+rnd()*s,1+rnd()*s)}}
 function shade(hex,d){const n=parseInt(hex.slice(1),16);const r=clamp(((n>>16)&255)+d|0,0,255),g=clamp(((n>>8)&255)+d|0,0,255),b=clamp((n&255)+d|0,0,255);return`rgb(${r},${g},${b})`}
 const TX={},TM={};
