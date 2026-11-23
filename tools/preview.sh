@@ -4,6 +4,8 @@
 # Then open that URL in the person's browser (built-in browser / Chrome) to test on a real graphics card. Ready in ~1-2 min.
 set -e
 cd "$(dirname "$0")/.."
+# V440 the PC preview must never get console (Xbox / Edge / controller) work: that lives on the console branch and its own site (tools/console.sh)
+B=$(git rev-parse --abbrev-ref HEAD); case "$B" in console*) echo "on branch $B: use tools/console.sh (the PC preview only takes the next branch)"; exit 1;; esac
 python3 build.py --check >/dev/null || { echo "build failed; not published"; exit 1; }
 T=$(mktemp); trap 'rm -f "$T"' EXIT
 GIT_INDEX_FILE=$T git read-tree HEAD

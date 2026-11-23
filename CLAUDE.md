@@ -66,6 +66,11 @@ Testing runs in headless Chromium.
 - **Saves:** `saveGame()` writes `{S,px,pz,meta}` to `SAVEK`, the current slot (`pledge.save.v1`, `.s2`, `.s3`).
 
 ## How the user works
+- **Two test servers (user rule since V440):**
+  - **PC test server** https://mrchillfirexiv.github.io/PLEDGE/preview/ is built from the `next` branch (`tools/preview.sh`). It must never get console work: no Xbox / Edge low-memory (LITE) work, no game-controller work, no console diagnostics, until it is live.
+  - **Console test server** https://mrchillfirexiv.github.io/PLEDGE/console/ is built from the `console` branch (`tools/console.sh`, which refuses to run on any other branch; `tools/preview.sh` refuses to run on `console`). It has its own saves (`console~` keys) and a green CONSOLE TEST badge.
+  - `console` = `next` + console-only commits. Story/gameplay/PC work goes on `next` (then `git checkout console && git merge next` and `tools/console.sh` so consoles get it too). Console-only work is committed on `console` only.
+  - "push" merges `next` into `main` as before. The console work goes live only when the user asks for the console work to be pushed.
 - After each change:
   - build
   - verify with a screenshot when it's visual
