@@ -3,11 +3,11 @@
 <title>PLEDGE graphics test</title>
 <style>
 body{margin:0;background:#0d1322;color:#f2ead8;font:600 20px/1.45 Arial,sans-serif}
-#wrap{max-width:1100px;margin:0 auto;padding:22px 26px}
+#wrap{max-width:1200px;margin:0 auto;padding:22px 26px}
 h1{font-size:30px;margin:0 0 4px;color:#ffd24a}
 #info{font:500 15px/1.5 monospace;opacity:.85;margin:10px 0 16px;white-space:pre-wrap}
 #list{list-style:none;padding:0;margin:0}
-#list li{padding:7px 12px;margin:4px 0;border-radius:8px;background:#18203a;display:flex;gap:14px;align-items:baseline}
+#list li{padding:5px 12px;margin:4px 0;border-radius:8px;background:#18203a;display:flex;gap:14px;align-items:baseline}
 #list li b{min-width:34px;text-align:center}
 #list li span{flex:1}#list li small{opacity:.75;font:500 15px monospace}
 .ok b{color:#6fe08a}.bad b{color:#ff6b6b}.run b{color:#ffd24a}
@@ -48,7 +48,10 @@ const T=[
  ['1100 small 2D canvases (like the game makes), then 3D',{pre:()=>canv2d(1100,256,256)},s=>{lights(s);boxes(s,20,()=>new THREE.MeshLambertMaterial({color:0x40a0d0}))}],
  ['Big 2D canvases (4096 + 740x3300), then 3D',{pre:()=>{canv2d(1,4096,4096);canv2d(1,740,3300)}},s=>{lights(s);boxes(s,20,()=>new THREE.MeshLambertMaterial({color:0x40d0a0}))}],
  ['Custom shader (sky style)',{},s=>{lights(s);const m=new THREE.Mesh(new THREE.SphereGeometry(50,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,uniforms:{t:{value:0}},vertexShader:'varying vec3 vp;void main(){vp=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec3 vp;uniform float t;void main(){float h=normalize(vp).y;vec3 c=mix(vec3(.8,.9,1.),vec3(.2,.4,.8),clamp(h,0.,1.));for(int i=0;i<8;i++){c+=.002*sin(vp.x*.1*float(i)+t);}gl_FragColor=vec4(c,1.);}'}));s.add(m);boxes(s,10,()=>new THREE.MeshLambertMaterial({color:0xffffff}))}],
- ['Full screen size ('+'screen'+')',{full:1},s=>{lights(s);boxes(s,100,i=>new THREE.MeshLambertMaterial({color:new THREE.Color().setHSL(i/100,.5,.5)}))}],
+ ['Odd height (1280x639)',{w:1280,h:639},s=>{lights(s);boxes(s,100,i=>new THREE.MeshLambertMaterial({color:new THREE.Color().setHSL(i/100,.5,.5)}))}],
+ ['Odd width (1281x640)',{w:1281,h:640},s=>{lights(s);boxes(s,100,i=>new THREE.MeshLambertMaterial({color:new THREE.Color().setHSL(i/100,.5,.5)}))}],
+ ['Screen size rounded to even',{full:2},s=>{lights(s);boxes(s,100,i=>new THREE.MeshLambertMaterial({color:new THREE.Color().setHSL(i/100,.5,.5)}))}],
+ ['Full screen size, exact',{full:1},s=>{lights(s);boxes(s,100,i=>new THREE.MeshLambertMaterial({color:new THREE.Color().setHSL(i/100,.5,.5)}))}],
 ];
 const $=id=>document.getElementById(id),list=$('list');
 function info(){let r='?',mt='?';try{const c=document.createElement('canvas'),gl=c.getContext('webgl2')||c.getContext('webgl'),di=gl.getExtension('WEBGL_debug_renderer_info');r=di?gl.getParameter(di.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);mt=gl.getParameter(gl.MAX_TEXTURE_SIZE)+' · webgl'+(gl instanceof WebGL2RenderingContext?'2':'1');const x=gl.getExtension('WEBGL_lose_context');if(x)x.loseContext()}catch(e){r='no 3D: '+e.message}
@@ -59,13 +62,13 @@ function finish(i,ok,note){const s=st();if(!s||s.res.length!==i)return;s.res[i]=
   if(!ok){$('msg').textContent='The 3D stopped on check '+(i+1)+'. Reloading to carry on…';setTimeout(()=>location.reload(),2500)}else setTimeout(next,300)}
 function runOne(i){const[name,o,build]=T[i];let ren,lost=0,f=0,t0=0;const stage=$('stage');stage.innerHTML='';
   try{if(o.pre)o.pre();ren=new THREE.WebGLRenderer(Object.assign({},o.opt||GAMEOPT));}catch(e){finish(i,false,'could not start: '+e.message);return}
-  const w=o.full?innerWidth*devicePixelRatio:W,h=o.full?innerHeight*devicePixelRatio:H;ren.setPixelRatio(1);ren.setSize(w,h,false);if(o.shadow)ren.shadowMap.enabled=true;stage.appendChild(ren.domElement);
-  ren.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();if(lost)return;lost=1;finish(i,false,'3D stopped at frame '+f)},false);
+  let w=o.w||(o.full?Math.round(innerWidth*devicePixelRatio):W),h=o.h||(o.full?Math.round(innerHeight*devicePixelRatio):H);if(o.full===2){w&=~1;h&=~1}ren.setPixelRatio(1);ren.setSize(w,h,false);if(o.shadow)ren.shadowMap.enabled=true;stage.appendChild(ren.domElement);
+  ren.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();if(lost)return;lost=1;finish(i,false,w+'x'+h+' · stopped at frame '+f)},false);
   const sc=new THREE.Scene();sc.background=new THREE.Color(0x87a8d8);const cam=new THREE.PerspectiveCamera(60,w/h,.1,400);cam.position.set(0,0,8);
   try{build(sc)}catch(e){finish(i,false,'build error: '+e.message);return}
   const step=()=>{if(lost)return;try{sc.rotation.y=f*.01;sc.traverse(x=>{if(x.material&&x.material.uniforms&&x.material.uniforms.t)x.material.uniforms.t.value=f*.05});ren.render(sc,cam)}catch(e){finish(i,false,'error: '+e.message);return}
     if(f===0)t0=performance.now();f++;if(f<FR){requestAnimationFrame(step);return}const ms=(performance.now()-t0)/(FR-1);
-    try{ren.dispose()}catch(e){}stage.innerHTML='';if(!lost)finish(i,true,Math.round(1000/Math.max(1,ms))+' fps')};requestAnimationFrame(step)}
+    try{ren.dispose()}catch(e){}stage.innerHTML='';if(!lost)finish(i,true,w+'x'+h+' · '+Math.round(1000/Math.max(1,ms))+' fps')};requestAnimationFrame(step)}
 $('go').onclick=()=>{save({i:-1,res:[]});$('msg').textContent='';next()};
 $('reset').onclick=()=>{try{localStorage.removeItem(SK)}catch(e){}$('msg').textContent='';draw()};
 info();
