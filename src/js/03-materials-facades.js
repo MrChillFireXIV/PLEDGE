@@ -5,7 +5,7 @@ const bm=c=>BMC[c]||(BMC[c]=new THREE.MeshBasicMaterial({color:c}));
 const bgeo=(w,h,d)=>{const k=w+','+h+','+d;return GC[k]||(GC[k]=new THREE.BoxGeometry(w,h,d))};
 function box(x,y,z,w,h,d,mat,cast=1){const e=new THREE.Mesh(bgeo(w,h,d),typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
 function cyl(x,y,z,r,h,mat,seg=12,cast=1){const k='c'+r+','+h+','+seg;const g=GC[k]||(GC[k]=new THREE.CylinderGeometry(r,r,h,seg));const e=new THREE.Mesh(g,typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
-function ctex(w,h,f){const c=document.createElement('canvas');c.width=w;c.height=h;const q=c.getContext('2d');f(q,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
+function ctex(w,h,f){const c=document.createElement('canvas'),lk=LITE&&w*h>=65536?.5:1;/* V426 LITE: half-size canvas, same drawing code */c.width=Math.round(w*lk);c.height=Math.round(h*lk);const q=c.getContext('2d');if(lk<1)q.scale(lk,lk);f(q,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
 function speck(q,w,h,n,hue,sat,l0,l1,s=2){for(let i=0;i<n;i++){q.fillStyle=`hsl(${hue+rnd()*16-8},${sat}%,${l0+rnd()*(l1-l0)}%)`;q.fillRect(rnd()*w,rnd()*h,1+rnd()*s,1+rnd()*s)}}
 function shade(hex,d){const n=parseInt(hex.slice(1),16);const r=clamp(((n>>16)&255)+d|0,0,255),g=clamp(((n>>8)&255)+d|0,0,255),b=clamp((n&255)+d|0,0,255);return`rgb(${r},${g},${b})`}
 const TX={},TM={};
@@ -157,7 +157,7 @@ function fdSweep(E,y,prof,col,M,ck,grow){const n=E.length;if(n<2)return;_fc.setH
 // distance culling: details fade to the painted textures beyond ~200 m; only nearby trim casts shadows
 let FDF=0;function fdCull(){if(!FD.ch.length||(FDF++%6))return;const cx=cam.position.x,cz=cam.position.z;for(const c of FD.ch){const d=Math.hypot(c.x-cx,c.z-cz)-c.r;c.m.visible=d<(c.t==='g'?110:135);if(c.t==='t')c.m.castShadow=d<45}}
 
-function facade(kind){FD.k=kind;FD.rec[kind]=[];const K=FK[kind],S=512,em=document.createElement('canvas');em.width=em.height=S;const qe=em.getContext('2d');qe.fillStyle='#000';qe.fillRect(0,0,S,S);
+function facade(kind){FD.k=kind;FD.rec[kind]=[];const K=FK[kind],S=512,em=document.createElement('canvas');em.width=em.height=LITE?S/2:S;const qe=em.getContext('2d');if(LITE)qe.scale(.5,.5);/* V426 LITE: half-size night-window map */qe.fillStyle='#000';qe.fillRect(0,0,S,S);
   const map=ctex(S,S,q=>{q.fillStyle=K[0];q.fillRect(0,0,S,S);
     if(kind.startsWith('brick')){q.fillStyle=K[1];q.fillRect(0,0,S,S);for(let y=0;y<S;y+=10){const off=((y/10)%2)*11;for(let x=-off;x<S;x+=22){q.fillStyle=shade(K[0],rnd()*18-9);q.fillRect(x+1,y+1,20,8)}}}
     else if(kind==='stone'){q.fillStyle=K[1];q.fillRect(0,0,S,S);for(let y=0;y<S;y+=32)for(let x=-((y/32)%2)*32;x<S;x+=64){q.fillStyle=shade(K[0],rnd()*14-7);q.fillRect(x+2,y+2,60,28)}}
@@ -179,7 +179,7 @@ const fm=k=>FMAT[k]||(FMAT[k]=(typeof FX2!=='undefined'&&FX2[k])?facade2(k):faca
 // V120 signs are cached by content: identical signs (EXIT, KITCHEN, BACKYARD, house letters... in all 70 interiors) share one texture,
 // material and geometry instead of each making its own 1024-px canvas. Canvas width now follows the sign's size (≈420 px/m, 384–1024).
 const SIGNC={},SIGNG={};
-function signMesh(text,w,h,bg,fg,font){const W=Math.min(512,   /* V296 was 1024: a quarter of the graphics memory */Math.max(384,Math.round(w*420/64)*64)),H=Math.max(64,Math.round(W*h/w)),k=[text,W,H,bg,fg,font].join('\u0001');
+function signMesh(text,w,h,bg,fg,font){const W=Math.min(LITE?256:512,   /* V296 was 1024: a quarter of the graphics memory */Math.max(LITE?192:384,Math.round(w*420/64)*64)),H=Math.max(64,Math.round(W*h/w)),k=[text,W,H,bg,fg,font].join('\u0001');
   let mat=SIGNC[k];if(!mat){const c=document.createElement('canvas');c.width=W;c.height=H;const q=c.getContext('2d');q.fillStyle=bg;q.fillRect(0,0,W,H);const lw=Math.max(4*W/1024,H*.06,2);q.strokeStyle=fg;q.lineWidth=lw;q.strokeRect(lw*1.5,lw*1.5,W-lw*3,H-lw*3);q.fillStyle=fg;let fs=Math.floor(H*.66);const F=s=>`bold ${s}px ${font||'Graduate'},Georgia,serif`;q.font=F(fs);while(q.measureText(text).width>W*.9&&fs>8){fs-=2;q.font=F(fs)}q.textAlign='center';q.textBaseline='middle';q.fillText(text,W/2,H/2+fs*.06);const t=new THREE.CanvasTexture(c);t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());mat=SIGNC[k]=new THREE.MeshBasicMaterial({map:t})}
   const gk=w+'x'+h;return new THREE.Mesh(SIGNG[gk]||(SIGNG[gk]=new THREE.PlaneGeometry(w,h)),mat)}
 

@@ -36,7 +36,7 @@ function pavPatterns(){if(PAVT)return PAVT;const mk=(f)=>{const c=document.creat
     mk(q=>{for(let y=-64;y<320;y+=32)for(let x=-64;x<320;x+=32){q.fillStyle=tone();q.fillRect(x+1.5,y+1.5,29,13);q.fillStyle=tone();q.fillRect(x+17.5,y+17.5,13,29)}}),   // herringbone (basket-weave read at distance)
     mk(q=>{for(let y=0;y<256;y+=64)for(let x=0;x<256;x+=64){q.fillStyle=tone();q.fillRect(x+2,y+2,60,60);q.fillStyle='rgba(255,255,255,.06)';q.fillRect(x+2,y+2,60,4)}})];   // 0.6 m squares (2.4 per tile)
   return PAVT}
-function bakePaving(D,q,K,GX){const MK=document.createElement('canvas'),N=2048,K2=N/600;MK.width=MK.height=N;const m=MK.getContext('2d');m.fillStyle='#000';m.fillRect(0,0,N,N);
+function bakePaving(D,q,K,GX){const MK=document.createElement('canvas'),N=LITE?1024:2048,K2=N/600;MK.width=MK.height=N;const m=MK.getContext('2d');m.fillStyle='#000';m.fillRect(0,0,N,N);
   const path=(ctx,k,rings)=>{ctx.beginPath();for(const r of rings){r.forEach(([x,z],i)=>i?ctx.lineTo((x-GX)*k,z*k):ctx.moveTo((x-GX)*k,z*k));ctx.closePath()}};
   const paved=[...D.walk,...D.plaza.map(p=>p[1])],CH=['#ff0000','#00ff00','#0000ff',null];
   for(const[kind,col,poly,all]of PAVZ){const[bx0,bz0,bx1,bz1]=bbox(poly),tg=all?[null]:paved.filter(r=>{const[a,b,c,d]=bbox(r[0]);return c>bx0&&a<bx1&&d>bz0&&b<bz1});
@@ -88,7 +88,7 @@ function moreLamps(D){const HB=new Map(),hk=(x,z)=>(Math.floor(x/16)+100)*1000+M
   console.log('V64 lamps added: disc zones',nd,'walks',ng)}
 
 let GBAKE=null;   // baked campus ground canvas, sampled for footstep surfaces (V101)
-function bakeGround(D){const SZ=4096,GX=141,GS=600,K=SZ/GS,c=document.createElement('canvas');c.width=c.height=SZ;const q=c.getContext('2d');const X=x=>(x-GX)*K,Y=z=>z*K;
+function bakeGround(D){const SZ=LITE?2048:4096,GX=141,GS=600,K=SZ/GS,c=document.createElement('canvas');c.width=c.height=SZ;const q=c.getContext('2d');const X=x=>(x-GX)*K,Y=z=>z*K;
   const pat=(tx,m)=>{const p=q.createPattern(tx.image,'repeat');try{const s=m*K/tx.image.width;p.setTransform(new DOMMatrix([s,0,0,s,0,0]))}catch(e){}return p};
   const path=rings=>{q.beginPath();for(const r of rings){r.forEach(([x,z],i)=>i?q.lineTo(X(x),Y(z)):q.moveTo(X(x),Y(z)));q.closePath()}};
   const fill=(rings,st,tint)=>{path(rings);q.fillStyle=st;q.fill('evenodd');if(tint){q.globalCompositeOperation='multiply';q.fillStyle=tint;q.fill('evenodd');q.globalCompositeOperation='source-over'}};

@@ -107,7 +107,7 @@ function mapLegend(q,c){if(MAPTAB==='lake')return;const L=[['★','#ffd060','Sto
     else{q.font=col?'bold 15px Arial':'13px Arial';q.textAlign='center';q.fillStyle=col||'#fff';q.fillText(ic,cx,cy+1)}q.textAlign='left';q.fillStyle='#f2e6c8';q.font='600 11.5px Archivo,Arial';q.fillText(t,cx+12,cy+1)});
   q.restore()}
 function drawFull(c){const lake=MAPTAB==='lake',ZS=1010,LH=320;c.width=lake?1400:900;c.height=lake?LH*2:750;const q=c.getContext('2d'),k=900/WW;q.clearRect(0,0,c.width,c.height);let X,Z,IX,IZ;
-  if(lake){q.drawImage(WORLDC,0,ZS*2,700*2,LH*2,0,0,c.width,c.height);X=x=>x*2;Z=z=>(z-ZS)*2;IX=px=>px/2;IZ=py=>py/2+ZS}else{q.drawImage(WORLDC,0,0,WW*2,OD*2,0,0,c.width,c.height);const kz=c.height/OD;X=x=>x*k;Z=z=>z*kz;IX=px=>px/k;IZ=py=>py/kz;try{terrDrawFull(q,c)}catch(e){}}
+  if(lake){q.drawImage(WORLDC,0,ZS*WMK,700*WMK,LH*WMK,0,0,c.width,c.height);X=x=>x*2;Z=z=>(z-ZS)*2;IX=px=>px/2;IZ=py=>py/2+ZS}else{q.drawImage(WORLDC,0,0,WW*WMK,OD*WMK,0,0,c.width,c.height);const kz=c.height/OD;X=x=>x*k;Z=z=>z*kz;IX=px=>px/k;IZ=py=>py/kz;try{terrDrawFull(q,c)}catch(e){}}
   let TP=null;TERRHIT=[];LEGHIT=[];if(!lake){try{TP=terrPills(q,X,Z,k)}catch(e){}}
   mapLabels(q,X,Z,lake?1.7:k,TP&&TP.r);try{mapLegend(q,c)}catch(e){}try{if(TP){terrPillDraw(q,TP);terrLegend(q,c)}}catch(e){}const base=c.__base||(c.__base=document.createElement('canvas'));base.width=c.width;base.height=c.height;base.getContext('2d').drawImage(c,0,0);
   FMT={c,X,Z,IX,IZ,k:lake?1.7:k,lake};mapOverlay()}
