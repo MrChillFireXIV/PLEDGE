@@ -78,7 +78,7 @@ let BALLM=null;function bbMat(){if(BALLM)return BALLM;const c=document.createEle
 const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,320);
 sc.fog=new THREE.Fog(0xc4d6e6,130,300);
 const hemi=new THREE.HemisphereLight(0xcfe3ff,0x4a5a3a,.62);sc.add(hemi);
-const sun=new THREE.DirectionalLight(0xfff0d8,1.3);sun.castShadow=true;sun.shadow.mapSize.set(GFX==='enhanced'?2048:1024,GFX==='enhanced'?2048:1024);{const c=sun.shadow.camera,E=GFX==='enhanced'?52:40;c.left=-E;c.right=E;c.top=E;c.bottom=-E;c.near=1;c.far=220}/* V237 phones have less shadow-depth precision, so surfaces at a grazing angle to the sun (walls, esp. indoors) showed moving dark stripes (shadow acne). Bigger bias on mobile, bigger normal offset indoors. */
+const sun=new THREE.DirectionalLight(0xfff0d8,1.3);sun.castShadow=!LITE;/* V427 no shadows in LITE */sun.shadow.mapSize.set(GFX==='enhanced'?2048:1024,GFX==='enhanced'?2048:1024);{const c=sun.shadow.camera,E=GFX==='enhanced'?52:40;c.left=-E;c.right=E;c.top=E;c.bottom=-E;c.near=1;c.far=220}/* V237 phones have less shadow-depth precision, so surfaces at a grazing angle to the sun (walls, esp. indoors) showed moving dark stripes (shadow acne). Bigger bias on mobile, bigger normal offset indoors. */
 const SHB=MOB?[-.0016,.1]:[-.0005,.04];sun.shadow.bias=SHB[0];sun.shadow.normalBias=SHB[1];sc.add(sun,sun.target);
 const plamp=new THREE.PointLight(0xffd7a0,0,20,1.6);sc.add(plamp);
 const skyU={top:{value:new THREE.Color(0x4a86d4)},bot:{value:new THREE.Color(0xbfd9ee)}};

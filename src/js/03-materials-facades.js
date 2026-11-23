@@ -5,7 +5,8 @@ const bm=c=>BMC[c]||(BMC[c]=new THREE.MeshBasicMaterial({color:c}));
 const bgeo=(w,h,d)=>{const k=w+','+h+','+d;return GC[k]||(GC[k]=new THREE.BoxGeometry(w,h,d))};
 function box(x,y,z,w,h,d,mat,cast=1){const e=new THREE.Mesh(bgeo(w,h,d),typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
 function cyl(x,y,z,r,h,mat,seg=12,cast=1){const k='c'+r+','+h+','+seg;const g=GC[k]||(GC[k]=new THREE.CylinderGeometry(r,r,h,seg));const e=new THREE.Mesh(g,typeof mat==='number'?mt(mat):mat);e.position.set(x,y,z);e.castShadow=!!cast;e.receiveShadow=true;sc.add(e);return e}
-function ctex(w,h,f){const c=document.createElement('canvas'),lk=LITE&&w*h>=65536?.5:1;/* V426 LITE: half-size canvas, same drawing code */c.width=Math.round(w*lk);c.height=Math.round(h*lk);const q=c.getContext('2d');if(lk<1)q.scale(lk,lk);f(q,w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
+function ctex(w,h,f){const c=document.createElement('canvas'),lk=!LITE?1:w*h>=262144?.25:w*h>=65536?.5:1;/* V426/V427 LITE: smaller canvas (512 → 128, 256 → 128), same drawing code */c.width=Math.round(w*lk);c.height=Math.round(h*lk);const q=c.getContext('2d');if(lk<1)q.scale(lk,lk);f(q,w,h);const t=new THREE.CanvasTexture(c);
+  /* V427 LITE: once the picture is on the graphics card, the canvas behind it is shrunk to 1 px so it stops holding memory twice. A texture that is drawn on again later sets t.onUpdate=null to opt out */if(LITE&&!window.__noShrink)t.onUpdate=()=>{t.onUpdate=null;setTimeout(()=>{if(t.onUpdate===null&&t.image===c){c.width=c.height=1}},0)};t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());return t}
 function speck(q,w,h,n,hue,sat,l0,l1,s=2){for(let i=0;i<n;i++){q.fillStyle=`hsl(${hue+rnd()*16-8},${sat}%,${l0+rnd()*(l1-l0)}%)`;q.fillRect(rnd()*w,rnd()*h,1+rnd()*s,1+rnd()*s)}}
 function shade(hex,d){const n=parseInt(hex.slice(1),16);const r=clamp(((n>>16)&255)+d|0,0,255),g=clamp(((n>>8)&255)+d|0,0,255),b=clamp((n&255)+d|0,0,255);return`rgb(${r},${g},${b})`}
 const TX={},TM={};
@@ -157,7 +158,7 @@ function fdSweep(E,y,prof,col,M,ck,grow){const n=E.length;if(n<2)return;_fc.setH
 // distance culling: details fade to the painted textures beyond ~200 m; only nearby trim casts shadows
 let FDF=0;function fdCull(){if(!FD.ch.length||(FDF++%6))return;const cx=cam.position.x,cz=cam.position.z;for(const c of FD.ch){const d=Math.hypot(c.x-cx,c.z-cz)-c.r;c.m.visible=d<(c.t==='g'?110:135);if(c.t==='t')c.m.castShadow=d<45}}
 
-function facade(kind){FD.k=kind;FD.rec[kind]=[];const K=FK[kind],S=512,em=document.createElement('canvas');em.width=em.height=LITE?S/2:S;const qe=em.getContext('2d');if(LITE)qe.scale(.5,.5);/* V426 LITE: half-size night-window map */qe.fillStyle='#000';qe.fillRect(0,0,S,S);
+function facade(kind){FD.k=kind;FD.rec[kind]=[];const K=FK[kind],S=512,em=document.createElement('canvas');em.width=em.height=LITE?S/4:S;const qe=em.getContext('2d');if(LITE)qe.scale(.25,.25);/* V426 LITE: half-size night-window map */qe.fillStyle='#000';qe.fillRect(0,0,S,S);
   const map=ctex(S,S,q=>{q.fillStyle=K[0];q.fillRect(0,0,S,S);
     if(kind.startsWith('brick')){q.fillStyle=K[1];q.fillRect(0,0,S,S);for(let y=0;y<S;y+=10){const off=((y/10)%2)*11;for(let x=-off;x<S;x+=22){q.fillStyle=shade(K[0],rnd()*18-9);q.fillRect(x+1,y+1,20,8)}}}
     else if(kind==='stone'){q.fillStyle=K[1];q.fillRect(0,0,S,S);for(let y=0;y<S;y+=32)for(let x=-((y/32)%2)*32;x<S;x+=64){q.fillStyle=shade(K[0],rnd()*14-7);q.fillRect(x+2,y+2,60,28)}}

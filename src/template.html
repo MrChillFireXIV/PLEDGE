@@ -7,6 +7,9 @@
 {{CSS}}
 
 <div id="loading">LOADING CAMPUS…</div>
+<script>/* V427 if the game fails while the campus is loading (no 3D context, out of memory), say so on the loading screen instead of hanging there */
+addEventListener('error',function(e){var l=document.getElementById('loading');if(!l||l.style.display==='none'||l.hidden||l.dataset.err)return;l.dataset.err=1;var m=String((e&&e.message)||e||'');
+l.innerHTML='COULDN\'T START THE GAME<div style="font:500 15px Arial,sans-serif;letter-spacing:0;text-transform:none;max-width:560px;margin:14px auto 0;line-height:1.5;opacity:.9">'+(/webgl|context/i.test(m)?'The browser wouldn\'t give the game a 3D graphics context. This usually means the graphics memory is still full from the last try: close other tabs, wait a few seconds and reload. On an Xbox, fully close Edge and open it again.':'Something went wrong while loading. Reload the page to try again.')+'<br><small style="opacity:.6">'+m.replace(/</g,'&lt;').slice(0,160)+'</small></div>'},true);</script>
 <div id="hud" hidden>
   <div id="compass"><canvas id="cmpc" width="560" height="34"></canvas></div>
   <div id="tl" class="patch"><span id="tlico">📓</span><div class="lbl" id="chap">Chapter 1 · Rush Week</div><div id="when">Sun 3:00 PM</div><div id="mq"><span class="lbl" id="mql">★ Main quest</span><div id="mqt"></div></div><div id="sched"></div><div id="remind" hidden></div></div>

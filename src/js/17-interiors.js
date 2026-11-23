@@ -45,7 +45,7 @@ function compPaint(q,W,H,L,year,empty){{q.fillStyle=empty?'#3a3330':'#1d1a16';q.
 // material (and merge into one draw call) instead of 50 of each. compTile returns the sheet's material and the tile's UV rectangle.
 const COMPA={};
 function compTile(L,year,empty){const k=year+(empty?'e':'');const pages=COMPA[L]||(COMPA[L]=[]);for(const pg of pages)if(pg.slots[k])return pg.slots[k];
-  let pg=pages[pages.length-1];if(!pg||pg.n>=72){const t=ctex(512,512,(q,W,H)=>{q.fillStyle='#1d1a16';q.fillRect(0,0,W,H)});pg={t,q:t.image.getContext('2d'),n:0,slots:{},mat:new THREE.MeshBasicMaterial({map:t})};pages.push(pg)}
+  let pg=pages[pages.length-1];if(!pg||pg.n>=72){const t=ctex(512,512,(q,W,H)=>{q.fillStyle='#1d1a16';q.fillRect(0,0,W,H)});pg={t,q:(t.onUpdate=null,t.image.getContext('2d')),n:0,slots:{},mat:new THREE.MeshBasicMaterial({map:t})};pages.push(pg)}
   const tx=(pg.n%8)*64,ty=Math.floor(pg.n/8)*56;pg.n++;const q=pg.q;q.save();q.translate(tx,ty);q.scale(.5,.5);q.beginPath();q.rect(0,0,128,112);q.clip();compPaint(q,128,112,L,year,empty);q.restore();pg.t.needsUpdate=true;   /* V296 half-size tiles on 512 px pages */
   return pg.slots[k]={mat:pg.mat,u0:(tx+.5)/512,u1:(tx+63.5)/512,v0:1-(ty+55.5)/512,v1:1-(ty+.5)/512}}
 function tileGeo(w,h,T){const g=new THREE.PlaneGeometry(w,h),uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,T.u0+uv.getX(i)*(T.u1-T.u0),T.v0+uv.getY(i)*(T.v1-T.v0));return g}
