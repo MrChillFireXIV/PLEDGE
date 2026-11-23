@@ -77,7 +77,11 @@ function outsideOn(){for(const o of OUTHID)o.visible=true;OUTHID.length=0;R.setC
 // the scene root has an identity transform, so getWorldPosition on a parked group still gives the right answer.
 function sceneSync(){try{for(const n of NP){const g=n.g;if(!g)continue;if(g.visible){if(g.userData.parked&&!g.parent){sc.add(g);g.userData.parked=0}}else if(g.parent===sc){sc.remove(g);g.userData.parked=1}}
   for(const id in INT){const g=INT[id].g;if(!g)continue;if(g.visible){if(g.userData.parked&&!g.parent){sc.add(g);g.userData.parked=0}}else if(g.parent===sc){sc.remove(g);g.userData.parked=1}}}catch(e){console.warn('sceneSync',e)}}
-function renderFrame(){if(GLLOST)return;sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
+/* V430 LITE (Xbox): the first frames draw only what is a few metres from the camera, then the view widens to its full distance over about 10 s of frames, so shaders and
+   textures are set up a few at a time instead of all on the first frame (the Xbox dropped the 3D on the first frames of the title screen). Full LITE distance is 200 m */
+const LRAMP={f:0,n:300,far0:14,far1:200};
+function liteRamp(){if(!LITE||LRAMP.f>LRAMP.n)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
+function renderFrame(){if(GLLOST)return;liteRamp();sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
 const HAL=[[.5,.3333],[.25,.6667],[.75,.1111],[.125,.4444],[.625,.7778],[.375,.2222],[.875,.5556],[.0625,.8889]];
 function renderPost(){ppResize();
   if(!PP.vp){PP.vp=new THREE.Matrix4();PP.ivp=new THREE.Matrix4();PP.pvp=new THREE.Matrix4();PP.pcam=new THREE.Vector3()}
