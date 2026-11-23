@@ -60,6 +60,7 @@ Testing runs in headless Chromium.
   - `INT[id]` gives `{x0,z0,w,d,g,objs}`
   - `iobj(I,lx,lz,label,fn,r)` adds an E-prompt object inside an interior
   - `freeAt(x,z,r)`, `nearFree`, `markR(x0,z0,x1,z1,h)` (collision)
+  - The world grids `WG` (walls), `HG` (heights), `SH` (step heights), `RG` (roads), `DIST` (route distances) and the car-lane grid are block grids since V438: read with `grGet(WG,k)`, write with `grSet(WG,k,v)`, never `WG[k]` (that silently reads nothing). `PW`/`WT` are still plain arrays.
 - **NPCs:**
   - `spawn(clique,zone,opts)`; `NN.grant` and similar are the named characters; `NP` is all NPCs.
   - Flags: `n.temp`, `n.actor`, `n.foe`, `n.ally`, `n.follow`.
