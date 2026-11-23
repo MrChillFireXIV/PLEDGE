@@ -206,7 +206,7 @@ R.domElement.addEventListener('contextmenu',e=>e.preventDefault());
  for(const ev of['keydown','pointerdown','mousedown'])addEventListener(ev,()=>{if(mode==='play')setTimeout(tryLock,0)},true);
  setInterval(()=>{if(coarse)return;const pl=mode==='play';if(pl&&MLK.prev!=='play'&&MLK.prev!=='')MLK.want=1;MLK.prev=mode;R.domElement.style.cursor=pl&&!MLK.free?'none':'';if(pl&&MLK.want&&!locked()&&performance.now()-MLK.t>400){MLK.t=performance.now();tryLock()}},120)}
 R.domElement.addEventListener('wheel',e=>{camTarget=clamp(camTarget+e.deltaY*.006,3.5,13);SET.cam=camTarget;clearTimeout(SET.ct);SET.ct=setTimeout(()=>setSave('cam2',camTarget),600);e.preventDefault()},{passive:false});
-addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()});
+addEventListener('resize',()=>{rSize();cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()});
 $('fps').addEventListener('click',()=>setFpsMin(!FPSMIN));$('fps').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();setFpsMin(!FPSMIN)}});setFpsMin(FPSMIN);
 $('cineskip').addEventListener('click',()=>cineSkip());
 document.querySelectorAll('.slot').forEach((b,i)=>b.onclick=()=>{if(mode==='play')useSlot(i)});
