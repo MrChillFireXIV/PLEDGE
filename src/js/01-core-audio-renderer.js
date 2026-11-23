@@ -88,4 +88,20 @@ const plamp=new THREE.PointLight(0xffd7a0,0,20,1.6);sc.add(plamp);
 const skyU={top:{value:new THREE.Color(0x4a86d4)},bot:{value:new THREE.Color(0xbfd9ee)}};
 const sky=new THREE.Mesh(new THREE.SphereGeometry(300,24,12),new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,fog:false,vertexShader:'varying float h;void main(){h=normalize(position).y;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'uniform vec3 top;uniform vec3 bot;varying float h;void main(){float t=clamp(h*1.7+.12,0.,1.);gl_FragColor=vec4(mix(bot,top,pow(t,.75)),1.);}'}));sky.renderOrder=999;sky.material.depthTest=true;sc.add(sky);
 const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(9,16,12),new THREE.MeshBasicMaterial({color:0xfff3c8,fog:false}));const moonDisc=new THREE.Mesh(new THREE.SphereGeometry(6,16,12),new THREE.MeshBasicMaterial({color:0xdfe6f6,fog:false}));sc.add(sunDisc,moonDisc);
-let stars;{const p=[];for(let i=0;i<700;i++){const a=rnd()*TAU,e=rnd()*1.35+.08,r=290;p.push(Math.cos(a)*Math.cos(e)*r,Math.sin(e)*r,Math.sin(a)*Math.cos(e)*r)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));stars=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:1.6,fog:false,transparent:true,opacity:0,sizeAttenuation:false}));stars.frustumCulled=false;sc.add(stars)}
+/* V434 Edge on Xbox stops the 3D the moment it draws a point cloud (THREE.Points): the ?bisect run on the Xbox named the 700-star cloud. In LITE (on for the Xbox)
+   THREE.Points is replaced: it returns a Group that keeps the same .geometry and .material for the game code (which moves the dots by writing to geometry
+   positions), and draws each dot as a tiny solid diamond in a child mesh that lptsSync rebuilds whenever the positions change. Points with a custom shader
+   (Chapter 5 fire and smoke) are not drawn in LITE */
+const LITEPTS=[];
+if(LITE){THREE.Points=function(geo,mat){const G=new THREE.Group();G.geometry=geo||new THREE.BufferGeometry();if(!mat||mat.isShaderMaterial){G.material=mat;return G}
+  const bm=new THREE.MeshBasicMaterial({color:mat.color?mat.color.getHex():0xffffff,transparent:!!mat.transparent,opacity:mat.opacity==null?1:mat.opacity,blending:mat.blending,depthWrite:mat.depthWrite,fog:mat.fog,vertexColors:!!mat.vertexColors});
+  G.material=bm;const eg=new THREE.BufferGeometry(),ch=new THREE.Mesh(eg,bm);ch.frustumCulled=false;G.add(ch);G.userData.lp={ch,eg,ver:-1,n:-1,miss:0,r:mat.sizeAttenuation===false?(mat.size||1)*.375:(mat.size||.1)*.5};LITEPTS.push(G);return G}}
+const LPDV=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]],LPF=[0,2,4,2,1,4,1,3,4,3,0,4,2,0,5,1,2,5,3,1,5,0,3,5];
+function lptsSync(){for(let j=LITEPTS.length-1;j>=0;j--){const G=LITEPTS[j],lp=G.userData.lp;if(!G.parent){if(++lp.miss>900)LITEPTS.splice(j,1);continue}lp.miss=0;lp.ch.renderOrder=G.renderOrder;
+  const pa=G.geometry.attributes.position;if(!pa||(pa.version===lp.ver&&pa.count===lp.n))continue;lp.ver=pa.version;const n=pa.count,ca=G.geometry.attributes.color,r=lp.r;
+  if(lp.n!==n){lp.n=n;lp.eg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*72),3));if(ca)lp.eg.setAttribute('color',new THREE.BufferAttribute(new Float32Array(n*72),3))}
+  const A=lp.eg.attributes.position.array,C=ca&&lp.eg.attributes.color?lp.eg.attributes.color.array:null;let k=0;
+  for(let i=0;i<n;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i);for(let f=0;f<24;f++){const d=LPDV[LPF[f]];if(C){C[k]=ca.getX(i);C[k+1]=ca.getY(i);C[k+2]=ca.getZ(i)}A[k++]=x+d[0]*r;A[k++]=y+d[1]*r;A[k++]=z+d[2]*r}}
+  lp.eg.attributes.position.needsUpdate=true;if(C)lp.eg.attributes.color.needsUpdate=true;lp.eg.computeBoundingSphere()}}
+function mkPoints(geo,o){return new THREE.Points(geo,new THREE.PointsMaterial(o))}
+let stars;{const p=[];for(let i=0;i<700;i++){const a=rnd()*TAU,e=rnd()*1.35+.08,r=290;p.push(Math.cos(a)*Math.cos(e)*r,Math.sin(e)*r,Math.sin(a)*Math.cos(e)*r)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));stars=mkPoints(g,{color:0xffffff,size:1.6,fog:false,transparent:true,opacity:0,sizeAttenuation:false});stars.frustumCulled=false;sc.add(stars)}
