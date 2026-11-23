@@ -252,7 +252,7 @@ function drGrass(D){const sp=1.2,CS=48,ch=new Map(),mask=new Uint8Array(DRGW*DRG
   const mk=(x,z)=>{const i=((x-DRGX)/2)|0,j=(z/2)|0;if(i>=0&&j>=0&&i<DRGW&&j<DRGW)mask[j*DRGW+i]=255};
   const flowers=[];let total=0;
   for(const r of D.grass||[]){const p=r[0],hs=r.slice(1),[x0,z0,x1,z1]=bbox(p);
-    for(let x=x0;x<x1;x+=sp)for(let z=z0;z<z1;z+=sp){const px=x+(rnd()-.5)*sp,pz=z+(rnd()-.5)*sp,k=cidx(px,pz);if(k<0||WG[k]||RG[k])continue;if(!inPoly(px,pz,p)||hs.some(h=>inPoly(px,pz,h)))continue;if(excl.length&&drInRings(excl,px,pz))continue;
+    for(let x=x0;x<x1;x+=sp)for(let z=z0;z<z1;z+=sp){const px=x+(rnd()-.5)*sp,pz=z+(rnd()-.5)*sp,k=cidx(px,pz);if(k<0||grGet(WG,k)||grGet(RG,k))continue;if(!inPoly(px,pz,p)||hs.some(h=>inPoly(px,pz,h)))continue;if(excl.length&&drInRings(excl,px,pz))continue;
       const key=Math.floor(px/CS)+','+Math.floor(pz/CS);let c=ch.get(key);if(!c)ch.set(key,c=[]);c.push(px,pz);total++;mk(px,pz);
       if(flowers.length<420&&rnd()<.0035)flowers.push([px,pz])}}
   for(const r of D.wood||[]){const[x0,z0,x1,z1]=bbox(r[0]);for(let x=x0;x<x1;x+=2)for(let z=z0;z<z1;z+=2)if(inPoly(x,z,r[0]))mk(x,z)}
@@ -437,5 +437,5 @@ function buildTunnel(){const T=TUN,X=T.x,Zp=T.zp;
   {const rg=new THREE.Mesh(new THREE.PlaneGeometry(T.hw*2-.2,T.len).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0x1a1a1c}));rg.position.set(X,.02,Zp-T.len/2);sc.add(rg);
     const dash=new THREE.MeshBasicMaterial({color:0x6a5a2a});for(let z=Zp-2;z>Zp-T.len;z-=4){const d=new THREE.Mesh(new THREE.PlaneGeometry(.18,1.8).rotateX(-PI/2),dash);d.position.set(X,.03,z);sc.add(d)}}
   // collision: the hill and the walls are solid; the apron and the first stretch of tunnel are walkable
-  cells(12,0,128,Zp+9,(k,x,z)=>{const inAp=Math.abs(x-X)<T.ax-.45;if(inAp&&z>Zp+1.25)return;if(Math.abs(x-X)<T.hw-.35&&z<=Zp+1.25)return;if(tunH(x,z)>.35||(Math.abs(x-X)<T.ax+.5&&z<Zp+1.3)||Math.abs(Math.abs(x-X)-T.ax)<.45&&z<Zp+9)WG[k]=1});
+  cells(12,0,128,Zp+9,(k,x,z)=>{const inAp=Math.abs(x-X)<T.ax-.45;if(inAp&&z>Zp+1.25)return;if(Math.abs(x-X)<T.hw-.35&&z<=Zp+1.25)return;if(tunH(x,z)>.35||(Math.abs(x-X)<T.ax+.5&&z<Zp+1.3)||Math.abs(Math.abs(x-X)-T.ax)<.45&&z<Zp+9)grSet(WG,k,1)});
   NOTREE.push([X-T.ax-3,0,X+T.ax+3,Zp+12])}

@@ -79,7 +79,7 @@ function c2DecoBuild(k,lx,lz){const I=INT.asr,X=x=>I.x0+x,Z=z=>I.z0+z,G=[];const
   return G}
 // V123 'Clear out the long dinner table': hide ΑΣΡ's dining table + chairs (kept unmerged by dineGrab, 17b) and free the floor they blocked
 function c2ClearDine(){const I=INT.asr,D=I&&I.dine;if(!D||D.cleared)return;D.cleared=1;const bb=new THREE.Box3();
-  for(const m of D.objs){m.updateMatrixWorld(true);bb.setFromObject(m);m.visible=false;cells(bb.min.x-.02,bb.min.z-.02,bb.max.x+.02,bb.max.z+.02,k=>{WG[k]=0;HG[k]=0;SH[k]=0})}}
+  for(const m of D.objs){m.updateMatrixWorld(true);bb.setFromObject(m);m.visible=false;cells(bb.min.x-.02,bb.min.z-.02,bb.max.x+.02,bb.max.z+.02,k=>{grSet(WG,k,0);grSet(HG,k,0);grSet(SH,k,0)})}}
 function c2SoreBuild(k,lx,lz){const I=INT.asr,X=x=>I.x0+x,Z=z=>I.z0+z,G=[];
   if(k==='cans'){const can=new THREE.CylinderGeometry(.06,.06,.17,8),cm=mt(0xc8c8d0,.4,.6);for(let i=0;i<34;i++){const a=rnd()*TAU,r=rnd()*.7,m=c2M(can,cm,X(lx)+Math.cos(a)*r,.09+Math.floor(i/14)*.16,Z(lz)+Math.sin(a)*r);m.rotation.set(rnd()<.4?PI/2:0,rnd()*3,0);G.push(m)}}
   else if(k==='stain'){const m=c2M(new THREE.CircleGeometry(.9,18),new THREE.MeshBasicMaterial({color:0x2a1a0e,transparent:true,opacity:.7,depthWrite:false}),X(lx),.045,Z(lz));m.rotation.x=-PI/2;m.scale.set(1,.7,1);G.push(m)}

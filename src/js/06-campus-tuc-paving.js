@@ -146,7 +146,7 @@ function buildCampus(){
   for(const r of D.park){roadRings(r);PT.push({rings:r,c:'#9b9893'})}
   for(const r of D.grass)PT.push({rings:r,c:'#5a9446'});
   for(const r of D.wood)PT.push({rings:r,c:'#3f7436'});
-  for(const r of D.water){const[x0,z0,x1,z1]=bbox(r[0]);cells(x0,z0,x1,z1,(k,x,z)=>{if(inPoly(x,z,r[0]))WG[k]=1});PT.push({rings:r,c:'#3a7ea8'})}
+  for(const r of D.water){const[x0,z0,x1,z1]=bbox(r[0]);cells(x0,z0,x1,z1,(k,x,z)=>{if(inPoly(x,z,r[0]))grSet(WG,k,1)});PT.push({rings:r,c:'#3a7ea8'})}
   for(const r of D.walk){roadRings(r);PT.push({rings:r,c:'#e2dccd'})}
   for(const[m,r]of D.plaza){roadRings(r);PT.push({rings:r,c:m==='pav'?'#c08070':'#ddd6c6'})}
   for(const f of D.pitches)if(f.r)PT.push({rings:f.r,c:f.sp==='tennis'?'#2f5f8f':f.sp.includes('volley')?'#d8c08a':'#3f9a3c'});

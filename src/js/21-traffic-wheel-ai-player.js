@@ -282,11 +282,11 @@ function hitPlayer(n){if(mode==='card'||mode==='wheel')return;if(P.dk!=null&&Mat
 // V124 car lanes only (RG also marks footpaths, sidewalks and patios): the same roads carNet() drives — map roads of a car kind ≥ 6 m wide,
 // plus the downtown asphalt rectangles in RD. Built once, lazily, on the collision grid.
 let LANEG=null;
-function laneGrid(){if(LANEG)return LANEG;const G=new Uint8Array(RG.length);
+function laneGrid(){if(LANEG)return LANEG;const G=grNew(GW,GD,4,Uint8Array,0);/* V438 a block grid too (was another full 10 MB array) */
   for(const r of UCD.roads||[]){if(!CAR_K[r.k]||r.w<6||r.sf||r.pts.length<2)continue;const R_=r.w/2;for(let i=0;i<r.pts.length-1;i++){const[a,b]=r.pts[i],[c,d]=r.pts[i+1],vx=c-a,vz=d-b,L2=vx*vx+vz*vz||1;
-    cells(Math.min(a,c)-R_,Math.min(b,d)-R_,Math.max(a,c)+R_,Math.max(b,d)+R_,(k,x,z)=>{const t=clamp(((x-a)*vx+(z-b)*vz)/L2,0,1);if(Math.hypot(x-a-vx*t,z-b-vz*t)<=R_)G[k]=1})}}
-  for(const r of RD){if(!Array.isArray(r))continue;const[x0,z0,x1,z1]=r;if(Math.min(x1-x0,z1-z0)<6)continue;cells(x0,z0,x1,z1,k=>{G[k]=1})}return LANEG=G}
-const inLane=(x,z)=>{const k=cidx(x,z);return k>=0&&laneGrid()[k]===1};
+    cells(Math.min(a,c)-R_,Math.min(b,d)-R_,Math.max(a,c)+R_,Math.max(b,d)+R_,(k,x,z)=>{const t=clamp(((x-a)*vx+(z-b)*vz)/L2,0,1);if(Math.hypot(x-a-vx*t,z-b-vz*t)<=R_)grSet(G,k,1)})}}
+  for(const r of RD){if(!Array.isArray(r))continue;const[x0,z0,x1,z1]=r;if(Math.min(x1-x0,z1-z0)<6)continue;cells(x0,z0,x1,z1,k=>{grSet(G,k,1)})}grTrim(G);return LANEG=G}
+const inLane=(x,z)=>{const k=cidx(x,z);return k>=0&&grGet(laneGrid(),k)===1};
 // V123 the nearest free spot out of the car lanes, trying the given side first (sx,sz = unit vector), then all round
 function offRoadSpot(x,z,sx,sz){for(let d=1.5;d<=16;d+=.75){const tries=sx!=null?[[sx,sz],[-sx,-sz]]:[];for(let a=0;a<12;a++)tries.push([Math.cos(a/12*TAU),Math.sin(a/12*TAU)]);
     for(const[ux,uz]of tries){const X=x+ux*d,Z=z+uz*d;if(!inLane(X,Z)&&!inLane(X+ux*.6,Z+uz*.6)&&freeAt(X,Z,.4)){const X2=X+ux*.9,Z2=Z+uz*.9;return freeAt(X2,Z2,.4)&&!inLane(X2,Z2)?[X2,Z2]:[X,Z]}}}return null}

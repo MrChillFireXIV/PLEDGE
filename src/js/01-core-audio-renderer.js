@@ -6,30 +6,42 @@
 const $=id=>document.getElementById(id),PI=Math.PI,TAU=PI*2,clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,rnd=Math.random,pick=a=>a[Math.floor(rnd()*a.length)],NOW=()=>performance.now()/1000;
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
-const WW=740,WD=3300 /* V354: was 2650; the interiors laid out past z=2650 (Van Wormer, library, diner, police…) had no collision grid under them, so Danny could not move inside */,OD=720,CR=2,GW=WW*CR,GD=WD*CR,WG=new Uint8Array(GW*GD),HG=new Uint8Array(GW*GD),SH=new Uint8Array(GW*GD),RG=new Uint8Array(GW*GD);
+const WW=740,WD=3300 /* V354: was 2650; the interiors laid out past z=2650 (Van Wormer, library, diner, police…) had no collision grid under them, so Danny could not move inside */,OD=720,CR=2,GW=WW*CR,GD=WD*CR,WG=grNew(GW,GD,4,Uint8Array,0),HG=grNew(GW,GD,4,Uint8Array,0),SH=grNew(GW,GD,4,Uint8Array,0),RG=grNew(GW,GD,4,Uint8Array,0);
+/* V438 the world grids (walls WG, heights HG, sit/step heights SH, roads RG, and the route distances DIST) are stored as square blocks of 2^s cells, and only the
+   blocks something was written into exist: the map is 740 x 3300 m but the building interiors past z=1320 fill only about a seventh of their area. Every
+   access goes through grGet(grid,index) / grSet(grid,index,value) with the same flat index as before; a missing block reads as the grid's default.
+   All blocks live in one pool array that grows by doubling, plus an index table (-1 = no block). tgFill drops every block and sets a new default */
+function grNew(W,H,s,C,d){const m=(1<<s)-1,tw=(W+m)>>s,th=(H+m)>>s,ts=1<<(2*s);return{W,H,s,m,tw,ts,C,d,n:0,length:W*H,idx:new Int32Array(tw*th).fill(-1),pool:new C(ts*64)}}
+function grGet(g,k){const j=(k/g.W)|0,i=k-j*g.W,o=g.idx[(j>>g.s)*g.tw+(i>>g.s)];return o<0?g.d:g.pool[o+((j&g.m)<<g.s)+(i&g.m)]}
+function grSet(g,k,v){if(!(k>=0&&k<g.length))return v;const j=(k/g.W)|0,i=k-j*g.W,t=(j>>g.s)*g.tw+(i>>g.s);let o=g.idx[t];
+  if(o<0){if(v===g.d)return v;o=g.n*g.ts;if(o+g.ts>g.pool.length){const p=new g.C(g.pool.length*2);p.set(g.pool);g.pool=p}if(g.d)g.pool.fill(g.d,o,o+g.ts);g.idx[t]=o;g.n++}
+  g.pool[o+((j&g.m)<<g.s)+(i&g.m)]=v;return v}
+function grFill(g,v){g.idx.fill(-1);g.n=0;g.d=v}
+/* after loading: cut each pool down to the blocks in use (it had doubled past them) */
+function grTrim(g){const u=g.n*g.ts;if(g.pool.length>u*1.1+g.ts){const p=new g.C(Math.max(g.ts,u));p.set(g.pool.subarray(0,u));g.pool=p}}
 function cells(x0,z0,x1,z1,f){const a=Math.max(0,Math.floor(x0*CR)),b=Math.min(GW-1,Math.ceil(x1*CR)-1),c=Math.max(0,Math.floor(z0*CR)),d=Math.min(GD-1,Math.ceil(z1*CR)-1);for(let j=c;j<=d;j++)for(let i=a;i<=b;i++)f(j*GW+i,(i+.5)/CR,(j+.5)/CR)}
 // V174 jump-on-objects: SH = top of low solid things in tenths of a metre (set by markR/markTop for tops up to 1 m). A cell is climbable when WG=1, SH>0 and HG<=1
 // (any taller thing overlapping it raises HG). While Danny moves, FH = his feet height above the ground; with FH>=0 `solid` lets him into a climbable cell once his feet are
 // within 0.12 m of its top. FH=-1 (everything else, e.g. NPCs) keeps the old behaviour.
 let FH=-1;
-const markR=(x0,z0,x1,z1,h,w=1)=>cells(x0,z0,x1,z1,k=>{if(w){WG[k]=1;if(h<=1){const t=Math.max(1,Math.round(h*10));if(t>SH[k])SH[k]=t}}const v=Math.min(255,Math.ceil(h));if(v>HG[k])HG[k]=v});
-const markTop=(x0,z0,x1,z1,h)=>cells(x0,z0,x1,z1,k=>{if(WG[k]===1&&h<=1){const t=Math.round(h*10);if(t>SH[k])SH[k]=t}});
+const markR=(x0,z0,x1,z1,h,w=1)=>cells(x0,z0,x1,z1,k=>{if(w){grSet(WG,k,1);if(h<=1){const t=Math.max(1,Math.round(h*10));if(t>grGet(SH,k))grSet(SH,k,t)}}const v=Math.min(255,Math.ceil(h));if(v>grGet(HG,k))grSet(HG,k,v)});
+const markTop=(x0,z0,x1,z1,h)=>cells(x0,z0,x1,z1,k=>{if(grGet(WG,k)===1&&h<=1){const t=Math.round(h*10);if(t>grGet(SH,k))grSet(SH,k,t)}});
 // V115 round colliders: small round things (posts, poles, bushes, trunks) are true circles instead of 0.5 m grid squares,
 // so thin poles can't be walked through and Danny slides round them instead of catching on a square corner
 const CCOL=new Map();let CIRC_OFF=0;
 const circAdd=(x,z,r)=>{const k=Math.floor(x/4)*65536+Math.floor(z/4);let a=CCOL.get(k);if(!a)CCOL.set(k,a=[]);a.push([x,z,r])};
 const circNear=(x,z,f)=>{const i=Math.floor(x/4),j=Math.floor(z/4);for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){const a=CCOL.get((i+di)*65536+j+dj);if(a)for(const c of a)if(f(c))return true}return false};
 const circHit=(x,z,r)=>CCOL.size>0&&circNear(x,z,c=>(c[0]-x)**2+(c[1]-z)**2<(c[2]+r)**2);
-const markC=(x,z,r,h)=>{if(r<=.75){circAdd(x,z,r);cells(x-r,z-r,x+r,z+r,(k,cx,cz)=>{if((cx-x)**2+(cz-z)**2<=(r+.36)**2){const v=Math.min(255,Math.ceil(h));if(v>HG[k])HG[k]=v}});return}
-  cells(x-r,z-r,x+r,z+r,(k,cx,cz)=>{if((cx-x)**2+(cz-z)**2<=r*r){WG[k]=1;const v=Math.min(255,Math.ceil(h));if(v>HG[k])HG[k]=v}})};
-const roadR=(x0,z0,x1,z1)=>cells(x0,z0,x1,z1,k=>RG[k]=1);
+const markC=(x,z,r,h)=>{if(r<=.75){circAdd(x,z,r);cells(x-r,z-r,x+r,z+r,(k,cx,cz)=>{if((cx-x)**2+(cz-z)**2<=(r+.36)**2){const v=Math.min(255,Math.ceil(h));if(v>grGet(HG,k))grSet(HG,k,v)}});return}
+  cells(x-r,z-r,x+r,z+r,(k,cx,cz)=>{if((cx-x)**2+(cz-z)**2<=r*r){grSet(WG,k,1);const v=Math.min(255,Math.ceil(h));if(v>grGet(HG,k))grSet(HG,k,v)}})};
+const roadR=(x0,z0,x1,z1)=>cells(x0,z0,x1,z1,k=>grSet(RG,k,1));
 const cidx=(x,z)=>{const i=Math.floor(x*CR),j=Math.floor(z*CR);return i<0||j<0||i>=GW||j>=GD?-1:j*GW+i};
-const solid=(x,z)=>{const k=cidx(x,z);if(k<0)return true;if(WG[k]!==1)return false;if(FH>=0){const t=SH[k];if(t>0&&HG[k]<=1&&FH>=t/10-.12)return false}return true};
-const supTop=(x,z)=>{const k=cidx(x,z);return k<0||WG[k]!==1||HG[k]>1?0:SH[k]/10};
+const solid=(x,z)=>{const k=cidx(x,z);if(k<0)return true;if(grGet(WG,k)!==1)return false;if(FH>=0){const t=grGet(SH,k);if(t>0&&grGet(HG,k)<=1&&FH>=t/10-.12)return false}return true};
+const supTop=(x,z)=>{const k=cidx(x,z);return k<0||grGet(WG,k)!==1||grGet(HG,k)>1?0:grGet(SH,k)/10};
 const freeAt=(x,z,r=.35)=>!solid(x,z)&&!solid(x-r,z-r)&&!solid(x+r,z-r)&&!solid(x-r,z+r)&&!solid(x+r,z+r)&&(CIRC_OFF||!circHit(x,z,r*.85));
-const hAt=(x,z)=>{const k=cidx(x,z);return k<0?99:HG[k]};
+const hAt=(x,z)=>{const k=cidx(x,z);return k<0?99:grGet(HG,k)};
 const camTop=(x,z)=>{const t=hAt(x,z)+terrH(x,z);return(typeof ZIM!=='undefined'&&ZIM&&t>ZIM.Y-1.5&&inPoly(x,z,ZIM.main))?ZIM.Y+.4:t};
-const onRoad=(x,z)=>{const k=cidx(x,z);return k>=0&&RG[k]===1};
+const onRoad=(x,z)=>{const k=cidx(x,z);return k>=0&&grGet(RG,k)===1};
 const inR=(x,z,r)=>x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3];
 const inWin=(h,w)=>w[0]<w[1]?h>=w[0]&&h<w[1]:h>=w[0]||h<w[1];
 const fmtH=h=>{h=((h%24)+24)%24;const H=Math.floor(h),m=Math.floor((h-H)*60);return(H%12||12)+(m?':'+String(m).padStart(2,'0'):'')+(H<12?' AM':' PM')};

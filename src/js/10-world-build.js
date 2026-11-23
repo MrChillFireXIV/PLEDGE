@@ -58,7 +58,7 @@ function wpavConcourse(D){const S=D.stands.find(s=>s.nip&&s.sl.length>20);if(!S)
   // the south edge of the floor: a picket rail either side of the stair
   {const a=[351.8,394.7],b=[342.8,397.8],L=Math.hypot(b[0]-a[0],b[1]-a[1]),s=Math.hypot(WPSS[0][0]-a[0],WPSS[0][1]-a[1]);railRun(a[0],a[1],b[0],b[1],Y,[[s-1.8,s+1.8]])}
   // the floor is solid ground for people below it wherever it stands high over the slope
-  const[bx0,bz0,bx1,bz1]=bbox(WPDECK);cells(bx0,bz0,bx1,bz1,(k,x,z)=>{if(inPoly(x,z,WPDECK)){const h=Y-terrH(x,z);if(h>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(h)))}}});
+  const[bx0,bz0,bx1,bz1]=bbox(WPDECK);cells(bx0,bz0,bx1,bz1,(k,x,z)=>{if(inPoly(x,z,WPDECK)){const h=Y-terrH(x,z);if(h>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(h))))}}});
   DECKS.push({area:{poly:WPDECK,holes},P:[[(bx0+bx1)/2,(bz0+bz1)/2],[(bx0+bx1)/2+.1,(bz0+bz1)/2]],ys:[Y,Y],s:[0,2],L:2,hw:99,w:198,k:'area',cov:0,bb:[bx0-.5,bz0-.5,bx1+.5,bz1+.5],t0:0,t1:2,y:Y});
   // aisle stairs down through the west stand to the field: each tread follows the top of its row of seats
   const top=(x,z)=>{let h=-1;for(const q of S.sl){if(q.h<=h)continue;const r=q.r;if(inPoly(x,z,r[0])&&!r.slice(1).some(hh=>inPoly(x,z,hh)))h=q.h}return h<0?null:lv+h};
@@ -370,11 +370,11 @@ function buildWorld(){
   bld('boat',63,577+LZ,77,585+LZ,5,'wood',{roof:'hip',rc:0x3a2a1c,door:[70,'n'],name:'Boathouse',menu:'boat'});
   {const sand=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sand.scale.set(LK.rx+3,LK.rz+3,1);sand.rotation.x=-PI/2;sand.position.set(LK.x,.02,LK.z);sand.receiveShadow=true;sc.add(sand);
    const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(LK.rx,LK.rz,1);w.rotation.x=-PI/2;w.position.set(LK.x,.08,LK.z);sc.add(w)}
-  cells(LK.x-LK.rx,LK.z-LK.rz,LK.x+LK.rx,LK.z+LK.rz,(k,x,z)=>{if(inLake(x,z)&&!onDock(x,z))WG[k]=1});
+  cells(LK.x-LK.rx,LK.z-LK.rz,LK.x+LK.rx,LK.z+LK.rz,(k,x,z)=>{if(inLake(x,z)&&!onDock(x,z))grSet(WG,k,1)});
   {const d=new THREE.Mesh(boxUV(new THREE.BoxGeometry(4.6,.3,22.5),4.6,.3,22.5,3),TM.plank);d.position.set(70,.35,591.2+LZ);d.castShadow=d.receiveShadow=true;sc.add(d);for(let z=582+LZ;z<=602+LZ;z+=4){cyl(67.8,.3,z,.14,1.2,0x4a3420);cyl(72.2,.3,z,.14,1.2,0x4a3420)}}
   {// kart track strip
     const N=128,pos=[],uv=[],idx=[];for(let i=0;i<=N;i++){const th=i/N*TAU;for(const s of[-1,1]){const rx=TK.rx+s*TK.w,rz=TK.rz+s*TK.w;pos.push(TK.x+rx*Math.cos(th),.04,TK.z+rz*Math.sin(th));uv.push(i/N*45,s>0?1:0)}}for(let i=0;i<N;i++){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,SM({map:TX.asphalt,roughness:.95,side:THREE.DoubleSide}));m.receiveShadow=true;sc.add(m);
-    cells(TK.x-TK.rx-5,TK.z-TK.rz-5,TK.x+TK.rx+5,TK.z+TK.rz+5,(k,x,z)=>{if(Math.abs(trackR(x,z)-1)<.11)RG[k]=1});
+    cells(TK.x-TK.rx-5,TK.z-TK.rz-5,TK.x+TK.rx+5,TK.z+TK.rz+5,(k,x,z)=>{if(Math.abs(trackR(x,z)-1)<.11)grSet(RG,k,1)});
     const sl=new THREE.Mesh(new THREE.PlaneGeometry(1.2,TK.w*2),new THREE.MeshBasicMaterial({color:0xf2efe6}));sl.rotation.x=-PI/2;sl.position.set(70,.06,572+LZ);sc.add(sl);
     const gm=new THREE.MeshBasicMaterial({color:0xe2b64c,transparent:true,opacity:.85});for(let k=0;k<12;k++){const th=-PI/2+k*TAU/12,[x,z]=trackPos(th);const t=new THREE.Mesh(new THREE.TorusGeometry(4.2,.18,6,24,PI),gm.clone());t.position.set(x,0,z);t.rotation.y=Math.atan2(-TK.rx*Math.sin(th),TK.rz*Math.cos(th));t.visible=false;sc.add(t);kartGates.push(t)}}
   // ---------- CAMP HOLLOW: one big forest campground around Hollow Lake (cabins, lakeside docks, campsites, trails)
@@ -389,7 +389,7 @@ function buildWorld(){
    for(const[x,z,f]of[[290,1078,'s'],[322,1078,'s'],[452,1078,'s'],[484,1078,'s'],[250,1150,'e'],[250,1196,'e'],[548,1150,'w'],[548,1196,'w']])cabin('cab'+(cn++),x,z,f,cn);
    bld('rng',150,1034,166,1050,5,'wood',{roof:'hip',rc:0x2e4030,rh:2.6,trim:0x5a3d22,door:[158,'n'],name:'Ranger Station'});
    bld('pavil',360,1062,420,1088,5,'wood',{roof:'hip',rc:0x3a2a1c,rh:3,trim:0x5a3d22,door:[390,'s'],name:'Camp Pavilion'});
-   const lake=(cx,cz,rx,rz)=>{const sd=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sd.scale.set(rx+2.5,rz+2.5,1);sd.rotation.x=-PI/2;sd.position.set(cx,.02,cz);sd.receiveShadow=true;sc.add(sd);const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(rx,rz,1);w.rotation.x=-PI/2;w.position.set(cx,.08,cz);sc.add(w);cells(cx-rx,cz-rz,cx+rx,cz+rz,(k,x,z)=>{if(((x-cx)/rx)**2+((z-cz)/rz)**2<1&&!onDock(x,z))WG[k]=1})};
+   const lake=(cx,cz,rx,rz)=>{const sd=new THREE.Mesh(new THREE.CircleGeometry(1,64),TM.sand);sd.scale.set(rx+2.5,rz+2.5,1);sd.rotation.x=-PI/2;sd.position.set(cx,.02,cz);sd.receiveShadow=true;sc.add(sd);const w=new THREE.Mesh(new THREE.CircleGeometry(1,64),SM({color:0x2a5f7e,roughness:.06,metalness:.35}));w.scale.set(rx,rz,1);w.rotation.x=-PI/2;w.position.set(cx,.08,cz);sc.add(w);cells(cx-rx,cz-rz,cx+rx,cz+rz,(k,x,z)=>{if(((x-cx)/rx)**2+((z-cz)/rz)**2<1&&!onDock(x,z))grSet(WG,k,1)})};
    for(const w of HOLLOW_W)lake(...w);
    for(const d of HOLLOW_D){const L=d[3]-d[1];box((d[0]+d[2])/2,.35,(d[1]+d[3])/2,3.4,.25,L,0x6a4a2a);for(let z=d[1]+2;z<=d[3];z+=5){cyl(d[0]-.1,.3,z,.14,1.2,0x4a3420);cyl(d[2]+.1,.3,z,.14,1.2,0x4a3420)}}
    for(const[x,z,r,c]of[[398.5,1119,.2,0x9a5a2a],[410,1125,-.15,0xb8a02a],[375,1222,.1,0x2a6a8a],[386,1226,-.2,0xa83232],[440,1170,1.2,0x6a8a2a],[360,1190,.5,0xc8602a],[470,1150,-.6,0x2a6a8a]]){const bt=box(x,.14,z,1.4,.3,3.6,c);bt.rotation.y=r}

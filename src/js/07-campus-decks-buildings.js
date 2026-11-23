@@ -80,13 +80,13 @@ function bridges(D){
     mesh(dk,DK);mesh(pa,PA);mesh(gl,GL);mesh(rf,RF);mesh(rl,RL);mesh(pk,PKM,pkuv);mesh(tr,TRD);mesh(ch,CH);
     // people on the ground: the solid mass under a podium or a stair, and the parapets/cheeks where the deck runs near the ground
     const[bx0,bz0,bx1,bz1]=d.bb;cells(bx0,bz0,bx1,bz1,(k,x,z)=>{const q=deckQ(d,x,z);if(q.out!==0||q.t<d.t0-.1||q.t>d.t1+.1||q.off>hw+.15)return;const g=terrH(x,z),h=q.y-g;
-      if(q.off<=hw&&(d.k==='pod'||d.k==='st')&&h>.9){WG[k]=1;HG[k]=Math.max(HG[k],Math.min(255,Math.ceil(h)))}
-      else if(q.off>hw-.3&&Math.abs(h)<1.4&&q.t>d.t0+1.8&&q.t<d.t1-1.8){WG[k]=1;HG[k]=Math.max(HG[k],1)}})}
+      if(q.off<=hw&&(d.k==='pod'||d.k==='st')&&h>.9){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),Math.min(255,Math.ceil(h))))}
+      else if(q.off>hw-.3&&Math.abs(h)<1.4&&q.t>d.t0+1.8&&q.t<d.t1-1.8){grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),1))}})}
   // the TUC plaza's edge above Backstage Drive: retaining wall, curb and railing from University Pavilion's corner to the bridge head
   {const z=376.0,xa=279.6,xb=300.9,c=[],r=[],pk=[],pkuv=[];
     const n=Math.ceil((xb-xa)/2),Es=[...Array(n+1)].map((_,i)=>[xa+(xb-xa)*i/n,z]),Ys=Es.map(([x,z2])=>terrH(x,z2-.3));
     band(c,Es.map(([x,z2])=>[x,z2-.2]),Es.map(([x,z2])=>[x,z2+.22]),i=>Ys[i]-8,i=>Ys[i]+.42,1);strip(pk,pkuv,Es,i=>Ys[i]+.42,i=>Ys[i]+1.06);band(r,Es.map(([x,z2])=>[x,z2-.05]),Es.map(([x,z2])=>[x,z2+.09]),i=>Ys[i]+1.04,i=>Ys[i]+1.1,0);
-    mesh(c,PA);mesh(pk,PKM,pkuv);mesh(r,RL);cells(xa,z-.3,xb,z+.4,k=>{WG[k]=1;HG[k]=Math.max(HG[k],2)})}}
+    mesh(c,PA);mesh(pk,PKM,pkuv);mesh(r,RL);cells(xa,z-.3,xb,z+.4,k=>{grSet(WG,k,1);grSet(HG,k,Math.max(grGet(HG,k),2))})}}
 // ================================================================ V62 Tangeman University Center, rebuilt from the 2021 lidar and photos of its McMicken commons front:
 // the 1937 front range (Flemish-bond brick, limestone trim, slate hip roof) with its Ionic portico, the main hall behind carrying the clock tower
 // on the portico's axis, the glass link between them, Gwathmey Siegel's zinc wrapper (2004) all round, granite terrace steps along the commons,
@@ -174,7 +174,7 @@ function tucBuild(b,main){
     const BN=[['next','#f4f2ee','#c8102e'],['lives','#c8102e','#ffffff'],['here','#c8102e','#ffffff']];
     for(let k=0;k<3;k++){const z=(zs[k]+zs[k+1])/2;const m=new THREE.Mesh(GC.ban||(GC.ban=new THREE.PlaneGeometry(1.15,3.4)),nlhBanner(...BN[k]));m.position.set(cx+.05,5.9,z);m.rotation.y=-PI/2;sc.add(m);bx(cx+.05,7.62,z,.06,.06,1.25,IRON,0)}
     // clear the portico for walking (the footprint marked it solid), keep the columns
-    cells(px0+.08,pz0+.05,fx0-.02,pz1-.05,k=>{WG[k]=0;HG[k]=0});for(const z of zs)markC(cx,z,.42,8);for(const z of[pz0+.32,pz1-.32])markR(fx0-.53,z-.32,fx0,z+.32,8)}
+    cells(px0+.08,pz0+.05,fx0-.02,pz1-.05,k=>{grSet(WG,k,0);grSet(HG,k,0)});for(const z of zs)markC(cx,z,.42,8);for(const z of[pz0+.32,pz1-.32])markR(fx0-.53,z-.32,fx0,z+.32,8)}
   // ---- granite terrace steps along the whole west front; the landing is the terrace the portico stands on
   {const N=6,RS=.13,TD=.36,xe=fx0-6.0,za=fz0-2.0,zb=fz1+.3;bx((xe+fx0)/2,-1.0,(za+zb)/2,fx0-xe,2.0,zb-za,GRN);
     for(let i=1;i<=N;i++)bx(xe-(i-.5)*TD,-i*RS-1.0+.0,(za+zb)/2+(i*.18),TD+.01,2.0,zb-za+i*.36,GRN);
