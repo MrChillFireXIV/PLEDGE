@@ -315,7 +315,7 @@ function c3WesB(){if(!C3WESB.set&&typeof SPOT!=='undefined'&&SPOT.DOCK&&typeof f
 /* the kidnappers: black hoodie, hood up, a black mask over the mouth. Nothing on them says which house they are from */
 const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0x18181c,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
 function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}const h=n.g.P&&n.g.P.head;if(!h)return n;n.c3hood=1;const M_=new THREE.MeshStandardMaterial({color:0x121216,roughness:.95,side:THREE.DoubleSide});
-  const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,18,12,PI/2+.95,TAU-1.9),M_);hd.scale.set(1,1.14,1.12);hd.position.set(0,.13,.0);hd.userData.noMerge=1;h.add(hd);
+  /* V454 no hood shell over the head (the user found it ugly): just the face mask */
   /* V452 the mask is cut from his own head: the head's surface from under the chin to just below the eyes (and a strap round the back), lifted 7 mm
      off the skin, so it follows his face like cloth instead of sitting on it like a block. Falls back to the V451 shell if the body has no head data */
   {const MK=new THREE.MeshStandardMaterial({color:0x1d1d24,roughness:1,side:THREE.DoubleSide}),mg=c3MaskGeo(n);if(mg){const mk=new THREE.Mesh(mg,MK);mk.userData.noMerge=1;mk.castShadow=false;h.add(mk)}
