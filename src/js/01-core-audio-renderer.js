@@ -14,7 +14,7 @@ const WW=740,WD=3300 /* V354: was 2650; the interiors laid out past z=2650 (Van 
 function grNew(W,H,s,C,d){const m=(1<<s)-1,tw=(W+m)>>s,th=(H+m)>>s,ts=1<<(2*s);return{W,H,s,m,tw,ts,C,d,n:0,length:W*H,idx:new Int32Array(tw*th).fill(-1),pool:new C(ts*64)}}
 function grGet(g,k){const j=(k/g.W)|0,i=k-j*g.W,o=g.idx[(j>>g.s)*g.tw+(i>>g.s)];return o<0?g.d:g.pool[o+((j&g.m)<<g.s)+(i&g.m)]}
 function grSet(g,k,v){if(!(k>=0&&k<g.length))return v;const j=(k/g.W)|0,i=k-j*g.W,t=(j>>g.s)*g.tw+(i>>g.s);let o=g.idx[t];
-  if(o<0){if(v===g.d)return v;o=g.n*g.ts;if(o+g.ts>g.pool.length){const p=new g.C(g.pool.length*2);p.set(g.pool);g.pool=p}if(g.d)g.pool.fill(g.d,o,o+g.ts);g.idx[t]=o;g.n++}
+  if(o<0){if(v===g.d)return v;o=g.n*g.ts;if(o+g.ts>g.pool.length){const p=new g.C(LITE?Math.ceil(g.pool.length*1.25/g.ts)*g.ts:g.pool.length*2);/* V442 LITE grows by a quarter, not double (route grid 16.8 -> ~11 MB) */p.set(g.pool);g.pool=p}if(g.d)g.pool.fill(g.d,o,o+g.ts);g.idx[t]=o;g.n++}
   g.pool[o+((j&g.m)<<g.s)+(i&g.m)]=v;return v}
 function grFill(g,v){g.idx.fill(-1);g.n=0;g.d=v}
 /* after loading: cut each pool down to the blocks in use (it had doubled past them) */
@@ -117,7 +117,26 @@ function lptsSync(){for(let j=LITEPTS.length-1;j>=0;j--){const G=LITEPTS[j],lp=G
   lp.eg.attributes.position.needsUpdate=true;if(C)lp.eg.attributes.color.needsUpdate=true;lp.eg.computeBoundingSphere()}}
 /* V437 LITE: the merged world shapes made at load are new geometries nobody else holds. Once one is on the graphics card its arrays in normal memory are
    swapped for tiny ones (bounds are worked out first, for culling). About 50 MB on the Xbox, where Edge's memory runs out */
-function liteFreeMark(groups,pre){let n=0;const fr=function(){this.array=new this.array.constructor(this.itemSize)};const seen=new Set();
+/* V442 LITE: a 2D canvas keeps a list of every drawing command until something reads it. Texture canvases drawn at load (speckled facades, signs,
+   paving: thousands of tiny rectangles each) kept those lists for minutes, ~90 MB in the Xbox-sized test. Reading one pixel makes the browser paint
+   the list into pixels and drop it. Done once per canvas, shortly after it gets its drawing context (after each loading step, and every few seconds in play for new ones) */
+const LCV={L:[],q:false,t:0};
+if(LITE)try{const gc0=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,...a){const q=gc0.call(this,t,...a);if(q&&t==='2d'&&!this.__q){this.__q=q;LCV.L.push(new WeakRef(this));if(!LCV.q){LCV.q=true;setTimeout(liteCvFlush,0)}}return q}}catch(e){}
+function liteCvFlush(){LCV.q=false;LCV.t=performance.now();if(!LITE)return;for(const w of LCV.L){const c=w.deref();if(c&&c.width>1&&c.height>1)try{c.__q.getImageData(0,0,1,1)}catch(e){}}LCV.L=[]}/* once per canvas: reading again and again made browser-side garbage of its own */
+/* V442 LITE: nudge the script engine to clean up. On the Xbox it waits until its heap is near its ~740 MB limit, so after loading ~165 MB of
+   thrown-away building pieces sat in memory and play tipped the browser over. Making (and dropping at once) a 68 MB buffer that is never written to
+   makes it collect right away; the memory is never actually touched. Used after big loading steps, on entering/leaving buildings and whenever
+   ~30 MB has piled up */
+const LGC={last:0,n:0,t:0};function liteHeap(){try{return performance.memory.usedJSHeapSize}catch(e){return 0}}
+const LGCOFF=(()=>{try{return/[?&]nonudge\b/.test(location.search)}catch(e){return false}})();
+function liteGcNudge(){if(!LITE||LGCOFF)return;const pre=liteHeap();try{let x=new ArrayBuffer(68<<20);x=null}catch(e){}LGC.n++;LGC.t=performance.now();setTimeout(()=>{const h=liteHeap();LGC.last=h>pre?pre:h},1500)/* the reading can still include the 68 MB buffer: never let it raise the baseline */}
+/* a nudge needs about a second to finish its clean-up (300 -> ~190 MB after loading in the test); nudges stacked closer get in each other's way */
+function liteGcBurst(n){if(!LITE)return;let i=0;const f=()=>{liteGcNudge();if(++i<n)setTimeout(f,1500)};f()}
+function liteGcCheck(){if(!LITE)return;if(performance.now()-LCV.t>4000)liteCvFlush();const h=liteHeap();if(!h)return;if(!LGC.last)LGC.last=h;if(h>LGC.last+30e6&&performance.now()-LGC.t>3000){LGC.last=h;liteGcNudge()}}
+/* V442: the free-after-upload callback lives out here. Inside liteFreeMark it kept that function's list of every merged geometry alive, so the 57 MB of
+   interiors V441 let go never left memory */
+function liteFreeArr(){this.array=new this.array.constructor(this.itemSize)}
+function liteFreeMark(groups,pre){let n=0;const fr=liteFreeArr;const seen=new Set();
   for(const G of groups)G.traverse(o=>{const g=o.geometry;if(!o.isMesh||o.isInstancedMesh||!g||pre.has(g)||seen.has(g))return;seen.add(g);if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingBox)g.computeBoundingBox();g.userData.lfree=1;for(const k in g.attributes)g.attributes[k].onUpload(fr);if(g.index)g.index.onUpload(fr);n++});LITEFREEN=n}
 let LITEFREEN=0;
 function mkPoints(geo,o){return new THREE.Points(geo,new THREE.PointsMaterial(o))}

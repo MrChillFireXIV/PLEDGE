@@ -246,11 +246,35 @@ function setCast(g,on){g.traverse(o=>{if(o.isMesh){if(o.userData.cs==null)o.user
    mergeStatic visits them. intVis merges the recipe again on entry, through the same mergeStatic, so the room comes out exactly as at load;
    leaving drops it. Only the room you are in (and the floor joined by stairs) holds its merged shapes */
 function intRecipe(kids){const R_=[];for(const o of kids){o.updateMatrixWorld(true);o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.userData.noMerge||!m.geometry||!m.geometry.attributes.position)return;R_.push([m.geometry,m.material,m.matrixWorld.clone(),m.castShadow,m.receiveShadow])})}return R_}
+function intStrip(kids){const K=[];for(const o of kids)o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.userData.noMerge||!m.geometry||!m.geometry.attributes.position)return;K.push(m)});for(const m of K)m.parent&&m.parent.remove(m)}
 function intEvict(I){if(!I||!I.mg||!I.rec)return;if(I.h0==null)try{I.h0=intVh(I.mg)}catch(e){}I.g.remove(I.mg);I.mg.traverse(o=>{if(o.geometry)o.geometry.dispose()});I.mg=null;I.lazy=true}
 function intVis(I){if(!I||!I.lazy||!I.rec)return;const T=new THREE.Group();for(const[g,mat,mw,c,r]of I.rec){const m=new THREE.Mesh(g,mat);m.matrixAutoUpdate=false;m.matrix.copy(mw);m.castShadow=c;m.receiveShadow=r;T.add(m)}
   const m=new THREE.Group();mergeStatic([T],m);I.g.add(m);I.mg=m;I.lazy=false;try{liteFreeMark([m],new Set())}catch(e){}}
 function intVh(m){let n=0,sum=0;m.traverse(o=>{const a=o.geometry&&o.geometry.attributes.position;if(!a||a.array.length<a.count*3)return;n+=a.count;for(let i=0;i<a.array.length;i+=7)sum+=a.array[i]});return n+':'+sum.toFixed(3)}
-function intLazyShow(id){if(!LITE)return;const keep=new Set([id,id&&pairOf(id)].filter(Boolean));for(const k in INT){const I=INT[k];if(!I.rec)continue;if(keep.has(k))intVis(I);else if(I.mg&&!I.lazy)intEvict(I)}}
+function intLazyShow(id){if(!LITE)return;if(performance.now()-LGC.t>1500)liteGcNudge();const keep=new Set([id,id&&pairOf(id)].filter(Boolean));for(const k in INT){const I=INT[k];if(!I.rec)continue;if(keep.has(k))intVis(I);else if(I.mg&&!I.lazy)intEvict(I)}try{tpkSync(keep)}catch(e){}}
+/* V442 LITE: pictures used only inside buildings (signs, posters, photos, lettering: ~300 canvases) are packed into small PNG files while nobody is
+   inside; the texture lets go of its canvas and its graphics-card copy. Walking in unpacks them (a picture can show a moment late). Pictures also used outdoors,
+   lazily painted ones (ctexLazy) and tiny ones are left alone */
+const TPK={out:null,of:new Map(),on:new Set()};
+/* which pictures belong to which rooms: anything drawn in the interiors' part of the map (z past INTZ; most room decoration is merged into the outdoor
+   scene there) counts for every room its box touches; a picture used anywhere else, or by people, is never packed */
+function tpkScan(){const out=new Set(),zone=new Map(),ints=new Set(Object.values(INT).map(I=>I.g)),BB=new THREE.Box3(),L=Object.values(INT);
+  const texOf=o=>{const r=[];const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(v&&v.isTexture)r.push(v)}return r};
+  const walk=o=>{if(ints.has(o))return;const tx=texOf(o);if(tx.length){let ids=null;if(o.isMesh&&!o.isSkinnedMesh&&!o.isInstancedMesh&&o.geometry){try{BB.setFromObject(o)}catch(e){BB.makeEmpty()}if(!BB.isEmpty()&&BB.min.z>=INTZ-2){ids=L.filter(I=>BB.max.x>=I.x0-1&&BB.min.x<=I.x1+1&&BB.max.z>=I.z0-1&&BB.min.z<=I.z1+1).map(I=>I.id);if(!ids.length)ids=null}}
+      for(const t of tx){if(!ids){out.add(t);continue}let S_=zone.get(t);if(!S_)zone.set(t,S_=new Set());for(const id of ids)S_.add(id)}}for(const c of o.children)walk(c)};walk(sc);
+  for(const id in INT)if(INT[id].rec)for(const e of INT[id].rec){const ms=Array.isArray(e[1])?e[1]:[e[1]];for(const m of ms)for(const k in m){const t=m[k];if(t&&t.isTexture){let S_=zone.get(t);if(!S_)zone.set(t,S_=new Set());S_.add(id)}}}
+  TPK.out=out;for(const[t,ids]of zone){if(out.has(t)||tpkLazy(t))continue;const c=t.image;if(!c||!c.getContext||c.width*c.height<4096)continue;for(const id of ids){let S_=TPK.of.get(id);if(!S_)TPK.of.set(id,S_=new Set());S_.add(t)}}}
+function tpkLazy(t){const d=Object.getOwnPropertyDescriptor(t,'image');return!!(d&&d.get)}
+function tpkOf(I){if(!TPK.out)tpkScan();return TPK.of.get(I.id)||new Set()}
+function tpkSync(keep){const want=new Set();for(const id of keep)if(INT[id])for(const t of tpkOf(INT[id]))want.add(t);
+  for(const t of TPK.on)if(!want.has(t))tpkPark(t);for(const t of want)if(!TPK.on.has(t))tpkOpen(t);TPK.on=want}
+function tpkKeep(t){if(!TPK.out||TPK.out.has(t))return;TPK.out.add(t);for(const L of TPK.of.values())L.delete(t);TPK.on.delete(t);tpkOpen(t)}
+function tpkAll(){if(!LITE)return;try{tpkScan();const all=new Set();for(const L of TPK.of.values())for(const t of L)all.add(t);for(const t of all)tpkPark(t)}catch(e){console.warn('tpk',e)}}
+function tpkPark(t){t.__in=0;if(t.image===LITEIMG){t.dispose();return}const drop=()=>{if(t.__in||t.image===LITEIMG)return;t.__wr=new WeakRef(t.image);t.image=LITEIMG;t.dispose()};
+  if(t.__blob){drop();return}const c=t.image;if(!c||!c.toBlob||t.__enc)return;t.__enc=1;c.toBlob(b=>{t.__enc=0;if(b){t.__blob=b;drop()}},'image/png')}
+/* a canvas that is still kept by its own drawing code (a wall that gets new pictures later) comes back as it is; otherwise the packed PNG is unpacked */
+function tpkOpen(t){t.__in=1;if(t.image!==LITEIMG)return;const c=t.__wr&&t.__wr.deref();if(c){t.image=c;t.needsUpdate=true;return}if(!t.__blob)return;
+  const u=URL.createObjectURL(t.__blob),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);if(!t.__in||t.image!==LITEIMG)return;t.image=im;t.needsUpdate=true};im.onerror=()=>URL.revokeObjectURL(u);im.src=u}
 function showInt(id){intLazyShow(id);for(const k in INT){const g=INT[k].g;g.visible=k===id;if(g.position.lengthSq()){g.position.set(0,0,0);setCast(g,1)}}const pr=pairOf(id);if(pr){const A=INT[id],B_=INT[pr],g=B_.g;g.visible=true;g.position.set(A.x0-B_.x0,pr.endsWith('_up')?STH:-STH,A.z0-B_.z0);setCast(g,0)}
   // V196 the ΑΣΡ third floor is open to the second: each shows the other through the stairwell
   if(typeof c3StairOK==='function'&&c3StairOK()&&INT.asr_top&&INT.asr_up&&(id==='asr_up'||id==='asr_top')){const A=INT[id],O=INT[id==='asr_up'?'asr_top':'asr_up'];O.g.visible=true;O.g.position.set(A.x0-O.x0,id==='asr_up'?C3SH:-C3SH,A.z0-O.z0);setCast(O.g,0)}}

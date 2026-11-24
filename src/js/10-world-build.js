@@ -312,7 +312,7 @@ const stadWest=()=>fromField(0,-STAD.hw-1.5);
 
 
 /* V359 startup timing: BOOTT[stage] = milliseconds, readable from the console (BOOTT) */
-const BOOTT={},BOOTM={};let BOOTK='start';function bootT(k,f){const t=performance.now();BOOTK=k;/* V428 the step being built, shown if the 3D context is lost */const r=f();BOOTT[k]=Math.round(performance.now()-t);/* V439 script memory after each loading step, for finding the loading peak */try{BOOTM[k]=Math.round(performance.memory.usedJSHeapSize/1e6)}catch(e){}return r}
+const BOOTT={},BOOTM={};let BOOTK='start';function bootT(k,f){const t=performance.now();BOOTK=k;/* V428 the step being built, shown if the 3D context is lost */const r=f();BOOTT[k]=Math.round(performance.now()-t);/* V439 script memory after each loading step, for finding the loading peak */try{BOOTM[k]=Math.round(performance.memory.usedJSHeapSize/1e6)}catch(e){}if(LITE){liteCvFlush();liteGcCheck()}return r}
 function buildWorld(){
   // V123 Clifton Avenue's last block (map data) ran 4 m under Ruby's Diner and stopped 2 m short of the downtown avenue, so the avenue's
   // sidewalk capped it. Move it 2 m west, narrow it to clear the diner wall, and run it down to the avenue (the mouth is paved below).

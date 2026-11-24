@@ -43,7 +43,8 @@ for(const t of TERR){t.f0=t.f;let a=1e9,b=1e9,c=-1e9,d=-1e9;for(let i=0;i<t.p.le
 function terrPath(q,P,r){const n=P.length;q.beginPath();for(let i=0;i<n;i++){const p0=P[(i+n-1)%n],p1=P[i],p2=P[(i+1)%n];const l1=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]),l2=Math.hypot(p2[0]-p1[0],p2[1]-p1[1]),rr=Math.min(r,l1/2.2,l2/2.2);
     const ax=p1[0]+(p0[0]-p1[0])/l1*rr,az=p1[1]+(p0[1]-p1[1])/l1*rr,bx=p1[0]+(p2[0]-p1[0])/l2*rr,bz=p1[1]+(p2[1]-p1[1])/l2*rr;
     if(i)q.lineTo(ax,az);else q.moveTo(ax,az);q.quadraticCurveTo(p1[0],p1[1],bx,bz)}q.closePath()}
-function terrLayer(){if(TERRC)return TERRC;const c=document.createElement('canvas');c.width=WW*2;c.height=OD*2;const q=c.getContext('2d');q.scale(2,2);q.lineJoin='round';
+/* V442 LITE: the turf layer is drawn at the world map's 1 px per metre (WMK) instead of 2: 8.5 MB -> 2.1 MB */
+function terrLayer(){if(TERRC)return TERRC;const c=document.createElement('canvas');c.width=WW*WMK;c.height=OD*WMK;const q=c.getContext('2d');q.scale(WMK,WMK);q.lineJoin='round';
   const draw=t=>{const col=TURF[t.f]||'#ffffff',P=terrPairs(t);terrPath(q,P,7);q.fillStyle=col;q.globalAlpha=.36;q.fill();
     q.save();q.clip();q.globalAlpha=.34;q.strokeStyle=col;q.lineWidth=11;terrPath(q,P,7);q.stroke();q.restore();   // soft inner glow along the edge
     q.globalAlpha=.8;q.strokeStyle='rgba(16,12,8,.9)';q.lineWidth=4.2;terrPath(q,P,7);q.stroke();   // V161 dark casing so the border reads on every background
@@ -53,9 +54,9 @@ function terrLayer(){if(TERRC)return TERRC;const c=document.createElement('canva
   for(const t of TERR)if(!t.clip)draw(t);
   return TERRC=c}
 // full map: the cached layer goes under the building labels
-function terrDrawFull(q,c){if(!terrOn())return;q.drawImage(terrLayer(),0,0,WW*2,OD*2,0,0,c.width,c.height)}
+function terrDrawFull(q,c){if(!terrOn())return;q.drawImage(terrLayer(),0,0,WW*WMK,OD*WMK,0,0,c.width,c.height)}
 // minimap: same slice the world image uses
-function terrMini(q,cx,cy,k){if(!terrOn())return;const r=50,sx=clamp(P.x-r,0,WW),sz=clamp(P.z-r,0,OD),ex=clamp(P.x+r,0,WW),ez=clamp(P.z+r,0,OD);if(ex>sx&&ez>sz)q.drawImage(terrLayer(),sx*2,sz*2,(ex-sx)*2,(ez-sz)*2,cx+(sx-P.x)*k,cy+(sz-P.z)*k,(ex-sx)*k,(ez-sz)*k);
+function terrMini(q,cx,cy,k){if(!terrOn())return;const r=50,sx=clamp(P.x-r,0,WW),sz=clamp(P.z-r,0,OD),ex=clamp(P.x+r,0,WW),ez=clamp(P.z+r,0,OD);if(ex>sx&&ez>sz)q.drawImage(terrLayer(),sx*WMK,sz*WMK,(ex-sx)*WMK,(ez-sz)*WMK,cx+(sx-P.x)*k,cy+(sz-P.z)*k,(ex-sx)*k,(ez-sz)*k);
   // V160: each district's trio shows on the minimap at its exact spot (colour dot + letters)
   q.save();q.textAlign='center';q.textBaseline='bottom';q.font='700 9px Graduate,Georgia';q.lineJoin='round';
   for(const t of TERR){const c=t.tc;if(!c)continue;const dx=c[0]-P.x,dz=c[1]-P.z;if(Math.abs(dx)>r||Math.abs(dz)>r)continue;const x=cx+dx*k,y=cy+dz*k,col=TURF[t.f]||'#fff';

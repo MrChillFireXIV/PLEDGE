@@ -36,7 +36,7 @@ Testing runs in headless Chromium.
 - `S.pledged=1` with no job opens the Pledge Machine. Also set `S.prole='pouch'`.
 - DOM minigames need a stepped clock in headless mode. Do this before starting one:
   `let T=0;Object.defineProperty(performance,'now',{value:()=>T,configurable:true});requestAnimationFrame=f=>setTimeout(()=>{T+=20;f(T)},5)`
-- **Xbox memory test:** `tools/xbox/cage.sh 900` runs the game in a 900 MB memory cage with an Edge-on-Xbox identity (LITE turns on by itself); `PLAY=1 tools/xbox/cage.sh 900` also plays a bit. Since V439 the title screen fits in about 850 MB with the test driver; play still needs about 1,000 MB.
+- **Xbox memory test:** `tools/xbox/cage.sh 900` runs the game in a 900 MB memory cage with an Edge-on-Xbox identity (LITE turns on by itself); `PLAY=1 tools/xbox/cage.sh 900` also plays a bit. Since V442 the title screen fits in 700 MB and the play route in 750 MB (peak ~725 MB, test driver included; it was 850 / over 1,000 before). `tools/xbox/watch.sh` shows each browser process's memory step by step (also inside a cage, `LIM=900`), `tools/xbox/memdump.js` asks Chromium what holds the memory (v8, blink_gc, canvas, malloc...). `?nonudge` turns off the clean-up nudges (V442) to compare.
 - More test options are in the header of `tools/run.js`: `--compare` baseline diffs, `perf`, `views`, `room:ID`.
 
 ## Game API cheat sheet

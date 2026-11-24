@@ -237,13 +237,14 @@ function prewarmSteps(){const q=[()=>{gfxReady();for(const id in INT)INT[id].g.v
   return q}
 function prewarm(){PREWQ=prewarmSteps();prewarmFlush()}
 function prewarmFlush(){const q=PREWQ;PREWQ=[];for(const f of q)try{f()}catch(e){console.warn(e)}}
-function prewarmLater(){try{for(const g of[WG,HG,SH,RG])grTrim(g)}catch(e){}/* V429 LITE (Xbox): no prewarm. Compiling every shader at once and drawing 15 views of the whole campus is what stopped the 3D on the Xbox (its diagnostic said "while loading: prewarm"); things are sent to the graphics card as they come into view instead */if(LITE){PREWQ=[];BOOTK='ready';return}
+function prewarmLater(){try{for(const g of[WG,HG,SH,RG])grTrim(g)}catch(e){}if(LITE){liteDropScriptText();setTimeout(()=>liteGcBurst(2),6000)/* V442 again once the packed pictures have let go of their canvases */}/* V429 LITE (Xbox): no prewarm. Compiling every shader at once and drawing 15 views of the whole campus is what stopped the 3D on the Xbox (its diagnostic said "while loading: prewarm"); things are sent to the graphics card as they come into view instead */if(LITE){PREWQ=[];BOOTK='ready';return}
   PREWQ=prewarmSteps();const t0=performance.now();let i=0;const step=()=>{const f=PREWQ.shift();if(!f){BOOTT.prewarmDone=Math.round(performance.now()-t0);BOOTK='ready';return}BOOTK='prewarm '+(++i);try{f()}catch(e){console.warn(e)}setTimeout(step,40)};setTimeout(step,300)}
 function begin(fresh){prewarmFlush();SAVEBLOCK=0;audioInit();window.__played=1;try{const pn=document.querySelector('#title .pennant');TC.pr=fresh&&pn&&!$('title').hidden?pn.getBoundingClientRect():null}catch(e){}$('title').hidden=true;if(matchMedia('(pointer:coarse)').matches)$('touch').hidden=false;$('hud').hidden=false;mode='play';
   if(fresh){S=S0();setHat(0);try{localStorage.removeItem(SAVEK)}catch(e){}P.x=77.9;P.z=76.9;P.face=PI/2;yaw=-PI/2;refreshNamed();renderInv();startMission(M[0])}
   else{if(!loadGame()){begin(true);return}yaw=-PI/2;toast(`Welcome back. ${DAYN[(S.day-1)%7]}, ${fmtT(S.gt)}.`)}}
 async function boot(){BOOTT.scriptStart=Math.round(performance.now());if(TEST==null)try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch(e){}BOOTT.afterFonts=Math.round(performance.now());
   bootT('world',buildWorld);bootT('optimize',optimizeScene);mkMarkers();mkPlayer();bootT('spawn',spawnAll);prWorldInit();carsInit();TRUCK=mkTruck();try{lootBuild()}catch(e){console.warn('loot',e)}bootT('prewarm',()=>{if(TEST!=null)testPrewarm();else if(/[?&]eagerbodies/.test(location.search))prewarm();else prewarmLater()});refreshNamed();renderInv();setupTouch();
+  if(LITE)try{await liteSettle()}catch(e){}/* V442 console: tidy up loading leftovers before the title can be pressed */
   BOOTT.ready=Math.round(performance.now());$('loading').hidden=true;$('title').hidden=false;$('touch').hidden=true;mode='title';
   $('chapback').onclick=chapSelClose;slotsBoot();$('bhow').onclick=()=>ctrlShow();
   if(MOB&&GFX==='enhanced')adpSet(1);
@@ -271,3 +272,14 @@ function propSpin(pr,dt){const U=pr.userData;let sp;
     const x=g.position.x,z=g.position.z;let v=0;if(U.px!=null&&dt>0){v=Math.hypot(x-U.px,z-U.pz)/dt;if(v>20)v=U.sp||0}U.px=x;U.pz=z;
     sp=U.sp=(U.sp||0)+(v-(U.sp||0))*Math.min(1,dt*8)}
   pr.rotation.y+=dt*(7+sp*2.5)}
+
+/* V442 LITE: once the game has started, the page no longer needs the text of its own big script tags (about 5 MB of characters, kept twice as wide
+   because the story has Greek letters). The running code keeps its own copy */
+function liteDropScriptText(){try{for(const e of document.querySelectorAll('script'))if(e.text.length>100000)e.textContent=''}catch(er){}}
+/* V442 LITE: loading leaves ~130 MB of finished-with building pieces and canvas drawing lists. Starting play straight away on top of that tipped the
+   Xbox-sized test over, so the loading screen stays up ~2.6 s more while canvases are flushed and the script engine is nudged to clean up (one nudge then
+   about a second of quiet works; nudges stacked closer than that only got in each other's way) */
+async function liteSettle(){const W_=ms=>new Promise(r=>setTimeout(r,ms));window.__st=[];const rec=()=>{try{window.__st.push((performance.memory.usedJSHeapSize/1e6|0)+'/'+(performance.memory.totalJSHeapSize/1e6|0))}catch(e){}};
+  /* an idle page never finishes the clean-up a nudge starts (it advances as the page allocates), so keep it moving with small throwaway objects */
+  const churn=async ms=>{const t0=performance.now();let k=0;while(performance.now()-t0<ms){let a=[];for(let i=0;i<4000;i++)a.push({i,k});k+=a.length;a=null;await W_(16)}return k};
+  rec();liteCvFlush();liteGcNudge();await churn(1200);rec();liteCvFlush();liteGcNudge();await churn(1200);rec()}

@@ -265,7 +265,7 @@ function buildHughes(){HA={};const M=huMats();for(const k in M)HA[k]=huAcc();HGA
       const lx=X(63.5),lz=Z(v0+.3);huPrim(HA.metal,new THREE.CylinderGeometry(.08,.12,2.4,8),lx,1.0+1.2,lz);huPrim(HA.lamp,new THREE.SphereGeometry(.28,10,8),lx,3.55,lz);huPrim(HA.metal,new THREE.CylinderGeometry(.18,.22,.18,8),lx,3.25,lz)}}
   huGargoyles(M.cream);
   for(const k in HA){const A=HA[k];if(!A.p.length)continue;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(A.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(A.n,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(A.t,2));
-    const m=new THREE.Mesh(g,M[k]);m.castShadow=k!=='glass'&&k!=='glassL';m.receiveShadow=true;m.userData.noMerge=1;sc.add(m)}
+    const m=new THREE.Mesh(g,M[k]);m.castShadow=k!=='glass'&&k!=='glassL';m.receiveShadow=true;m.userData.noMerge=1;m.userData.hu=1;sc.add(m)}
   HA=null;
   huSite()}
 // ---------------------------------------------------------------- grounds: the front walk and lawn, the flagpole, lamp posts, a sign, trees;

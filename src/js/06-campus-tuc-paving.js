@@ -129,7 +129,7 @@ function bakeGround(D){const SZ=LITE?1024:4096,GX=141,GS=600,K=SZ/GS,c=document.
   for(const r of D.roads)if(r.w>=7&&!r.one&&!r.sf)line(r.pts,.22,'#e8c34a',[5,7],'butt');
   for(const cpts of D.cross)line(cpts,2.6,'#f2efe6',[.5,.5],'butt');
   bakePaving(D,q,K,GX);
-  const t=new THREE.CanvasTexture(c);t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;GBAKE={c,q,X,Y};return t}
+  const t=new THREE.CanvasTexture(c);t.anisotropy=Math.min(8,R.capabilities.getMaxAnisotropy());t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;GBAKE={c,q,X,Y};/* V442 LITE: read the footstep grass map now, then let the 1024 px ground canvas go once it is on the graphics card (4 MB) */if(LITE){try{maGrassMap()}catch(e){}t.onUpdate=()=>{t.onUpdate=null;setTimeout(()=>{if(t.image===c){c.width=c.height=1;t.image=LITEIMG;GBAKE.c=null;GBAKE.q=null}},0)}}return t}
 function buildTerrain(D){const T=UCT,TW=(T.nx-1)*T.dx,TD=(T.nz-1)*T.dx,g=new THREE.PlaneGeometry(TW,TD,T.nx-1,T.nz-1);g.rotateX(-PI/2);g.translate(T.x0+TW/2,0,T.z0+TD/2);
   const pos=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getZ(i);pos.setY(i,terrH(x,z));uv.setXY(i,(x-141)/600,1-z/600)}g.computeVertexNormals();
   // a fine tiling grain multiplied over the painted ground so it still reads close up

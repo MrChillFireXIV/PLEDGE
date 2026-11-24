@@ -75,7 +75,9 @@ const MUS={g:null,src:null,buf:null,loading:false,cur:-1};
 function musStart(){if(!AC||MUS.loading||MUS.buf||typeof MUSIC_B64==='undefined')return;MUS.loading=true;
   try{const bin=atob(MUSIC_B64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
     const ok=b=>{MUS.buf=b;MUS.g=AC.createGain();MUS.g.gain.value=0;MUS.g.connect(MST||MGN);const s=AC.createBufferSource();s.buffer=b;s.loop=true;s.loopStart=.03;s.loopEnd=Math.max(1,b.duration-.06);s.connect(MUS.g);s.start();MUS.src=s;MUS.cur=-1},
-      bad=()=>{MUS.loading=false};const p=AC.decodeAudioData(u.buffer,ok,bad);if(p&&p.catch)p.catch(bad)}catch(e){MUS.loading=false}}
+      bad=()=>{MUS.loading=false};const okL=b=>ok(LITE?musMono(b):b);let dc=AC;if(LITE)try{dc=new OfflineAudioContext(1,1,22050)}catch(e){dc=AC}const p=dc.decodeAudioData(u.buffer,okL,bad);if(p&&p.catch)p.catch(bad)}catch(e){MUS.loading=false}}
+/* V442 LITE: the music is decoded at 22 kHz and folded to mono, 24 MB -> 6 MB of sound memory on the Xbox */
+function musMono(b){try{if(b.numberOfChannels<2)return b;const n=b.length,m=AC.createBuffer(1,n,b.sampleRate),o=m.getChannelData(0),l=b.getChannelData(0),r=b.getChannelData(1);for(let i=0;i<n;i++)o[i]=(l[i]+r[i])*.5;return m}catch(e){return b}}
 function musGameplay(){try{return!!SET.musOn&&(mode==='play'||mode==='wheel'||mode==='planner')&&!CINE&&!(typeof SCENE!=='undefined'&&SCENE)&&!document.hidden}catch(e){return false}}
 const MUS_LEVEL=.3;   // full music slider = 30% of the master volume, so footsteps and voices stay on top
 function musTick(){if(!AC)return;if(!MUS.buf){musStart();return}const tgt=musGameplay()?SET.mus*MUS_LEVEL:0;if(Math.abs(tgt-MUS.cur)<.001)return;

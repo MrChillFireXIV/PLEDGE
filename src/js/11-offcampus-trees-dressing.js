@@ -378,6 +378,8 @@ function buildTreesClassic(){const n=TREES.length,tr=new THREE.InstancedMesh(new
 // and small props (bounding radius < DET_R) go into 64 m tiles that are hidden beyond DET_D metres (via WCH, see treeLod). Objects bigger than a
 // tile stay in one map-wide bucket per material. Without CS (interiors) it merges per material as before.
 const DET_R=1.25,DET_D=100;
+const MRG_TEX=['map','alphaMap','bumpMap','normalMap','emissiveMap','specularMap','roughnessMap','metalnessMap','aoMap','lightMap','displacementMap','gradientMap','matcap'];
+function mergeNeedsUV(m){if(m.isShaderMaterial||m.onBeforeCompile!==THREE.Material.prototype.onBeforeCompile)return true;for(const k of MRG_TEX)if(m[k])return true;return false}
 function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[];
   /* V439 two passes and no copies: pass 1 sorts every piece (mesh, or one material group of it) into its bucket with its exact world-space bounding sphere,
      pass 2 writes each piece's transformed points, normals and uvs straight into its bucket's merged arrays. The old way kept a transformed copy of every
@@ -391,16 +393,18 @@ function mergeStatic(objs,parent,CS){const buckets=new Map(),kill=[];
     if(Array.isArray(m.material)){const gs=g.groups&&g.groups.length?g.groups:[{start:0,count:nv,materialIndex:0}];for(const gr of gs){const mat=m.material[gr.materialIndex];if(!mat)continue;const s0=Math.min(gr.start,nv),c=Math.max(0,Math.min(gr.count,nv-s0));put(mat,m.castShadow,m.receiveShadow,{g,mw,s:s0,c,multi:1})}}
     else put(m.material,m.castShadow,m.receiveShadow,{g,mw,s:0,c:nv});kill.push(m)})}
   for(const m of kill)m.parent&&m.parent.remove(m);
-  for(const b of buckets.values()){const n=b.n,pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2);let o=0;
+  /* V442 LITE: a merged piece keeps texture coordinates only if its material has a picture (or custom shader code), a plain colour material (MeshBasic)
+     keeps no normals, and normals are stored as 4 signed bytes instead of 3 floats: 32 bytes a point becomes 12-16, same look */
+  for(const b of buckets.values()){const n=b.n,mt_=b.mat,needUV=!LITE||mergeNeedsUV(mt_),needN=!LITE||!mt_.isMeshBasicMaterial||!!mt_.envMap,nb=LITE&&needN,pos=new Float32Array(n*3),nor=!needN?null:nb?new Int8Array(n*4):new Float32Array(n*3),uv=needUV?new Float32Array(n*2):null;let o=0;
     for(const sr of b.list){const g=sr.g,P_=g.attributes.position,N_=g.attributes.normal,U_=g.attributes.uv&&g.attributes.uv.itemSize===2?g.attributes.uv:null;NM.getNormalMatrix(sr.mw);
       for(let i=sr.s;i<sr.s+sr.c;i++,o++){const v=vid(g,i);V.fromBufferAttribute(P_,v).applyMatrix4(sr.mw);pos[o*3]=V.x;pos[o*3+1]=V.y;pos[o*3+2]=V.z;
-        if(N_){VN.fromBufferAttribute(N_,v).applyMatrix3(NM).normalize();nor[o*3]=VN.x;nor[o*3+1]=VN.y;nor[o*3+2]=VN.z}if(U_){uv[o*2]=U_.getX(v);uv[o*2+1]=U_.getY(v)}}}
+        if(N_&&nor){VN.fromBufferAttribute(N_,v).applyMatrix3(NM).normalize();if(nb){nor[o*4]=Math.round(VN.x*127);nor[o*4+1]=Math.round(VN.y*127);nor[o*4+2]=Math.round(VN.z*127)}else{nor[o*3]=VN.x;nor[o*3+1]=VN.y;nor[o*3+2]=VN.z}}if(U_&&uv){uv[o*2]=U_.getX(v);uv[o*2+1]=U_.getY(v)}}}
     b.list=null;
-    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));G.setAttribute('uv',new THREE.BufferAttribute(uv,2));G.computeBoundingSphere();const M=new THREE.Mesh(G,b.mat);M.castShadow=b.cast;M.receiveShadow=b.rec;M.matrixAutoUpdate=false;parent.add(M);
+    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));if(nor)G.setAttribute('normal',nb?new THREE.BufferAttribute(nor,4,true):new THREE.BufferAttribute(nor,3));if(uv)G.setAttribute('uv',new THREE.BufferAttribute(uv,2));G.computeBoundingSphere();const M=new THREE.Mesh(G,b.mat);M.castShadow=b.cast;M.receiveShadow=b.rec;M.matrixAutoUpdate=false;parent.add(M);
     if(b.det){const S_=G.boundingSphere;WCH.push({m:M,x:S_.center.x,z:S_.center.z,r:S_.radius,cd:DET_D})}}}
 function optimizeScene(){const preG=LITE?new Set():null;if(preG)sc.traverse(o=>{if(o.geometry)preG.add(o.geometry)});const mg=[];try{chunkStatic()}catch(e){console.warn('chunkStatic',e)}const keep=new Set([ram,gateMesh,radioBlink,sky,sunDisc,moonDisc,stars,fountainPts,sun,sun.target,hemi,plamp,...kartGates]);for(const id in INT)keep.add(INT[id].g);/* V382 the road cones stay separate so a grabbed one can disappear */for(const c of CONES)keep.add(c.m);
   const out=new THREE.Group();mergeStatic(sc.children.filter(o=>!keep.has(o)&&!o.isLight),out,128);sc.add(out);
-  for(const id in INT){const g=INT[id].g;const kids=g.children.slice();if(LITE)INT[id].rec=intRecipe(kids);const m=new THREE.Group();mergeStatic(kids,m);g.add(m);mg.push(m);INT[id].mg=m}if(preG)try{liteFreeMark([out,...mg],preG)}catch(e){console.warn('liteFree',e)}/* V441 console: interiors keep only a recipe until entered */if(LITE)for(const id in INT)if(INT[id].rec)intEvict(INT[id])
+  for(const id in INT){const g=INT[id].g;const kids=g.children.slice();if(LITE){/* V442 console: no merge at load at all, only the recipe (the merged copy was built and thrown away, 57 MB at the loading peak) */INT[id].rec=intRecipe(kids);intStrip(kids);INT[id].lazy=true;INT[id].mg=null;continue}const m=new THREE.Group();mergeStatic(kids,m);g.add(m);mg.push(m);INT[id].mg=m}if(preG)try{liteFreeMark([out,...mg],preG)}catch(e){console.warn('liteFree',e)}/* V441 console: interiors keep only a recipe until entered */if(LITE)for(const id in INT)if(INT[id].rec)intEvict(INT[id]);if(LITE)tpkAll();/* V442 LITE: Hughes Hall's big unmerged meshes (8 MB) also drop their data once on the graphics card */if(LITE)try{liteFreeMark(sc.children.filter(o=>o.userData&&o.userData.hu),new Set())}catch(e){}
   sc.children.filter(o=>o.isGroup&&o!==out&&!keep.has(o)&&o.children.length===0).forEach(o=>sc.remove(o));
   OUTSIDE=sc.children.filter(o=>!keep.has(o)&&!o.isLight)}
 
