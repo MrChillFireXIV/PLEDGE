@@ -84,7 +84,7 @@ function sceneSync(){try{for(const n of NP){const g=n.g;if(!g)continue;if(g.visi
    time the graphics stop during play the next load looks 30% less far (down to 70 m), remembered on that machine as pledge.litefar */
 function liteFarPref(){let v=160;try{const s=+localStorage.getItem('pledge.litefar');if(s>0)v=s}catch(e){}return Math.max(70,Math.min(160,v))}
 const LRAMP={f:0,n:480,far0:14,far1:LITE?liteFarPref():320};
-function liteRamp(){try{bisTick()}catch(e){}if(LITE)try{lptsSync();if((R.info.render.frame&31)===0)liteGcCheck();if(++LVR.f%120===0)liteVramSweep()}catch(e){}if(LITE&&sc.fog){const ff=LRAMP.far1-6;if(sc.fog.far>ff)sc.fog.far=ff;if(sc.fog.near>ff*.5)sc.fog.near=ff*.5}if(!LITE||LRAMP.f>LRAMP.n||BISS.on)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
+function liteRamp(){try{bisTick()}catch(e){}if(LITE)try{lptsSync();if((R.info.render.frame&31)===0)liteGcCheck();if(++LVR.f%120===0)liteVramSweep();if(LVR.f%300===0)liteBB()}catch(e){}if(LITE&&sc.fog){const ff=LRAMP.far1-6;if(sc.fog.far>ff)sc.fog.far=ff;if(sc.fog.near>ff*.5)sc.fog.near=ff*.5}if(!LITE||LRAMP.f>LRAMP.n||BISS.on)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
 function renderFrame(){if(GLLOST)return;if(PRBCFG&&PRBCFG.norender)return;liteRamp();sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
 const HAL=[[.5,.3333],[.25,.6667],[.75,.1111],[.125,.4444],[.625,.7778],[.375,.2222],[.875,.5556],[.0625,.8889]];
 function renderPost(){ppResize();
@@ -163,3 +163,12 @@ function nightTick(dt,em){if(GFX!=='enhanced')return;if(POOLM)POOLM.opacity=em*.
   envUpdate(false)}
 
 
+
+/* V448 console flight recorder: every 300 frames (~5 s) one line of vital signs (seconds played, fps, shapes/pictures loaded and unloaded so far,
+   compiled shaders, draws, script heap, game clock, where Danny is), the last 8 kept on the machine (pledge.bb) and shown small on the
+   graphics-stopped screen, so a photo shows what was climbing before it stopped */
+const LBB={t0:performance.now(),f0:0,tp:performance.now(),L:[]};
+function liteBB(){try{const now=performance.now(),fps=Math.round((LVR.f-LBB.f0)*1000/Math.max(1,now-LBB.tp));LBB.f0=LVR.f;LBB.tp=now;const mi=R.info.memory,ri=R.info.render;
+  const l=Math.round((now-LBB.t0)/1000)+'s '+fps+'fps g'+mi.geometries+' t'+mi.textures+' ev'+LVR.n+' sh'+(R.info.programs?R.info.programs.length:'?')+' d'+ri.calls+' h'+Math.round(liteHeap()/1e6)+' gt'+(S.gt%24).toFixed(1)+' '+mode+(P.inside?' in:'+P.inside:' @'+Math.round(P.x)+','+Math.round(P.z))+' v'+Math.round(cam.far);
+  LBB.L.push(l);if(LBB.L.length>8)LBB.L.shift();localStorage.setItem('pledge.bb',JSON.stringify(LBB.L))}catch(e){}}
+function liteBBLines(){try{liteBB()}catch(e){}let L=LBB.L;if(!L.length)try{L=JSON.parse(localStorage.getItem('pledge.bb')||'[]')}catch(e){}return L.length?['<span style="font-size:11px;opacity:.85">'+L.map(x=>String(x).replace(/</g,'&lt;')).join('<br>')+'</span>']:[]}
