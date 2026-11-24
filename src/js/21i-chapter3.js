@@ -316,7 +316,9 @@ function c3WesB(){if(!C3WESB.set&&typeof SPOT!=='undefined'&&SPOT.DOCK&&typeof f
 const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0x18181c,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
 function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}const h=n.g.P&&n.g.P.head;if(!h)return n;n.c3hood=1;const M_=new THREE.MeshStandardMaterial({color:0x121216,roughness:.95,side:THREE.DoubleSide});
   const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,18,12,PI/2+.95,TAU-1.9),M_);hd.scale.set(1,1.14,1.12);hd.position.set(0,.13,.0);hd.userData.noMerge=1;h.add(hd);
-  /* nothing but shadow where the face should be */const vd=new THREE.Mesh(new THREE.SphereGeometry(.262,16,12),new THREE.MeshBasicMaterial({color:0x060608}));vd.scale.set(1,1.08,1);vd.position.set(0,.12,0);vd.userData.noMerge=1;h.add(vd);
+  /* V451 a face under the hood, masked: a dark cloth mask over nose, mouth and chin (eyes and brows show), knotted at the back */
+  {const MK=new THREE.MeshStandardMaterial({color:0x1d1d24,roughness:1,side:THREE.DoubleSide}),mk=new THREE.Mesh(new THREE.SphereGeometry(.262,22,10,PI/2-1.25,2.5,PI*.53,PI*.33),MK);mk.scale.set(1.02,1.1,1.1);mk.position.set(0,.12,.008);mk.userData.noMerge=1;h.add(mk);
+   const kn=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),MK);kn.position.set(0,.1,-.26);kn.userData.noMerge=1;h.add(kn)}
   n.title='Unknown';n.taunt=['Wrong place, pledge.','He said come ALONE.','Where are the books?','Put him down. Both of them.'];return n}
 function c3WesChair(on){return c4Group('c3weschair',on,g=>{const[x,z]=c3WesB(),W=mt(0x4a3626,.8),h=new THREE.Group();h.position.set(x,terrH(x,z),z);h.rotation.y=C3WESA;h.userData.noMerge=1;g.add(h);c4M(bgeo(.5,.06,.5),W,0,.46,0,h);c4M(bgeo(.5,.6,.06),W,0,.8,-.25,h);for(const sx of[-.22,.22])for(const sz of[-.22,.22])c4M(bgeo(.05,.46,.05),W,sx,.23,sz,h)})}
 function c3WesSpawn(){if(C3.wes&&NP.includes(C3.wes))return C3.wes;const[x,z]=c3WesB();c3WesChair(1);
