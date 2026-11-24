@@ -763,3 +763,6 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 #trsn{position:fixed;left:50%;top:max(54px,env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:28;display:flex;gap:12px;align-items:center;background:rgba(18,26,40,.88);border:1px solid #e2b64c;border-radius:10px;padding:7px 12px;color:#f4e6c8;font:600 13px var(--fb);white-space:nowrap}
 #trsn b{font:700 15px var(--fd);color:#e2b64c}#trsn .c{color:#ff9a8a}#trsn button{font:700 12px var(--fb);background:#2a3550;color:#f4e6c8;border:1px solid #6a7aa0;border-radius:6px;padding:4px 9px;cursor:pointer}
 @media (max-width:640px){#trsn{flex-wrap:wrap;justify-content:center;white-space:normal;max-width:92vw;gap:4px 10px}}
+
+/* V456 the Hell Week candle never shows over the title or save-slot screens */
+body:has(#title:not([hidden])) #c9cand{display:none}
