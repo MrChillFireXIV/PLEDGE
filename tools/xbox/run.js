@@ -1,7 +1,8 @@
 // Xbox-like test: Edge-on-Xbox user agent, 1280x639, 740 MB script limit, software graphics (its memory comes out of the same cage)
+// V443 UA=... overrides the browser id (Edge on the Xbox now sends a plain Windows one), and viewport is 1600x798 like the 2026-11 photo with BIG=1
 const {chromium}=require('playwright');(async()=>{const url=process.argv[2],secs=+(process.argv[3]||40);const t0=Date.now();const ev=[];
 const b=await chromium.launch({args:['--use-gl=swiftshader','--ignore-gpu-blocklist','--js-flags=--max-old-space-size=740','--enable-precise-memory-info','--renderer-process-limit=1']});
-const ctx=await b.newContext({viewport:{width:1280,height:639},userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox Series X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0'});
+const ctx=await b.newContext({viewport:process.env.BIG?{width:1600,height:798}:{width:1280,height:639},userAgent:process.env.UA||'Mozilla/5.0 (Windows NT 10.0; Win64; x64; Xbox; Xbox Series X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0'});
 const p=await ctx.newPage();let crashed=0;p.on('crash',()=>{crashed=1;ev.push('PAGE CRASH at '+((Date.now()-t0)/1000|0)+'s')});p.on('pageerror',e=>ev.push('err '+e.message.slice(0,80)));
 await p.addInitScript(()=>{window.__lost=0;document.addEventListener('webglcontextlost',()=>{window.__lost++},true)});
 try{await p.goto(url,{waitUntil:'commit',timeout:120000});await p.waitForFunction(()=>typeof mode!=='undefined'&&mode!=='loading',null,{timeout:150000})}catch(e){ev.push('load: '+(crashed?'crashed':e.message.slice(0,60)))}

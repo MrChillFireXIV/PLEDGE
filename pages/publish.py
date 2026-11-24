@@ -56,7 +56,9 @@ def main():
             iso = iso.replace("var P = 'preview~';", "var P = 'console~';").replace("'PREVIEW · separate saves'", "'CONSOLE TEST · separate saves'").replace('background:#c0392b', 'background:#2a7a3a')
             assert "'console~'" in iso
         assert '</script' not in iso.lower()
-        tag = '<meta name="robots" content="noindex"><script>\n' + iso + '\n</script>' + tag   # storage first, so the guard and the game only see preview keys
+        tag = '<meta name="robots" content="noindex"><script>\n' + iso + '\n</script>' + tag
+        if CONSOLE:   # V443 the console site always starts in the Xbox-safe LITE mode (Edge on Xbox stopped saying Xbox in its browser id)
+            tag = '<script>window.PLEDGE_CONSOLE=1</script>' + tag   # storage first, so the guard and the game only see preview keys
     tag = re.sub(r'[^\x00-\x7f]', lambda m: '\\u%04x' % ord(m.group(0)), tag)   # V442 keep the page pure ASCII (see build.py): only script text has these
     i = html.lower().find('<head>')
     if i < 0:
