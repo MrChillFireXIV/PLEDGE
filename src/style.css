@@ -764,12 +764,9 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 #trsn b{font:700 15px var(--fd);color:#e2b64c}#trsn .c{color:#ff9a8a}#trsn button{font:700 12px var(--fb);background:#2a3550;color:#f4e6c8;border:1px solid #6a7aa0;border-radius:6px;padding:4px 9px;cursor:pointer}
 @media (max-width:640px){#trsn{flex-wrap:wrap;justify-content:center;white-space:normal;max-width:92vw;gap:4px 10px}}
 
-<<<<<<< HEAD
 /* V421 controller: the highlight ring over the button the pad is on */
 #padring{position:fixed;z-index:99999;pointer-events:none;border:3px solid #ffd24a;border-radius:10px;box-shadow:0 0 0 2px rgba(20,24,44,.85),0 0 14px 3px rgba(255,210,74,.75);transition:left .07s,top .07s,width .07s,height .07s}
 #padring[hidden]{display:none}
 #padring i{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #14182c,0 0 8px 2px #ffd24a;background:rgba(255,210,74,.5)}
-=======
 /* V456 the Hell Week candle never shows over the title or save-slot screens */
 body:has(#title:not([hidden])) #c9cand{display:none}
->>>>>>> next
