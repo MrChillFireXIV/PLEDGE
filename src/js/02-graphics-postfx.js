@@ -79,8 +79,12 @@ function sceneSync(){try{for(const n of NP){const g=n.g;if(!g)continue;if(g.visi
   for(const id in INT){const g=INT[id].g;if(!g)continue;if(g.visible){if(g.userData.parked&&!g.parent){sc.add(g);g.userData.parked=0}}else if(g.parent===sc){sc.remove(g);g.userData.parked=1}}}catch(e){console.warn('sceneSync',e)}}
 /* V430 LITE (Xbox): the first frames draw only what is a few metres from the camera, then the view widens to its full distance over about 10 s of frames, so shaders and
    textures are set up a few at a time instead of all on the first frame (the Xbox dropped the 3D on the first frames of the title screen). Full distance is the normal 320 m (the stars, sun and moon sit 250-290 m out) */
-const LRAMP={f:0,n:300,far0:14,far1:320};
-function liteRamp(){try{bisTick()}catch(e){}if(LITE)try{lptsSync();if((R.info.render.frame&31)===0)liteGcCheck()}catch(e){}if(!LITE||LRAMP.f>LRAMP.n||BISS.on)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
+/* V446 console: the Xbox's graphics stopped the moment the view reached 320 m (photo: frame 313, view 320, 930 shapes, 204 pictures). Fog hides
+   everything past ~220 m anyway, so console mode now looks at most 160 m (fog pulled in to match), widens over 480 frames instead of 300, and every
+   time the graphics stop during play the next load looks 30% less far (down to 70 m), remembered on that machine as pledge.litefar */
+function liteFarPref(){let v=160;try{const s=+localStorage.getItem('pledge.litefar');if(s>0)v=s}catch(e){}return Math.max(70,Math.min(160,v))}
+const LRAMP={f:0,n:480,far0:14,far1:LITE?liteFarPref():320};
+function liteRamp(){try{bisTick()}catch(e){}if(LITE)try{lptsSync();if((R.info.render.frame&31)===0)liteGcCheck()}catch(e){}if(LITE&&sc.fog){const ff=LRAMP.far1-6;if(sc.fog.far>ff)sc.fog.far=ff;if(sc.fog.near>ff*.5)sc.fog.near=ff*.5}if(!LITE||LRAMP.f>LRAMP.n||BISS.on)return;const k=Math.min(1,LRAMP.f/LRAMP.n);LRAMP.f++;const far=LRAMP.far0+(LRAMP.far1-LRAMP.far0)*k*k*k;if(Math.abs(cam.far-far)>.5||k>=1){cam.far=far;cam.updateProjectionMatrix()}}
 function renderFrame(){if(GLLOST)return;if(PRBCFG&&PRBCFG.norender)return;liteRamp();sceneSync();fdCull();try{dressTick()}catch(e){}try{treeLod()}catch(e){}const hid=outsideOff();try{if(!PP.ready){R.render(sc,cam);return}try{renderPost()}catch(e){console.warn('post-processing off:',e);PP.ready=false;try{cam.clearViewOffset()}catch(_){}R.toneMapping=THREE.ACESFilmicToneMapping;R.setRenderTarget(null);R.render(sc,cam)}}finally{if(hid)outsideOn()}}
 const HAL=[[.5,.3333],[.25,.6667],[.75,.1111],[.125,.4444],[.625,.7778],[.375,.2222],[.875,.5556],[.0625,.8889]];
 function renderPost(){ppResize();
