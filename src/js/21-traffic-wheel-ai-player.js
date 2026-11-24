@@ -344,7 +344,7 @@ let PRT=0,SEEN=0,CHASED=0,OFFENSE=null,NIGHT=0;
 
 // ================================================================ PLAYER
 let PM,bikeM,kartM,ramC,lanternM;
-function mkPlayer(){const DO={shadow:1,noMouth:1,shirt:0x7d1f2c,sleeve:0x7d1f2c,pants:0x34486e,skin:0xf1c9a5,hair:0x4a3020,pin:1};PM=mkPerson(DO);sc.add(PM);{const tmp=mkPerson(Object.assign({},DO,{prop:1}));PM.P.geoHair=PM.P.torso.geometry;PM.P.geoHat=tmp.P.torso.geometry;const pr=tmp.P.prop;if(pr.parent)pr.parent.remove(pr);(PM.P.head||PM).add(pr);PM.P.prop=pr;pr.visible=false}
+function mkPlayer(){const DO={hero:1,shadow:1,noMouth:1,shirt:0x7d1f2c,sleeve:0x7d1f2c,pants:0x34486e,skin:0xf1c9a5,hair:0x4a3020,pin:1};PM=mkPerson(DO);sc.add(PM);{const tmp=mkPerson(Object.assign({},DO,{prop:1}));PM.P.geoHair=PM.P.torso.geometry;PM.P.geoHat=tmp.P.torso.geometry;const pr=tmp.P.prop;if(pr.parent)pr.parent.remove(pr);(PM.P.head||PM).add(pr);PM.P.prop=pr;pr.visible=false}
   {const mm=new THREE.MeshBasicMaterial({color:0x5a1e1e});const mouth=new THREE.Mesh(new THREE.BoxGeometry(.085,.022,.02),mm);mouth.position.set(0,1.715,.188);PM.add(mouth);
    const smile=new THREE.Mesh(new THREE.TorusGeometry(.052,.014,6,12,PI),mm);smile.rotation.z=PI;smile.position.set(0,1.735,.187);smile.visible=false;PM.add(smile);
    const teeth=new THREE.Mesh(new THREE.BoxGeometry(.07,.016,.012),new THREE.MeshBasicMaterial({color:0xfafaf2}));teeth.position.set(0,1.722,.195);teeth.visible=false;PM.add(teeth);PM.P.mouth=mouth;PM.P.smile=smile;PM.P.teeth=teeth;if(PM.P.pal){for(const m of[mouth,smile,teeth])PM.remove(m);const pp=PM.P;pp.mouth={visible:true};pp.teeth={visible:false};pp.smile={get visible(){return!!pp.smileOn},set visible(v){pp.smileOn=!!v}}}}

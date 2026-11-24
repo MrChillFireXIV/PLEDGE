@@ -14,7 +14,9 @@ function roundBox(w,h,d,r,seg=3){const g=new THREE.BoxGeometry(w,h,d,seg*2,seg*2
     if(l>1e-6){nx/=l;ny/=l;nz/=l;p.setXYZ(i,cx+nx*r,cy+ny*r,cz+nz*r);nm.setXYZ(i,nx,ny,nz)}}return g}
 function taper(g,f){const p=g.attributes.position,n=g.attributes.normal;for(let i=0;i<p.count;i++){const y=p.getY(i),s=f(y);p.setX(i,p.getX(i)*s[0]);p.setZ(i,p.getZ(i)*s[1]);const nx=n.getX(i)/s[0],ny=n.getY(i),nz=n.getZ(i)/s[1],l=Math.hypot(nx,ny,nz)||1;n.setXYZ(i,nx/l,ny/l,nz/l)}return g}
 function scaleN(g,f){const p=g.attributes.position,n=g.attributes.normal;for(let i=0;i<p.count;i++){const s=f(p.getX(i),p.getY(i),p.getZ(i));p.setXYZ(i,p.getX(i)*s[0],p.getY(i)*s[1],p.getZ(i)*s[2]);const nx=n.getX(i)/s[0],ny=n.getY(i)/s[1],nz=n.getZ(i)/s[2],l=Math.hypot(nx,ny,nz)||1;n.setXYZ(i,nx/l,ny/l,nz/l)}return g}
-if(GFX==='enhanced'){
+/* V449 the crowd keeps the classic body pieces (PGC) when only Danny gets the enhanced body; pieces added later fall through to PG */
+const PGC=Object.assign(Object.create(PG),PG);
+if(CHRX){
   // torso: broader at the shoulders, narrower at the waist, rounded edges; front stays at z=.15 for the letters and pin
   PG.torso=taper(roundBox(.54,.68,.3,.085,3),y=>{const t=(y+.34)/.68;return[.84+.18*Math.min(1,t*1.25),.9+.1*t]});
   PG.head=scaleN(new THREE.SphereGeometry(.2,24,18),(x,y,z)=>{const k=y<0?1-.16*(-y/.2):1;return[k*.98,1.07,k]});
@@ -64,7 +66,7 @@ function handLay(fem){const k=fem?.9:1,W=.955,Y=y=>W-(W-y)*k;
 const FGRE=/^[LR][0-3T][ab]$/;
 /* the hand warp (V306 smaller hands): scaled about the wrist, then moved with the narrowed shoulders */
 function handT(x,y,z,s,sx){const C=CHR_PROP,ax=s*sx;return[ax*C.kx+(x-ax)*C.hand,.955+(y-.955)*C.hand,z*C.hand]}
-function bonePos(fem){const b=bonePos0(fem);if(GFX==='enhanced'){const k=CHR_PROP.kx,sx=fem?.29:.35;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]];
+function bonePos(fem){const b=bonePos0(fem);if(CHRX){const k=CHR_PROP.kx,sx=fem?.29:.35;for(const n of['aL','eL','hL','aR','eR','hR'])b[n]=[b[n][0]*k,b[n][1],b[n][2]];
     for(const n in b)if(FGRE.test(n))b[n]=handT(b[n][0],b[n][1],b[n][2],n[0]==='L'?-1:1,sx)}return b}
 function bonePos0(fem){const sx=fem?.29:.35,lx=fem?.1:.108,o={hips:[0,.92,0],spine:[0,1.1,0],chest:[0,1.32,0],neck:[0,1.555,-.01],head:[0,1.66,0],aL:[-sx,1.47,-.01],eL:[-sx,1.19,-.025],hL:[-sx,.955,0],aR:[sx,1.47,-.01],eR:[sx,1.19,-.025],hR:[sx,.955,0],lL:[-lx,.9,0],kL:[-lx,.5,.012],fL:[-lx,.1,-.01],lR:[lx,.9,0],kR:[lx,.5,.012],fR:[lx,.1,-.01]};
   const H=handLay(fem);for(const s of[-1,1]){const S=s<0?'L':'R',X=s*sx;H.f.forEach(([z,l],i)=>{o[S+i+'a']=[X-s*H.xin,H.y0,z];o[S+i+'b']=[X-s*H.xin,H.y0-l*H.pj,z]});o[S+'Ta']=[X-s*H.T[0][0],H.T[0][1],H.T[0][2]];o[S+'Tb']=[X-s*H.T[1][0],H.T[1][1],H.T[1][2]]}

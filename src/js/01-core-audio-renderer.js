@@ -64,6 +64,9 @@ const GFXSAVE=v=>{try{localStorage.setItem('pledge.gfx',v)}catch(e){}try{window.
 const LITE=(()=>{try{const s=(location.search||'')+(location.hash||'');if(/[?&#]full\b/.test(s))return false;if(/[?&#]lite\b/.test(s))return true;try{if(localStorage.getItem('pledge.lite')==='1')return true}catch(e){}if(window.PLEDGE_CONSOLE)return true;if(navigator.deviceMemory&&navigator.deviceMemory<=2)return true;return/Xbox/i.test(navigator.userAgent||'')}catch(e){return false}})();/* V443: Edge on the Xbox no longer says Xbox in its browser id (photo: full mode, no lite). The console test site now always starts in LITE
    (PLEDGE_CONSOLE, set by pages/publish.py --console; ?full still overrides), and any browser reporting 2 GB or less of memory gets it too */
 const GFX=(()=>{const ok=v=>v==='classic'||v==='enhanced';try{const m=/gfx=(classic|enhanced)/.exec(location.hash||'');if(m)return m[1]}catch(e){}if(LITE)return'classic';try{const m=/pledge-gfx=(classic|enhanced)/.exec(window.name||'');if(m)return m[1]}catch(e){}try{const v=localStorage.getItem('pledge.gfx');if(ok(v))return v}catch(e){}return MOB?'classic':'enhanced'})();
+/* V449 console: the enhanced characters (rounded bodies, real proportions, faces) with the classic surroundings. The full enhanced look stopped the
+   Xbox's graphics after ~75 s; the characters are a small part of that cost */
+const CHRX=GFX==='enhanced'||LITE;
 const R=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',stencil:false});
 const PRCAP=LITE?1:MOB?1.25:1.75;const QL=[['High',Math.min(devicePixelRatio,PRCAP)],['Balanced',Math.min(devicePixelRatio,PRCAP)*.75],['Performance',Math.min(devicePixelRatio,PRCAP)*.55]];const QLB=QL.map(q=>q[1]);let GQ=0,CPUMS=0,FPSMIN=0;try{FPSMIN=localStorage.getItem('pledge.fpsmin')==='1'}catch(e){}
 
