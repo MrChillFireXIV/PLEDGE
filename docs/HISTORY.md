@@ -556,3 +556,4 @@ V169: cage fighters are shirtless in fight shorts: `c2Fighter(g,on)` (21e) recol
 - V454 (21i c3Hood): the hood shell over the hooded figures' heads is gone (user: it looked ugly); they keep the face mask and strap.
 - V455 (15 card): Danny's own spoken lines (c8Dan / c1Card with focus DANNY: The Open Hand, chapter 8 and a few others) now show in the same top conversation box as everyone else's instead of the old notebook card at the bottom; his box keeps '▸ Continue' (no reply-style acknowledgement to himself).
 - V456 (21v c9HudOn, style.css): the Hell Week candle panel no longer shows over the title / save-slot screens when the save is mid-Hell Week (only in play).
+- V457 (21i c3secret steps): The Executive Secret no longer has a second police stop (Officer Dale Kerrigan, 'what's in the bag?') after the five bags are sold; the undercover cop is the only one. After the last sale the quest goes straight to bringing the money back to Grant.
