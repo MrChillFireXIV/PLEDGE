@@ -137,7 +137,20 @@ function liteGcCheck(){if(!LITE)return;if(performance.now()-LCV.t>4000)liteCvFlu
 /* V442: the free-after-upload callback lives out here. Inside liteFreeMark it kept that function's list of every merged geometry alive, so the 57 MB of
    interiors V441 let go never left memory */
 function liteFreeArr(){this.array=new this.array.constructor(this.itemSize)}
-function liteFreeMark(groups,pre){let n=0;const fr=liteFreeArr;const seen=new Set();
+/* V447 console: graphics memory is now a short-term cache. The Xbox stopped after ~80 s of play (photo: frame 4538, 1211 shapes, 324 pictures, all
+   still loaded): nothing ever left the graphics chip, so every place Danny walked past stayed there. Now every drawn shape and picture is stamped
+   with the frame it was last drawn; every 2 s anything not drawn for ~10 s is unloaded from the graphics chip (the game keeps its own copy) and loads
+   again the next time it is in view. Lazily painted pictures are painted again. So the scraps that free their copy right after loading (liteFreeMark)
+   are no longer freed that way on console: the copy is what lets them come back */
+const LVR={f:0,G:new Set(),T:new Set(),n:0,age:600,last:0};
+const LVR_TX=['map','alphaMap','bumpMap','normalMap','emissiveMap','specularMap','aoMap','lightMap'];
+function liteVramMark(g,m){g.__df=LVR.f;if(!g.__lv){g.__lv=1;LVR.G.add(g)}const ms=Array.isArray(m)?m:[m];for(const x of ms){if(!x)continue;let L=x.__tx;if(!L){L=x.__tx=[];for(const k of LVR_TX)if(x[k]&&x[k].isTexture)L.push(x[k])}for(const t of L){t.__df=LVR.f;if(!t.__lv){t.__lv=1;LVR.T.add(t)}}}}
+if(LITE)THREE.Mesh.prototype.onBeforeRender=function(r,s,c,g,m){try{liteVramMark(g,m)}catch(e){}};
+function liteVramSweep(){const old=LVR.f-LVR.age;let n=0;
+  for(const g of LVR.G){if(g.__df>old)continue;const a=g.attributes&&g.attributes.position;if(!a||!a.array||a.array.length<=a.itemSize||g.userData.lfree){LVR.G.delete(g);g.__lv=0;continue}g.dispose();LVR.G.delete(g);g.__lv=0;n++}
+  for(const t of LVR.T){if(t.__df>old)continue;LVR.T.delete(t);t.__lv=0;if(t.__relazy){t.dispose();t.__relazy();n++;continue}const im=t.image;if(im&&im!==LITEIMG&&(im.width||0)>1&&!t.isVideoTexture&&!t.isDataTexture){t.dispose();n++}}
+  LVR.n+=n;LVR.last=n}
+function liteFreeMark(groups,pre){if(LITE)return 0;let n=0;const fr=liteFreeArr;const seen=new Set();
   for(const G of groups)G.traverse(o=>{const g=o.geometry;if(!o.isMesh||o.isInstancedMesh||!g||pre.has(g)||seen.has(g))return;seen.add(g);if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingBox)g.computeBoundingBox();g.userData.lfree=1;for(const k in g.attributes)g.attributes[k].onUpload(fr);if(g.index)g.index.onUpload(fr);n++});LITEFREEN=n}
 let LITEFREEN=0;
 function mkPoints(geo,o){return new THREE.Points(geo,new THREE.PointsMaterial(o))}
