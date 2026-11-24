@@ -242,7 +242,7 @@ function ragPose(n){const g=n.g,P_=g.P,R=n.rag,J=k=>R.pos[RJI[k]];
   const up=_v.copy(J('chest')).sub(J('hips')).normalize(),xr=_v2.copy(J('lR')).sub(J('lL'));xr.addScaledVector(up,-xr.dot(up)).normalize();const fw=new THREE.Vector3().crossVectors(xr,up);
   _m.makeBasis(xr,up,fw);g.quaternion.setFromRotationMatrix(_m);const hp=J('hips');g.position.copy(hp).addScaledVector(up,-.92);g.updateMatrixWorld(true);
   for(const b of[P_.hips,P_.spine,P_.chest])b.quaternion.identity();P_.hips.position.set(0,.92,0);
-  const aim=(bone,from,to,rest)=>{const par=bone.parent;par.updateMatrixWorld(true);const pq=par.getWorldQuaternion(_q).invert();const d=new THREE.Vector3().copy(J(to)).sub(J(from)).normalize().applyQuaternion(pq);bone.quaternion.setFromUnitVectors(rest,d);bone.updateMatrixWorld(true)};
+  const aim=(bone,from,to,rest)=>{const par=bone&&bone.parent;if(!par)throw new Error('rag: bone without parent');par.updateMatrixWorld(true);const pq=par.getWorldQuaternion(_q).invert();const d=new THREE.Vector3().copy(J(to)).sub(J(from)).normalize().applyQuaternion(pq);bone.quaternion.setFromUnitVectors(rest,d);bone.updateMatrixWorld(true)};
   const DN=new THREE.Vector3(0,-1,0),UPV=new THREE.Vector3(0,1,0);
   P_.neck.quaternion.identity();aim(P_.head,'chest','head',UPV);
   aim(P_.aL,'aL','eL',DN);aim(P_.eL,'eL','hL',DN);aim(P_.aR,'aR','eR',DN);aim(P_.eR,'eR','hR',DN);aim(P_.lL,'lL','kL',DN);aim(P_.kL,'kL','fL',DN);aim(P_.lR,'lR','kR',DN);aim(P_.kR,'kR','fR',DN)}

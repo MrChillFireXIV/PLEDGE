@@ -304,7 +304,7 @@ function npcUpd(n,dt){if(n.grab)return;const dx=P.x-n.x,dz=P.z-n.z;n.dp=Math.hyp
   if(n.bub&&n.bubT>0){n.bubT-=dt;if(n.bubT<=0)n.bub.visible=false}
   n.g.TALK=!!(n.bub&&n.bubT>1.1);
   if(SCENE&&SCENE.n===n&&(mode==='wheel'||mode==='card')&&!(n.down>0)){n.sp=0;n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.set(0,n.a,0);return}
-  if(n.down>0){n.down-=dt;if(n.g.P&&n.g.P.kL){if(!n.rag)ragStart(n);ragStep(n,dt)}else{n.g.rotation.set(-PI/2,n.a,0,'YXZ');n.g.position.set(n.x,.25+terrH(n.x,n.z),n.z)}if(n.down<=0){n.hp=n.mhp*.6;ragEnd(n);n.g.rotation.set(0,n.a,0);n.down=0;/* V418 a knocked-out throne-sitter gets up straight back onto his throne, not wherever he fell (Grant used to stand behind it) */if(n.seat&&n.rose&&!n.grab)throneReseat(n)}return}
+  if(n.down>0){n.down-=dt;let rg=false;if(n.g.P&&n.g.P.kL&&!n.noRag){try{if(!n.rag)ragStart(n);ragStep(n,dt);rg=true}catch(e){n.rag=null;n.noRag=1;console.warn('ragdoll off for',n.name,e&&e.message)}}if(rg){}else{/* V453 a ragdoll that fails (a bone with no parent) is dropped for the plain lying-down pose; it was throwing every frame and the camera stopped following */n.g.rotation.set(-PI/2,n.a,0,'YXZ');n.g.position.set(n.x,.25+terrH(n.x,n.z),n.z)}if(n.down<=0){n.hp=n.mhp*.6;ragEnd(n);n.g.rotation.set(0,n.a,0);n.down=0;/* V418 a knocked-out throne-sitter gets up straight back onto his throne, not wherever he fell (Grant used to stand behind it) */if(n.seat&&n.rose&&!n.grab)throneReseat(n)}return}
   if(n.stun>0){n.stun-=dt;n.g.position.set(n.x,terrH(n.x,n.z),n.z);n.g.rotation.y=n.a;if(n.flee>0){n.flee-=dt;moveTo(n,n.x-dx,n.z-dz,2.6,dt)}animP(n.g,n.sp,n.t,'');n.g.rotation.z=Math.sin(n.t*20)*.05;return}n.g.rotation.z=0;
   let st='',amb=0;
   if(n.def){if(EV&&EV.type==='football'&&EV.start<=0){const lx=P.x+P.vx*.45,lz=P.z+P.vz*.45;moveTo(n,lx,lz,4.35+n.lvl*.06,dt);if(n.dp<1.05&&P.roll<=0&&!EV.tag){EV.tag=1;sfx('whistle')}}st='guard'}
@@ -510,3 +510,6 @@ const BKR={t:-1,n:null};
 function bikeRider(){if(BKR.t!==TT){BKR.t=TT;BKR.n=null;if(P.bike&&!P.inside&&mode==='play'){for(const m of NP)if(m.follow&&!m.down&&!m.int&&m.g){BKR.n=m;break}}}return BKR.n}
 function bikeRiderTick(n){const r=bikeRider();if(r!==n){if(n.riding){n.riding=0;const fx=Math.sin(P.face),fz=Math.cos(P.face);let x=P.x-fx*.9+fz*.9,z=P.z-fz*.9-fx*.9;if(!freeAt(x,z,.34)){x=P.x-fx*.9-fz*.9;z=P.z-fz*.9+fx*.9;if(!freeAt(x,z,.34)){x=P.x-fx*1.3;z=P.z-fz*1.3}}n.x=x;n.z=z;n.path=null;n.a=P.face}return false}
   n.riding=1;const fx=Math.sin(P.face),fz=Math.cos(P.face);n.x=P.x-fx*.54;n.z=P.z-fz*.54;n.a=P.face;n.sp=0;n.aggro=0;n.tgt=null;n.path=null;return true}
+
+/* V453 one person's update going wrong no longer stops the whole frame (the camera, the other people): it is caught, reported once per person */
+function npcSafe(n,dt){try{npcUpd(n,dt)}catch(e){if(!n.updErr){n.updErr=1;console.error('npc '+(n.name||'?')+': '+(e&&e.message))}}}
