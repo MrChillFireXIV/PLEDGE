@@ -127,7 +127,7 @@ function update(dt){TT+=dt;if(mode!=='title'&&mode!=='loading'&&S)S.playT=(S.pla
     if(S.gt>=2&&S.gt<2.2&&pg<2)toast('2 AM. You\'re running on fumes. Get some sleep when you can.',4000);   // V168 no more forced pass-out at 2 AM
     // offenses
     OFFENSE=null;const sl=(S.day>=2&&(S.day-1)%7<5)?(S.gt>=9.5&&S.gt<11.5?0:S.gt>=13.5&&S.gt<15.5?1:null):null;/* V383 curfew no longer makes the police hunt Danny; being out after 11 just raises the odds of getting robbed (robTick) */
-    BIGT-=dt;if(BIGQ.length&&BIGT<=0&&$('wheel').hidden&&$('card').hidden&&!CINE){const b=BIGQ.shift();big(b[0],b[1],1);BIGT=b[1]/1000+.5}navBudget=8;if((GT_=(GT_||0)-dt)<=0){GT_=.4;refreshGoal()}rollCallTick(dt);if(GRAB.on){try{grabTick(dt)}catch(e){console.error('grab',e);try{grabEnd(true)}catch(_){GRAB.on=0;$('fade').style.opacity=0;PM.visible=true}}}else playerUpd(dt);try{motionAudio(dt)}catch(e){}SEEN=0;CHASED=0;for(let i=NP.length-1;i>=0;i--)npcUpd(NP[i],dt);yardBalls();robTick(dt);carsTick(dt);routeTick();if(!SEEN&&!CHASED)S.trouble=Math.max(0,S.trouble-(OFFENSE?1:4)*dt);
+    BIGT-=dt;if(BIGQ.length&&BIGT<=0&&$('wheel').hidden&&$('card').hidden&&!CINE){const b=BIGQ.shift();big(b[0],b[1],1);BIGT=b[1]/1000+.5}navBudget=8;if((GT_=(GT_||0)-dt)<=0){GT_=.4;refreshGoal()}rollCallTick(dt);if(GRAB.on){try{grabTick(dt)}catch(e){console.error('grab',e);try{grabEnd(true)}catch(_){GRAB.on=0;$('fade').style.opacity=0;PM.visible=true}}}else playerUpd(dt);try{motionAudio(dt)}catch(e){}SEEN=0;CHASED=0;for(let i=NP.length-1;i>=0;i--)npcSafe(NP[i],dt);yardBalls();robTick(dt);carsTick(dt);routeTick();if(!SEEN&&!CHASED)S.trouble=Math.max(0,S.trouble-(OFFENSE?1:4)*dt);
     if(EV){if(EV.type==='football')footballTick(dt);else if(EV.type==='kart')kartTick(dt)}
     stepTick(dt);
     if(ePress){ePress=0;const it=nearest();if(it){sfx('ui');const lab=it.label;it.f();try{storyGrab(lab)}catch(e){}try{storyDrop(lab)}catch(e){}}}try{kitTick(dt)}catch(e){}
@@ -137,7 +137,7 @@ function update(dt){TT+=dt;if(mode!=='title'&&mode!=='loading'&&S)S.playT=(S.pla
     if(S.hp<S.mhp&&!NP.some(n=>n.aggro&&n.tgt==='P'))S.hp=Math.min(S.mhp,S.hp+.6*dt);P.hurt=Math.max(0,P.hurt-dt);
   }else if(mode==='card'||mode==='wheel'){
     // V167: during a conversation the people around keep doing their own thing; only the one you're talking to, anyone chasing you (cops) and scripted actors are held; fighters keep fighting but can't hurt you (`hitPlayer` is off while a card or wheel is open)
-    navBudget=8;const tk=SCENE&&SCENE.n;for(let i=NP.length-1;i>=0;i--){const m=NP[i];if(m===tk||m.chase||m.actor)continue;npcUpd(m,dt)}
+    navBudget=8;const tk=SCENE&&SCENE.n;for(let i=NP.length-1;i>=0;i--){const m=NP[i];if(m===tk||m.chase||m.actor)continue;npcSafe(m,dt)}
   }
   // ambient anim always
   prTick(dt);try{compassTick()}catch(e){}try{c1Tick(dt)}catch(e){console.warn('c1Tick',e)}try{dojoTick(dt)}catch(e){}try{trTick(dt)}catch(e){console.warn('trTick',e)}
