@@ -56,7 +56,13 @@ function padRep(k,on,dt){const s=PAD.rep[k]||(PAD.rep[k]={t:0,d:0});if(!on){s.d=
 function padHints(){const want=PAD.on?padName('X','□'):'E',k=$('prompt')&&$('prompt').firstChild;if(k&&k.tagName==='KBD'&&(k.textContent==='E'||k.textContent==='X'||k.textContent==='□')&&k.textContent!==want)k.textContent=want;
   const rk=$('rolek')&&$('rolek').querySelector('kbd');if(rk){const w=PAD.on?padName('Y','△'):'T';if((rk.textContent==='T'||rk.textContent==='Y'||rk.textContent==='△')&&rk.textContent!==w)rk.textContent=w}
   const cs=$('cineskip');if(cs){const w=PAD.on?'Skip ('+padName('Menu','Options')+')':'Skip (Esc)';if(/^Skip \(/.test(cs.textContent)&&cs.textContent!==w)cs.textContent=w}}
-function padFrame(dt){const g=padGet();if(!g){if(PAD.on||PAD.joy||Object.keys(PAD.held).length){padRelease();PAD.on=0;padRing();padHints()}PAD.b=[];return}
+/* V445 console: Edge on the Xbox keeps the controller for its own mouse cursor until the player holds the Menu (three lines) button and picks
+   game controls; until then the page sees no controller at all. Say so on screen (console mode only) until the controller first reaches the game */
+const PADXH={el:null,ok:0};
+function padXHint(){if(!LITE||PADXH.ok)return;if(PAD.on){PADXH.ok=1;if(PADXH.el){PADXH.el.remove();PADXH.el=null}return}if(mode==='loading')return;
+  if(!PADXH.el){const d=document.createElement('div');d.id='padxhint';d.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:2147483000;background:rgba(14,18,32,.92);color:#f6efe0;border:2px solid #ffd24a;border-radius:12px;padding:10px 18px;font:700 17px Archivo,Arial,sans-serif;text-align:center;pointer-events:none;max-width:90vw;line-height:1.4';
+    d.innerHTML='Using an Xbox controller? <b style="color:#ffd24a">Hold the \u2630 Menu button</b> until Edge switches to <b>game controls</b>.<br><span style="font-weight:500;font-size:14px;opacity:.8">Hold it again to get the cursor back. This note goes away once the controller works.</span>';document.body.appendChild(d);PADXH.el=d}}
+function padFrame(dt){try{padXHint()}catch(e){}const g=padGet();if(!g){if(PAD.on||PAD.joy||Object.keys(PAD.held).length){padRelease();PAD.on=0;padRing();padHints()}PAD.b=[];return}
   const nb=g.buttons.length,now=[];for(let i=0;i<nb;i++)now[i]=padDown(g,i);const was=PAD.b,hit=i=>now[i]&&!was[i],rel=i=>!now[i]&&was[i];
   const lx=padAxis(g.axes[0]),ly=padAxis(g.axes[1]),rx=padAxis(g.axes[2]),ry=padAxis(g.axes[3]);
   const any=now.some(Boolean)||lx||ly||rx||ry;
