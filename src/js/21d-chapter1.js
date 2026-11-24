@@ -179,7 +179,7 @@ const C1SH=[0xc8202e,0x2a5aa8,0xe2b64c,0x2f8a4a,0xf2f2ee,0x1d1d22,0x7d1f2c,0xd88
 // V142 partygoers are real game characters, frozen once: each look is built with mkPerson, posed, its low-detail skinned body baked to a
 // plain mesh (bakeSkinned) and drawn as one InstancedMesh, so ~12 looks x however many people = ~12 draw calls, no rigs, AI or collision
 function c1Look(i,pal){const key=pal?pal.k:'party';C1.looks=C1.looks||{};const L=C1.looks[key]=C1.looks[key]||[];if(L[i]!==undefined)return L[i];let r=null;
-  try{if(GFX==='enhanced'){const SH=pal?pal.SH:C1SH,PA=pal?pal.PA:C1PA,HA=pal&&pal.HA?pal.HA:HAIR,sh=pick(SH),o={shirt:sh,sleeve:rnd()<.8?sh:pick(SH),pants:pick(PA),skin:pick(SKIN),hair:pick(HA),fem:rnd()<(pal&&pal.fem!=null?pal.fem:.42)};
+  try{if(CHRX){const SH=pal?pal.SH:C1SH,PA=pal?pal.PA:C1PA,HA=pal&&pal.HA?pal.HA:HAIR,sh=pick(SH),o={shirt:sh,sleeve:rnd()<.8?sh:pick(SH),pants:pick(PA),skin:pick(SKIN),hair:pick(HA),fem:rnd()<(pal&&pal.fem!=null?pal.fem:.42)};
     const g=mkPerson(o);try{animP(g,0,i*.7,'')}catch(e){}g.updateMatrixWorld(true);const Lo=g.children.find(c=>c.isLOD);
     if(Lo){const lv=Lo.levels.length>1?Lo.levels[1].object:Lo.levels[0].object,m=bakeSkinned(lv);m.material.userData.c1=1;r={geo:m.geometry,mat:m.material}}}}catch(e){console.warn('c1Look',e)}
   return L[i]=r}

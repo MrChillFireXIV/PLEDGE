@@ -173,7 +173,9 @@ function faceTex(){if(FTX)return FTX;const S=1024,L={};
   const px=k=>{const[c,q,z]=L[k];if(z===1)return q.getImageData(0,0,S,S).data;const o=document.createElement('canvas');o.width=o.height=S;const r=o.getContext('2d',{willReadFrequently:true});r.imageSmoothingEnabled=true;r.imageSmoothingQuality='high';r.drawImage(c,0,0,S,S);return r.getImageData(0,0,S,S).data};
   const mk=(a,b,c)=>{const o=document.createElement('canvas');o.width=o.height=S;const q=o.getContext('2d'),D=q.createImageData(S,S),A=px(a),B=px(b),C=px(c),d=D.data;
     for(let i=0;i<d.length;i+=4){d[i]=A[i];d[i+1]=B[i];d[i+2]=C[i];d[i+3]=255}q.putImageData(D,0,0);const t=new THREE.CanvasTexture(o);t.anisotropy=4;return t};
-  return FTX=[mk('ink','wh','lip'),mk('brow','shd','bl')]}
+  /* V450 console: the two finished face pictures are shrunk to 512 px (a quarter of the memory, on the card and in canvases); faces are small on a TV */
+  const half=t=>{if(!LITE)return t;try{const c=document.createElement('canvas');c.width=c.height=S/2;c.getContext('2d').drawImage(t.image,0,0,S/2,S/2);t.image.width=t.image.height=1;t.image=c}catch(e){}return t};
+  return FTX=[half(mk('ink','wh','lip')),half(mk('brow','shd','bl'))]}
 function drawFace(L,fem,mv,tf,clip){const R=mulberry(fem*7+mv*3+11);
   const each=(k,fn)=>{const q=L[k][1],z=L[k][2];q.save();if(clip){q.beginPath();q.rect(...clip.map(v=>v*z));q.clip()}tf(q,z);q.fillStyle=q.strokeStyle='#fff';q.lineCap=q.lineJoin='round';fn(q);q.restore()};
   const E=fem?{ix:.17,ox:.565,iy:.074,oy:.14,top:.26,bot:-.035}:{ix:.17,ox:.555,iy:.075,oy:.118,top:.245,bot:-.03};
@@ -400,4 +402,12 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
     if(cl==='hoodie'||cl==='flannel'){const cf=tube([{y:1.03,cx:X,cz:-.005,rx:.056*F,rf:.056*F,rb:.056*F},{y:.96,cx:X,cz:.004,rx:.05*F,rf:.054*F,rb:.054*F},{y:.956,cx:X,cz:.004,rx:.036*F,rf:.044*F,rb:.044*F}],lod?8:12,2,0,2);gAdd(G,cf,PS.acc,(x,y)=>y>.995?[BI[A[1]]]:Wb(A[1],A[2],(.995-y)/.07));
       gAdd(G,tube(AR.map(r=>Object.assign({},r,{rx:r.rx+.008,rf:r.rf+.008,rb:r.rb+.008})).filter(r=>r.y>1.02&&r.y<1.6),lod?8:14,2.1,2,0,(y,a)=>.004*Math.sin(a*3+y*55)),PS.sleeve,aw,(x,y,z,nx)=>nx*s<-.3?.86:1)}
     addHand(G,X,s,A,fem,lod)}
-  return BODYG[k]=gBuild(G)}
+  return BODYG[k]=LITE?bodyPack(gBuild(G)):gBuild(G)}
+
+/* V450 console: an enhanced body's per-point data in compact form, same look: normals as 4 signed bytes (was 3 floats), colours as 4 bytes (was 3
+   floats), bone weights as 4 bytes that still add up to exactly 1 (was 4 floats). About 40% smaller, and formats the Xbox's DirectX reads natively */
+function bodyPack(g){try{const n=g.attributes.position.count,N=g.attributes.normal,C=g.attributes.color,W=g.attributes.skinWeight;
+  if(N&&N.array instanceof Float32Array){const a=new Int8Array(n*4);for(let i=0;i<n;i++){a[i*4]=Math.round(N.getX(i)*127);a[i*4+1]=Math.round(N.getY(i)*127);a[i*4+2]=Math.round(N.getZ(i)*127)}g.setAttribute('normal',new THREE.BufferAttribute(a,4,true))}
+  if(C&&C.array instanceof Float32Array&&C.itemSize===3){const a=new Uint8Array(n*4);for(let i=0;i<n;i++){a[i*4]=Math.round(clamp(C.getX(i),0,1)*255);a[i*4+1]=Math.round(clamp(C.getY(i),0,1)*255);a[i*4+2]=Math.round(clamp(C.getZ(i),0,1)*255);a[i*4+3]=255}g.setAttribute('color',new THREE.BufferAttribute(a,4,true))}
+  if(W&&W.array instanceof Float32Array&&W.itemSize===4){const a=new Uint8Array(n*4);for(let i=0;i<n;i++){const w=[W.getX(i),W.getY(i),W.getZ(i),W.getW(i)],s=w[0]+w[1]+w[2]+w[3]||1;let t=0,mx=0;for(let j=0;j<4;j++){const v=Math.round(w[j]/s*255);a[i*4+j]=v;t+=v;if(w[j]>w[mx])mx=j}a[i*4+mx]+=255-t}g.setAttribute('skinWeight',new THREE.BufferAttribute(a,4,true))}
+}catch(e){console.warn('bodyPack',e)}return g}

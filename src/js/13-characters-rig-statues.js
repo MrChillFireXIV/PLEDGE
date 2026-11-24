@@ -103,7 +103,7 @@ function pickStyle(o){const RR=o.sd!=null?mulberry(o.sd):rnd,PK=a=>a[Math.floor(
   if(o.hs2);else if(o.fem)o.hs2=o.hs==='curly'||o.hs==='afro'||o.hs==='bucket'?o.hs:PK(['long','long','pony','bun']);else o.hs2=o.hs||PK(['short','short','fade','fade','swept','buzz']);
   if(!o.cl2)o.cl2=o.letters||o.pin?'tee':PK(['tee','tee','tee','hoodie','polo',o.fem?'tee':'tank']);if(o.fh==null)o.fh=o.fem?0:(r<.22?'stubble':r<.32?'goatee':r<.4?'beard':0);
   if(o.fv==null)o.fv=o.fem?0:(RR()*3)|0;if(o.iris==null)o.iris=pick(IRIS);
-  const k0=styleKey(o);if(!o._pl&&o.sd==null&&!STYLEK.includes(k0)){if(STYLEK.length<30)STYLEK.push(k0);else{const need=o.letters||o.pin;let best=null,bs=-1;
+  const k0=styleKey(o);if(!o._pl&&o.sd==null&&!STYLEK.includes(k0)){if(STYLEK.length<(LITE?16:30))STYLEK.push(k0);else{const need=o.letters||o.pin;let best=null,bs=-1;
       for(const s of STYLEK){const a=s.split('|');if(+a[0]!==(o.fem?1:0)||+a[5]!==(o.prop?1:0)||+a[6]!==(o.cap?1:0)||(need&&a[2]!=='tee'))continue;const sc=(a[1]===o.hs2?2:0)+(a[2]===o.cl2?2:0)+(+a[4]===(o.gl?1:0)?1.5:0)+RR()*.8;if(sc>bs){bs=sc;best=a}}
       if(best){o.hs2=best[1];o.cl2=best[2];if(best[3]!=='0')o.fh=best[3];else if(o.fh!=='stubble')o.fh=0;o.gl=+best[4];o.fv=+best[7]}else STYLEK.push(k0)}}
   if(o.shoe==null){const k=(o.pants>>>3)%6;o.shoe=[0x23242a,0xeae8e2,0x8a2a2a,0x2c3a5a,0xeae8e2,0x5a3a26][k];o.sole=o.shoe===0xeae8e2||o.shoe===0x23242a?0xeceae4:0xf2f0ea;o.sacc=o.shoe===0xeae8e2?(o.shirt||0x2a4a8a):0xeae8e2}if(o.sole==null)o.sole=0xeceae4;if(o.sacc==null)o.sacc=0xeae8e2}
@@ -112,11 +112,13 @@ function mkPersonX(o){o=Object.assign({},o);pickStyle(o);const fem=!!o.fem,BP=bo
   for(const n of BN){const b=new THREE.Bone();b.name=n;B[n]=b}
   for(const n of BN){const p=BPAR[n],w=BP[n];if(p){const q=BP[p];B[n].position.set(w[0]-q[0],w[1]-q[1],w[2]-q[2]);B[p].add(B[n])}else B[n].position.set(...w)}
   g.add(B.hips);g.updateMatrixWorld(true);
-  const pal=palFor(o),mat=chrMat(pal,o),sk=new THREE.Skeleton(BN.map(n=>B[n])),hi=new THREE.SkinnedMesh(buildBody(o,0),mat),lo=new THREE.SkinnedMesh(buildBody(o,1),mat);
-  for(const m of[hi,lo]){m.bind(sk);m.castShadow=true;m.receiveShadow=true}
-  if(!(o.stone||o.metal))for(const m of[hi,lo])addOutline(m,sk,o.shirt);
+  const pal=palFor(o),mat=chrMat(pal,o),sk=new THREE.Skeleton(BN.map(n=>B[n])),loOnly=LITE&&!o.hero,lo=new THREE.SkinnedMesh(buildBody(o,1),mat),hi=loOnly?lo:new THREE.SkinnedMesh(buildBody(o,0),mat),HL=loOnly?[lo]:[hi,lo];
+  /* V450 console: everyone but Danny wears only the simple enhanced body (288 KB, shared by everyone with the same build and style) instead of also the
+     detailed one (2.4 MB): an enhanced crowd at the cost of a few classic ones */
+  for(const m of HL){m.bind(sk);m.castShadow=true;m.receiveShadow=true}
+  if(!(o.stone||o.metal))for(const m of HL)addOutline(m,sk,o.shirt);
   B.head.scale.setScalar(CHR_PROP.hs);B.head.position.y+=CHR_PROP.lift;   /* V306 smaller head, a little more neck (after binding, so the mesh follows) */
-  const L=new THREE.LOD();L.addLevel(hi,0);L.addLevel(lo,o.shadow?60:14);g.add(L);
+  const L=new THREE.LOD();L.addLevel(hi,0);if(!loOnly)L.addLevel(lo,o.shadow?60:14);g.add(L);
   {const cs=GC.csh||(GC.csh={geo:new THREE.PlaneGeometry(1,1).rotateX(-PI/2),mat:new THREE.MeshBasicMaterial({map:cvTex(128,128,(q,w,h)=>{const gr=q.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(.4,'rgba(0,0,0,.55)');gr.addColorStop(1,'rgba(0,0,0,0)');q.fillStyle=gr;q.fillRect(0,0,w,h)}),transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3})});
    const m1=new THREE.Mesh(cs.geo,cs.mat),m2=new THREE.Mesh(cs.geo,cs.mat);m1.scale.set(1.05,1,.85);m2.scale.set(.62,1,.5);for(const m of[m1,m2]){m.position.y=.03;m.renderOrder=1;m.matrixAutoUpdate=true;g.add(m)}g.CS=[m1,m2]}
   g.P={lL:B.lL,lR:B.lR,aL:B.aL,aR:B.aR,torso:hi,lo,kL:B.kL,kR:B.kR,eL:B.eL,eR:B.eR,hL:B.hL,hR:B.hR,fL:B.fL,fR:B.fR,hips:B.hips,spine:B.spine,chest:B.chest,neck:B.neck,head:B.head,_o:o,pal};
@@ -254,7 +256,7 @@ function bakeSkinned(m){m.updateMatrixWorld(true);const sk=m.skeleton;const g=m.
   const r=new THREE.Mesh(g,mat);r.castShadow=true;r.receiveShadow=true;r.userData.noMerge=1;return r}
 function freezePerson(g){g.updateMatrixWorld(true);const L=g.children.find(c=>c.isLOD);if(!L)return g;const m=bakeSkinned(L.levels[0].object);g.remove(L);g.add(m);g.P.torso=m;return g}
 
-let PMATS=null;function mkPerson(o){if(!o.classic&&(GFX==='enhanced'||CHRX&&o.hero))return mkPersonX(o);/* V449 console: Danny (hero) gets the enhanced body, the crowd stays classic */const g=new THREE.Group(),mat=o.stone?(PMATS||(PMATS=SM({vertexColors:true,color:0xffffff,roughness:.95}))):o.metal?PMATM:PMAT,sh=!!o.shadow||GFX==='enhanced';const mk=(geo,par,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=sh;par.add(m);return m};const piv=(x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);g.add(p);return p};
+let PMATS=null;function mkPerson(o){if(CHRX&&!o.classic)return mkPersonX(o);const g=new THREE.Group(),mat=o.stone?(PMATS||(PMATS=SM({vertexColors:true,color:0xffffff,roughness:.95}))):o.metal?PMATM:PMAT,sh=!!o.shadow||GFX==='enhanced';const mk=(geo,par,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=sh;par.add(m);return m};const piv=(x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);g.add(p);return p};
   const lL=piv(-.13,.88),lR=piv(.13,.88);const LG=limbG('leg',o.pants,o.stone||o.metal?o.pants:SHOES[(o.pants>>>2)%5]);mk(LG,lL);mk(LG,lR);
   const aL=piv(-.36,1.5),aR=piv(.36,1.5);const AG=limbG('arm',o.sleeve||o.shirt,o.skin);mk(AG,aL);mk(AG,aR);
   const key=[o.shirt,o.skin,o.hair,o.fem?1:0,o.cap||0,o.pin?1:0,o.prop?1:0,o.metal||o.stone?1:0,o.noMouth?1:0,o.gl?1:0,o.hs||''].join(',');

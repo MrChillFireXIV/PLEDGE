@@ -153,7 +153,7 @@ function liteVramSweep(){const old=LVR.f-LVR.age;let n=0;
   for(const g of LVR.G){if(g.__df>old)continue;const a=g.attributes&&g.attributes.position;if(!a||!a.array||a.array.length<=a.itemSize||g.userData.lfree){LVR.G.delete(g);g.__lv=0;continue}g.dispose();LVR.G.delete(g);g.__lv=0;n++}
   for(const t of LVR.T){if(t.__df>old)continue;LVR.T.delete(t);t.__lv=0;if(t.__relazy){t.dispose();t.__relazy();n++;continue}const im=t.image;if(im&&im!==LITEIMG&&(im.width||0)>1&&!t.isVideoTexture&&!t.isDataTexture){t.dispose();n++}}
   LVR.n+=n;LVR.last=n}
-function liteFreeMark(groups,pre){if(LITE)return 0;let n=0;const fr=liteFreeArr;const seen=new Set();
+function liteFreeMark(groups,pre,force){if(LITE&&!force)return 0;let n=0;const fr=liteFreeArr;const seen=new Set();
   for(const G of groups)G.traverse(o=>{const g=o.geometry;if(!o.isMesh||o.isInstancedMesh||!g||pre.has(g)||seen.has(g))return;seen.add(g);if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingBox)g.computeBoundingBox();g.userData.lfree=1;for(const k in g.attributes)g.attributes[k].onUpload(fr);if(g.index)g.index.onUpload(fr);n++});LITEFREEN=n}
 let LITEFREEN=0;
 function mkPoints(geo,o){return new THREE.Points(geo,new THREE.PointsMaterial(o))}
