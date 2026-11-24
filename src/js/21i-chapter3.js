@@ -316,9 +316,10 @@ function c3WesB(){if(!C3WESB.set&&typeof SPOT!=='undefined'&&SPOT.DOCK&&typeof f
 const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0x18181c,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
 function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}const h=n.g.P&&n.g.P.head;if(!h)return n;n.c3hood=1;const M_=new THREE.MeshStandardMaterial({color:0x121216,roughness:.95,side:THREE.DoubleSide});
   const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,18,12,PI/2+.95,TAU-1.9),M_);hd.scale.set(1,1.14,1.12);hd.position.set(0,.13,.0);hd.userData.noMerge=1;h.add(hd);
-  /* V451 a face under the hood, masked: a dark cloth mask over nose, mouth and chin (eyes and brows show), knotted at the back */
-  {const MK=new THREE.MeshStandardMaterial({color:0x1d1d24,roughness:1,side:THREE.DoubleSide}),mk=new THREE.Mesh(new THREE.SphereGeometry(.262,22,10,PI/2-1.25,2.5,PI*.53,PI*.33),MK);mk.scale.set(1.02,1.1,1.1);mk.position.set(0,.12,.008);mk.userData.noMerge=1;h.add(mk);
-   const kn=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),MK);kn.position.set(0,.1,-.26);kn.userData.noMerge=1;h.add(kn)}
+  /* V452 the mask is cut from his own head: the head's surface from under the chin to just below the eyes (and a strap round the back), lifted 7 mm
+     off the skin, so it follows his face like cloth instead of sitting on it like a block. Falls back to the V451 shell if the body has no head data */
+  {const MK=new THREE.MeshStandardMaterial({color:0x1d1d24,roughness:1,side:THREE.DoubleSide}),mg=c3MaskGeo(n);if(mg){const mk=new THREE.Mesh(mg,MK);mk.userData.noMerge=1;mk.castShadow=false;h.add(mk)}
+   else{const mk=new THREE.Mesh(new THREE.SphereGeometry(.262,22,10,PI/2-1.25,2.5,PI*.53,PI*.33),MK);mk.scale.set(1.02,1.1,1.1);mk.position.set(0,.12,.008);mk.userData.noMerge=1;h.add(mk)}}
   n.title='Unknown';n.taunt=['Wrong place, pledge.','He said come ALONE.','Where are the books?','Put him down. Both of them.'];return n}
 function c3WesChair(on){return c4Group('c3weschair',on,g=>{const[x,z]=c3WesB(),W=mt(0x4a3626,.8),h=new THREE.Group();h.position.set(x,terrH(x,z),z);h.rotation.y=C3WESA;h.userData.noMerge=1;g.add(h);c4M(bgeo(.5,.06,.5),W,0,.46,0,h);c4M(bgeo(.5,.6,.06),W,0,.8,-.25,h);for(const sx of[-.22,.22])for(const sz of[-.22,.22])c4M(bgeo(.05,.46,.05),W,sx,.23,sz,h)})}
 function c3WesSpawn(){if(C3.wes&&NP.includes(C3.wes))return C3.wes;const[x,z]=c3WesB();c3WesChair(1);
@@ -649,3 +650,11 @@ function c3Migrate(d){if(!d)return;if(S.ch>=4)for(const id of C3IDS)S.done[id]=1
   // jumping straight to the storm: the five pledges you would have recruited
   if(S.done.c3accuse&&!S.done.c3empire&&Object.keys(s.pl).length<5){for(const k of PCLASS){if(Object.keys(s.pl).length>=5)break;const n=NN[k];if(n&&!n.hidden)s.pl[k]=1}}
   setTimeout(()=>{try{c3ApplyFloor();for(const id in s.shut)if(s.shut[id]){c3ShutVis(id);c3HideHouse(id)}}catch(e){console.warn('c3Migrate',e)}},0)}
+
+function c3MaskGeo(n){try{const m=n.g.P.torso;if(!m||!m.isSkinnedMesh||!m.skeleton)return null;const sk=m.skeleton,hb=sk.bones.indexOf(n.g.P.head);if(hb<0)return null;
+  const g=m.geometry,A=g.attributes,SI=A.skinIndex.array,SW=A.skinWeight.array,Pp=A.position,N=A.normal,ws=A.skinWeight.normalized?1/255:1,ns=N.normalized?(N.array instanceof Int8Array?1/127:1/32767):1;
+  const M=new THREE.Matrix4().multiplyMatrices(sk.boneInverses[hb],m.bindMatrix),NM=new THREE.Matrix3().getNormalMatrix(M),cnt=Pp.count,ok=new Uint8Array(cnt),L=new Float32Array(cnt*3),LN=new Float32Array(cnt*3),v=new THREE.Vector3(),nv=new THREE.Vector3();
+  for(let i=0;i<cnt;i++){let w=0;for(let j=0;j<4;j++)if(SI[i*4+j]===hb)w+=SW[i*4+j]*ws;if(w<.5)continue;v.fromBufferAttribute(Pp,i).applyMatrix4(M);nv.set(N.array[i*N.itemSize]*ns,N.array[i*N.itemSize+1]*ns,N.array[i*N.itemSize+2]*ns).applyMatrix3(NM).normalize();
+    const front=v.z>-.03;if(front?(v.y<-.095||v.y>.115):(v.y<.03||v.y>.1))continue;ok[i]=1;L[i*3]=v.x+nv.x*.007;L[i*3+1]=v.y+nv.y*.007;L[i*3+2]=v.z+nv.z*.007;LN[i*3]=nv.x;LN[i*3+1]=nv.y;LN[i*3+2]=nv.z}
+  const I=g.index?g.index.array:null,T=I?I.length:cnt,pos=[],nor=[];for(let t=0;t<T;t+=3){const a=I?I[t]:t,b=I?I[t+1]:t+1,c=I?I[t+2]:t+2;if(!ok[a]||!ok[b]||!ok[c])continue;for(const k of[a,b,c]){pos.push(L[k*3],L[k*3+1],L[k*3+2]);nor.push(LN[k*3],LN[k*3+1],LN[k*3+2])}}
+  if(pos.length<90)return null;const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));return G}catch(e){console.warn('c3MaskGeo',e);return null}}
