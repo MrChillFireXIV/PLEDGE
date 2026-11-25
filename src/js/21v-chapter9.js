@@ -111,7 +111,7 @@ function c9Wax(d,why,quiet){const W=c9S().wax;W.danny=clamp(W.danny+d,0,100);if(
 function c9WaxA(d){const W=c9S().wax;for(const k of['ezra','marcus'])W[k]=clamp(W[k]+d*(k==='ezra'?1:.92),8,100)}
 function c9Flare(){const e=$('c9cand');if(e){e.style.boxShadow='0 0 28px 6px rgba(255,190,90,.75)';setTimeout(()=>{if(e)e.style.boxShadow=''},700)}}
 // the HUD (top left, under the objective)
-function c9HudOn(){const S9=c9S();return !!(S9.lit&&S.ch===9&&!S9.done)}
+function c9HudOn(){const S9=c9S();return !!(S9.lit&&S.ch===9&&!S9.done&&mode!=='title'&&mode!=='slots'&&mode!=='loading'&&$('title').hidden)}/* V456 not on the title / save-slot screens */
 function c9HudDraw(force){const on=c9HudOn();let e=$('c9cand');if(!on){if(e)e.remove();return}
   if(!e){e=document.createElement('div');e.id='c9cand';e.style.cssText='position:fixed;left:14px;top:200px;z-index:29;width:252px;padding:9px 12px 10px;border-radius:10px;background:rgba(16,10,8,.82);border:1px solid rgba(226,182,76,.45);color:#f2e6cc;font:12px/1.35 system-ui,sans-serif;pointer-events:none;transition:box-shadow .4s';document.body.appendChild(e)}
   const W=c9S().wax,p=Math.max(0,Math.round(W.danny)),n=Math.round(p/5),bar='█'.repeat(n)+'░'.repeat(20-n),low=p<=20;

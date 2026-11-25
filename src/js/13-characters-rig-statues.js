@@ -128,7 +128,7 @@ function mkPersonX(o){o=Object.assign({},o);pickStyle(o);const fem=!!o.fem,BP=bo
 /* V307 hands: fingers curl with the situation. c = curl (0 open .. 1 fist), smoothed; the thumb follows */
 const HPOSE={open:[.06,.1,0],relax:[.32,.15,.05],grip:[.95,.6,0],fist:[1.25,.95,0],tray:[.12,.2,.12]};
 function handPose(g,p,st,dt){const F=p.fing;if(!F)return;const H=g.HOLD,hasR=p.hR&&p.hR.children.some(c=>!c.isBone),hasL=p.hL&&p.hL.children.some(c=>!c.isBone);
-  const want=s=>{if(g.HPF)return g.HPF;const R=s==='R';if(g.HPA)return g.HPA==='palm'&&R?'open':'fist';const fight=st==='punch'||st==='guard';if(fight)return'fist';if(st==='bike')return'grip';if(H==='tray')return'tray';
+  const want=s=>{if(g.HPF)return g.HPF;const R=s==='R';if(g.HPA)return(g.HPA==='palm'&&R)||g.HPA==='palmD'||(g.HPA==='chop'&&R)?'open':'fist';const fight=st==='punch'||st==='guard';if(fight)return'fist';if(st==='bike')return'grip';if(H==='tray')return'tray';
     if(H==='box'||H==='overhead')return'grip';if((H==='up'||H==='bucket')&&R)return'grip';if(R?hasR:hasL)return'grip';if(st==='wave'&&R)return'open';if(st==='talk'||g.TALK)return'open';if(st==='carry')return'grip';return'relax'};
   const k=Math.min(1,dt*12);
   for(const S of['L','R']){const h=F[S],s=S==='L'?-1:1,P_=HPOSE[want(S)];h.c+=(P_[0]-h.c)*k;h.cT+=(P_[1]-h.cT)*k;h.sp+=(P_[2]-h.sp)*k;const c=h.c;
@@ -240,7 +240,7 @@ function ragPose(n){const g=n.g,P_=g.P,R=n.rag,J=k=>R.pos[RJI[k]];
   const up=_v.copy(J('chest')).sub(J('hips')).normalize(),xr=_v2.copy(J('lR')).sub(J('lL'));xr.addScaledVector(up,-xr.dot(up)).normalize();const fw=new THREE.Vector3().crossVectors(xr,up);
   _m.makeBasis(xr,up,fw);g.quaternion.setFromRotationMatrix(_m);const hp=J('hips');g.position.copy(hp).addScaledVector(up,-.92);g.updateMatrixWorld(true);
   for(const b of[P_.hips,P_.spine,P_.chest])b.quaternion.identity();P_.hips.position.set(0,.92,0);
-  const aim=(bone,from,to,rest)=>{const par=bone.parent;par.updateMatrixWorld(true);const pq=par.getWorldQuaternion(_q).invert();const d=new THREE.Vector3().copy(J(to)).sub(J(from)).normalize().applyQuaternion(pq);bone.quaternion.setFromUnitVectors(rest,d);bone.updateMatrixWorld(true)};
+  const aim=(bone,from,to,rest)=>{const par=bone&&bone.parent;if(!par)throw new Error('rag: bone without parent');par.updateMatrixWorld(true);const pq=par.getWorldQuaternion(_q).invert();const d=new THREE.Vector3().copy(J(to)).sub(J(from)).normalize().applyQuaternion(pq);bone.quaternion.setFromUnitVectors(rest,d);bone.updateMatrixWorld(true)};
   const DN=new THREE.Vector3(0,-1,0),UPV=new THREE.Vector3(0,1,0);
   P_.neck.quaternion.identity();aim(P_.head,'chest','head',UPV);
   aim(P_.aL,'aL','eL',DN);aim(P_.eL,'eL','hL',DN);aim(P_.aR,'aR','eR',DN);aim(P_.eR,'eR','hR',DN);aim(P_.lL,'lL','kL',DN);aim(P_.kL,'kL','fL',DN);aim(P_.lR,'lR','kR',DN);aim(P_.kR,'kR','fR',DN)}

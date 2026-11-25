@@ -18,7 +18,7 @@ function runStep(){const st=curStep();if(!st)return finishMission();st.t0=TT;
   if(st.t==='cine'){(st.run||introCine)(()=>{if(AM&&curStep()===st)nextStep()});return}
   clearActors();if(st.start)st.start();
   if(st.guards)st.guards.forEach(([cl,lvl,x1,z1,x2,z2])=>{const n=spawn(cl,'lake',{x:x1,z:z1,lvl,temp:1,mode:'guard',patrol:[[x1,z1],[x2,z2]],name:cl==='oldguard'?'Old Guard Watchman':undefined});n.stepTemp=st;AM.temps.push(n)});
-  if(st.t==='fight'){st.foes_=st.foes.map(([cl,lvl,name],i)=>{const a=i/st.foes.length*TAU,n=spawn(cl,'quad',{x:st.x+Math.cos(a)*2.2,z:st.z+Math.sin(a)*2.2,lvl,temp:1,mode:'idle',name:name||undefined});n.foe=1;AM.temps.push(n);return n});if(st.ally)spawnAlly(st.ally)}
+  if(st.t==='fight'){st.foes_=st.foes.map(([cl,lvl,name],i)=>{const a=i/st.foes.length*TAU,n=spawn(cl,'quad',Object.assign({x:st.x+Math.cos(a)*2.2,z:st.z+Math.sin(a)*2.2,lvl,temp:1,mode:'idle',name:name||undefined},st.fo||{}));n.foe=1;AM.temps.push(n);if(st.mk)st.mk(n,i);return n});/* V422 st.fo: extra spawn options for every foe, st.mk(n,i): dress each one up (the hooded figures in Disappearance) */if(st.ally&&!NP.some(q=>q.ally&&q.temp&&AM.temps.includes(q)))spawnAlly(st.ally)}
   if(st.chasers){st.chasers.forEach(([cl,lvl],i)=>{const n=spawn(cl,'lake',{x:P.x-3+i*1.5,z:P.z-5,lvl,temp:1,name:'Old Guard'});n.foe=1;n.aggro=1;n.tgt='P';AM.temps.push(n)})}
   refreshGoal(1);updObj()}
 function nextStep(ins){const st=curStep();if(st){AM.temps.filter(n=>n.stepTemp===st).forEach(n=>{despawn(n)});AM.temps=AM.temps.filter(n=>n.stepTemp!==st)}if(ins&&ins.length)AM.steps.splice(AM.i+1,0,...ins.map(s=>Object.assign({},s)));AM.i++;runStep()}
@@ -47,7 +47,7 @@ function stepTick(dt){const st=curStep();if(!st||mode!=='play')return;
   if(st.tick){st.tick(dt);if(curStep()!==st||mode!=='play')return}
   if(st.t==='cond'&&st.ok&&st.ok()){const r=st.done&&st.done();if(AM&&curStep()===st)nextStep(r);return}   // V139 generic condition steps (chapter 1)
   if(st.t==='items'&&st.need.every(has)){nextStep();return}
-  if(st.t==='fight'&&st.foes_){if(!st.woke&&Math.hypot(st.x-P.x,st.z-P.z)<15){st.woke=1;st.foes_.forEach(n=>{n.aggro=1;n.tgt='P';n.mode='wander';bubble(n,pick(CL[n.cl].taunt||['Get him!']),2)});sfx('whistle')}if(st.foes_.every(n=>n.down>0)){const r=st.done&&st.done();if(AM&&curStep()===st)nextStep(r);return}}
+  if(st.t==='fight'&&st.foes_){if(!st.woke&&Math.hypot(st.x-P.x,st.z-P.z)<15){st.woke=1;st.foes_.forEach(n=>{n.aggro=1;n.tgt='P';n.mode='wander';bubble(n,pick(n.taunt||CL[n.cl].taunt||['Get him!']),2)});sfx('whistle')}if(st.foes_.every(n=>n.down>0)){const r=st.done&&st.done();if(AM&&curStep()===st)nextStep(r);return}}
   if(st.stealth&&!st.spotted){let mx=0;for(const n of NP){if(n.down||n.blind||n.hidden||n.temp&&!n.stepTemp)continue;const w=st.watch.includes(n.cl)||(n.auth&&st.watch.includes('auth'));if(!w||n.dp>16)continue;const sees=canSee(n,K.KeyC||toggles.KeyC?6.5:10.5);n.sus=clamp(n.sus+(sees?dt*1.7:-dt*.6),0,1.2);if(n.sus>.25&&sees&&(!n.bub||!n.bub.visible))bubble(n,'?',1);mx=Math.max(mx,n.sus);if(n.sus>=1){st.spotted=1;bubble(n,'!',2);sfx('whistle');
       if(st.spot==='fail'){failMission('You were spotted.');return}
       if(st.spot==='back'){NP.forEach(m=>m.sus=0);st.spotted=0;try{st.back&&st.back(n)}catch(e){}break}
@@ -182,7 +182,7 @@ function nearest(){let best=null,bd=1e9;const add=(x,z,r,label,f,pri=1)=>{const 
   if(!P.inside)for(const m of av){if(C1PEND.has(m.id))continue;const w=mWho(m);if(w&&NN[w])continue;const[x,z]=mAt(m);add(x,z,2.6,'Start task: '+m.name,()=>tryStart(m),0)}
   if(EV)return best;
   try{lootPrompts(add)}catch(e){}
-  for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?0:2)}
+  for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?-100:2)}/* V417 a task giver in reach wins over a bystander who happens to stand closer */
   try{pqPrompts(add)}catch(e){}try{c2Prompts(add)}catch(e){}try{c3Prompts(add)}catch(e){}try{c4Prompts(add)}catch(e){}try{c5Prompts(add)}catch(e){}try{c6Prompts(add)}catch(e){}try{c7Prompts(add)}catch(e){}try{c8Prompts(add)}catch(e){}try{c9Prompts(add)}catch(e){}try{c10Prompts(add)}catch(e){}
   if(P.inside){const I=INT[P.inside];if(I)for(const o of I.objs)add(o.x,o.z,o.r,o.label,o.f,1);return best}
   if(!P.inside){if(S.ch>=3&&P.z<OD)add(70,699,3.2,'Enter the Lake District',()=>lakeGo(1),2);else if(P.z>OD&&P.z<INTZ)add(70,LZ+546.5,3.2,'Leave the Lake District',()=>lakeGo(0),2)}

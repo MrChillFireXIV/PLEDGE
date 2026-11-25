@@ -3,6 +3,10 @@
 
     python3 pages/publish.py
     python3 pages/publish.py --preview --out _site/preview     (test build at /PLEDGE/preview/: own save storage, PREVIEW badge, not indexed)
+    python3 pages/publish.py --preview --console --out _site/console   (console test build at /PLEDGE/console/, from the console-preview branch)
+
+V440: the PC preview build also builds the console-preview branch (pushed by tools/console.sh from the 'console' branch) into /PLEDGE/console/,
+with its own save storage ('console~' keys) and a CONSOLE TEST badge. The console site gets Xbox / Edge and controller work; the PC preview never does.
 
 1. Runs build.py --check (builds dist/PLEDGE.html and syntax-checks the JS).
 2. Stops if the save keys changed. Players' saves live under these keys, so renaming them would
@@ -13,6 +17,7 @@ import json, os, re, shutil, subprocess, sys, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PREVIEW = '--preview' in sys.argv
+CONSOLE = '--console' in sys.argv
 SITE = os.path.abspath(sys.argv[sys.argv.index('--out') + 1]) if '--out' in sys.argv else os.path.join(ROOT, '_site')
 SAVE_KEYS = ["'pledge.save.v1'", "'pledge.save.s'", "'pledge.slot'"]
 
@@ -41,12 +46,15 @@ def main():
         sys.exit('STOP: the save keys %s are gone from the game code. Players would lose their saves. '
                  'Keep the old keys (or add a migration) and update SAVE_KEYS in pages/publish.py.' % ', '.join(missing))
 
-    v = version() + ('-preview' if PREVIEW else '')
+    v = version() + ('-console' if CONSOLE else '-preview' if PREVIEW else '')
     guard = open(os.path.join(ROOT, 'pages', 'save-guard.js'), encoding='utf-8').read().replace('__PLEDGE_VERSION__', v)
     assert '</script' not in guard.lower()
     tag = '<script>\n' + guard + '\n</script>'
     if PREVIEW:
         iso = open(os.path.join(ROOT, 'pages', 'preview-storage.js'), encoding='utf-8').read()
+        if CONSOLE:   # its own saves and badge, so console tests never mix with PC preview saves
+            iso = iso.replace("var P = 'preview~';", "var P = 'console~';").replace("'PREVIEW · separate saves'", "'CONSOLE TEST · separate saves'").replace('background:#c0392b', 'background:#2a7a3a')
+            assert "'console~'" in iso
         assert '</script' not in iso.lower()
         tag = '<meta name="robots" content="noindex"><script>\n' + iso + '\n</script>' + tag   # storage first, so the guard and the game only see preview keys
     i = html.lower().find('<head>')
@@ -64,7 +72,27 @@ def main():
     json.dump({'version': v, 'built': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')},
               open(os.path.join(SITE, 'version.json'), 'w'))
     open(os.path.join(SITE, '.nojekyll'), 'w').close()
+    for extra in ('gltest.html',):   # console-branch test pages, if this branch has them
+        if os.path.exists(os.path.join(ROOT, 'pages', extra)):
+            shutil.copy(os.path.join(ROOT, 'pages', extra), os.path.join(SITE, extra))
     print('site ready: %s/index.html (%s, %s bytes)' % (os.path.relpath(SITE, ROOT), v, format(len(html), ',')))
+    if PREVIEW and not CONSOLE:
+        build_console()
+
+
+def build_console():
+    """V440: build the console-preview branch (if any) into ../console next to this preview. A failure here never stops the PC preview."""
+    out = os.path.join(os.path.dirname(SITE), 'console')
+    wt = '/tmp/pledge-console'
+    try:
+        if subprocess.run(['git', 'fetch', '--depth', '1', 'origin', 'console-preview'], cwd=ROOT).returncode:
+            print('no console-preview branch: no console site'); return
+        shutil.rmtree(wt, ignore_errors=True)
+        subprocess.run(['git', 'worktree', 'add', '-f', wt, 'FETCH_HEAD'], cwd=ROOT, check=True)
+        r = subprocess.run([sys.executable, os.path.join(wt, 'pages', 'publish.py'), '--preview', '--console', '--out', out], cwd=wt)
+        print('console site:', 'ready' if r.returncode == 0 else 'build failed (PC preview unaffected)')
+    except Exception as e:
+        print('console site skipped:', e)
 
 
 if __name__ == '__main__':
