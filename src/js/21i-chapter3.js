@@ -382,10 +382,11 @@ function c3Brawl(){const st=curStep(),I=INT.asr,F=[];const nm=['Chase Holloway',
   // half of them go for each other, half for Danny (the one who 'knows something')
   F.forEach((n,i)=>{if(i<4){n.foe=1;n.aggro=1;n.tgt='P'}else{n.aggro=1;n.tgt=F[(i+1)%4+4]}bubble(n,pick(['Where\'s the money?!','You took it!','I\'ve seen your new shoes!','Liar!','Get off me!']),2.4)});st.foes_=F.slice(0,4);sfx('whistle')}
 const c3BrawlOk=()=>{const st=curStep();return st&&st.foes_&&st.foes_.every(n=>n.down>0||!NP.includes(n))};
-const C3SAFE=[6.5,12.6];
+/* V462 the safe stands with its back against the wall, just left of the bedroom doorway (the dresser on the other side would hide it from the camera), its door facing into the room (it used to stand out in the middle of the floor) */
+const C3SAFE=[4.1,15.42];const C3BAG=[2.8,14.7];
 /* ================================================================ V279 the security camera in the ΑΣΡ upstairs bedroom, and its footage */
 const C3CAM=[11.92,3.45,7.4];                  /* where the camera's wall bracket is, in the second floor's own coordinates */
-const C3CCV={pos:[11.06,3.09,7.82],look:[7,.8,12.3],fov:50};   /* what the camera sees: the safe, the open door behind it, the bed corner */
+const C3CCV={pos:[11.06,3.09,7.82],look:[4.3,.8,14.2],fov:50};   /* what the camera sees: the safe, the open door behind it, the bed corner */
 const C3CC={on:0,tw:[],t:0,ts:'',fov0:0,flt:''};
 function c3CctvProp(on){
   if(C3.cctv){C3.cctv.parent&&C3.cctv.parent.remove(C3.cctv);C3.cctv=null}
@@ -406,7 +407,7 @@ function c3CctvProp(on){
 const C3SAFEOPEN=1.9;
 /* the safe: its door hangs on a hinge so the footage can swing it open; shut and full until then */
 function c3SafeProp(on){if(C3.safe){C3.safe.parent&&C3.safe.parent.remove(C3.safe);C3.safe=null}c3CctvProp(0);if(!on)return;const U=INT.asr_up;if(!U)return;
-  const g=new THREE.Group();g.position.set(U.x0+C3SAFE[0],0,U.z0+C3SAFE[1]);g.rotation.y=PI/2;
+  const g=new THREE.Group();g.position.set(U.x0+C3SAFE[0],0,U.z0+C3SAFE[1]);g.rotation.y=PI;
   const b=new THREE.Mesh(bgeo(.8,.9,.7),mt(0x2a2a30,.4,.6));b.position.y=.45;g.add(b);
   c3M(bgeo(.6,.72,.02),mt(0x050506,.9),0,.45,.355,g);
   const cash=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++){const m=c3M(bgeo(.19,.1,.1),mt(r%2?0xaed0a0:0xbcdcae,.8),-.2+c*.2,.2+r*.2,.4,g);m.visible=false;cash.push(m)}
@@ -454,8 +455,8 @@ async function c3CctvCine(done){
   await c6Cine(async()=>{
     await c4Wt(2.1);
     /* in through the door: Preston first, with the key */
-    c4To(pre,...W(6,14.6),2.3);await c4Wt(.55);c4To(chip,...W(7.4,15),2.3);await c4Wt(1.25);c4To(pre,...W(7.7,13.5),2.1);c4To(chip,...W(8.6,13.6),2.1);await c4Wt(.8);c4To(pre,...W(7.55,12.4),1.6);c4To(chip,...W(8.2,10.75),1.6);await c4Wt(1.2);
-    $('c3ccmot').hidden=false;c4Look(pre,...W(sf[0],sf[1]));c4Look(chip,...W(7.5,11.45));
+    c4To(pre,...W(6,14.6),2.3);await c4Wt(.55);c4To(chip,...W(7.4,15),2.3);await c4Wt(1.25);c4To(pre,...W(5.1,13.8),2.1);c4To(chip,...W(3.8,13.6),2.1);await c4Wt(.8);c4To(pre,...W(sf[0],sf[1]-1.05),1.6);c4To(chip,...W(C3BAG[0]-.1,C3BAG[1]-.75),1.6);await c4Wt(1.2);
+    $('c3ccmot').hidden=false;c4Look(pre,...W(sf[0],sf[1]));c4Look(chip,...W(C3BAG[0],C3BAG[1]));
     await c4Wt(.5);
     /* Preston bends to the lock; the door swings open */
     pre.pup.arms=-1.15;pre.pup.lean=-.38;pre.pup.dy=-.1;await c3cTw(.8,k=>{pre.pup.lean=-.38*k;pre.pup.dy=-.1*k});await c4Wt(.5);
@@ -465,7 +466,7 @@ async function c3CctvCine(done){
     const cash=C3.safe.userData.cash,mound=bag.userData.mound;let landed=0;const all=[];
     for(let i=0;i<cash.length;i++){
       const m=cash[i],f=new THREE.Mesh(bgeo(.19,.1,.1),m.material);f.userData.noMerge=1;
-      const sx=U.x0+C3SAFE[0]+.4,sy=.2+Math.floor(i/3)*.2,sz=U.z0+C3SAFE[1]+.2-(i%3)*.2,ex=U.x0+7.5,ez=U.z0+11.45;
+      const wp=m.getWorldPosition(new THREE.Vector3()),sx=wp.x,sy=wp.y,sz=wp.z,ex=U.x0+C3BAG[0],ez=U.z0+C3BAG[1];
       m.userData.gone=1;m.visible=false;f.position.set(sx,sy,sz);U.g.add(f);fly.push(f);
       all.push(c3cTw(.6,k=>{f.position.set(sx+(ex-sx)*k,sy+(.36-sy)*k+Math.sin(k*PI)*.55,sz+(ez-sz)*k);f.rotation.set(0,k*2.2,k*1.1);if(k>=1){f.visible=false;mound[i].visible=true;mound[i].userData.l=1}}));
       await c4Wt(.42)}
@@ -479,7 +480,7 @@ async function c3CctvCine(done){
     await Promise.all([c3cTw(.35,k=>{pre.c3flip=k;if(pre.c3fin)pre.c3fin.visible=k>.5}),c4Wt(.25).then(()=>c3cTw(.35,k=>{chip.c3flip=k;if(chip.c3fin)chip.c3fin.visible=k>.5}))]);
     await c4Wt(3.6);
     /* and out, backwards, still looking into the lens */
-    pre.pup.back=1;chip.pup.back=1;c4To(pre,...W(7.7,13.6),1.7);c4To(chip,...W(8.5,13.4),1.7);await c4Wt(1.6);c4To(pre,...W(6,16.4),1.7);c4To(chip,...W(6.8,17.6),1.7);await c4Wt(2.4);
+    pre.pup.back=1;chip.pup.back=1;c4To(pre,...W(5.1,13.6),1.7);c4To(chip,...W(3.8,13.7),1.7);await c4Wt(1.6);c4To(pre,...W(6,16.4),1.7);c4To(chip,...W(6.8,17.6),1.7);await c4Wt(2.4);
     await c4Fade(async()=>{})
   },done,{fade:async()=>{
       c3SafeProp(1);const g=new THREE.Group();g.userData.noMerge=1;
@@ -488,7 +489,7 @@ async function c3CctvCine(done){
       for(const s of[-.2,.2]){const h=new THREE.Mesh(new THREE.TorusGeometry(.1,.012,6,12,PI),mt(0x15151a,.8));h.position.set(s,.33,0);h.rotation.y=PI/2;g.add(h)}
       const lid=c3M(bgeo(.62,.05,.26),mt(0x22262e,.7),0,.35,0,g);lid.visible=false;g.userData.lid=lid;
       const mound=[];for(let i=0;i<9;i++){const m=c3M(bgeo(.19,.1,.1),mt(i%2?0xaed0a0:0xbcdcae,.8),-.2+(i%3)*.2,.26+Math.floor(i/3)*.07,((i*5)%3-1)*.05,g);m.visible=false;mound.push(m)}g.userData.mound=mound;
-      g.position.set(U.x0+7.5,0,U.z0+11.45);U.g.add(g);bag=g;C3CC.bag=bag;C3CC.carry=0;
+      g.position.set(U.x0+C3BAG[0],0,U.z0+C3BAG[1]);U.g.add(g);bag=g;C3CC.bag=bag;C3CC.carry=0;
       const o={tag:'c3cc',int:'asr_up',house:'kto',lvl:6,title:'Kappa Theta Omega'};
       const a=W(6,19.2),b=W(7.2,20.2);
       pre=c4Pup('legacies',a[0],a[1],PI,Object.assign({name:'KTO Brother A'},o));chip=c4Pup('legacies',b[0],b[1],PI,Object.assign({name:'KTO Brother B'},o));
@@ -508,6 +509,9 @@ function c3RecruitChoice(n){if(!AM||AM.m.id!=='c3accuse')return null;const st=cu
 function c3RecruitPrompts(add){const st=curStep();if(!st||st.ok!==c3RecruitOk)return;const s=c3S();
   for(const n of c3PledgeList()){if(s.pl[nid(n)]||(n.int||null)!==(P.inside||null))continue;add(n.x,n.z,2.2,'Recruit '+n.name.split(' ')[0]+': "We\'re hitting ΚΘΩ tonight."',()=>c3RecruitDo(n),2)}}
 const c3RecruitOk=()=>Object.keys(c3S().pl).length>=5;
+/* V462 a pledge recruited for the hit stays with Danny for the rest of Accusations: no 'go home' on the talk wheel, and if anything else switches his following off it is put back */
+const c3Keep=n=>!!(n&&((AM&&AM.m.id==='c3accuse')||(!AM&&S.done.c3accuse&&!S.done.c3empire))&&c3S().pl&&c3S().pl[nid(n)]);
+function c3KeepTick(){if(!AM||AM.m.id!=='c3accuse')return;const s=c3S();for(const k in s.pl||{}){const n=NN[k];if(n&&!n.down&&!n.follow){n.follow=1;n.job=null;n.leaveT=0;n.path=null}}}
 function c3Followers(on){const s=c3S();let i=0;for(const k in s.pl){const n=NN[k];if(!n)continue;if(on){n.follow=1;n.job=null;n.hidden=0;if((n.int||null)!==(P.inside||null)||Math.hypot(n.x-P.x,n.z-P.z)>20){const[x,z]=c3Free(P.x-1.5+(i%3)*1.5,P.z-2-Math.floor(i/3)*1.4);n.x=x;n.z=z;n.path=null}n.int=P.inside||null;i++}else{n.follow=0;n.aggro=0;n.tgt=null;n.coked=0;if(n.c3nose){n.c3nose.parent&&n.c3nose.parent.remove(n.c3nose);n.c3nose=null}}}}
 
 // ================================================================ quest e · Cocaine Empire
@@ -607,7 +611,7 @@ const C3M=[
    C_('Accusations','','Somebody throws the first punch. Nobody remembers who. Then the whole living room is swinging.',[['Break it up',null]]),
    {t:'cond',lab:()=>'\nBreak up the brawl: put down the four brothers swinging at you',ok:c3BrawlOk,start:()=>{if(P.inside!=='asr')goIn('asr');c3Brawl()},goal:()=>{const st=curStep(),n=st&&st.foes_&&st.foes_.find(n=>!(n.down>0));return n?[n.x,n.z]:null}},
    C_('Accusations','Wes Morrow · ΑΣΡ Treasurer','Wes is standing in the doorway with a laptop. "Can everybody stop hitting each other? The safe upstairs has a camera. Nobody ever checks the camera."',[['"Show me."',()=>c3SafeProp(1)]]),
-   go([0,0],'Check the safe and the security camera in the upstairs bedroom',{press:1,act:'Check the camera footage',r:2.2,goal:()=>{const U=INT.asr_up;return P.inside==='asr_up'?[U.x0+C3SAFE[0],U.z0+C3SAFE[1]+1]:c3Route({int:'asr_up',x:U.x0+C3SAFE[0],z:U.z0+C3SAFE[1]+1})},start:()=>{const st=curStep(),U=INT.asr_up;st.x=U.x0+C3SAFE[0];st.z=U.z0+C3SAFE[1]+1}}),
+   go([0,0],'Check the safe and the security camera in the upstairs bedroom',{press:1,act:'Check the camera footage',r:2.2,goal:()=>{const U=INT.asr_up;return P.inside==='asr_up'?[U.x0+C3SAFE[0],U.z0+C3SAFE[1]-1.1]:c3Route({int:'asr_up',x:U.x0+C3SAFE[0],z:U.z0+C3SAFE[1]-1.1})},start:()=>{const st=curStep(),U=INT.asr_up;st.x=U.x0+C3SAFE[0];st.z=U.z0+C3SAFE[1]-1.1}}),
    {t:'cine',run:c3CctvCine},
    C_('Accusations','','On the laptop, timestamped 3:12 AM Thursday: two guys in navy blazers walk into the bedroom with a key, open the safe, and fill a gym bag. One of them looks straight into the camera and gives it the finger.\n\nThe ring on his finger has three Greek letters on it. ΚΘΩ.',[['"Kappa Theta Omega."',null]]),
    C_('Accusations','Wes Morrow · ΑΣΡ Treasurer','Wes has gone white. He leans in until his nose is almost on the screen.\n\n"That ring. Pause it. That RING." He points with a hand that still has tape glue on the wrist. "The one under the hood who did all the talking. He kept tapping it on the arm of my chair. All night. Tap, tap, tap."\n\n"It was them. The money and me. The same guys."',[['"Preston."',null]]),
@@ -637,7 +641,7 @@ const C3M=[
 M.push(...C3M);
 
 // ================================================================ hooks: prompts, tick, saves
-function c3Prompts(add){if(!AM)return;const id=AM.m.id;if(id==='c3house')c3HousePrompts(add);else if(id==='c3secret')c3SecretPrompts(add);else if(id==='c3missing'){c3CluePrompts(add);c3WesTick()/* V422 ΚΘΩ is not hostile here any more: nobody knows it was them yet */}else if(id==='c3accuse')c3RecruitPrompts(add);else if(id==='c3empire')c3EmpirePrompts(add);else if(id==='c3frame')c3PlantPrompts(add)}
+function c3Prompts(add){if(!AM)return;const id=AM.m.id;if(id==='c3accuse')c3KeepTick();if(id==='c3house')c3HousePrompts(add);else if(id==='c3secret')c3SecretPrompts(add);else if(id==='c3missing'){c3CluePrompts(add);c3WesTick()/* V422 ΚΘΩ is not hostile here any more: nobody knows it was them yet */}else if(id==='c3accuse')c3RecruitPrompts(add);else if(id==='c3empire')c3EmpirePrompts(add);else if(id==='c3frame')c3PlantPrompts(add)}
 let C3T=0;
 // V200 a gold marker over every set-up job still to do (and every furniture drop spot while carrying), on the third floor
 function c3JobMarks(){const st=AM&&AM.m.id==='c3house'&&curStep(),s=c3S(),I=INT.asr_top,L=[];
