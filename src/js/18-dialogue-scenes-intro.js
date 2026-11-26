@@ -183,6 +183,17 @@ function itemTex(k){return ICT[k]||(ICT[k]=(()=>{const c=document.createElement(
 function dropLoot(t){const lvl=t.lvl;let total=Math.round(lvl*lvl*.45+lvl*.8+rnd()*lvl);if(t.pledge)total=Math.max(1,Math.round(total*.6));const cnt=clamp(1+Math.floor(lvl/2),1,7);let left=total;
   for(let i=0;i<cnt&&left>0;i++){const v=i===cnt-1?left:Math.max(1,Math.round(total/cnt));left-=v;spawnLoot(t,{v})}
   const pool=lvl>=6?['bandage','burger','drink','stink']:['bandage','drink','burger'];if(rnd()<.15+lvl*.05)spawnLoot(t,{item:pick(pool)});if(lvl>=9)spawnLoot(t,{item:pick(pool)})}
+/* V463 a knocked-out person no longer sprays coins: what he had stays in his pockets until Danny goes through them (E next to him while he is down) */
+function koPurse(t){const lvl=t.lvl||1;let total=Math.round(lvl*lvl*.45+lvl*.8+rnd()*lvl);if(t.pledge)total=Math.max(1,Math.round(total*.6));const it=[];const pool=lvl>=6?['bandage','burger','drink','stink']:['bandage','drink','burger'];if(rnd()<.15+lvl*.05)it.push(pick(pool));if(lvl>=9)it.push(pick(pool));t.purse={v:total,items:it}}
+/* where the body actually lies (a ragdoll slides away from n.x/n.z) */
+function koAt(n){try{const h=n.g&&n.g.P&&n.g.P.hips;if(h){const v=h.getWorldPosition(new THREE.Vector3());return[v.x,v.z]}}catch(e){}return[n.x,n.z]}
+function koPrompts(add){for(const n of NP){if(!n.purse||!(n.down>0)||n.hidden||(n.int||null)!==(P.inside||null))continue;if(Math.abs(n.x-P.x)>3.5||Math.abs(n.z-P.z)>3.5)continue;const[bx,bz]=koAt(n);add(bx,bz,1.9,'Go through '+(n.name||'his').split(' ')[0]+'\'s pockets',()=>koPick(n),2)}}
+function koPick(n){const p=n.purse;if(!p)return;n.purse=null;P.bike=0;P.vx=P.vz=0;const[bx,bz]=koAt(n);{const d=Math.hypot(P.x-bx,P.z-bz);if(d<.75){const ux=d>.01?(P.x-bx)/d:1,uz=d>.01?(P.z-bz)/d:0,nx=bx+ux*.8,nz=bz+uz*.8;if(freeAt(nx,nz,.3)){P.x=nx;P.z=nz}}}P.face=Math.atan2(bx-P.x,bz-P.z);
+  /* a quick crouch over him while the hands go through the pockets */P.pick=.9;noise(.12,.08,900);setTimeout(()=>noise(.1,.06,1400),260);
+  const got=[];if(p.v>0){money(p.v);got.push('$'+p.v)}const left=[];for(const k of p.items){if(invAdd(k))got.push(ITM[k].ic+' '+ITM[k].n);else left.push(k)}
+  if(left.length){n.purse={v:0,items:left};toast('Your pockets are full ('+invSize()+' items).',1600)}
+  sfx('coin');toast(got.length?'You go through '+(n.name||'his').split(' ')[0]+'\'s pockets: '+got.join(', '):'Nothing in his pockets but lint.',2200);
+  /* someone in uniform watching: that counts as theft */try{if(NP.some(m=>m.auth&&!m.down&&(m.int||null)===(P.inside||null)&&Math.hypot(m.x-P.x,m.z-P.z)<14)){trouble(20);toast('A cop saw that.',1600)}}catch(e){}}
 function spawnLoot(t,o){let m;if(o.item){m=new THREE.Sprite(new THREE.SpriteMaterial({map:itemTex(o.item),transparent:true,depthWrite:false}));m.scale.set(.75,.75,1)}else{const cm=coinMats(),k=o.v>=8?2:o.v>=3?1:0;m=new THREE.Mesh(GC.coin||(GC.coin=new THREE.CylinderGeometry(.17,.17,.045,16).rotateX(PI/2)),cm[k].m);m.scale.setScalar(cm[k].sz)}
   const a=rnd()*TAU,sp=1.6+rnd()*2.2;const L={m,x:t.x,z:t.z,y:1.2,vx:Math.cos(a)*sp,vz:Math.sin(a)*sp,vy:3.5+rnd()*2,v:o.v||0,item:o.item,int:t.int||null,age:0,ph:rnd()*TAU};m.position.set(L.x,L.y,L.z);sc.add(m);LOOT.push(L)}
 function lootTick(dt){for(let i=LOOT.length-1;i>=0;i--){const L=LOOT[i];L.age+=dt;const here=(L.int||null)===(P.inside||null);L.m.visible=here;
