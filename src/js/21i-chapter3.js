@@ -381,6 +381,16 @@ function c3Stash(on){if(C3.stash){C3.stash.parent&&C3.stash.parent.remove(C3.sta
   const bags=[];const BM=new THREE.MeshStandardMaterial({color:0xf6f6f2,roughness:.35,transparent:true,opacity:.92});for(let r=0;r<3;r++)for(let c=0;c<5;c++){const b=c3M(bgeo(.13,.07,.11),BM,-.3+c*.15,.42+(r%2)*.03,-.15+r*.15,g);b.rotation.y=(r*5+c)%3*.2-.2;bags.push(b)}
   g.userData.bags=bags;g.userData.lid=lid;I.g.add(g);C3.stash=g}
 function c3StashTake(){const g=C3.stash;if(!g)return;sfx('ok');let i=0;for(const b of g.userData.bags){if(i++<10)b.visible=false}setTimeout(()=>{if(C3.stash===g)c3Stash(0)},4000)}
+/* V464 Grant hands over the three bags for Framing: three baggies pass from his hand to Danny's, one by one */
+async function c3FrameBags(done){const g=NN.grant;if(!g||!g.g||P.inside!=='asr'){if(done)done();return}await c6Cine(async()=>{const gp=g.g.position,a=g.a||0,hx=gp.x+Math.sin(a)*.45,hz=gp.z+Math.cos(a)*.45,hy=gp.y+1.0;
+    c4Shot([(gp.x+P.x)/2+2.4,gp.y+1.9,(gp.z+P.z)/2+.6],[(gp.x+P.x)/2,gp.y+1.05,(gp.z+P.z)/2]);await c4Wt(.4);
+    const M_=new THREE.MeshStandardMaterial({color:0xf6f6f2,roughness:.35});const bs=[];
+    for(let i=0;i<3;i++){const b=new THREE.Mesh(bgeo(.12,.04,.09),M_);b.userData.noMerge=1;b.position.set(hx+(i-1)*.12,hy,hz);sc.add(b);bs.push(b)}
+    bubble(g,'Three. One per house.',2);await c4Wt(.9);
+    for(let i=0;i<3;i++){const b=bs[i],x0=b.position.x,z0=b.position.z,x1=P.x+Math.sin(P.face)*.3,z1=P.z+Math.cos(P.face)*.3,y1=(P.y||0)+1.0;
+      for(let t=0;t<=1.001;t+=.08){b.position.set(x0+(x1-x0)*t,hy+(y1-hy)*t+Math.sin(t*PI)*.25,z0+(z1-z0)*t);b.rotation.y=t*3;await c4Wt(.03)}sfx('ui');b.visible=false;await c4Wt(.25)}
+    for(const b of bs)sc.remove(b);M_.dispose();c1Sub('','Three small bags go into your jacket.');await c4Wt(2);c1Sub(null)},done,
+    {fade:async()=>{const g2=NN.grant;if(g2){const a=g2.a||0,[x,z]=c3Free(g2.x+Math.sin(a)*1.5,g2.z+Math.cos(a)*1.5,.4);c4DanAt(x,z,Math.atan2(g2.x-x,g2.z-z))}}})}
 /* V422 Tank comes along on the rescue (Grant sends only the two of them): one Tank, made again after a load */
 function c3TankAlly(){if(!AM)return;if(AM.temps.some(n=>n.ally&&NP.includes(n)))return;spawnAlly('tank')}
 function c3CopsAtHouse(on){for(const n of C3.cops||[])if(NP.includes(n))despawn(n);C3.cops=[];if(C3.copCar){sc.remove(C3.copCar);C3.copCar=null}if(!on)return;
@@ -545,7 +555,7 @@ const c3FaceOk=()=>c3S().faces>=10;
 // the floor plan of the stash: each of the three houses has a spot under its dining table (recorded for every house by dineGrab)
 const C3PLANT=[['opd','ΩΨΔ',[91,32]],['kan','ΚΑΝ',[91,120]],['gwz','ΓΩΖ',[91,164]]];
 function c3PlantSpot(id){const I=INT[id];if(!I)return null;const c=I.dine&&I.dine.c?I.dine.c:[38.5,27];const[x,z]=c2Free(id,c[0],c[1]+2.4);return[I.x0+x,I.z0+z]}
-function c3PlantLab(){const s=c3S();return'\nPlant a stash in each ring house without being seen ('+C3PLANT.filter(([k])=>s.plant[k]).length+'/3)\n'+C3PLANT.map(([k,L])=>(s.plant[k]?'✓ ':'○ ')+L+' house, under the dining table').join('\n')}
+function c3PlantLab(){const s=c3S(),left=3-C3PLANT.filter(([k])=>s.plant[k]).length;return'\nPlant a stash in each ring house without being seen ('+(3-left)+'/3) · bags on you: '+left+'\n'+C3PLANT.map(([k,L])=>(s.plant[k]?'✓ ':'○ ')+L+' house, under the dining table').join('\n')}
 function c3PlantGoal(){const s=c3S(),n=C3PLANT.find(([k])=>!s.plant[k]);if(!n)return null;const[k,,door]=n;if(P.inside===k)return c3PlantSpot(k);if(P.inside)return[INT[P.inside].x0+INT[P.inside].dX,INT[P.inside].z0+INT[P.inside].d-1.4];return door}
 function c3PlantPrompts(add){const st=curStep();if(!st||st.ok!==c3PlantOk)return;const s=c3S();for(const[k,L]of C3PLANT){if(s.plant[k]||P.inside!==k)continue;const p=c3PlantSpot(k);if(!p)continue;
   add(p[0],p[1],2,'Plant the stash under the '+L+' dining table',()=>{const w=NP.find(n=>!n.down&&!n.hidden&&(n.int||null)===k&&Math.hypot(n.x-P.x,n.z-P.z)<9&&canSee(n,9));if(w){bubble(w,'Hey! What are you doing back there?',2.2);sfx('bad');trouble(15);toast('Someone saw you. Wait until nobody\'s looking.',2600);return}
@@ -556,7 +566,7 @@ function c3Party(on){const I=INT.asr;if(!I)return;if(on){if(!C3.party){const sp=
       C3.party=c1Crowd(sp,{k:'c3party',SH:[0x7d1f2c,0x7d1f2c,0xdc8aa6,0x1d2440,0xf2f2ee,0x2a2a30,0x3a6a3a],PA:[0x2a2a30,0x34486e,0x1a1a22],HA:[0x151515,0x4a3020,0xc8a24a,0x6a3a1a],fem:.45});I.g.add(C3.party.g);
       // a disco ball and glowing party lights (meshes, not real lights: adding lights would recompile every shader)
       const ball=c3M(new THREE.SphereGeometry(.45,16,12),mt(0xe8e8f0,.12,.95),I.x0+24,4.9,I.z0+26,I.g),d=[ball];for(const[x,z,c]of[[8,26,0xff3ad8],[24,30,0x3ad8ff],[40,26,0xffd83a],[16,21,0x7aff6a],[32,21,0xff6a3a]])d.push(c3M(new THREE.SphereGeometry(.16,10,8),new THREE.MeshBasicMaterial({color:c}),I.x0+x,5.6,I.z0+z,I.g));C3.disco=d}
-    C3.party.g.visible=true}else if(C3.party)C3.party.g.visible=false}
+    C3.party.g.visible=true}else{if(C3.party)C3.party.g.visible=false;if(C3.mound){C3.mound.parent&&C3.mound.parent.remove(C3.mound);C3.mound=null}}}
 
 // ================================================================ the quests
 /* V305 time skips that keep the story's days straight. Skipped days are not played, so no newDay() (it would fire the pledge-job 'yesterday' penalties), same as c2ToSat */
@@ -646,10 +656,14 @@ const C3M=[
  {id:'c3frame',ch:3,main:1,name:'Framing',who:'grant',pre:['c3empire'],steps:()=>[
    {t:'fx',f:()=>c3Morning()},   /* V305 Grant reads about the raid in the morning paper */
    CR_('Framing','Grant Ashby · Chapter president','He has the Herald open on his lap. KTO SHUT DOWN IN COCAINE RAID. He looks happier than you have ever seen him.\n\n"One down. Three houses still know everything we know. ΩΨΔ, ΚΑΝ, ΓΩΖ." He slides three small packages across the arm of the throne. "Under the dining table, in each house. Then one anonymous phone call, and Alpha Sigma Rho is the only house left that knows anything."',[['Take the packages',null,undefined,1],['"These are our partners."','"Partners get greedy. Partners get curious. Kappa Theta Omega already stabbed us in the back, Danny."\n\nHe doesn\'t raise his voice, which is worse. "We can\'t take a second chance. Under the table. Three houses, tonight."',undefined,-1]]),
-   {t:'cond',lab:c3PlantLab,ok:c3PlantOk,goal:c3PlantGoal},
+   /* V464 the three bags go from Grant's hand into Danny's: a short scene, and a count in the objective */
+   {t:'cine',run:c3FrameBags},
+   {t:'cond',lab:c3PlantLab,ok:c3PlantOk,goal:c3PlantGoal,trs:1},
    /* V401 the call, the raids and the front page are a scene now (c3FrameCine) */{t:'cine',run:c3FrameCine},
    go(SPOT.ASR,'Go home. ΑΣΡ is throwing a party tonight',{r:3,act:'Go to the party',done:()=>{c3Party(1);if(P.inside!=='asr')goIn('asr')}}),
-   C_('Framing','Grant Ashby · Chapter president','The house is shaking. Somebody hung a disco ball from the composite wall. On the coffee table, someone has spelled ΑΣΡ in white powder, very neatly.\n\nGrant raises a glass. "To the last house standing!"\n\nFourteen brothers and a pledge class roar back. You raise your glass too. It\'s water. Nobody notices.',[['"To the last house standing."',()=>{stand(10);gainXP(40)}]])],
+   /* V464 the victory party is a scene: powdered faces, a mound of it in the middle of the living room, snow angels, powder thrown up and raining down */
+   {t:'cine',run:c3CokeParty},
+   C_('Framing','Grant Ashby · Chapter president','Grant climbs onto the coffee table, white to the eyebrows, and raises a glass. "To the last house standing!"\n\nFourteen brothers and a pledge class roar back. You raise your glass too. It\'s water. Nobody notices.',[['"To the last house standing."',()=>{stand(10);gainXP(40)}]])],
   fin:()=>{setTimeout(()=>c3Party(0),20000)}}];
 M.push(...C3M);
 

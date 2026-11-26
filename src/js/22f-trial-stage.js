@@ -256,7 +256,7 @@ function trSnEnd(pass){const T=TSN;if(!T)return;TSN=null;for(const n of T.G)if(N
   if(pass==null)toast('You walk away from the trial. It will still be here.',2800);else T.done(pass)}
 function trSnTick(dt){const T=TSN;if(!T)return;if(mode!=='play')return;T.t+=dt;T.grace-=dt;if(P.inside||P.dead||Math.hypot(P.x-T.sx,P.z-T.sz)>60){trSnEnd(null);return}
   if(T.C.crawl)toggles.KeyC=1;T.ring.scale.setScalar(1+Math.sin(T.t*4)*.08);
-  let mx=0;const crouch=K.KeyC||toggles.KeyC;for(const n of T.G){if(!NP.includes(n))continue;const sees=T.grace<=0&&canSee(n,crouch?6.5:10.5);n.sus=clamp((n.sus||0)+(sees?dt*1.7:-dt*.6),0,1.2);if(n.sus>.25&&sees&&(!n.bub||!n.bub.visible))bubble(n,'?',1);mx=Math.max(mx,n.sus);
+  let mx=0;const crouch=K.KeyC||toggles.KeyC;for(const n of T.G){if(!NP.includes(n))continue;const sees=T.grace<=0&&canSee(n,10.5);n.sus=clamp((n.sus||0)+(sees?dt*1.7:-dt*.6),0,1.2);if(n.sus>.25&&sees&&(!n.bub||!n.bub.visible))bubble(n,'?',1);mx=Math.max(mx,n.sus);
     if(n.sus>=1){T.caught++;bubble(n,pick(['HEY! YOU!','I see you, pledge!','Back to the start!']),2);sfx('whistle');for(const m of T.G)m.sus=0;trSnHud();
       if(T.caught>=3){trSnEnd(false);return}const f=$('fade');f.style.opacity=1;setTimeout(()=>{if(TSN===T){P.x=T.sx;P.z=T.sz;P.vx=P.vz=0;P.face=T.face;yaw=T.face+PI;T.grace=1.5}f.style.opacity=0},350);toast('Spotted. Back to the start. ('+T.caught+' of 3)',2400);break}}
   try{stealthVis(T.st,mx)}catch(e){}

@@ -214,7 +214,8 @@ function drawTag(n){const c=n.tag.userData.c,q=c.getContext('2d');q.clearRect(0,
 
 // ================================================================ VISION
 function los(x0,z0,x1,z1){const d=Math.hypot(x1-x0,z1-z0);for(let t=.8;t<d-.5;t+=.5){if(hAt(x0+(x1-x0)*t/d,z0+(z1-z0)*t/d)>1.7)return false}return true}
-function canSee(n,range){range*=prSeeMul();if(n.down||n.stun>0)return false;const dx=P.x-n.x,dz=P.z-n.z,d=Math.hypot(dx,dz);if(d>range)return false;if(d>2.2&&(dx*Math.sin(n.a)+dz*Math.cos(n.a))/d<.3)return false;return los(n.x,n.z,P.x,P.z)}
+/* V464 crouching shrinks every line of sight in the game, not just the stealth steps' */const CROUCHSEE=.62,crouching=()=>!!(K.KeyC||toggles.KeyC);
+function canSee(n,range){range*=prSeeMul()*(crouching()?CROUCHSEE:1);if(n.down||n.stun>0)return false;const dx=P.x-n.x,dz=P.z-n.z,d=Math.hypot(dx,dz);if(d>range)return false;if(d>2.2&&(dx*Math.sin(n.a)+dz*Math.cos(n.a))/d<.3)return false;return los(n.x,n.z,P.x,P.z)}
 
 // ================================================================ NPC AI
 /* V171 NPC wall handling: remember the last free spot, climb out of a wall if embedded (spawn, teleport, shove), slide around corners, and give up on a blocked route */
