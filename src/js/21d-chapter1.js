@@ -99,7 +99,10 @@ async function c1IntroCine(done){if(!TRUCK)TRUCK=mkTruck();const TX=69,Z0=230,Z1
   if(r===1)await sayD('"I remember the IMPORTANT stuff! The parties! The paddle! The night we put a cow on the— never mind. Ask somebody. That\'s what your mouth is for. It builds CHARACTER!"',[['"Great. Character."',null]]);
   await sayD('"…Look. I\'m proud of you, kid. Real proud. Here, five bucks. Don\'t spend it all in one place! Now get outta here before I get emotional in front of a dormitory."',[['"Thanks, Dad. Love you too."',null]]);
   if(S.money<5)S.money=5;bubble(dad,'MAKE ME PROUD!',2.5);if(dad.g.P&&dad.g.P.aR)dad.g.P.aR.rotation.x=-2.7;mode='cine';await cineWait(1.4);
-  despawn(dad);tone(180,.12,'square',.05);CINE.shot='c1';CINE.camf=(dt,tx,tz)=>{cam.position.set(P.x+4.5,2.4,P.z+6.5);cam.lookAt(tx,1.4,tz)};$('cineskip').hidden=false;await cineWait(.4);await cineDrive(DX1,606,4.2,{ax:'x',ease:'in'});
+  despawn(dad);tone(180,.12,'square',.05);CINE.shot='c1';CINE.camf=(dt,tx,tz)=>{cam.position.set(P.x+4.5,2.4,P.z+6.5);cam.lookAt(tx,1.4,tz)};$('cineskip').hidden=false;await cineWait(.4);
+  /* V461 Big Ed swings the truck round in the street and drives back the way he came (he used to carry on west, into a building) */
+  {const R_=1.2,T_=1.9,cz=TZ+R_;let t=0;await new Promise(res=>{const f=()=>{t=Math.min(T_,t+1/60);const k=t/T_,e=k*k*(3-2*k),a=e*PI;TRUCK.position.set(DX1-Math.sin(a)*R_,0,cz-Math.cos(a)*R_);TRUCK.position.y=terrH(TRUCK.position.x,TRUCK.position.z);TRUCK.rotation.y=-PI/2+a;try{TRUCK.userData.wh.forEach(w=>w.rotation.x-=.12)}catch(e){}if(t>=T_||!CINE)res();else cineWait(1/60).then(f)};f()})}
+  TRUCK.rotation.y=PI/2;TRUCK.position.z=TZ+2*1.2;await cineDrive(DX1,736,4.2,{ax:'x',ease:'in'});
   cabEnd();TRUCK.visible=false;TRUCK.rotation.y=PI;$('cineskip').hidden=true;CINE=null;mode='play';endScene();document.body.classList.remove('cine');P.face=-PI/2;yaw=P.face+PI;camT=6;S.c1intro=1;
   big('FIND THE HOUSE',2200);setTimeout(()=>toast('Big Ed drove right past it, and you have no map. Find Alpha Sigma Rho on Greek Row: ask people around campus for directions (press E).',7000),900);done()}
 // directions, from whoever you ask

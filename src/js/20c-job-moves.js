@@ -103,11 +103,13 @@ function ramHornGeo(s){const key='mhorn2'+s;if(GC[key])return GC[key];const C=ne
 function mascotHorns(p){const H=SM({color:0xe2d6b8,roughness:.75}),DK=mt(0x2a2420,.9);for(const s of[-1,1]){prMesh(ramHornGeo(s),H,p.head,0,0,0);
     /* the hole cut in the hat: a dark ragged rim with a few frayed flaps of hat fabric around the horn */const rim=prMesh(new THREE.TorusGeometry(.052,.011,6,14),DK,p.head,s*.105,.345,0,0,0,s*.75);
     const cap=s>0?0xd8332e:0x2f9a46;for(let i=0;i<5;i++){const a=i/5*TAU+.3,f=prMesh(new THREE.ConeGeometry(.018,.05,3),mt(cap,.8),rim,Math.cos(a)*.058,0,Math.sin(a)*.058,0,0,0);f.lookAt(rim.localToWorld(new THREE.Vector3(Math.cos(a)*.3,.15,Math.sin(a)*.3)));f.rotateX(PI/2);f.scale.set(1,1,.35)}}}
-function mascotPoncho(p){const pts=[[.115,.3],[.2,.285],[.33,.24],[.42,.15],[.455,.02],[.465,-.12],[.47,-.22]].map(([r,y])=>new THREE.Vector2(r,y));const L=new THREE.LatheGeometry(pts,30),PU=SM({color:0x5b2a86,roughness:.95,side:THREE.DoubleSide});const po=prMesh(L,PU,p.chest,0,0,0);po.scale.set(1,1,.72);
-  /* trim bands: gold, then a row of white diamonds */prMesh(new THREE.TorusGeometry(.465,.012,5,36),SM({color:0xd8b048,roughness:.5,metalness:.4}),po,0,-.19,0,PI/2,0,0);for(let i=0;i<18;i++){const a=i/18*TAU;prMesh(bgeo(.034,.034,.01),mt(0xf2efe6,.8),po,Math.sin(a)*.462,-.11,Math.cos(a)*.462,0,a,PI/4)}
+/* V461 under the poncho the arms swing only a little and stay close to the body, so they never come through the cloth */
+function ponchoArms(p){for(const k of['aL','aR']){const a=p[k];if(!a)continue;const r=a.rotation;r.x=Math.max(-.32,Math.min(.32,r.x));r.z=Math.max(-.1,Math.min(.1,r.z));r.y=Math.max(-.2,Math.min(.2,r.y))}}
+function mascotPoncho(p){/* V461 cut fuller over the shoulders and deeper front to back, so the arms stay under it when he walks (animP keeps the swing small, ponchoArms) */const pts=[[.115,.3],[.21,.285],[.37,.235],[.455,.15],[.48,.02],[.485,-.12],[.49,-.22]].map(([r,y])=>new THREE.Vector2(r,y));const L=new THREE.LatheGeometry(pts,30),PU=SM({color:0x5b2a86,roughness:.95,side:THREE.DoubleSide});const po=prMesh(L,PU,p.chest,0,0,0);po.scale.set(1,1,.9);p.poncho=po;
+  /* trim bands: gold, then a row of white diamonds */prMesh(new THREE.TorusGeometry(.485,.012,5,36),SM({color:0xd8b048,roughness:.5,metalness:.4}),po,0,-.19,0,PI/2,0,0);for(let i=0;i<18;i++){const a=i/18*TAU;prMesh(bgeo(.034,.034,.01),mt(0xf2efe6,.8),po,Math.sin(a)*.482,-.11,Math.cos(a)*.482,0,a,PI/4)}
   prMesh(new THREE.TorusGeometry(.12,.02,6,20),mt(0x3a1a5a,.9),po,0,.3,0,PI/2,0,0);
   /* feather fringe along the hem: white feathers with purple and gold tips */const FG=GC.mfeather||(GC.mfeather=(()=>{const g=new THREE.SphereGeometry(1,8,6);g.scale(.022,.075,.006);g.translate(0,-.07,0);return g})());
-  for(let i=0;i<26;i++){const a=i/26*TAU,f=prMesh(FG,mt([0xf4f1e8,0x7a3ab0,0xd8b048][i%3],.8),po,Math.sin(a)*.472,-.22,Math.cos(a)*.472,0,a,0);f.rotation.x=.18}
+  for(let i=0;i<26;i++){const a=i/26*TAU,f=prMesh(FG,mt([0xf4f1e8,0x7a3ab0,0xd8b048][i%3],.8),po,Math.sin(a)*.492,-.22,Math.cos(a)*.492,0,a,0);f.rotation.x=.18}
   for(const s of[-1,1]){const f=prMesh(FG,mt(0xf4f1e8,.8),p.head,s*.06,.3,-.17,-.9,0,s*.25);f.scale.setScalar(1.2)}}
 
 // ---------------------------------------------------------------- V381 Mascot Pledge ram charge: hold T to drop to all fours and paw the ground like a bull (dust kicks up),

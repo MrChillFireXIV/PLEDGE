@@ -262,7 +262,7 @@ let PMATS=null;function mkPerson(o){if(GFX==='enhanced'&&!o.classic)return mkPer
   const torso=mk(bg,g);g.P={lL,lR,aL,aR,torso};if(o.letters){const lp=new THREE.Mesh(GC.letp||(GC.letp=new THREE.PlaneGeometry(.44,.22)),letMat(o.letters));lp.position.set(0,1.3,.152);g.add(lp)}
   if(o.prop){const pg=GC.propg||(GC.propg=mergeParts([[PG.blade,0xf2c230,0,0,0],[PG.blade,0xd63a3a,0,0,0,PI/2]]));const pr=mk(pg,g,0,2.14,0);g.P.prop=pr;PROPS.push(pr)}
   return g}
-function animP(g,sp,t,st){if(g.RAG)return;animP0(g,sp,t,st);animX(g,sp,t,st);if(g.HOLD&&!g.DIVE)try{holdPose(g)}catch(e){};if(g.DIVE){const p=g.P;/* grenade dive: arms stretched fully overhead */if(p&&p.aL&&p.aR){p.aL.rotation.set(PI,0,.05);p.aR.rotation.set(PI,0,-.05);if(p.eL)p.eL.rotation.set(0,0,0);if(p.eR)p.eR.rotation.set(0,0,0);if(p.hL)p.hL.rotation.set(0,0,0);if(p.hR)p.hR.rotation.set(0,0,0)}}}
+function animP(g,sp,t,st){if(g.RAG)return;animP0(g,sp,t,st);animX(g,sp,t,st);if(g.P&&g.P.poncho&&g.P.poncho.parent&&(!st||st==='talk'||st==='guard'))try{ponchoArms(g.P)}catch(e){}if(g.HOLD&&!g.DIVE)try{holdPose(g)}catch(e){};if(g.DIVE){const p=g.P;/* grenade dive: arms stretched fully overhead */if(p&&p.aL&&p.aR){p.aL.rotation.set(PI,0,.05);p.aR.rotation.set(PI,0,-.05);if(p.eL)p.eL.rotation.set(0,0,0);if(p.eR)p.eR.rotation.set(0,0,0);if(p.hL)p.hL.rotation.set(0,0,0);if(p.hR)p.hR.rotation.set(0,0,0)}}}
 function animP0(g,sp,t,st){const p=g.P,k=Math.min(1,sp/3),w=sp>4.6?11.5:7.6,s=Math.sin(t*w);
   if(st==='bike'){p.lL.rotation.x=-1+Math.sin(t*9)*.5*Math.min(1,sp/4);p.lR.rotation.x=-1-Math.sin(t*9)*.5*Math.min(1,sp/4);p.aL.rotation.x=p.aR.rotation.x=-1.1;return}
   if(st==='sit'){p.lL.rotation.x=p.lR.rotation.x=-1.45;p.aL.rotation.x=p.aR.rotation.x=-1.0;return}
