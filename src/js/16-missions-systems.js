@@ -13,7 +13,7 @@ function availM(){if(AM)return[];return M.filter(m=>!m.auto&&!S.done[m.id]&&(m.s
 function startMission(m){try{chapUnlock(m.id)}catch(e){}/* V230 starting a quest unlocks it on the Chapters screen */AM={m,steps:m.steps().map(s=>Object.assign({},s)),i:0,temps:[]};sfx('ok');runStep()}
 function curStep(){return AM&&AM.steps[AM.i]}
 function runStep(){const st=curStep();if(!st)return finishMission();st.t0=TT;
-  if(st.t==='card'){if(st.fx)st.fx();card({title:st.title,sp:st.sp,text:st.tx,alert:st.alert,focus:st.alert?null:sceneActor(st.sp),ch:(st.ch||[['Continue',null]]).map(([l,f,d])=>[l,()=>{const r=f&&f();if(THM&&(THM.state==='cine'||THM.state==='spin'||THM.state==='retract')){const w=setInterval(()=>{if(THM.state==='done'||!THM.state){clearInterval(w);if(AM)nextStep(r)}},150)}else if(AM)nextStep(r)},d])});return}
+  if(st.t==='card'){if(st.fx)st.fx();card({title:st.title,sp:st.sp,text:st.tx,alert:st.alert,focus:st.alert?null:sceneActor(st.sp),ch:(st.ch||[['Continue',null]]).map(([l,f,d,c,tn])=>[l,()=>{const s0=S.standing,r=f&&f();TONED=S.standing-s0;if(THM&&(THM.state==='cine'||THM.state==='spin'||THM.state==='retract')){const w=setInterval(()=>{if(THM.state==='done'||!THM.state){clearInterval(w);if(AM)nextStep(r)}},150)}else if(AM)nextStep(r)},d,c,tn])});return}
   if(st.t==='fx'){const r=st.f();if(THM&&(THM.state==='cine'||THM.state==='spin'||THM.state==='retract')){const w=setInterval(()=>{if(THM.state==='done'||!THM.state){clearInterval(w);if(AM)nextStep(r)}},150)}else if(AM)nextStep(r);return}
   if(st.t==='cine'){(st.run||introCine)(()=>{if(AM&&curStep()===st)nextStep()});return}
   clearActors();if(st.start)st.start();
@@ -182,7 +182,7 @@ function nearest(){let best=null,bd=1e9;const add=(x,z,r,label,f,pri=1)=>{const 
   const st=curStep();if(st&&st.x!=null&&(st.z>=INTZ)===!!P.inside&&(st.t==='go'||st.t==='event')&&st.press!==0)add(st.x,st.z,st.r||2.4,st.act||st.label,()=>{if(st.t==='go'){if(st.onPress)st.onPress();else completeGo(st)}else evRun(st)},0);
   if(!P.inside)for(const m of av){if(C1PEND.has(m.id))continue;const w=mWho(m);if(w&&NN[w])continue;const[x,z]=mAt(m);add(x,z,2.6,'Start task: '+m.name,()=>tryStart(m),0)}
   if(EV)return best;
-  try{lootPrompts(add)}catch(e){}
+  try{lootPrompts(add)}catch(e){}try{koPrompts(add)}catch(e){}
   for(const n of NP){if(n.down||n.hidden||n.aggro||n.chase||n.def||n.foe||n.actor||n.mute||n.ally||n.dp>4)continue;if(!n.g.visible)continue;const giver=av.some(m=>{const w=mWho(m);return w&&NN[w]===n});add(n.x,n.z,(n.shop||n.role)?4:2.3,'Talk to '+n.name+(giver?'  ★':''),()=>talkTo(n),giver?-100:2)}/* V417 a task giver in reach wins over a bystander who happens to stand closer */
   try{pqPrompts(add)}catch(e){}try{dojoPrompts(add)}catch(e){}try{c2Prompts(add)}catch(e){}try{c3Prompts(add)}catch(e){}try{c4Prompts(add)}catch(e){}try{c5Prompts(add)}catch(e){}try{c6Prompts(add)}catch(e){}try{c7Prompts(add)}catch(e){}try{c8Prompts(add)}catch(e){}try{c9Prompts(add)}catch(e){}try{c10Prompts(add)}catch(e){}
   if(P.inside){const I=INT[P.inside];if(I)for(const o of I.objs)add(o.x,o.z,o.r,o.label,o.f,1);return best}
