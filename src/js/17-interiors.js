@@ -253,7 +253,7 @@ function fadeTo(fn){if(P.tp)return;P.tp=1;$('fade').style.opacity=1;setTimeout((
 let GKEY='',GT_=0;
 function guideTarget(){if(EV)return null;let t=null;const st=curStep();
   if(MAPROUTE)t=[MAPROUTE.x,MAPROUTE.z];else if(AM){if(st&&st.goal){t=st.goal()}else if(st&&st.x!=null&&!st.nogoal&&st.t!=='card'&&st.t!=='cine')t=[st.x,st.z]}
-  else if(S.ch<=10){const av=availM().filter(m=>m.main);const m=av[0];if(m)t=mAt(m);else if(S.pledged&&!S.bb)t=npcSpot('tank')}
+  else if(S.ch<=10){const av=availM().filter(m=>m.main);const m=av[0];/* V459 no trail to the house before Danny has found it: the first mission is about asking for directions */if(m&&m.id!=='c1arrive')t=mAt(m);else if(S.pledged&&!S.bb)t=npcSpot('tank')}
   if(!t)return null;const inTgt=t[1]>=INTZ;
   {const T=INT.asr_top,inTop=T&&t[0]>=T.x0&&t[0]<=T.x1&&t[1]>=T.z0&&t[1]<=T.z1;   // V193 trails to and from the third floor use the new stairs
    if(P.inside==='asr_top'&&!inTop)return[T.x0+26.8,T.z0+C3SW[3]-2.4];if(inTop&&P.inside==='asr_up')return[INT.asr_up.x0+26.8,INT.asr_up.z0+C3SW[3]-.4];if(inTop&&P.inside==='asr')return[INT.asr.x0+30,INT.asr.z0+STZT+.6]}   // V126 the third floor's way out is its staircase
