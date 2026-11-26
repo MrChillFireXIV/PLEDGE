@@ -313,7 +313,7 @@ const C3WESB=[17.6,35.2],C3WESA=-PI/2;
 /* V422 Wes is held by the loading dock behind the Tangeman Center (it used to be the ΚΘΩ backyard). SPOT.DOCK is only known once the world is built, so the spot is worked out on first use */
 function c3WesB(){if(!C3WESB.set&&typeof SPOT!=='undefined'&&SPOT.DOCK&&typeof freeAt==='function'){C3WESB.set=1;const[x,z]=c3Free(SPOT.DOCK[0]-2,SPOT.DOCK[1]+5,.6);C3WESB[0]=x;C3WESB[1]=z}return C3WESB}
 /* the kidnappers: black hoodie, hood up, a black mask over the mouth. Nothing on them says which house they are from */
-const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0x18181c,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
+const C3HOODLOOK={cl2:'hoodie',fh:0,shoe:0x101012,sole:0x08080a};const C3HOODOPT={skin:0xeec6a4,shirt:0x141418,sleeve:0x141418,pants:0x17171c,cap:0,noLetters:1,look:C3HOODLOOK};
 function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}const h=n.g.P&&n.g.P.head;if(!h)return n;n.c3hood=1;const M_=new THREE.MeshStandardMaterial({color:0x121216,roughness:.95,side:THREE.DoubleSide});
   /* V454 no hood shell over the head (the user found it ugly): just the face mask */
   /* V452 the mask is cut from his own head: the head's surface from under the chin to just below the eyes (and a strap round the back), lifted 7 mm
@@ -324,16 +324,24 @@ function c3Hood(n){if(!n||!n.g||n.c3hood)return n;try{bodyBuild(n.g)}catch(e){}c
 function c3WesChair(on){return c4Group('c3weschair',on,g=>{const[x,z]=c3WesB(),W=mt(0x4a3626,.8),h=new THREE.Group();h.position.set(x,terrH(x,z),z);h.rotation.y=C3WESA;h.userData.noMerge=1;g.add(h);c4M(bgeo(.5,.06,.5),W,0,.46,0,h);c4M(bgeo(.5,.6,.06),W,0,.8,-.25,h);for(const sx of[-.22,.22])for(const sz of[-.22,.22])c4M(bgeo(.05,.46,.05),W,sx,.23,sz,h)})}
 function c3WesSpawn(){if(C3.wes&&NP.includes(C3.wes))return C3.wes;const[x,z]=c3WesB();c3WesChair(1);
   const n=c4Pup('brothers',x,z,C3WESA,{tag:'c3wes',int:null,name:'Wes Morrow',title:'ASR Treasurer',house:'asr',lvl:5,st:'sit',look:{gl:1,hs2:'short',cl2:'tee',fh:0,fv:1,iris:0x4a3a2a}});
-  if(!n)return null;n.pup.arms=.55;n.c3bound=1;C3.wes=n;if(AM)AM.temps.push(n);const P_=n.g&&n.g.P;n.c3tape=[];
-  if(P_){const tm=mt(0x9a9aa0,.5,.2);for(const[b,y,r]of[[P_.chest,0,.27],[P_.chest,-.18,.26],[P_.hips,-.12,.22]]){if(!b)continue;const t=new THREE.Mesh(new THREE.TorusGeometry(r,.035,6,18),tm);t.rotation.x=PI/2;t.position.y=y;b.add(t);n.c3tape.push(t)}
-    if(P_.head){const gag=new THREE.Mesh(bgeo(.44,.06,.44),tm);gag.position.set(0,.08,0);P_.head.add(gag);n.c3tape.push(gag)}}
+  if(!n)return null;/* V460 arms straight down, pressed to his sides, so the tape round his chest holds them there */n.pup.arms=null;n.pup.post=g=>{const q=g.P;if(!q)return;for(const k of['aL','aR','eL','eR','hL','hR'])if(q[k])q[k].rotation.set(0,0,0)};n.c3bound=1;C3.wes=n;if(AM)AM.temps.push(n);const P_=n.g&&n.g.P;n.c3tape=[];
+  if(P_){/* V460 duct tape wrapped round his own body (chest and arms together, the belly and forearms, the thighs, the ankles) and a strip over his mouth,
+     all skinned to his skeleton so it sits on him and moves with him. The old ring-and-slab tape is only the fallback */
+    try{bodyBuild(n.g)}catch(e){}const tm=new THREE.MeshStandardMaterial({color:0x9c9ea4,roughness:.55,metalness:.25,side:THREE.DoubleSide}),gm=new THREE.MeshStandardMaterial({color:0xb4b6bc,roughness:.5,metalness:.2,side:THREE.DoubleSide});
+    const sk=P_.torso&&P_.torso.skeleton,bi=b=>sk?sk.bones.indexOf(b):-1,TOR=[bi(P_.chest),bi(P_.spine),bi(P_.hips)],ARM=[bi(P_.aL),bi(P_.aR),bi(P_.eL),bi(P_.eR)],LEG=[bi(P_.lL),bi(P_.lR),bi(P_.kL),bi(P_.kR),bi(P_.fL),bi(P_.fR)],HD=bi(P_.head);
+    const W=[c3Wrap(n,[1.2,1.235,1.27,1.305],b=>TOR.includes(b)||ARM.includes(b),.01,tm),c3Wrap(n,[1.04,1.075,1.11],b=>TOR.includes(b)||ARM.includes(b),.012,tm),c3Wrap(n,[.66,.7,.74],b=>LEG.includes(b),.01,tm),c3Wrap(n,[.19,.23,.27],b=>LEG.includes(b),.01,tm),c3Wrap(n,[1.645,1.67,1.695],b=>b===HD,.006,gm)];
+    if(W.every(Boolean))n.c3tape.push(...W);else{for(const w of W)if(w&&w.parent)w.parent.remove(w);
+    for(const[b,y,r]of[[P_.chest,0,.27],[P_.chest,-.18,.26],[P_.hips,-.12,.22]]){if(!b)continue;const t=new THREE.Mesh(new THREE.TorusGeometry(r,.035,6,18),tm);t.rotation.x=PI/2;t.position.y=y;b.add(t);n.c3tape.push(t)}
+    if(P_.head){const gag=new THREE.Mesh(bgeo(.44,.06,.44),tm);gag.position.set(0,.08,0);P_.head.add(gag);n.c3tape.push(gag)}}}
   bubble(n,'MMPH! MMMPH!',2);return n}
+/* V460 the guards stand round the chair facing out, three to five metres off, before the fight starts */
+function c3Guards(){const st=curStep();if(!st||!st.foes_)return;const[x,z]=c3WesB();st.foes_.forEach((n,i)=>{const a=-PI/2+(i-(st.foes_.length-1)/2)*.75+(i%2?PI:0),r=3+(i%3)*.8;let gx=x+Math.sin(a)*r,gz=z+Math.cos(a)*r;if(typeof freeAt==='function'&&!freeAt(gx,gz,.4)){const f=c3Free(gx,gz,.4);gx=f[0];gz=f[1]}n.x=n.hx=gx;n.z=n.hz=gz;n.a=Math.atan2(gx-x,gz-z);n.mode='idle';n.path=null;if(n.g)n.g.position.set(gx,terrH(gx,gz),gz)})}
 /* cut the tape: the puppet becomes a normal follower NPC again */
 function c3WesFree(w){if(!w)return;for(const t of w.c3tape||[])t.parent&&t.parent.remove(t);w.c3tape=[];w.c3bound=0;
   if(w.pup){w.pup=null;w.grab=0;w.noTalk=0;C4.pups=C4.pups.filter(n=>n!==w);C4.mine=C4.mine.filter(n=>n!==w);for(const k in C4.cast)if(C4.cast[k]===w)delete C4.cast[k];if(w.g){w.g.rotation.x=0;w.g.rotation.z=0}}
   w.actor=0;w.follow=1;w.mode='idle';C3.wesFreed=1;c3WesChair(0)}
 /* while the backyard steps are active Wes is always there (also after a load), and he mumbles when you come near */
-function c3WesTick(){const st=curStep();if(!st||!st.c3wb)return;if(!(C3.wes&&NP.includes(C3.wes))&&!C3.wesFreed&&c3ClueOk())c3WesSpawn();
+function c3WesTick(){const st=curStep();if(!st||!st.c3wb)return;if(st.c3wake&&st.foes_&&!st.c3g){st.c3g=1;c3Guards()}if(st.c3wake&&st.woke&&!st.c3lab){st.c3lab=1;st.label='Hooded figures are guarding Wes. Take them down with Tank';try{updObj()}catch(e){}}if(!(C3.wes&&NP.includes(C3.wes))&&!C3.wesFreed&&c3ClueOk())c3WesSpawn();
   const w=C3.wes;if(w&&w.c3bound&&NP.includes(w)&&Math.hypot(w.x-P.x,w.z-P.z)<14&&TT>(C3.wbT||0)){C3.wbT=TT+5;bubble(w,pick(['MMPH!','MMMPH! MMPH!','MMM-MMPH!']),1.8)}}
 /* V274 during Disappearance every ΚΘΩ brother turns hostile when Danny comes within range (no button, no card) */
 const C3KTOR=11;
@@ -564,14 +572,15 @@ const C3M=[
    C_('Disappearance','Grant Ashby · Chapter president','"Wes didn\'t come home Thursday. Phone\'s off, bed\'s untouched. That guy has never missed a night in his life."\n\n"Start where he hides: the library, the fountain, the Union. And Danny? Wes doesn\'t go anywhere without the books. If you find them first, they come straight to me."',[['"On it."',null]]),
    {t:'cond',lab:c3ClueLab,ok:c3ClueOk,goal:c3ClueGoal,start:()=>{c3ClueProps(1);C3.wesFreed=0},done:()=>{c3ClueProps(0)}},
    /* V422 Danny takes what he found to Grant first. Grant will not send the house: that would be a war between fraternities. Danny and Tank go */
-   go(SPOT.ASR,'Take the note to Grant at the ΑΣΡ house',{r:4,act:'Show Grant the note',start:()=>{const st=curStep();st.x=SPOT.ASR[0];st.z=SPOT.ASR[1]},done:()=>{if(P.inside!=='asr')goIn('asr');const g=NN.grant;if(g&&g.int==='asr'){const[x,z]=c3Free(g.x,g.z+2.4,.4);P.x=x;P.z=z;P.face=PI;yaw=0}}}),
+   /* V460 the note goes to Grant himself, in the throne room (it used to stop at the front door and pull Danny inside mid-card, where Grant was still hidden) */
+   go(npcSpot('grant'),'Take the note to Grant. He\'s inside the ΑΣΡ house, in the throne room.',{press:1,act:'Show Grant the note',r:4.6,start:()=>{const st=curStep(),g=NN.grant;if(g&&g.int==='asr'){st.x=g.x;st.z=g.z}},done:()=>{const g=NN.grant;if(g&&g.g&&!g.hidden&&(g.int||null)===(P.inside||null))g.g.visible=true}}),
    C_('Disappearance','Grant Ashby · Chapter president','He reads the note twice. Then he turns it over, like the back might have a signature on it.\n\n"No name. No letters. \'Bring the books.\'" He folds it into his pocket. "Somebody on this campus knows exactly what my treasurer carries around."',[['"So who has him?"',null]]),
    C_('Disappearance','Reese Whitford · Brother','"Who cares who? There are fourteen of us. We walk over to that loading dock right now and we take him back."\n\nHalf the room is already standing up.',[['Continue',null]]),
    C_('Disappearance','Grant Ashby · Chapter president','"Sit. Down."\n\n"Whoever did this wears letters too. I send this whole house across campus in daylight and by tonight it\'s a war between fraternities, with every brother on the Row picking a side and the police taking pictures from the curb. That is exactly what somebody wants."\n\n"So nobody goes. Nobody but two." He points. "Danny. They asked for you alone, so they get you. And Tank, because \'alone\' is a suggestion."',[['"Just the two of us."',null],['"Two against how many?"',()=>[C_('Disappearance','Tank Hale · Big Brother','Tank is already cracking his neck. "Doesn\'t matter, little bro. I counted myself twice."',[['▸ Continue',null]])]]]),
    C_('Disappearance','Tank Hale · Big Brother','"Loading dock behind Tangeman. I know it." He grabs his keys off the hook and heads for the door. "Stay behind me until it starts. Then stay next to me."',[['"Let\'s go get Wes."',()=>{if(P.inside)goOut(SPOT.ASR[0],SPOT.ASR[1]);c3TankAlly()}]]),
    {t:'cine',run:c3WesBackCine},
-   go(c3WesB(),'Go to the loading dock behind the Tangeman Center with Tank',{r:8,c3wb:1,start:()=>{const st=curStep(),[x,z]=c3WesB();st.x=x;st.z=z+1.5;c3TankAlly()}}),
-   {t:'fight',x:c3WesB()[0]-.4,z:c3WesB()[1]+3.6,c3wb:1,label:'Hooded figures are guarding Wes. Take them down with Tank',foes:[['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',7,'Hooded Figure']],fo:C3HOODOPT,mk:n=>c3Hood(n),ally:'tank',start:()=>{c3WesSpawn()}},
+   /* V460 the hooded figures are already standing guard round Wes; the fight starts when Danny gets close to him (no marker to walk onto first) */
+   {t:'fight',x:c3WesB()[0],z:c3WesB()[1],c3wb:1,c3wake:1,label:'Go to the loading dock behind the Tangeman Center with Tank',foes:[['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',6,'Hooded Figure'],['legacies',5,'Hooded Figure'],['legacies',7,'Hooded Figure']],fo:C3HOODOPT,mk:n=>c3Hood(n),ally:'tank',start:()=>{c3WesSpawn();c3TankAlly()}},
    go(c3WesB(),'Untie Wes from the lawn chair',{press:1,act:'Cut the duct tape',r:2.6,c3wb:1,done:()=>{const w=c3WesSpawn();c3WesFree(w);bubble(w,'They wanted the BOOKS, Danny.',2.4)}}),
    C_('Disappearance','Wes Morrow · ΑΣΡ Treasurer','"They grabbed me after the Thursday drop. Bag over my head, then hoods the whole time. Nobody used a name. All they wanted was the ledgers. Every sale, every house, every name." He rubs his wrists. "I didn\'t give them anything. I think. They had a lot of questions and a lot of tequila."\n\n"Who were they?" Tank asks. Wes just shakes his head. "One of them did all the talking. That\'s everything I\'ve got."\n\n"The books are fine. They\'re where I always hide them. Tell Grant."',[['"Let\'s get you home."',null]]),
    go(SPOT.ASR,'Walk Wes home to the ΑΣΡ house',{r:4,act:'Bring Wes home',done:()=>{const w=C3.wes;if(w&&NP.includes(w)&&Math.hypot(w.x-P.x,w.z-P.z)>9){w.x=P.x+1.2;w.z=P.z+1.2}c3CopsAtHouse(1)}}),
@@ -647,6 +656,22 @@ function c3Migrate(d){if(!d)return;if(S.ch>=4)for(const id of C3IDS)S.done[id]=1
   if(S.done.c3accuse&&!S.done.c3empire&&Object.keys(s.pl).length<5){for(const k of PCLASS){if(Object.keys(s.pl).length>=5)break;const n=NN[k];if(n&&!n.hidden)s.pl[k]=1}}
   setTimeout(()=>{try{c3ApplyFloor();for(const id in s.shut)if(s.shut[id]){c3ShutVis(id);c3HideHouse(id)}}catch(e){console.warn('c3Migrate',e)}},0)}
 
+/* V460 tape that is part of the body: a band of rows (bind-pose heights ys) shrink-wrapped round the character's own skinned mesh (the 2D convex hull of
+   the body at each height, so a band round the chest takes the arms in with it), lifted a few mm off the skin and skinned to the same skeleton,
+   bone by bone, so it moves with him in any pose. ok(bone) picks which parts of the body the band goes round. Returns a SkinnedMesh or null */
+function c3Wrap(n,ys,ok,lift,mat){try{const m=n.g&&n.g.P&&n.g.P.torso;if(!m||!m.isSkinnedMesh||!m.skeleton)return null;const K=44;
+  /* the body's cross-section at each height: every triangle edge of every skinned layer on this skeleton (skin, clothes) that crosses the height */
+  const MS=[];n.g.traverse(o=>{if(o.isSkinnedMesh&&o.skeleton===m.skeleton&&o.geometry.attributes.skinIndex)MS.push(o.geometry)});const bone=(G,i)=>{const W=G.attributes.skinWeight.array,I=G.attributes.skinIndex.array;let bb=-1,bw=-1;for(let j=0;j<4;j++)if(W[i*4+j]>bw){bw=W[i*4+j];bb=I[i*4+j]}return bb};
+  const rows=[];for(const yr of ys){const pts=[];for(const G of MS){const Q=G.attributes.position,X=Q.array,ix=G.index?G.index.array:null,T=ix?ix.length:Q.count;for(let t=0;t<T;t+=3){for(let e=0;e<3;e++){const a=ix?ix[t+e]:t+e,b=ix?ix[t+(e+1)%3]:t+(e+1)%3,ya=X[a*3+1]-yr,yb=X[b*3+1]-yr;if(ya*yb>0||ya===yb)continue;const u=ya/(ya-yb),k=u<.5?a:b,bb=bone(G,k);if(!ok(bb))continue;pts.push([X[a*3]+(X[b*3]-X[a*3])*u,X[a*3+2]+(X[b*3+2]-X[a*3+2])*u,bb])}}}
+    if(pts.length<8)return null;pts.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),lo=[],up=[];
+    for(const p of pts){while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}for(let k=pts.length-1;k>=0;k--){const p=pts[k];while(up.length>1&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}
+    const H=lo.slice(0,-1).concat(up.slice(0,-1));let cx=0,cz=0;for(const h of H){cx+=h[0];cz+=h[1]}cx/=H.length;cz/=H.length;const R=[];
+    for(let k=0;k<K;k++){const a=k/K*TAU,dx=Math.sin(a),dz=Math.cos(a);let best=null;for(let e=0;e<H.length;e++){const p=H[e],q=H[(e+1)%H.length],ex=q[0]-p[0],ez=q[1]-p[1],den=dx*ez-dz*ex;if(Math.abs(den)<1e-9)continue;const t=((p[0]-cx)*ez-(p[1]-cz)*ex)/den,u=((p[0]-cx)*dz-(p[1]-cz)*dx)/den;if(t>0&&u>=-1e-6&&u<=1+1e-6&&(!best||t<best[0]))best=[t,u<.5?p[2]:q[2]]}
+      if(!best)return null;R.push([cx+dx*(best[0]+lift),yr,cz+dz*(best[0]+lift),best[1]])}rows.push(R)}
+  const pos=[],si=[],sw=[],idx=[];for(const R of rows)for(const r of R){pos.push(r[0],r[1],r[2]);si.push(r[3],0,0,0);sw.push(1,0,0,0)}
+  for(let a=0;a<rows.length-1;a++)for(let k=0;k<K;k++){const i0=a*K+k,i1=a*K+(k+1)%K,j0=i0+K,j1=i1+K;idx.push(i0,j0,i1,i1,j0,j1)}
+  const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(si,4));G.setAttribute('skinWeight',new THREE.Float32BufferAttribute(sw,4));G.setIndex(idx);G.computeVertexNormals();
+  const sm=new THREE.SkinnedMesh(G,mat);sm.position.copy(m.position);sm.quaternion.copy(m.quaternion);sm.scale.copy(m.scale);m.parent.add(sm);sm.bind(m.skeleton,m.bindMatrix);sm.frustumCulled=false;sm.castShadow=false;sm.userData.noMerge=1;return sm}catch(e){console.warn('c3Wrap',e);return null}}
 function c3MaskGeo(n){try{const m=n.g.P.torso;if(!m||!m.isSkinnedMesh||!m.skeleton)return null;const sk=m.skeleton,hb=sk.bones.indexOf(n.g.P.head);if(hb<0)return null;
   const g=m.geometry,A=g.attributes,SI=A.skinIndex.array,SW=A.skinWeight.array,Pp=A.position,N=A.normal,ws=A.skinWeight.normalized?1/255:1,ns=N.normalized?(N.array instanceof Int8Array?1/127:1/32767):1;
   const M=new THREE.Matrix4().multiplyMatrices(sk.boneInverses[hb],m.bindMatrix),NM=new THREE.Matrix3().getNormalMatrix(M),cnt=Pp.count,ok=new Uint8Array(cnt),L=new Float32Array(cnt*3),LN=new Float32Array(cnt*3),v=new THREE.Vector3(),nv=new THREE.Vector3();
