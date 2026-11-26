@@ -770,3 +770,6 @@ body.mob .lvd.hud{width:24px;height:24px}body.mob #lvhud{top:6px;right:9px}body.
 #padring i{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #14182c,0 0 8px 2px #ffd24a;background:rgba(255,210,74,.5)}
 /* V456 the Hell Week candle never shows over the title or save-slot screens */
 body:has(#title:not([hidden])) #c9cand{display:none}
+
+/* V465 credits & licenses in the menu: small print, links in the house red */
+.lic p{font-size:12px;line-height:1.45;opacity:.85;margin:.35em 0}.lic a{color:#7d1f2c}
