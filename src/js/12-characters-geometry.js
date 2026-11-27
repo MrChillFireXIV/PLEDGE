@@ -302,7 +302,7 @@ function addShoe(G,X,L,lod){const fw=W1(L[2]),sg=lod?8:14;
 // ---------------------------------------------------------------- one body: geometry for a style key and level of detail
 const BODYG={};
 const fhG=o=>o.fh==='goatee'||o.fh==='beard'?o.fh:0;
-function styleKey(o){return[o.fem?1:0,o.hs2,o.cl2+(o.big?'B':''),fhG(o),o.gl&&!(o.stone||o.metal)?1:0,o.prop?1:0,o.cap?1:0,o.fv|0,(o.letters||o.pin)?1:0].join('|')}
+function styleKey(o){return[(o.mus?'M'+Math.round(o.mus*20):'')+(o.fem?1:0),o.hs2,o.cl2+(o.big?'B':''),fhG(o),o.gl&&!(o.stone||o.metal)?1:0,o.prop?1:0,o.cap?1:0,o.fv|0,(o.letters||o.pin)?1:0].join('|')}
 function bodyKey(o,lod){return styleKey(o)+'|'+lod}
 // V170 bare torso (cage fighters): skin slot plus pec, sternum, ab and navel shading
 function c2BareShade(x,y,nz){const ax=Math.abs(x),fr=sm(.15,.55,nz);if(fr<=0)return 1;let d=0;
@@ -312,13 +312,13 @@ function c2BareShade(x,y,nz){const ax=Math.abs(x),fr=sm(.15,.55,nz);if(fr<=0)ret
   d+=.14*sm(.016,0,ax)*sm(.016,0,Math.abs(y-1.05));
   d+=.06*sm(.1,.14,ax)*sm(1.12,1.0,y)*sm(.95,1.0,y);
   return 1-d*fr}
-function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];const G=GB(),fem=!!o.fem,BP=bonePos0(fem);G.fem=fem;G.warp=1;const fv=o.fv|0,cl=o.cl2,sg=lod?10:20,HW=W1('head');
+function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];const G=GB(),fem=!!o.fem,BP=bonePos0(fem);/* V466 muscle, 0..1: broader chest, shoulders and back, rounder pecs, thicker neck, bigger delts, biceps, forearms, quads and calves */const MU=clamp(+o.mus||0,0,1),Gm=(v,c,w)=>Math.exp(-Math.pow((v-c)/w,2));G.fem=fem;G.warp=1;const fv=o.fv|0,cl=o.cl2,sg=lod?10:20,HW=W1('head');
   // head and neck
   gAdd(G,headGeo(fem,fv,lod,0,null,null,1),PS.skin,HW,(x,y,z,nx,ny,nz)=>1-.12*sm(-.4,-.9,ny));
   // eyeballs sitting in the openings (iris, pupil and catch-lights drawn by the shader from each eyeball's own direction)
   for(const s of[-1,1]){const ux=s*EYEX,uy=EYEY,uz=Math.sqrt(Math.max(0,1-ux*ux-uy*uy)),P=headPt(ux,uy,uz,fem,fv,1),rE=(fem?.041:.04)*EYF,n=v3n([s*.2,.05,1]),c=[P[0]-n[0]*(rE-.011*EYF),P[1]-n[1]*(rE-.011*EYF),P[2]-n[2]*(rE-.011*EYF)];
     const e=new THREE.SphereGeometry(rE,lod?12:32,lod?10:24),ep=e.attributes.position,eh=[];for(let i=0;i<ep.count;i++){const x=ep.getX(i),y=ep.getY(i),z=ep.getZ(i),l=Math.hypot(x,y,z)||1;eh.push(x/l,y/l,z/l)}e.userData.hd=eh;at(e,...c);gAdd(G,e,PS.eyeW,HW)}
-  gAdd(G,tube([{y:1.48,cx:0,cz:-.008,rx:fem?.064:.08,rf:fem?.062:.076,rb:fem?.064:.078},{y:1.58,cx:0,cz:-.012,rx:fem?.06:.077,rf:fem?.058:.072,rb:fem?.061:.076},{y:1.69,cx:0,cz:-.025,rx:fem?.056:.07,rf:fem?.054:.066,rb:fem?.056:.07}],lod?8:14,2.1),PS.skin,(x,y)=>y>1.65?[BI.head]:y<1.53?Wb('chest','neck',(y-1.48)/.05*.5+.0):Wb('neck','head',(y-1.53)/.12*.6),(x,y,z,nx,ny,nz)=>(1-.1*sm(-.1,-.6,nz))*(.82+.18*sm(1.5,1.62,y)));
+  gAdd(G,tube([{y:1.48,cx:0,cz:-.008,rx:(fem?.064:.08)*(1+.38*MU),rf:(fem?.062:.076)*(1+.2*MU),rb:(fem?.064:.078)*(1+.3*MU)},{y:1.58,cx:0,cz:-.012,rx:(fem?.06:.077)*(1+.2*MU),rf:(fem?.058:.072)*(1+.12*MU),rb:(fem?.061:.076)*(1+.18*MU)},{y:1.69,cx:0,cz:-.025,rx:fem?.056:.07,rf:fem?.054:.066,rb:fem?.056:.07}],lod?8:14,2.1),PS.skin,(x,y)=>y>1.65?[BI.head]:y<1.53?Wb('chest','neck',(y-1.48)/.05*.5+.0):Wb('neck','head',(y-1.53)/.12*.6),(x,y,z,nx,ny,nz)=>(1-.1*sm(-.1,-.6,nz))*(.82+.18*sm(1.5,1.62,y)));
   for(const s of[-1,1]){const ex=headPt(s*.99,-.02,-.05,fem,fv),e=new THREE.SphereGeometry(.043,lod?8:14,lod?6:10);e.scale(.34,1.12,.68);e.rotateY(s*.32);at(e,ex[0]+s*.004,ex[1]-.008,ex[2]-.01);gAdd(G,e,PS.skin,HW,(x,y,z,nx)=>.78+.22*sm(-.2,.4,nx*s));
     if(!lod){const ie=new THREE.SphereGeometry(.021,8,6);ie.scale(.3,1,.6);ie.rotateY(s*.32);at(ie,ex[0]+s*.012,ex[1]-.01,ex[2]-.006);gAdd(G,ie,PS.skin,HW,()=>.8)}}
   addHair(G,o,fem,fv,lod);
@@ -342,10 +342,10 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
     :[[.913,.19,.12,.118],[.92,.215,.14,.137],[.96,.207,.134,.131],[1.04,.188,.13,.128],[1.12,.194,.133,.128],[1.2,.224,.145,.132],[1.28,.25,.158,.138],[1.35,.272,.165,.142],[1.41,.292,.158,.14],[1.46,.31,.138,.135],[1.5,.318,.112,.118],[1.52,.265,.098,.103],[1.54,.19,.088,.092],[1.556,.12,.082,.084],[1.57,.086,.078,.08]];
   const tdisp=(y,a)=>{let d=0;const f=Math.sin(a),ca=Math.cos(a);
     if(fem)d+=.024*sm(1.23,1.32,y)*sm(1.42,1.34,y)*Math.max(0,f)*Math.exp(-Math.pow((Math.abs(ca)-.38)/.25,2));
-    else{d+=.013*sm(1.27,1.36,y)*sm(1.47,1.39,y)*Math.max(0,f)*Math.exp(-Math.pow((Math.abs(ca)-.42)/.3,2));d-=.006*sm(1.25,1.33,y)*sm(1.45,1.38,y)*Math.exp(-Math.pow(ca/.12,2))*Math.max(0,f)}
+    else{d+=(.013+.026*MU)*sm(1.27,1.36,y)*sm(1.47,1.39,y)*Math.max(0,f)*Math.exp(-Math.pow((Math.abs(ca)-.42)/.3,2));if(MU)d+=.012*MU*sm(1.05,1.12,y)*sm(1.3,1.24,y)*Math.max(0,f)*Math.exp(-Math.pow(ca/.35,2))*(.6+.4*Math.abs(Math.sin(y*90)));d-=.006*sm(1.25,1.33,y)*sm(1.45,1.38,y)*Math.exp(-Math.pow(ca/.12,2))*Math.max(0,f)}
     d+=.009*Math.max(0,-f)*sm(1.3,1.38,y)*sm(1.48,1.4,y)*Math.exp(-Math.pow((Math.abs(ca)-.5)/.3,2));
     if(cl!=='polo'&&cl!=='bare')d+=.0035*Math.sin(y*95+a*3)*sm(1.17,1.0,y)*sm(.93,.98,y);if(cl==='hoodie')d+=.012*sm(1.5,1.4,y);if(o.big)d+=Math.max(0,f)*.13*sm(.9,1.12,y)*sm(1.46,1.18,y)*Math.exp(-Math.pow(ca/.8,2))+.04*sm(.93,1.15,y)*sm(1.48,1.25,y);return d};
-  let R_=TM.map(([y,rx,rf,rb])=>({y,cx:0,cz:fem?.004:0,rx,rf,rb}));
+  let R_=TM.map(([y,rx,rf,rb])=>({y,cx:0,cz:fem?.004:0,rx:rx*(1+MU*(.04+.15*sm(1.12,1.4,y)-.06*sm(1.5,1.56,y))),rf:rf*(1+MU*(.03+.2*sm(1.22,1.34,y)*sm(1.54,1.44,y))),rb:rb*(1+MU*(.03+.22*sm(1.18,1.4,y)*sm(1.58,1.48,y)))}));
   const BARE=cl==='bare'&&!fem;if(BARE&&!lod){const D=[];for(let i=0;i<R_.length-1;i++){const a=R_[i],b=R_[i+1],n=Math.max(1,Math.ceil((b.y-a.y)/.011));for(let k=0;k<n;k++){const t=k/n;D.push({y:a.y+(b.y-a.y)*t,cx:0,cz:0,rx:a.rx+(b.rx-a.rx)*t,rf:a.rf+(b.rf-a.rf)*t,rb:a.rb+(b.rb-a.rb)*t})}}D.push(R_[R_.length-1]);R_=D}
   const tdisp0=tdisp,tdispB=(y,a,r)=>{let d=tdisp0(y,a,r);const f=Math.sin(a);if(f<=0)return d;const u=Math.pow(Math.abs(Math.cos(a)),2/2.6),G=(v,c,w)=>Math.exp(-Math.pow((v-c)/w,2));
     d+=.018*G(u,.34,.2)*sm(1.29,1.345,y)*sm(1.47,1.38,y)*f;
@@ -362,7 +362,7 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
   if(!o.big&&(cl==='tee'||cl==='tank'||cl==='flannel')){const trow=y=>{for(let i=0;i<TM.length-1;i++){const a=TM[i],b=TM[i+1];if(y<=b[0]){const t=clamp((y-a[0])/(b[0]-a[0]),0,1);return[1,2,3].map(k=>a[k]+(b[k]-a[k])*t)}}return TM[TM.length-1].slice(1)};
     const HR_=[[.926,0],[.934,.008],[.965,.0075],[.99,.0065],[.998,.001]].map(([y,g])=>{const r=trow(y);return{y,cx:0,cz:fem?.004:0,rx:r[0]+g,rf:r[1]+g,rb:r[2]+g}});
     gAdd(G,tube(HR_,lod?16:30,2.6),PS.shirt,W1('hips'),(x,y,z,nx,ny)=>ny<-.3?.8:(y>.985?1.03:.95))}
-  if(!lod&&!o.big&&!o.letters&&!o.pin&&(cl==='tee'||cl==='polo'||cl==='flannel')){const pz=.167,pw=Wb('spine','chest',0),pf=(x,y)=>Wb('spine','chest',(y-1.24)/.12);
+  if(!lod&&!o.big&&!o.letters&&!o.pin&&(cl==='tee'||cl==='polo'||cl==='flannel')){const pz=.167+.03*MU,pw=Wb('spine','chest',0),pf=(x,y)=>Wb('spine','chest',(y-1.24)/.12);
     const pk=roundBox(.088,.098,.012,.004,1);at(pk,-.105,1.3,pz);gAdd(G,pk,PS.shirt,pf,(x,y,z,nx,ny)=>ny>.5?1.02:.9);
     const pt=roundBox(.092,.014,.016,.005,1);at(pt,-.105,1.347,pz+.001);gAdd(G,pt,PS.acc,pf,()=>.95)}
   // collars, hood, pocket, placket
@@ -377,17 +377,17 @@ function buildBody(o,lod=0){const k=bodyKey(o,lod);if(BODYG[k])return BODYG[k];c
     const pl=roundBox(.034,.13,.008,.003,1);at(pl,0,1.47,.13);gAdd(G,pl,PS.acc,W1('chest'));if(!lod)for(const y of[1.44,1.5]){const b=new THREE.SphereGeometry(.0065,6,4);at(b,0,y,.136);gAdd(G,b,PS.white,W1('chest'))}
     const bt=tube([{y:.975,cx:0,cz:0,rx:.205,rf:.135,rb:.133},{y:.935,cx:0,cz:0,rx:.207,rf:.137,rb:.135}],lod?16:30,2.6);gAdd(G,bt,PS.belt,W1('hips'));const bk=roundBox(.05,.034,.012,.004,1);at(bk,0,.955,.14);gAdd(G,bk,PS.metal,W1('hips'))}
   // pelvis (trousers) and legs
-  {const PF_=fem?.94:1,pv=tube([{y:.99,cx:0,cz:0,rx:.185*PF_,rf:.118,rb:.116},{y:.92,cx:0,cz:0,rx:.192*PF_,rf:.122,rb:.126},{y:.85,cx:0,cz:0,rx:.175*PF_,rf:.115,rb:.125},{y:.79,cx:0,cz:0,rx:.1,rf:.08,rb:.09}],lod?14:24,2.4);
+  {const PF_=(fem?.94:1)*(1+.06*MU),pv=tube([{y:.99,cx:0,cz:0,rx:.185*PF_,rf:.118,rb:.116},{y:.92,cx:0,cz:0,rx:.192*PF_,rf:.122,rb:.126},{y:.85,cx:0,cz:0,rx:.175*PF_,rf:.115,rb:.125},{y:.79,cx:0,cz:0,rx:.1,rf:.08,rb:.09}],lod?14:24,2.4);
     gAdd(G,pv,PS.pants,(x,y)=>y>.88?[BI.hips]:Wb('hips',x<0?'lL':'lR',(.88-y)/.08*.5),(x,y,z,nx,ny,nz)=>(nz<-.3?.9:1)*(y<.84?.85:1))}
   for(const s of[-1,1]){const X=s*BP.lR[0],L=s<0?['lL','kL','fL']:['lR','kR','fR'],F=fem?.92:1;
     const LG=[[.9,.098,.1,.106],[.84,.104,.1,.112],[.72,.095,.091,.102],[.6,.08,.08,.088],[.51,.071,.074,.076],[.43,.069,.067,.086],[.33,.07,.062,.087],[.23,.061,.057,.068],[.155,.057,.056,.059],[.125,.065,.066,.068],[.098,.064,.064,.066]];
-    const lg=tube(LG.map(([y,rx,rf,rb])=>({y,cx:X+s*(y>.6?(y-.6)*.015:0),cz:y<.56&&y>.44?.012:y<.3?-.008:0,rx:rx*F,rf:rf*F,rb:rb*F})),lod?10:16,2.2,0,0,(y,a)=>.003*Math.sin(a*5+y*70)*sm(.2,.12,y)+.0025*Math.sin(y*120+a*2)*sm(.58,.5,y)*sm(.4,.46,y));
+    const lgm=y=>1+MU*(.24*Gm(y,.74,.14)+.24*Gm(y,.37,.07)+.04),lg=tube(LG.map(([y,rx,rf,rb])=>({y,cx:X+s*(y>.6?(y-.6)*.015:0),cz:y<.56&&y>.44?.012:y<.3?-.008:0,rx:rx*F*lgm(y),rf:rf*F*lgm(y),rb:rb*F*lgm(y)*(1+.1*MU*Gm(y,.37,.07))})),lod?10:16,2.2,0,0,(y,a)=>.003*Math.sin(a*5+y*70)*sm(.2,.12,y)+.0025*Math.sin(y*120+a*2)*sm(.58,.5,y)*sm(.4,.46,y));
     gAdd(G,lg,cl==='bare'?(x,y)=>y<.6?PS.skin:PS.pants:PS.pants,(x,y)=>y>.56?(y>.84?Wb(L[0],'hips',(y-.84)/.1*.4):[BI[L[0]]]):y>.44?Wb(L[0],L[1],(.56-y)/.12):[BI[L[1]]],(x,y,z,nx,ny,nz)=>(y<.14?.86:1)*(nx*s<-.4?.9:1)*(y>.8&&nx*s<-.2?.85:1));
     addShoe(G,X,L,lod)}
   // arms: shoulder dome, deltoid, bicep, elbow, forearm, wrist; sleeves; hands
   const sx=Math.abs(BP.aL[0]);
   for(const s of[-1,1]){const X=s*sx,A=s<0?['aL','eL','hL']:['aR','eR','hR'],F=fem?.84:1,cz=y=>y>1.19?-.01-.015*(1.47-y)/.28:-.025+.025*(1.19-y)/.235;
-    const ring=([y,rx,rf,rb])=>({y,cx:X-s*((y>1.44?.008:0)+(fem?.02:.026)*sm(1.28,1.45,y)),cz:cz(y),rx:rx*F,rf:rf*F,rb:(rb||rf)*F});
+    const mg=y=>1+MU*(.5*Gm(y,1.33,.075)+.42*Gm(y,1.45,.045)+.3*Gm(y,1.09,.06)+.08),ring=([y,rx,rf,rb])=>({y,cx:X-s*((y>1.44?.008:0)+(fem?.02:.026)*sm(1.28,1.45,y))+s*.024*MU*sm(1.0,1.3,y),cz:cz(y),rx:rx*F*mg(y),rf:rf*F*mg(y)*(1+.15*MU*Gm(y,1.33,.07)),rb:(rb||rf)*F*mg(y)});
     const AR=[[1.49,.072,.07],[1.46,.086,.083],[1.41,.088,.083],[1.36,.083,.079],[1.29,.078,.076],[1.235,.068,.066],[1.19,.06,.062],[1.14,.066,.068],[1.08,.06,.06],[1.01,.047,.047],[.975,.043,.044]].map(ring);const HF=(fem?1.2:1.34)/F;{const hk=fem?.9:1,W=.955;AR.push(...[[.952,.026,.035,.034],[.93,.0235,.043,.04],[.9,.0215,.05,.046],[.879,.021,.053,.048],[.862,.0195,.049,.044]].map(([y,rx,rf,rb])=>({y:W-(W-y)*hk,cx:X-s*.004*hk,cz:.002,rx:rx*hk*1.3,rf:rf*hk*1.12,rb:rb*hk*1.12})))}   /* V307 palm: about 3.5 cm thick and 9 cm wide in game, was 5.5 by 13 */
     const aw=(x,y)=>y>1.4?Wb(A[0],'chest',(y-1.4)/.15*.55):y>1.24?[BI[A[0]]]:y>1.14?Wb(A[0],A[1],(1.24-y)/.1):y>.995?[BI[A[1]]]:Wb(A[1],A[2],(.995-y)/.07);
     gAdd(G,tube(AR,lod?8:14,2.1,2,2),(x,y)=>y<.97||!(cl==='hoodie'||cl==='flannel')?PS.skin:PS.sleeve,aw,(x,y,z,nx,ny,nz)=>(nx*s<-.3?.86:1)*(y>1.2&&y<1.32&&nx*s<-.5?.9:1)*(y<.96&&nx*s<-.4?.92:1));
