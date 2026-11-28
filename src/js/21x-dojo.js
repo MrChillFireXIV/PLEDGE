@@ -12,7 +12,7 @@ const DOJOGI={shirt:0xf1eee4,sleeve:0xf1eee4,pants:0xf1eee4,hair:0xd4d4d8,skin:0
 function dojoAt(){return DOJO.at||(DOJO.at=[MTN.x,MTN.z-2])}
 function dojoCamp(){if(!DOJO.cp)DOJO.cp=c3Free(DOJO_AT[0],DOJO_AT[1]+.6,.6);return DOJO.cp}
 /* where the sensei waits: by the trail sign until he has taken Danny up, then on the summit */
-function dojoHome(){if(S&&S.dojoUp){const[x,z]=dojoAt();return[x+1.2,z-1.6]}const[x,z]=dojoCamp();return[x+.8,z-.2]}
+function dojoHome(){if(S&&S.dojoUp){const[x,z]=dojoAt();/* off to the side by the pavilion while his students fight */if(AM&&AM.m.id==='dojo'){const st=curStep();if(st&&st.t==='fight'&&!st.dojoBoss)return[x+6.2,z-5.6]}return[x+1.2,z-1.6]}const[x,z]=dojoCamp();return[x+.8,z-.2]}
 const dojoOpen=()=>!!(S&&S.done&&S.done.c5fall);
 /* a cloth belt round the hips, knot in front */
 function dojoBeltMesh(col){const g=new THREE.Group(),m=mt(col,.85);g.userData.noMerge=1;const t=new THREE.Mesh(new THREE.TorusGeometry(.215,.03,6,20),m);t.rotation.x=PI/2;t.scale.set(1,.82,1.35);g.add(t);const k=new THREE.Mesh(bgeo(.08,.07,.05),m);k.position.set(0,0,.2);g.add(k);for(const sx of[-1,1]){const e=new THREE.Mesh(bgeo(.035,.17,.02),m);e.position.set(sx*.035,-.1,.215);e.rotation.z=sx*.25;g.add(e)}for(const c of g.children)c.userData.noMerge=1;g.position.y=.05;return g}
@@ -47,7 +47,7 @@ function dojoSensei(){if(DOJO.n&&NP.includes(DOJO.n))return DOJO.n;const[x,z]=do
 function dojoDummy(on){const d=DOJO.dummy;if(!on){if(d&&NP.includes(d)){C4.pups=C4.pups.filter(q=>q!==d);C4.mine=C4.mine.filter(q=>q!==d);despawn(d)}DOJO.dummy=null;return null}if(d&&NP.includes(d))return d;const[x,z]=dojoAt();
   const n=c4Pup('staff',x-1.4,z+.6,PI/2,{tag:'dojodum',int:null,name:'Training Dummy',title:'Wood and rope',lvl:1,shirt:0x9a6c3c,sleeve:0x9a6c3c,pants:0x7a5430,skin:0xa87844,hair:0x7a5430,cap:0,noLetters:1,fem:false,look:{cl2:'tee',fh:0,noMouth:1,shoe:0x7a5430,sole:0x5a3c20}});if(!n)return null;
   n.actor=0;n.dummy=1;n.temp=1;n.def=1;n.noTalk=1;n.hp=n.mhp=9999;n.pup.frozen=0;n.pup.sp=0;n.pup.arms=1.35;n.pup.look=[x+3,z+.6];n.a=PI/2;if(AM)AM.temps.push(n);/* not one of the cutscene's own puppets: the clean-up after a cutscene must not take it away */C4.mine=C4.mine.filter(q=>q!==n);DOJO.dummy=n;return n}
-function dojoTick(dt){try{dojoBandTick()}catch(e){}if(typeof mode==='undefined'||mode==='title'||mode==='loading'||!S)return;const d=DOJO.dummy;if(d&&d.pup&&d.pup.lean>0)d.pup.lean=Math.max(0,d.pup.lean-dt*1.4);
+function dojoTick(dt){try{dojoBandTick()}catch(e){}try{dojoBossTick()}catch(e){}if(typeof mode==='undefined'||mode==='title'||mode==='loading'||!S)return;const d=DOJO.dummy;if(d&&d.pup&&d.pup.lean>0)d.pup.lean=Math.max(0,d.pup.lean-dt*1.4);
   /* cutscene clean-up hides every prop group: the mountain, the deck and the trail sign are put back every frame (the mountain only when Danny is on it) */
   const near=mtnNear(),on=dojoOpen();if(C4.props.dojomtn)C4.props.dojomtn.visible=near;if(C4.props.dojoyard)C4.props.dojoyard.visible=on&&near;if(C4.props.dojotrail)C4.props.dojotrail.visible=on&&!near;
   if((DOJO.t-=dt)>0)return;DOJO.t=.5;const un=on;if(!un&&!C4.props.dojoyard&&!C4.props.dojotrail)return;dojoTrail(un&&!near);if(near||C4.props.dojomtn){mtnGroup(near);dojoYard(un&&near)}
@@ -167,7 +167,7 @@ async function dojoMontage(done){const[x,z]=dojoAt(),y=terrH(x,z),gt0=S.gt,tmp=[
     await ex('D','jabL');await ex('D','jabR');await ex(s,'palm');await ex(s,'chop');await ex('D','palm');await ex(s,'jabR');await ex('D','elbow');c1Sub(null);
     /* back to the deck at dawn */
     await c4Fade(async()=>{S.gt=6.1;try{lighting()}catch(e){}c4DanAt(x+.1,z,0);C4.dan.look=null;s.x=s.pup.tx=x+1.9;s.z=s.pup.tz=z;s.pup.look=null;s.pup.face=0;c4PupPlace(s,0);c4Shot([x+3.6,y+1.7,z+3.2],[x+.6,y+1.3,z])});
-    await c8Lines([[s,'Three weeks, Daniel-san. You are no longer embarrassing. That is not the same as good.'],[DANNY,'What\'s left?'],[s,'Me. Put me on the mat, and you leave here with a belt. I will not go easy. I am seventy. I do not have the time.']])},done,
+    await c8Lines([[s,'Three weeks, Daniel-san. You are no longer embarrassing. That is not the same as good.'],[DANNY,'What\'s left?'],[s,'A small test. Stand in the middle of the deck.']])},done,
     {fade:async()=>{dojoDummy(0);const s=dojoPup(1);s.x=x+1.4;s.z=z;s.pup.tx=s.x;s.pup.tz=s.z;s.pup.look=null;s.pup.face=-PI/2;c4PupPlace(s,0);c4DanAt(x+.3,z,PI/2)},
      after:()=>{if(stick&&stick.parent)stick.parent.remove(stick);for(const m of tmp)m.parent&&m.parent.remove(m);dojoBand(PM,0,1);if(C4.dan){C4.dan.post=null;C4.dan.y=null;C4.dan.look=null}if(PM){PM.rotation.x=0;PM.rotation.z=0}dojoPup(0);S.gt=6.2;try{lighting()}catch(e){}S.dojoBand=1}})}
 async function dojoBeltCine(done){const[x,z]=dojoAt(),y=terrH(x,z);await c6Cine(async()=>{const s=dojoPup(1);
@@ -177,16 +177,54 @@ async function dojoBeltCine(done){const[x,z]=dojoAt(),y=terrH(x,z);await c6Cine(
     c4Shot([x+3,y+1.6,z+2.6],[x+.4,y+1.3,z]);
     await c8Lines([[s,'A belt holds up your pants. What you learned holds up everything else.'],[s,'Do not start fights, Daniel-san. Finish them. And come back up at six tomorrow. Somebody has to carry the water.']])},done,
     {fade:async()=>{DOJO.hide=0;const st=curStep();for(const n of AM?AM.temps.slice():[])if(n.dojoFoe&&NP.includes(n)){despawn(n)}const s=dojoPup(1);s.x=x+.9;s.z=z;s.pup.tx=s.x;s.pup.tz=s.z;s.pup.face=-PI/2;c4PupPlace(s,0);c4DanAt(x-.3,z,PI/2);s.pup.look=[P.x,P.z]},after:()=>{dojoPup(0)}})}
+/* V471 THE STUDENTS AND THE BOSS FIGHT. Ten of the sensei's students (black gi, black head wrap, the mouth-and-nose mask cut from their own heads)
+   drop out of the sky onto the summit, land crouched, bow to him, and fight Danny together. Then the sensei himself, as a boss: a health bar across the
+   top of the screen, three times his normal health, and a line from him at each third */
+const NINJAO={shirt:0x121216,sleeve:0x121216,pants:0x121216,hair:0x0c0c0e,cap:0,noLetters:1,fem:false,look:{cl2:'tee',hs2:'short',fh:0,shoe:0x0c0c0e,sole:0x060608}};
+function dojoNinja(n){if(!n||!n.g)return n;try{c3Hood(n)}catch(e){}const h=n.g.P&&n.g.P.head;if(h&&!h.userData.nwrap){const M=new THREE.MeshStandardMaterial({color:0x0e0e11,roughness:.95}),w=new THREE.Mesh(new THREE.SphereGeometry(.232,18,10,0,TAU,0,PI*.5),M);w.position.set(0,.13,-.01);w.scale.set(1,1.05,1.08);w.userData.noMerge=1;h.add(w);
+    const b=new THREE.Mesh(new THREE.TorusGeometry(.215,.022,6,24),new THREE.MeshStandardMaterial({color:0x8a1a22,roughness:.8}));b.rotation.x=PI/2;b.scale.set(1,1.1,1);b.position.set(0,.2,0);b.userData.noMerge=1;h.add(b);h.userData.nwrap=1}return n}
+function dojoNinjaSpot(i){const[x,z]=dojoAt(),a=i/10*TAU+.3,r=3.4+(i%2)*.9;return[x+.6+Math.cos(a)*r,z+.2+Math.sin(a)*r*.8]}
+async function dojoNinjaCine(done){const[x,z]=dojoAt(),y=terrH(x,z),ppl=[];await c6Cine(async()=>{const s=dojoPup(1);
+    c4Shot([x+.6,y+2.4,z+7.5],[x+.6,y+2.2,z]);await c4Wt(.6);bubble(s,'Students!',1.4);await c4Wt(.8);
+    /* they come down out of the sky, spinning, one after another */
+    for(let i=0;i<10;i++){const[a,b]=dojoNinjaSpot(i);const n=c4Pup('townies',a,b,Math.atan2(s.x-a,s.z-b),Object.assign({tag:'dojoN',int:null,name:'Student',title:'The Open Hand',lvl:5},NINJAO));if(!n)continue;dojoNinja(n);n.pup.y=y+14;n.pup.look=[s.x,s.z];ppl.push(n);
+      (async()=>{let t=0;const T=.75;while(t<T){const k=t/T;n.pup.y=y+14*(1-k*k);n.pup.post=g=>{g.rotation.x=k*TAU*1.5;const q=g.P;if(q&&q.lL){q.lL.rotation.set(-1.2,0,0);q.lR.rotation.set(-1.2,0,0);q.kL.rotation.set(1.8,0,0);q.kR.rotation.set(1.8,0,0)}};await c4Wt(.033);t+=.033}
+        n.pup.y=null;sfx('hit');n.pup.post=g=>{g.position.y-=.35;const q=g.P;if(q&&q.lL){q.lL.rotation.set(-1.1,0,.15);q.lR.rotation.set(-.3,0,-.15);q.kL.rotation.set(1.9,0,0);q.kR.rotation.set(1.3,0,0);q.aR.rotation.set(-.4,0,-.5)}};await c4Wt(.6);
+        /* and bow to their teacher */n.pup.post=g=>{g.rotation.x=.55;const q=g.P;if(q&&q.aL){q.aL.rotation.set(.1,0,.1);q.aR.rotation.set(.1,0,-.1)}}})();
+      if(i===2)c4Shot([x+6.5,y+3.2,z+6.5],[x+.6,y+1.2,z],.3);await c4Wt(.28)}
+    await c4Wt(1.6);c4Shot([x+3.2,y+1.8,z+3.6],[x+.6,y+1.4,z+.2],.8);
+    await c8Lines([[DANNY,'Where did they COME from?'],[s,'These are my students. I have trained each of them for twenty years.'],[DANNY,'Each of them? Twenty years? You\'re seventy.'],[s,'I do not sleep much. Students. Show him.']]);
+    for(const n of ppl){n.pup.post=null;n.pup.look=[P.x,P.z];n.pup.arms=-.9}await c4Wt(.8)},done,
+  {fade:async()=>{const s=dojoPup(1);s.x=s.pup.tx=x+4.2;s.z=s.pup.tz=z-2.6;s.pup.look=[x+.6,z+.2];c4PupPlace(s,0);c4DanAt(x+.6,z+.2,Math.atan2(s.x-(x+.6),s.z-(z+.2)))},
+   after:()=>{c4Off('dojoN');dojoPup(0)}})}
+async function dojoBossCall(done){const[x,z]=dojoAt(),y=terrH(x,z);await c6Cine(async()=>{const s=dojoPup(1);c4Shot([x+3,y+1.7,z+3.2],[x+1.4,y+1.4,z-.4]);
+    await c8Lines([[s,'Ten of them. Twenty years each. And you are still standing.'],[DANNY,'Barely. Is that it? Do I get the belt?'],[s,'One opponent is left between you and that belt.'],[DANNY,'Who?']]);
+    s.pup.post=g=>{const q=g.P;if(q&&q.aL){q.aL.rotation.set(-1.4,0,.3);q.aR.rotation.set(-1.6,0,-.3);q.eL.rotation.set(-1.4,0,0);q.eR.rotation.set(-1.2,0,0)}};c4Shot([x+2.2,y+1.6,z+1.4],[s.x,y+1.5,s.z],1.2);
+    await c8Lines([[s,'Me.']]);await c4Wt(.6);s.pup.post=null},done,
+  {fade:async()=>{dojoStudentsOff();const s=dojoPup(1);s.x=s.pup.tx=x+1.9;s.z=s.pup.tz=z-.4;s.pup.look=[x+.2,z+.6];c4PupPlace(s,0);c4DanAt(x+.2,z+.6,Math.atan2(s.x-(x+.2),s.z-(z+.6)))},after:()=>{dojoPup(0)}})}
+/* the beaten students leave the summit (bowing out happens off camera) */
+function dojoStudentsOff(){if(!AM)return;for(const n of AM.temps.slice())if(n.name==='Student'){despawn(n);AM.temps.splice(AM.temps.indexOf(n),1)}}
+/* the boss bar: across the top of the screen while the sensei is the opponent */
+function dojoBossBar(on,f,sub){let e=$('dojoboss');if(!on){if(e)e.remove();return}if(!e){e=document.createElement('div');e.id='dojoboss';e.style.cssText='position:fixed;left:50%;top:4.5%;transform:translateX(-50%);z-index:32;width:min(640px,88vw);pointer-events:none;font:800 15px Archivo,Arial,sans-serif;color:#fff4e0;text-align:center;text-shadow:0 1px 3px #000;letter-spacing:.08em';
+    e.innerHTML='<div>SENSEI WALT AMBROSE</div><div style="height:14px;margin-top:5px;border-radius:8px;background:#1d140c;border:1px solid #e2b64c;overflow:hidden;box-shadow:0 0 14px #b0202a88"><div id="dojobf" style="height:100%;width:100%;background:linear-gradient(90deg,#8a1a22,#d8432f,#e2b64c);transition:width .2s"></div></div><div id="dojobs" style="margin-top:5px;font:700 13px Archivo,Arial,sans-serif;color:#e2b64c;letter-spacing:.03em"></div>';document.body.appendChild(e)}
+  $('dojobf').style.width=Math.max(0,Math.min(1,f))*100+'%';$('dojobs').textContent=sub||''}
+function dojoBossTick(){const st=AM&&AM.m.id==='dojo'?curStep():null;const n=st&&st.dojoBoss&&st.foes_&&st.foes_[0];if(!n||mode==='title'){if($('dojoboss'))dojoBossBar(0);return}
+  const f=Math.max(0,n.hp)/n.mhp;dojoBossBar(1,f,f>.66?'The Open Hand · the final test':f>.33?'He is not even breathing hard':'He is smiling now');
+  for(const[k,t,l]of[[.66,'b1','Good. Now I will stop being polite.'],[.33,'b2','There it is. That is three weeks, Daniel-san.']])if(f<k&&!n[t]){n[t]=1;bubble(n,l,2.2)}}
 const DOJOM=[{id:'dojo',ch:5,side:1,name:'Side: The Open Hand',at:DOJO_AT,pre:['c5fall'],steps:()=>{const[x,z]=dojoAt();return[
    {t:'cine',run:dojoIntro},
    {t:'cine',run:d=>dojoDemo(d,0)},{t:'cond',dojoL:0,lab:()=>dojoLab(0),ok:()=>DOJO.hits>=DOJO.need,start:()=>dojoLesson(0),goal:dojoGoal},
    {t:'cine',run:d=>dojoDemo(d,1)},{t:'cond',dojoL:1,lab:()=>dojoLab(1),ok:()=>DOJO.hits>=DOJO.need,start:()=>dojoLesson(1),goal:dojoGoal},
    {t:'cine',run:d=>dojoDemo(d,2)},{t:'cond',dojoL:2,lab:()=>dojoLab(2),ok:()=>DOJO.hits>=DOJO.need,start:()=>dojoLesson(2),goal:dojoGoal},
    {t:'cine',run:dojoMontage},
-   {t:'fight',x:x+.6,z:z+.2,label:'The test: put Sensei Ambrose on the mat',goal:()=>mtnNear()?[x+.6,z+.2]:[DOJO_AT[0],DOJO_AT[1]-1],foes:[['staff',Math.max(6,(S.lvl||1)+1),'Walt Ambrose']],fo:Object.assign({lvAbs:1,title:'Sensei · Rec Center Martial Arts'},DOJOGI),mk:n=>{dojoGi(n);n.dojoFoe=1;n.taunt=['Show me three weeks, Daniel-san.','Hands open. Begin.','Do not be polite about it, Daniel-san.']},start:()=>{DOJO.hide=1;if(DOJO.n&&NP.includes(DOJO.n))despawn(DOJO.n);DOJO.n=null;dojoDummy(0);DOJO.teach=DOJOALL;DOJO.bias=.55;if(P.inside||!mtnNear()){mtnGroup(1);dojoYard(1);goOut(x+2,z+2)}}},
+   /* V471 ten students drop out of the sky, bow to their teacher, and come for Danny */
+   {t:'cine',run:dojoNinjaCine},
+   {t:'fight',x:x+.6,z:z+.2,label:'Ten students. Put every one of them down',foes:Array.from({length:10},(_,i)=>['townies',Math.max(3,(S.lvl||1)-1),'Student']),fo:Object.assign({lvAbs:1,title:'The Open Hand · 20 years'},NINJAO),mk:(n,i)=>{dojoNinja(n);const[a,b]=dojoNinjaSpot(i);n.x=n.hx=a;n.z=n.hz=b;if(n.g)n.g.position.set(a,terrH(a,b),b);n.aggro=1;n.tgt='P';n.taunt=['Hai!','Twenty years, Kowalski.','Sensei is watching.','Again.']},start:()=>{DOJO.hide=0;{const m=dojoSensei();if(m){const[hx,hz]=dojoHome();m.x=m.hx=hx;m.z=m.hz=hz;m.a=PI*.8;if(m.g)m.g.position.set(hx,terrH(hx,hz),hz)}}dojoDummy(0);DOJO.teach=DOJOALL;DOJO.bias=.55;if(P.inside||!mtnNear()){mtnGroup(1);dojoYard(1);goOut(x+.6,z+.2)}}},
+   {t:'cine',run:dojoBossCall},
+   {t:'fight',x:x+.6,z:z+.2,dojoBoss:1,label:'The test: put Sensei Ambrose on the mat',goal:()=>mtnNear()?[x+.6,z+.2]:[DOJO_AT[0],DOJO_AT[1]-1],foes:[['staff',Math.max(6,(S.lvl||1)+1),'Walt Ambrose']],fo:Object.assign({lvAbs:1,title:'Sensei · Rec Center Martial Arts'},DOJOGI),mk:n=>{dojoStudentsOff();dojoGi(n);n.dojoFoe=1;n.boss=1;n.hp=n.mhp=Math.round(n.mhp*3.2);n.taunt=['Show me three weeks, Daniel-san.','Hands open. Begin.','Do not be polite about it, Daniel-san.']},start:()=>{DOJO.hide=1;if(DOJO.n&&NP.includes(DOJO.n))despawn(DOJO.n);DOJO.n=null;dojoDummy(0);DOJO.teach=DOJOALL;DOJO.bias=.55;if(P.inside||!mtnNear()){mtnGroup(1);dojoYard(1);goOut(x+2,z+2)}}},
    {t:'cine',run:dojoBeltCine}]},
   fin:()=>{S.belt=1;DOJO.teach=null;DOJO.hide=0;dojoBelt();rep('athletes',10);big('SIDE STORY COMPLETE',1800);toast('Black Belt: roundhouse, spinning back kick, bicycle kick, flying knee, double palm strike and knife-hand are now part of every fight. The third hit of a combo is always a big kick.',8000);try{saveGame()}catch(e){}},
-  reset:()=>{DOJO.teach=null;DOJO.hide=0;dojoDummy(0);if(DOJO.n&&DOJO.n.pup)dojoPup(0)}}];
+  reset:()=>{DOJO.teach=null;DOJO.hide=0;dojoDummy(0);if(DOJO.n&&DOJO.n.pup)dojoPup(0);dojoBossBar(0)}}];
 M.push(...DOJOM);
 
 // ================================================================ V458 THE MOUNTAIN (user: train up a mountain like the tall rocky mountains of China)
