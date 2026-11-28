@@ -47,7 +47,7 @@ function dojoSensei(){if(DOJO.n&&NP.includes(DOJO.n))return DOJO.n;const[x,z]=do
 function dojoDummy(on){const d=DOJO.dummy;if(!on){if(d&&NP.includes(d)){C4.pups=C4.pups.filter(q=>q!==d);C4.mine=C4.mine.filter(q=>q!==d);despawn(d)}DOJO.dummy=null;return null}if(d&&NP.includes(d))return d;const[x,z]=dojoAt();
   const n=c4Pup('staff',x-1.4,z+.6,PI/2,{tag:'dojodum',int:null,name:'Training Dummy',title:'Wood and rope',lvl:1,shirt:0x9a6c3c,sleeve:0x9a6c3c,pants:0x7a5430,skin:0xa87844,hair:0x7a5430,cap:0,noLetters:1,fem:false,look:{cl2:'tee',fh:0,noMouth:1,shoe:0x7a5430,sole:0x5a3c20}});if(!n)return null;
   n.actor=0;n.dummy=1;n.temp=1;n.def=1;n.noTalk=1;n.hp=n.mhp=9999;n.pup.frozen=0;n.pup.sp=0;n.pup.arms=1.35;n.pup.look=[x+3,z+.6];n.a=PI/2;if(AM)AM.temps.push(n);/* not one of the cutscene's own puppets: the clean-up after a cutscene must not take it away */C4.mine=C4.mine.filter(q=>q!==n);DOJO.dummy=n;return n}
-function dojoTick(dt){if(typeof mode==='undefined'||mode==='title'||mode==='loading'||!S)return;const d=DOJO.dummy;if(d&&d.pup&&d.pup.lean>0)d.pup.lean=Math.max(0,d.pup.lean-dt*1.4);
+function dojoTick(dt){try{dojoBandTick()}catch(e){}if(typeof mode==='undefined'||mode==='title'||mode==='loading'||!S)return;const d=DOJO.dummy;if(d&&d.pup&&d.pup.lean>0)d.pup.lean=Math.max(0,d.pup.lean-dt*1.4);
   /* cutscene clean-up hides every prop group: the mountain, the deck and the trail sign are put back every frame (the mountain only when Danny is on it) */
   const near=mtnNear(),on=dojoOpen();if(C4.props.dojomtn)C4.props.dojomtn.visible=near;if(C4.props.dojoyard)C4.props.dojoyard.visible=on&&near;if(C4.props.dojotrail)C4.props.dojotrail.visible=on&&!near;
   if((DOJO.t-=dt)>0)return;DOJO.t=.5;const un=on;if(!un&&!C4.props.dojoyard&&!C4.props.dojotrail)return;dojoTrail(un&&!near);if(near||C4.props.dojomtn){mtnGroup(near);dojoYard(un&&near)}
@@ -114,14 +114,62 @@ async function dojoDemo(done,i){const[x,z]=dojoAt(),y=terrH(x,z),L=DOJOL[i],T=DO
     {fade:async()=>{const d=dojoDummy(1),s=dojoPup(1);s.x=d.x+1.25;s.z=d.z;s.pup.tx=s.x;s.pup.tz=s.z;s.pup.look=[d.x,d.z];s.pup.face=-PI/2;c4PupPlace(s,0);c4DanAt(d.x+2.3,d.z+2.2,Math.atan2(-1.6,-2.2))},
      after:()=>{const s=dojoPup(0),[x2,z2]=dojoAt();s.x=x2+2.6;s.z=z2-1.8;s.hx=s.x;s.hz=s.z;s.a=-.6;if(s.g){s.g.position.set(s.x,terrH(s.x,s.z),s.z);s.g.rotation.y=s.a}}})}
 /* three weeks of mornings: the two of them side by side, the same form, at dawn, at noon, at dusk */
-async function dojoMontage(done){const[x,z]=dojoAt(),y=terrH(x,z),gt0=S.gt;await c6Cine(async()=>{const s=dojoPup(1);big('THREE WEEKS',1800);
+/* V470 the headband: a white cloth band tied round Danny's head (two short tails at the back); and a dark blindfold for the stick drill */
+function dojoBand(g,on,dark){const h=g&&g.P&&g.P.head;if(!h)return;const k=dark?'dojoBlind':'dojoBand';if(h.userData[k]){h.remove(h.userData[k]);h.userData[k]=null}if(!on)return;
+  const M=new THREE.MeshStandardMaterial({color:dark?0x15161a:0xf4f1ea,roughness:.85}),b=new THREE.Group();b.userData.noMerge=1;const r=new THREE.Mesh(new THREE.TorusGeometry(.205,dark?.03:.026,8,28),M);r.rotation.x=PI/2;r.scale.set(1,1.1,dark?1.6:1.3);b.add(r);
+  if(!dark){const red=new THREE.Mesh(new THREE.CircleGeometry(.04,16),new THREE.MeshStandardMaterial({color:0xb0202a,roughness:.8}));red.position.set(0,0,.232);b.add(red)}
+  for(const sx of[-1,1]){const t=new THREE.Mesh(bgeo(.045,.2,.012),M);t.position.set(sx*.03,-.1,-.22);t.rotation.set(.35,0,sx*.25);b.add(t)}b.position.set(0,dark?.135:.205,.005);h.add(b);h.userData[k]=b}
+/* worn on the mountain once he has it */
+function dojoBandTick(){if(!PM)return;const want=!!(S&&S.dojoBand&&mtnNear());const h=PM.P&&PM.P.head;if(!h)return;if(want&&!h.userData.dojoBand)dojoBand(PM,1);else if(!want&&h.userData.dojoBand)dojoBand(PM,0)}
+async function dojoMontage(done){const[x,z]=dojoAt(),y=terrH(x,z),gt0=S.gt,tmp=[];let stick=null;const add=m=>{m.userData.noMerge=1;sc.add(m);tmp.push(m);return m};
+  await c6Cine(async()=>{const s=dojoPup(1);/* C4.dan is replaced by every c4DanAt, so always reach for the current one */
+    /* 0. the headband */
+    c4Shot([x+2.6,y+1.75,z+2.4],[x+1,y+1.45,z],0);c4Shot([x+2.2,y+1.7,z+2],[x+1,y+1.5,z],.3);
+    s.pup.post=g=>{const q=g.P;if(q&&q.aR){q.aR.rotation.set(-1.3,0,-.1);q.eR.rotation.set(-.4,0,0)}};
+    const band=add(new THREE.Mesh(new THREE.TorusGeometry(.12,.02,6,16),new THREE.MeshStandardMaterial({color:0xf4f1ea,roughness:.85})));{const hp=new THREE.Vector3();(s.g.P.hR||s.g).getWorldPosition(hp);band.position.copy(hp);band.rotation.x=PI/2}
+    await c8Lines([[s,'Before we begin. This was mine. Now it is yours.'],[DANNY,'A headband?'],[s,'It keeps the sweat out of your eyes. And it reminds you why you came up here. Tie it.']]);s.pup.post=null;
+    {const hp=new THREE.Vector3();PM.P.head.getWorldPosition(hp);const a=band.position.clone();for(let t=0;t<=1.001;t+=.1){band.position.lerpVectors(a,hp,t);band.position.y+=Math.sin(t*PI)*.2;await c4Wt(.04)}band.visible=false}
+    C4.dan.post=g=>{const q=g.P;if(q&&q.aL){const w=Math.sin(TT*14)*.15;q.aL.rotation.set(-2.6,0,.6);q.aR.rotation.set(-2.6,0,-.6);q.eL.rotation.set(-1.6+w,0,0);q.eR.rotation.set(-1.6-w,0,0)}};
+    await c4Wt(1.1);C4.dan.post=null;S.dojoBand=1;dojoBand(PM,1);sfx('ui');big('THREE WEEKS',1800);await c4Wt(1);
     const beat=async(gt,cam,mv,sub)=>{await c4Fade(async()=>{S.gt=gt;try{lighting()}catch(e){}c4Shot(cam[0],cam[1]);c4Shot(cam[2],cam[1],.2)});c1Sub('',sub);for(const m of mv){await Promise.all([dojoMove(s,m),dojoMove('D',m)]);await c4Wt(.25)}c1Sub(null)};
+    /* 1. the open hand at six in the morning */
     await beat(6.2,[[x+1,y+1.5,z+6.2],[x+1,y+1.15,z],[x+1,y+1.7,z+5.2]],['palmD','chop','palmD'],'Every morning at six. The open hand, two hundred times.');
-    await beat(12.5,[[x+6,y+1.9,z+2.6],[x+1,y+1.2,z],[x+5,y+1.7,z+2.2]],['kRound','kSpin','kRound'],'Then the wheel, until the hip stops arguing.');
-    await beat(19.4,[[x-3.4,y+1.3,z+4.4],[x+1,y+1.3,z],[x-2.6,y+1.2,z+3.8]],['knee','kBike','kBike'],'Then the bicycle. He lands on his back eleven times. He counts every one out loud.');
-    await c4Fade(async()=>{S.gt=6.1;try{lighting()}catch(e){}c4Shot([x+3.6,y+1.7,z+3.2],[x+.6,y+1.3,z])});
+    /* 2. blindfolded, the stick */
+    await c4Fade(async()=>{S.gt=9.5;try{lighting()}catch(e){}c4DanAt(x,z+.4,PI/2);s.x=s.pup.tx=x+1.75;s.z=s.pup.tz=z+.4;s.pup.face=-PI/2;s.pup.look=null;c4PupPlace(s,0);dojoBand(PM,1,1);
+      stick=new THREE.Mesh(new THREE.CylinderGeometry(.018,.022,1.35,8),mt(0x8a6a3a,.7));stick.userData.noMerge=1;stick.position.set(0,-.62,.04);(s.g.P.hR||s.g).add(stick);
+      c4Shot([x+.9,y+1.5,z+3.6],[x+.85,y+1.2,z+.4]);c4Shot([x+.9,y+1.4,z+3.2],[x+.85,y+1.2,z+.4],.15)});
+    c1Sub('','Blindfolded. He only says "listen."');
+    for(let r=0;r<5;r++){const side=r%3===2?0:(r%2?1:-1);let t=0;const T=.95;
+      while(t<T){const k=t/T,sw=k<.45?k/.45:k<.62?1:1-(k-.62)/.38;s.pup.post=g=>{const q=g.P;if(q&&q.aR){q.aR.rotation.set(-2.9+sw*2.1,0,-.15);q.eR.rotation.set(-.2,0,0)}};
+        const dg=Math.max(0,Math.min(1,(k-.28)/.2))*(k<.8?1:1-(k-.8)/.2);C4.dan.post=g=>{const q=g.P;g.position.x+=Math.cos(P.face)*side*.32*dg;g.position.z-=Math.sin(P.face)*side*.32*dg;if(!side){g.position.y-=.45*dg;g.rotation.x=.35*dg}else g.rotation.z=-side*.22*dg;if(q&&q.aL){q.aL.rotation.set(-.6,0,.4);q.aR.rotation.set(-.6,0,-.4)}};
+        if(k>.44&&k<.48)try{maWhoosh(.05)}catch(e){}await c4Wt(.033);t+=.033}await c4Wt(.15)}
+    s.pup.post=null;C4.dan.post=null;c1Sub(null);bubble(s,'Good. You heard it.',1.6);await c4Wt(1.4);
+    /* 3. cross-legged on a stack of stones */
+    await c4Fade(async()=>{S.gt=13.2;try{lighting()}catch(e){}dojoBand(PM,0,1);if(stick){stick.parent&&stick.parent.remove(stick);stick=null}
+      const RX=x-3.4,RZ=z-1.2,RM=mt(0x8d8f8a,.95);let hy=y;for(const[w,h,ry]of[[.95,.34,.2],[.78,.3,.9],[.62,.26,.3],[.5,.22,1.4]]){const m=add(new THREE.Mesh(new THREE.CylinderGeometry(w/2,w/2*1.08,h,9),RM));m.position.set(RX+(rnd()-.5)*.06,hy+h/2,RZ);m.rotation.y=ry;m.rotation.z=(rnd()-.5)*.08;hy+=h}
+      c4DanAt(RX,RZ,PI*.15);C4.dan.y=hy-.8;s.x=s.pup.tx=RX-1.8;s.z=s.pup.tz=RZ+.9;s.pup.look=[RX,RZ];c4PupPlace(s,0);
+      C4.dan.post=g=>{const q=g.P;if(!q||!q.lL)return;const w=Math.sin(TT*1.7)*.035;g.rotation.z=w;q.lL.rotation.set(-1.5,-1.3,.7);q.lR.rotation.set(-1.5,1.3,-.7);q.kL.rotation.set(2.3,0,0);q.kR.rotation.set(2.3,0,0);if(q.fL){q.fL.rotation.set(0,0,0);q.fR.rotation.set(0,0,0)}
+        q.aL.rotation.set(-.55,0,.35);q.aR.rotation.set(-.55,0,-.35);q.eL.rotation.set(-.9,0,0);q.eR.rotation.set(-.9,0,0)};
+      c4Shot([RX+3.2,hy+.7,RZ+2.6],[RX,hy+.1,RZ]);c4Shot([RX+2.6,hy+.55,RZ+2.2],[RX,hy+.15,RZ],.15)});
+    c1Sub('','Legs crossed, on four stones stacked by hand. An hour without falling off. Then two.');await c4Wt(4.2);c1Sub(null);bubble(s,'Breathe from the belly.',1.8);await c4Wt(1.8);C4.dan.post=null;C4.dan.y=null;
+    /* 4. handstand push-ups, counted out loud */
+    await c4Fade(async()=>{S.gt=17.4;try{lighting()}catch(e){}c4DanAt(x-.6,z+1.6,PI/2);s.x=s.pup.tx=x+1.4;s.z=s.pup.tz=z+2.2;s.pup.look=[x-.6,z+1.6];c4PupPlace(s,0);
+      c4Shot([x+.6,y+1.2,z+4.6],[x-.4,y+1,z+1.6]);c4Shot([x+.5,y+1.1,z+4.2],[x-.4,y+1,z+1.6],.12)});
+    let hs=0;C4.dan.post=g=>{const q=g.P;if(!q||!q.aL)return;const b=(Math.sin(hs)+1)/2;g.rotation.x=PI;g.position.y=P.y+2.04-.16*b;q.aL.rotation.set(-PI+.1,0,.5+.35*b);q.aR.rotation.set(-PI+.1,0,-.5-.35*b);q.eL.rotation.set(0,0,-1.3*b);q.eR.rotation.set(0,0,1.3*b);q.lL.rotation.set(0,0,.05);q.lR.rotation.set(0,0,-.05);q.kL.rotation.set(0,0,0);q.kR.rotation.set(0,0,0)};
+    for(const n of[989,990,991,992]){const t0=TT;while(TT-t0<.85){hs=(TT-t0)/.85*TAU+PI/2;await c4Wt(.033)}c1Say(s,n+'…',.8)}
+    c1Say(s,'Nine hundred and ninety-three. Do not stop because I am counting slowly.',2.4);{const t0=TT;while(TT-t0<2.4){hs=(TT-t0)/.85*TAU+PI/2;await c4Wt(.033)}}C4.dan.post=null;
+    /* 5. sparring: punches and blocks */
+    await c4Fade(async()=>{S.gt=18.1;try{lighting()}catch(e){}c4DanAt(x,z,PI/2);s.x=s.pup.tx=x+1.25;s.z=s.pup.tz=z;s.pup.face=-PI/2;s.pup.look=[x,z];c4PupPlace(s,0);C4.dan.look=[x+1.25,z];
+      c4Shot([x+.6,y+1.5,z+3.4],[x+.6,y+1.25,z]);c4Shot([x+.7,y+1.45,z+3],[x+.6,y+1.25,z],.12)});
+    c1Sub('','Then he starts hitting back.');
+    const block=g=>{const q=g.P;if(q&&q.aL){q.aL.rotation.set(-1.5,0,.2);q.aR.rotation.set(-1.7,0,-.25);q.eL.rotation.set(-1.9,0,0);q.eR.rotation.set(-1.7,0,0)}};
+    const ex=async(att,mv)=>{if(att==='D')s.pup.post=block;else C4.dan.post=block;await dojoMove(att,mv,()=>sfx('hit'));s.pup.post=null;if(att!=='D')C4.dan.post=null;await c4Wt(.12)};
+    await ex('D','jabL');await ex('D','jabR');await ex(s,'palm');await ex(s,'chop');await ex('D','palm');await ex(s,'jabR');await ex('D','elbow');c1Sub(null);
+    /* back to the deck at dawn */
+    await c4Fade(async()=>{S.gt=6.1;try{lighting()}catch(e){}c4DanAt(x+.1,z,0);C4.dan.look=null;s.x=s.pup.tx=x+1.9;s.z=s.pup.tz=z;s.pup.look=null;s.pup.face=0;c4PupPlace(s,0);c4Shot([x+3.6,y+1.7,z+3.2],[x+.6,y+1.3,z])});
     await c8Lines([[s,'Three weeks, Daniel-san. You are no longer embarrassing. That is not the same as good.'],[DANNY,'What\'s left?'],[s,'Me. Put me on the mat, and you leave here with a belt. I will not go easy. I am seventy. I do not have the time.']])},done,
-    {fade:async()=>{dojoDummy(0);const s=dojoPup(1);s.x=x+1.9;s.z=z;s.pup.tx=s.x;s.pup.tz=s.z;s.pup.look=null;s.pup.face=0;c4PupPlace(s,0);c4DanAt(x+.1,z,0)},after:()=>{dojoPup(0);S.gt=6.2;try{lighting()}catch(e){}}})}
+    {fade:async()=>{dojoDummy(0);const s=dojoPup(1);s.x=x+1.4;s.z=z;s.pup.tx=s.x;s.pup.tz=s.z;s.pup.look=null;s.pup.face=-PI/2;c4PupPlace(s,0);c4DanAt(x+.3,z,PI/2)},
+     after:()=>{if(stick&&stick.parent)stick.parent.remove(stick);for(const m of tmp)m.parent&&m.parent.remove(m);dojoBand(PM,0,1);if(C4.dan){C4.dan.post=null;C4.dan.y=null;C4.dan.look=null}if(PM){PM.rotation.x=0;PM.rotation.z=0}dojoPup(0);S.gt=6.2;try{lighting()}catch(e){}S.dojoBand=1}})}
 async function dojoBeltCine(done){const[x,z]=dojoAt(),y=terrH(x,z);await c6Cine(async()=>{const s=dojoPup(1);
     c4Shot([x+3.2,y+1.6,z+3],[x+.4,y+1.25,z]);
     await c8Lines([[s,'Hm. Thirty-one years, and a pledge in a propeller hat puts me on my own mat.'],[DANNY,'Are you okay?'],[s,'I am seventy. Nothing is okay. Stand still.']]);
