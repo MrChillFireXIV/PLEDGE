@@ -80,7 +80,7 @@ function c4Look(n,x,z){if(n&&n.pup)n.pup.look=[x,z]}
 function c4PupUpd(dt){for(let i=C4.pups.length-1;i>=0;i--){const n=C4.pups[i];if(!c4Live(n)){C4.pups.splice(i,1);continue}const p=n.pup;
   if(n.bub&&n.bub.visible&&n.bubT!=null){n.bubT-=dt;if(n.bubT<=0){n.bub.visible=false;n.c1talk=0}}if(p.carried)continue;
   const dx=p.tx-n.x,dz=p.tz-n.z,d=Math.hypot(dx,dz);let sp=0;if(d>.04&&dt>0){const s=Math.min(d,p.v*dt);n.x+=dx/d*s;n.z+=dz/d*s;sp=s/dt;if(!p.back)p.face=Math.atan2(dx,dz)}
-  if(p.look)p.face=Math.atan2(p.look[0]-n.x,p.look[1]-n.z);const ta=SCENE&&SCENE.n===n?n.a:p.face;
+  /* V469 someone walking faces where he is going; a 'look at' only turns him once he has stopped (it made people walk backwards or sideways) */if(p.look&&(sp<.3||p.back))p.face=Math.atan2(p.look[0]-n.x,p.look[1]-n.z);const ta=SCENE&&SCENE.n===n&&sp<.3?n.a:p.face;/* a talk scene's hold on someone's heading lets go while he walks *//* V469 keep the NPC's own heading in step, or a real NPC used as a puppet (the sensei) gets turned back to his old heading by his own update and walks backwards */n.a=ta;
   if(n.g){n.g.rotation.y=c4LA(n.g.rotation.y,ta,Math.min(1,dt*9));p.t+=dt;c4PupPlace(n,dt);if(!p.frozen){try{animP(n.g,p.sp!=null?p.sp:sp,p.t,p.st||(n.c1talk?'talk':''));if(p.arms!=null)c4Arms(n.g,p.arms);if(p.post)p.post(n.g)}catch(e){}}}}}
 function c4Off(tag){for(const n of C4.mine.slice())if(!tag||n.c4tag===tag){if(NP.includes(n))despawn(n);C4.mine.splice(C4.mine.indexOf(n),1);for(const k in C4.cast)if(C4.cast[k]===n)delete C4.cast[k]}C4.pups=C4.pups.filter(n=>C4.mine.includes(n))}
 function c4Dup(id,x,z,a,o={}){const d=NAMED.find(d=>d.id===id);if(!d)return null;const f=o.pup?c4Pup:c4Person;
@@ -89,7 +89,7 @@ function c4Dup(id,x,z,a,o={}){const d=NAMED.find(d=>d.id===id);if(!d)return null
 function c4DanAt(x,z,a){P.x=x;P.z=z;P.y=terrH(x,z);P.jy=0;P.vx=P.vz=0;P.face=a;PM.visible=true;PM.rotation.order='YXZ';PM.position.set(x,P.y,z);PM.rotation.set(0,a,0);C4.dan={tx:x,tz:z,v:3.3,st:'',face:a,lean:0,dy:0}}
 function c4DanTo(x,z,v){if(!C4.dan)c4DanAt(P.x,P.z,P.face);C4.dan.tx=x;C4.dan.tz=z;if(v)C4.dan.v=v}
 function c4DanUpd(dt){const D=C4.dan;if(!D||mode==='play')return;const dx=D.tx-P.x,dz=D.tz-P.z,d=Math.hypot(dx,dz);let sp=0;if(d>.04&&dt>0){const s=Math.min(d,D.v*dt);P.x+=dx/d*s;P.z+=dz/d*s;sp=s/dt;if(!D.back)D.face=Math.atan2(dx,dz)}
-  if(D.look)D.face=Math.atan2(D.look[0]-P.x,D.look[1]-P.z);if(!(SCENE&&SCENE.n))P.face=c4LA(P.face,D.face,Math.min(1,dt*9));P.y=D.y!=null?D.y:terrH(P.x,P.z);
+  if(D.look&&(sp<.3||D.back))D.face=Math.atan2(D.look[0]-P.x,D.look[1]-P.z);if(!(SCENE&&SCENE.n)||sp>.3)P.face=c4LA(P.face,D.face,Math.min(1,dt*9));P.y=D.y!=null?D.y:terrH(P.x,P.z);
   PM.position.set(P.x,P.y+(D.dy||0),P.z);PM.rotation.set(-(D.lean||0),P.face,0);try{animP(PM,D.sp!=null?D.sp:sp,TT,D.st||'');if(D.arms!=null)c4Arms(PM,D.arms);if(D.post)D.post(PM)/* V423 a pose hook for Danny in a cutscene, like a puppet's */}catch(e){}}
 // both arms reaching forward (a rope, an egg, a chest to push on); a is the shoulder swing, -PI/2 is straight out in front
 function c4Arms(g,a){const p=g&&g.P;if(!p||!p.aL||!p.aR)return;p.aL.rotation.set(a,0,.14);p.aR.rotation.set(a,0,-.14);if(p.eL)p.eL.rotation.set(-.3,0,0);if(p.eR)p.eR.rotation.set(-.3,0,0)}
