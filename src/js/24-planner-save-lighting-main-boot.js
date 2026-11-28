@@ -146,7 +146,7 @@ function update(dt){TT+=dt;if(mode!=='title'&&mode!=='loading'&&S)S.playT=(S.pla
     navBudget=8;const tk=SCENE&&SCENE.n;for(let i=NP.length-1;i>=0;i--){const m=NP[i];if(m===tk||m.chase||m.actor)continue;npcSafe(m,dt)}
   }
   // ambient anim always
-  prTick(dt);try{compassTick()}catch(e){}try{c1Tick(dt)}catch(e){console.warn('c1Tick',e)}try{dojoTick(dt)}catch(e){}try{trsTick(dt)}catch(e){console.warn('trsTick',e)}try{trTick(dt)}catch(e){console.warn('trTick',e)}
+  prTick(dt);try{compassTick()}catch(e){}try{c1Tick(dt)}catch(e){console.warn('c1Tick',e)}try{dojoTick(dt)}catch(e){}try{trsTick(dt)}catch(e){console.warn('trsTick',e)}try{pmBody()}catch(e){}try{trTick(dt)}catch(e){console.warn('trTick',e)}
   if(fountainPts){const a=fountainPts.geometry.attributes.position.array,ph=fountainPts.userData.ph;for(let i=0;i<ph.length;i++){const p=ph[i];const t=((TT*.6+p[0])%1);const r=t*1.9*p[2];a[i*3]=FOUNT[0]+Math.cos(p[1])*r;a[i*3+1]=3.2+t*3.2-t*t*5.2;a[i*3+2]=FOUNT[1]+Math.sin(p[1])*r}fountainPts.geometry.attributes.position.needsUpdate=true}
   for(const pr of PROPS)propSpin(pr,dt);dmgTick(dt);lootTick(dt);
   puffs=puffs.filter(p=>{p[1]+=dt;p[0].scale.setScalar(1+p[1]*3);p[0].material.opacity=.5*(1-p[1]/2.5);if(p[1]>2.5){sc.remove(p[0]);return false}return true});
