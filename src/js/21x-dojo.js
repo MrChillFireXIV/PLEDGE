@@ -176,7 +176,7 @@ function mtnBuild(g){const X=MTN.x,Z=MTN.z,r=mtnRnd(4581),B={rock:mtnBatch(),mos
   /* the summit pillar (flat top at walking height) and a crowd of others around it, some taller, some far below */
   mtnPillar(B,X,Z,0,-320,MTN.R,25,11,1);
   const spots=[];for(let k=0;k<46;k++){let tries=0,x,z,d;do{const a=r()*TAU;d=36+Math.pow(r(),.85)*230;x=X+Math.cos(a)*d;z=Z+Math.sin(a)*d;tries++}while(tries<20&&spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<s[2]+14));
-    const rt=5+r()*13,top=d<70?-22-r()*40+r()*58:-60+r()*150;spots.push([x,z,rt]);mtnPillar(B,x,z,top,-320,rt,rt*(1.25+r()*.5),100+k,0);
+    /* V468 no neighbour may come within reach of the summit stairway or the camera's path round it (it used to: Danny walked into one on the way up) */const rt=5+r()*13;if(d<rt*1.8+44){d=rt*1.8+44;const a2=Math.atan2(z-Z,x-X);x=X+Math.cos(a2)*d;z=Z+Math.sin(a2)*d}const top=d<70?-22-r()*40+r()*58:-60+r()*150;spots.push([x,z,rt]);mtnPillar(B,x,z,top,-320,rt,rt*(1.25+r()*.5),100+k,0);
     const np=1+Math.floor(r()*Math.min(5,rt/3));for(let j=0;j<np;j++){const a=r()*TAU,dd=r()*rt*.7;mtnPine(B,x+Math.cos(a)*dd,top,z+Math.sin(a)*dd,.8+r()*1.1,300+k*7+j)}}
   /* the summit: a paved courtyard, pines leaning out over the edge */
   const pv=new THREE.BoxGeometry(20,.05,14);pv.translate(X,.02,Z-1.5);mtnAdd(B.stone,pv,(x,y,z)=>{const v=.92+.08*Math.sin(Math.floor(x*1.1)*3.1+Math.floor(z*1.1)*1.7);return[.66*v,.63*v,.57*v]});

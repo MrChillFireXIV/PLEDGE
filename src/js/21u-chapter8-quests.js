@@ -2,10 +2,10 @@
 const c8Cine=(run,done,o)=>c6Cine(run,done,o);
 const c8W=(x,y,z)=>{const I=INT.c8haze;return[I.x0+x,y,I.z0+z]};
 // dialogue: [n,text] conversation box · [DANNY,text] Danny's box · [null,text,secs] narration · numbers wait · functions run
-async function c8Lines(L){for(const l of L){if(typeof l==='number'){await c4Wt(l);continue}if(typeof l==='function'){await l();continue}const[n,t,d]=l;
+async function c8Lines(L){for(const l of L){if(cineSkipped()&&typeof l!=='function')continue;if(typeof l==='number'){await c4Wt(l);continue}if(typeof l==='function'){await l();continue}const[n,t,d]=l;
   if(n===DANNY){await c8Dan(t);continue}if(!n){c1Sub('',t);await c4Wt(d||2.8);c1Sub(null);continue}if(c4Live(n))await c1Line(n,t)}}
 // a choice in the conversation box; opts [[label, ok?, reply]] — a wrong pick gets its reply and the question comes back without it
-async function c8Choose(n,title,text,opts){let o=opts.slice();for(let k=0;k<4;k++){const pickOk=C4.auto?o.findIndex(x=>x[1]):-1;
+async function c8Choose(n,title,text,opts){let o=opts.slice();for(let k=0;k<4;k++){const pickOk=C4.auto||cineSkipped()?o.findIndex(x=>x[1]):-1;
     const i=pickOk>=0?pickOk:await new Promise(res=>card({title,sp:n&&n.name?n.name+(n.title?' · '+n.title:''):'',text,focus:n&&NP.includes(n)?n:DANNY,ch:o.map((x,j)=>[x[0],()=>{mode='cine';res(j)}])}));const c=o[i];
     if(c[1])return c;if(c[2])await c8Lines(c[2]);o=o.filter(x=>x!==c);if(o.length===1)return o[0]}return o[0]}
 // everyone the current scene needs, restored after a reload

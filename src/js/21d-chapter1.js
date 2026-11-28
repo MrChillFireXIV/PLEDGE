@@ -52,7 +52,8 @@ function c1BalPos(){const e=$('c1bal');if(!e||e.hidden||!C1B)return;const n=C1B.
   const v=new THREE.Vector3(n.x,(n.g?n.g.position.y:terrH(n.x,n.z))+(n.tall?3.35:(n.prop?2.25:2.05)*((n.g&&n.g.scale.y)||1))+.25,n.z).project(cam);if(v.z>1){e.style.opacity=0;return}e.style.opacity=1;
   const W=innerWidth,H=innerHeight,bw=e.offsetWidth,bh=e.offsetHeight;e.style.left=clamp((v.x+1)/2*W,bw/2+12,W-bw/2-12)+'px';e.style.top=clamp((1-v.y)/2*H,bh+12,H-40)+'px'}
 function c1Say(n,t,d=9){for(const a of C1.act){a.c1talk=0;if(a.bub)a.bub.visible=false}if(!n||!NP.includes(n))return;n.c1talk=1;bubble(n,t,d);if(n.bub)n.bub.visible=false;c1Sub(null);c1Bal(n,t,Math.min(d,1.2+t.length*.06))}
-function c1Card(n,title,sp,text,ch){return new Promise(res=>card({title,sp,text,focus:n,ch:(ch||[['▸ Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';res(f?f():0)}])}))}
+/* V468 a skipped cutscene doesn't stop for its conversation boxes any more */const cineSkipped=()=>!!(CINE&&CINE.skipped);
+function c1Card(n,title,sp,text,ch){if(cineSkipped()&&(!ch||ch.length<2)){const f=ch&&ch[0]&&ch[0][1];return Promise.resolve(f?f():0)}return new Promise(res=>card({title,sp,text,focus:n,ch:(ch||[['▸ Continue',null]]).map(([l,f])=>[l,()=>{mode='cine';res(f?f():0)}])}))}
 // V141 cinematic speech uses the normal conversation box (speaker framed by sceneCam); '▸ Continue' moves on without Danny butting in, ack = Danny's reply
 function c1Line(n,text,ack){if(!n||!NP.includes(n))return Promise.resolve();for(const a of C1.act)a.c1talk=0;return c1Card(n,n.name,n.title||'','"'+text+'"',[[ack||'▸ Continue',null]])}
 function c1Actor(cl,x,z,a,o){const n=spawn(cl,o.zone||'greek',Object.assign({x,z,a,temp:1,mode:'idle',lvl:o.lvl||3,fem:0},o));n.hx=x;n.hz=z;n.ha=a;n.g.rotation.y=a;n.g.visible=true;C1.act.push(n);if(AM)AM.temps.push(n);return n}

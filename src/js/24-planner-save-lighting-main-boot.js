@@ -188,6 +188,7 @@ function hud(){remindTick();prHud();if(AM&&!AM.m.auto&&!AM.m.main){$('mql').text
 // ================================================================ INPUT
 addEventListener('keydown',e=>{audioInit();if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search|email|url)$/.test(e.target.type))))return;/* V186 typing in the bug report box */if(mode==='mg'){if(e.code==='Escape'&&MGQ){e.preventDefault();mgQuitAsk();return}if(MGK)MGK(e);return}
   if(mode==='cine'){if(e.code==='Escape'||e.code==='Space'||e.code==='Enter'){e.preventDefault();cineSkip()}return}
+  if(CINE&&(mode==='wheel'||mode==='card')&&e.code==='Escape'&&!$('cineskip').hidden){e.preventDefault();cineSkip();return}
   if(mode==='wheel'&&WH){if(e.code==='Escape'){e.preventDefault();if(WH.leave)wheelPick(WH.leave[1]);return}const m=/^Digit([1-9])$/.exec(e.code);if(m){const b=$('wpills').children[+m[1]-1];if(b&&b!==WH.lb&&!b.disabled){e.preventDefault();b.click()}}return}
   if(mode==='planner'){if(e.code==='Tab'||e.code==='Escape'||e.code==='KeyM'){e.preventDefault();closePlanner()}return}
   if(mode!=='play')return;if(e.code==='Tab'||e.code==='KeyM'){e.preventDefault();openPlanner(e.code==='KeyM'?'map':'tasks');return}if(e.code==='Escape'){openPlanner('tasks');return}
