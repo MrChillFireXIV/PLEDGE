@@ -71,8 +71,11 @@ const dojoThud=()=>{const d=DOJO.dummy;if(d&&d.pup)d.pup.lean=.24;sfx('hit')};
 /* V458 the intro: on the plaza by the trail sign, then the truck, then the last of the stairs to the summit */
 function mtnPath(){const P_=[];for(let i=22;i>=0;i-=.5){const q=mtnStep(i);P_.push([q.x,q.z])}P_.push([MTN.x-.4,MTN.z+18.2],[MTN.x,MTN.z+16.4],[MTN.x+.2,MTN.z+12.5],[MTN.x+.6,MTN.z+3.2]);const L=[0];for(let k=1;k<P_.length;k++)L.push(L[k-1]+Math.hypot(P_[k][0]-P_[k-1][0],P_[k][1]-P_[k-1][1]));
   return{len:L[L.length-1],at:d=>{d=Math.max(0,Math.min(L[L.length-1],d));let k=1;while(k<L.length-1&&L[k]<d)k++;const t=(d-L[k-1])/Math.max(1e-6,L[k]-L[k-1]);return[P_[k-1][0]+(P_[k][0]-P_[k-1][0])*t,P_[k-1][1]+(P_[k][1]-P_[k-1][1])*t]}}}
-async function dojoClimb(s,from,to,secs,camF){const W=mtnPath(),D=C4.dan;let t=0;s.pup.look=null;s.pup.v=D.v=2.4;
-  while(t<secs){const k=t/secs,d=from+(to-from)*k;const a=W.at(d+.45),b=W.at(d+2.4);D.tx=a[0];D.tz=a[1];s.pup.tx=b[0];s.pup.tz=b[1];D.y=mtnStairY(P.x,P.z);s.pup.y=mtnStairY(s.x,s.z);if(camF)camF(k);await c4Wt(.033);t+=.033}}
+/* V469 both walk the path at one steady speed (the path's own pace), each chasing a point a little ahead on it, so the stride is even and they face along the stairs;
+   it used to hand them a target only 45 cm ahead, which they kept reaching and stopping at: feet flickering, and facing snapping about */
+async function dojoClimb(s,from,to,secs,camF){const W=mtnPath(),D=C4.dan,v=Math.abs(to-from)/secs;let t=0;s.pup.look=null;D.look=null;s.pup.v=D.v=v*1.04;
+  while(t<secs&&!(CINE&&CINE.skipped)){const k=t/secs,d=from+(to-from)*k;const a=W.at(d+1.1),b=W.at(d+3.1);D.tx=a[0];D.tz=a[1];s.pup.tx=b[0];s.pup.tz=b[1];D.y=mtnStairY(P.x,P.z);s.pup.y=mtnStairY(s.x,s.z);if(camF)camF(k);await c4Wt(.033);t+=.033}
+  if(CINE&&CINE.skipped){const a=W.at(to),b=W.at(Math.min(W.len,to+2));P.x=D.tx=a[0];P.z=D.tz=a[1];s.x=s.pup.tx=b[0];s.z=s.pup.tz=b[1]}}
 async function dojoIntro(done){const[cx,cz]=dojoCamp(),cy=terrH(cx,cz),[x,z]=dojoAt();await c6Cine(async()=>{const s=dojoPup(1);
     c4Shot([cx+7.5,cy+2.6,cz+6.5],[cx,cy+1,cz-.5]);c4Shot([cx+6,cy+2.2,cz+5.2],[cx,cy+1.1,cz-.5],.3);
     await c8Lines([[null,'Six in the morning. On the brick plaza by the Rec Center, under a wooden trail sign nobody has ever read, a small old man in a white uniform and a wide straw hat is waiting like he has been waiting a while. His grey mustache hangs down past his chin.',4.4]]);
@@ -98,7 +101,7 @@ async function dojoIntro(done){const[cx,cz]=dojoCamp(),cy=terrH(cx,cz),[x,z]=doj
     {fade:async()=>{const s=dojoPup(1);mtnGroup(0);c4DanAt(cx+1.6,cz+1.4,Math.atan2(s.x-(cx+1.6),s.z-(cz+1.4)));s.pup.look=[P.x,P.z]},
      after:()=>{const s=dojoPup(0);if(C4.dan)C4.dan.y=null;const[hx,hz]=dojoHome();if(s){s.x=s.hx=hx;s.z=s.hz=hz;if(s.g)s.g.position.set(hx,0,hz)}if(!mtnNear()){goOut(x+1.6,z+1.4)}}})}
 /* the two of them come to a stop on the deck, facing each other */
-function dojoStop(s){const[x,z]=dojoAt();C4.dan.y=null;s.pup.y=null;C4.dan.tx=x+.6;C4.dan.tz=z+1.6;s.pup.tx=x+1.6;s.pup.tz=z-.4;s.pup.look=[x+.6,z+1.6];C4.dan.look=[x+1.6,z-.4]}
+function dojoStop(s){const[x,z]=dojoAt();C4.dan.y=null;s.pup.y=null;C4.dan.v=s.pup.v=1.6;C4.dan.tx=x+.6;C4.dan.tz=z+1.6;s.pup.tx=x+1.6;s.pup.tz=z-.4;/* they turn to each other once they get there */s.pup.look=[x+.6,z+1.6];C4.dan.look=[x+1.6,z-.4]}
 /* lesson i: he shows the two moves on the dummy, with a line for each */
 const DOJOSAY=[[['The fist is a hammer, Daniel-san. The open hand is a door. Heel of the palm, both hands, through him. Not at him.','And the edge of the hand. Small. Fast. It does not announce itself.'],'Through him.','Six. On the dummy. Go.'],
   [['Daniel-san. You kick like you are closing a car door. A kick is a wheel. The hip turns. The leg only comes along for the ride.','And when your back is to him you are not running away. You are loading.'],'A wheel.','Five. And breathe out when it lands.'],
